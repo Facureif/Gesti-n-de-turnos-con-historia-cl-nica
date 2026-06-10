@@ -1,0 +1,166 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Sacar Turno - {{ profesional.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1 style="text-align: center; margin-bottom: 5px;">📅 Sacar Turno</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 5px;">
+        {{ profesional.get_especialidad_display }}
+    </p>
+    <p style="text-align: center; color: #4A90D9; font-weight: bold; margin-bottom: 30px;">
+        {{ profesional.nombre_completo }}
+    </p>
+    
+    {% if dias_disponibles %}
+        <form method="post" id="form-turno">
+            {% csrf_token %}
+            
+            <!-- Seleccionar día -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">1️⃣ Elegí el día</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="dias-container">
+                    {% for dia in dias_disponibles %}
+                    <label style="
+                        display: block;
+                        padding: 10px 15px;
+                        border: 2px solid #ddd;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        text-align: center;
+                        min-width: 90px;
+                        transition: all 0.3s;
+                    " class="dia-label">
+                        <input type="radio" name="fecha" value="{{ dia.fecha_str }}" 
+                               style="display: none;" class="dia-radio"
+                               {% if forloop.first %}checked{% endif %}>
+                        <div style="font-weight: bold; font-size: 1.1em;">
+                            {{ dia.fecha|date:"d" }}
+                        </div>
+                        <div style="font-size: 0.8em; color: #666;">
+                            {{ dia.fecha|date:"M" }}
+                        </div>
+                        <div style="font-size: 0.75em; color: #999;">
+                            {{ dia.nombre_dia|slice:":3" }}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Seleccionar hora -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">2️⃣ Elegí el horario</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="horarios-container">
+                    {% for dia in dias_disponibles %}
+                    <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
+                         style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
+                        {% for slot in dia.slots %}
+                        <label style="
+                            display: block;
+                            padding: 10px 20px;
+                            border: 2px solid #4A90D9;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            color: #4A90D9;
+                            font-weight: bold;
+                            transition: all 0.3s;
+                        " class="hora-label">
+                            <input type="radio" name="hora" value="{{ slot }}" 
+                                   style="display: none;" class="hora-radio">
+                            {{ slot }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Datos personales -->
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">3️⃣ Tus datos</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Nombre completo *</label>
+                    <input type="text" name="nombre" required
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                           placeholder="Ej: Juan Pérez">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Teléfono *</label>
+                    <input type="tel" name="telefono" required
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                           placeholder="Ej: 11 5555-5555">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Motivo de consulta (opcional)</label>
+                    <textarea name="motivo" rows="3"
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                              placeholder="Contanos brevemente qué necesitás..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
+                    ✅ Confirmar Turno
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="font-size: 1.2em; color: #666;">
+                No hay turnos disponibles en este momento.
+            </p>
+            <p>Probá más tarde o contactá al profesional.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Cambiar horarios cuando se selecciona un día diferente
+document.querySelectorAll('.dia-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Ocultar todos los horarios
+        document.querySelectorAll('.horarios-dia').forEach(div => {
+            div.style.display = 'none';
+        });
+        
+        // Mostrar solo los del día seleccionado
+        let fecha = this.value;
+        let horariosDiv = document.querySelector(`.horarios-dia[data-fecha="${fecha}"]`);
+        if (horariosDiv) {
+            horariosDiv.style.display = 'flex';
+        }
+        
+        // Resaltar el día seleccionado
+        document.querySelectorAll('.dia-label').forEach(label => {
+            label.style.border = '2px solid #ddd';
+            label.style.background = 'white';
+        });
+        this.closest('.dia-label').style.border = '2px solid #4A90D9';
+        this.closest('.dia-label').style.background = '#f0f7ff';
+    });
+});
+
+// Resaltar hora seleccionada
+document.querySelectorAll('.hora-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.hora-label').forEach(label => {
+            label.style.border = '2px solid #4A90D9';
+            label.style.background = 'white';
+        });
+        this.closest('.hora-label').style.border = '2px solid #28a745';
+        this.closest('.hora-label').style.background = '#f0fff4';
+    });
+});
+
+// Resaltar el primer día por defecto
+document.addEventListener('DOMContentLoaded', function() {
+    let primerDia = document.querySelector('.dia-radio:checked');
+    if (primerDia) {
+        primerDia.closest('.dia-label').style.border = '2px solid #4A90D9';
+        primerDia.closest('.dia-label').style.background = '#f0f7ff';
+    }
+});
+</script>
+{% endblock %}

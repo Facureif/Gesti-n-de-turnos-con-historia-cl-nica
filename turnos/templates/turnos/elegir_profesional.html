@@ -1,0 +1,36 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Sacar Turno - Elegí Profesional{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="text-align: center; margin-bottom: 10px;">⚡ Sacar Turno Rápido</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 30px;">
+        Elegí al profesional y reservá tu turno en segundos
+    </p>
+    
+    {% if profesionales %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            {% for prof in profesionales %}
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 3em; margin-bottom: 10px;">👨‍⚕️</div>
+                <h3>{{ prof.nombre_completo }}</h3>
+                <p style="color: #4A90D9; margin-bottom: 15px;">
+                    {{ prof.get_especialidad_display }}
+                </p>
+                {% if prof.descripcion %}
+                    <p style="color: #666; font-size: 0.9em;">{{ prof.descripcion|truncatechars:80 }}</p>
+                {% endif %}
+                <a href="{% url 'sacar_turno_profesional' prof.id %}" class="btn" style="width: 100%; margin-top: 10px;">
+                    Sacar Turno
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p>No hay profesionales disponibles en este momento.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

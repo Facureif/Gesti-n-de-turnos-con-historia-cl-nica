@@ -1,0 +1,58 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Cargar Evolución{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1>📝 Cargar Evolución</h1>
+    <p style="color: #666; margin-bottom: 20px;">
+        Paciente: <strong>{{ turno.paciente.nombre_completo }}</strong> | 
+        Fecha: {{ turno.fecha|date:"d/m/Y" }} | 
+        HC: {{ historia.numero_historia }}
+    </p>
+    
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 15px;">
+                <label>Motivo de Consulta *</label>
+                <textarea name="motivo" rows="3" required
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                          placeholder="Describí el motivo de la consulta..."></textarea>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Diagnóstico</label>
+                <textarea name="diagnostico" rows="3"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                          placeholder="Diagnóstico presuntivo o definitivo..."></textarea>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Tratamiento Realizado</label>
+                <textarea name="tratamiento" rows="3"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                          placeholder="Describí el tratamiento realizado..."></textarea>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Indicaciones</label>
+                <textarea name="indicaciones" rows="3"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                          placeholder="Indicaciones para el paciente..."></textarea>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label>Próximo Control</label>
+                <input type="date" name="proximo_control"
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;">
+                💾 Guardar Evolución
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

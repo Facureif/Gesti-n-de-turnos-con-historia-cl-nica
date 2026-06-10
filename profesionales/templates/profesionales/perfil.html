@@ -1,0 +1,157 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Mi Perfil - {{ profesional.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>👤 Mi Perfil</h1>
+        <a href="{% url 'panel_profesional' %}" class="btn" style="background: #6c757d;">↩ Volver al Panel</a>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Foto y datos básicos -->
+        <div class="card" style="margin-bottom: 20px; display: flex; gap: 30px; align-items: center;">
+            <div style="text-align: center;">
+                {% if profesional.foto %}
+                    <img src="{{ profesional.foto.url }}" alt="Foto" 
+                         style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #4A90D9;">
+                {% else %}
+                    <div style="width: 120px; height: 120px; border-radius: 50%; background: #e9ecef; 
+                                display: flex; align-items: center; justify-content: center; font-size: 3em; color: #999;">
+                        👨‍⚕️
+                    </div>
+                {% endif %}
+                <label style="display: block; margin-top: 10px; cursor: pointer; color: #4A90D9; font-size: 0.9em;">
+                    Cambiar foto
+                    <input type="file" name="foto" accept="image/*" style="display: none;">
+                </label>
+            </div>
+            
+            <div style="flex: 1;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" value="{{ profesional.nombre }}" required
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div>
+                        <label>Apellido</label>
+                        <input type="text" name="apellido" value="{{ profesional.apellido }}" required
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div>
+                        <label>DNI</label>
+                        <input type="text" name="dni" value="{{ profesional.dni }}" required
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div>
+                        <label>Teléfono</label>
+                        <input type="text" name="telefono" value="{{ profesional.telefono }}" required
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ profesional.email }}"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Datos profesionales -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
+                🩺 Datos Profesionales
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Especialidad</label>
+                    <select name="especialidad" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        {% for key, value in profesional.ESPECIALIDADES %}
+                            <option value="{{ key }}" {% if profesional.especialidad == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Matrícula</label>
+                    <input type="text" name="matricula" value="{{ profesional.matricula }}"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <label>Descripción Profesional</label>
+                <textarea name="descripcion" rows="3"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                          placeholder="Breve descripción que verán los pacientes...">{{ profesional.descripcion }}</textarea>
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 20px; align-items: center;">
+                <div>
+                    <label>Color en Calendario</label>
+                    <input type="color" name="color_calendario" value="{{ profesional.color_calendario }}"
+                           style="width: 50px; height: 40px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="acepta_obra_social" 
+                               {% if profesional.acepta_obra_social %}checked{% endif %}
+                               style="width: 18px; height: 18px;">
+                        Acepta Obra Social
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Horarios de atención -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
+                ⏰ Horarios de Atención
+            </h3>
+            <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                Los horarios se configuran desde el panel de administración. 
+                Si necesitás cambiarlos, contactá al administrador.
+            </p>
+            
+            {% with agenda=profesional.agenda_set.first %}
+                {% if agenda %}
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 10px;">Día</th>
+                                <th style="padding: 10px;">Inicio</th>
+                                <th style="padding: 10px;">Fin</th>
+                                <th style="padding: 10px;">Duración</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for h in agenda.horarios.all %}
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 10px;">{{ h.get_dia_display }}</td>
+                                <td style="padding: 10px;">{{ h.hora_inicio|time:"H:i" }}</td>
+                                <td style="padding: 10px;">{{ h.hora_fin|time:"H:i" }}</td>
+                                <td style="padding: 10px;">{{ h.duracion_turno }} min</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" style="padding: 20px; text-align: center; color: #999;">Sin horarios configurados</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="color: #999; text-align: center; padding: 20px;">No tenés una agenda configurada.</p>
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
+            💾 Guardar Cambios
+        </button>
+    </form>
+</div>
+{% endblock %}

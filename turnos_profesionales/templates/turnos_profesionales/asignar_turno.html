@@ -1,0 +1,145 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Asignar Turno - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1 style="margin-bottom: 5px;">📅 Asignar Turno</h1>
+    <p style="color: #666; margin-bottom: 20px;">
+        Paciente: <strong>{{ paciente.nombre_completo }}</strong> | 
+        DNI: {{ paciente.dni }}
+        {% if paciente.obra_social %}
+            | O.S.: {{ paciente.obra_social.sigla }}
+        {% endif %}
+    </p>
+    
+    {% if dias_disponibles %}
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Elegir día -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">1️⃣ Elegí el día</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% for dia in dias_disponibles %}
+                    <label style="
+                        padding: 12px 15px;
+                        border: 2px solid #ddd;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        text-align: center;
+                        min-width: 90px;
+                        transition: all 0.2s;
+                    " class="dia-label" onclick="seleccionarDia(this, '{{ dia.fecha_str }}')">
+                        <input type="radio" name="fecha" value="{{ dia.fecha_str }}" 
+                               style="display: none;" class="dia-radio"
+                               {% if forloop.first %}checked{% endif %}>
+                        <div style="font-weight: bold; font-size: 1.2em;">{{ dia.fecha|date:"d" }}</div>
+                        <div style="font-size: 0.8em; color: #666;">{{ dia.fecha|date:"M" }}</div>
+                        <div style="font-size: 0.75em; color: #999;">{{ dia.nombre_dia|slice:":3" }}</div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Elegir hora -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">2️⃣ Elegí el horario</h3>
+                <div id="horarios-container">
+                    {% for dia in dias_disponibles %}
+                    <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
+                         style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
+                        {% for slot in dia.slots %}
+                        <label style="
+                            display: block;
+                            padding: 10px 20px;
+                            border: 2px solid #4A90D9;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            color: #4A90D9;
+                            font-weight: bold;
+                        " class="hora-label" onclick="seleccionarHora(this)">
+                            <input type="radio" name="hora" value="{{ slot }}" 
+                                   style="display: none;" class="hora-radio">
+                            {{ slot }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Datos adicionales -->
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">3️⃣ Información adicional</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Tipo de Consulta</label>
+                    <input type="text" name="tipo_consulta" 
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                           placeholder="Ej: Control general, urgencia, primera consulta...">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Notas Internas</label>
+                    <textarea name="notas" rows="2"
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                              placeholder="Notas visibles solo para el profesional..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
+                    ✅ Asignar Turno
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="color: #666; font-size: 1.1em;">No hay horarios disponibles.</p>
+            <p style="color: #999;">Configurá la agenda del profesional para ver los horarios.</p>
+            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn" style="margin-top: 15px;">↩ Volver a la ficha</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function seleccionarDia(label, fecha) {
+    // Mostrar horarios del día seleccionado
+    document.querySelectorAll('.horarios-dia').forEach(div => {
+        div.style.display = 'none';
+    });
+    let horariosDiv = document.querySelector(`.horarios-dia[data-fecha="${fecha}"]`);
+    if (horariosDiv) {
+        horariosDiv.style.display = 'flex';
+    }
+    
+    // Resaltar día seleccionado
+    document.querySelectorAll('.dia-label').forEach(l => {
+        l.style.border = '2px solid #ddd';
+        l.style.background = 'white';
+    });
+    label.style.border = '2px solid #4A90D9';
+    label.style.background = '#f0f7ff';
+}
+
+function seleccionarHora(label) {
+    // Resaltar hora seleccionada
+    document.querySelectorAll('.hora-label').forEach(l => {
+        l.style.border = '2px solid #4A90D9';
+        l.style.background = 'white';
+        l.style.color = '#4A90D9';
+    });
+    label.style.border = '2px solid #28a745';
+    label.style.background = '#f0fff4';
+    label.style.color = '#28a745';
+}
+
+// Resaltar primer día al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    let primerDia = document.querySelector('.dia-radio:checked');
+    if (primerDia) {
+        primerDia.closest('.dia-label').style.border = '2px solid #4A90D9';
+        primerDia.closest('.dia-label').style.background = '#f0f7ff';
+    }
+});
+</script>
+{% endblock %}

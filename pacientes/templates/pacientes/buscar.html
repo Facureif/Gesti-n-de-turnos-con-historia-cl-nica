@@ -1,0 +1,60 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Buscar Paciente{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="margin-bottom: 10px;">🔍 Buscar Paciente</h1>
+    
+    <div class="card" style="margin-bottom: 20px;">
+        <form method="get">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" name="q" value="{{ busqueda }}" 
+                       placeholder="Buscar por nombre, apellido o DNI..."
+                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em;">
+                <button type="submit" class="btn" style="padding: 10px 20px;">Buscar</button>
+            </div>
+        </form>
+    </div>
+    
+    {% if pacientes %}
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Resultados ({{ pacientes.count }})</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 10px; text-align: left;">Paciente</th>
+                        <th style="padding: 10px; text-align: left;">DNI</th>
+                        <th style="padding: 10px; text-align: left;">Teléfono</th>
+                        <th style="padding: 10px; text-align: left;">O.S.</th>
+                        <th style="padding: 10px; text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pacientes %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">{{ p.nombre_completo }}</td>
+                        <td style="padding: 10px;">{{ p.dni }}</td>
+                        <td style="padding: 10px;">{{ p.telefono }}</td>
+                        <td style="padding: 10px;">{{ p.obra_social.sigla|default:"Particular" }}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <a href="{% url 'ficha_paciente' p.id %}" class="btn" style="padding: 5px 10px; font-size: 0.85em;">📋 Ficha</a>
+                            <a href="{% url 'asignar_turno' p.id %}" class="btn btn-success" style="padding: 5px 10px; font-size: 0.85em;">📅 Turno</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif busqueda %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="font-size: 1.2em; color: #666;">No se encontraron pacientes con "{{ busqueda }}"</p>
+            <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 15px;">➕ Registrar Paciente</a>
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="color: #999;">Ingresá un nombre, apellido o DNI para buscar.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

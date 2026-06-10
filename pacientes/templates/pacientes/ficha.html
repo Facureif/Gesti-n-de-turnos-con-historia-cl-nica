@@ -1,0 +1,158 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Ficha - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1>📋 Ficha del Paciente</h1>
+        <p style="color: #666; font-size: 1.2em;">{{ paciente.nombre_completo }}</p>
+    </div>
+    <div>
+        <a href="{% url 'editar_paciente' paciente.id %}" class="btn" style="background: #ffc107; color: #333;">✏️ Editar</a>
+        <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success">📅 Asignar Turno</a>
+        <a href="{% url 'panel_profesional' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    
+    <!-- Datos Personales -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">👤 Datos Personales</h3>
+        <table style="width: 100%;">
+            <tr><td style="padding: 5px; color: #666;">DNI:</td><td style="padding: 5px;">{{ paciente.dni }}</td></tr>
+            <tr><td style="padding: 5px; color: #666;">Fecha Nac.:</td><td style="padding: 5px;">{{ paciente.fecha_nacimiento|date:"d/m/Y" }}</td></tr>
+            <tr><td style="padding: 5px; color: #666;">Teléfono:</td><td style="padding: 5px;">{{ paciente.telefono }}</td></tr>
+            <tr><td style="padding: 5px; color: #666;">Email:</td><td style="padding: 5px;">{{ paciente.email|default:"—" }}</td></tr>
+            <tr><td style="padding: 5px; color: #666;">Dirección:</td><td style="padding: 5px;">{{ paciente.direccion|default:"—" }}</td></tr>
+        </table>
+    </div>
+    
+    <!-- Obra Social -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">🏥 Obra Social</h3>
+        {% if paciente.obra_social %}
+            <table style="width: 100%;">
+                <tr><td style="padding: 5px; color: #666;">Obra Social:</td><td style="padding: 5px;">{{ paciente.obra_social.nombre }}</td></tr>
+                <tr><td style="padding: 5px; color: #666;">Sigla:</td><td style="padding: 5px;">{{ paciente.obra_social.sigla }}</td></tr>
+                <tr><td style="padding: 5px; color: #666;">N° Afiliado:</td><td style="padding: 5px;">{{ paciente.numero_afiliado|default:"—" }}</td></tr>
+                {% if paciente.plan_obra_social %}
+                    <tr><td style="padding: 5px; color: #666;">Plan:</td><td style="padding: 5px;">{{ paciente.plan_obra_social.nombre }}</td></tr>
+                {% endif %}
+            </table>
+        {% else %}
+            <p style="color: #999;">Paciente particular</p>
+        {% endif %}
+    </div>
+    
+    <!-- Sesiones -->
+    {% if paciente.sesiones_autorizadas %}
+    <div class="card">
+        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
+            📊 Sesiones de Obra Social
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; text-align: center;">
+            <div>
+                <div style="color: #666; font-size: 0.9em;">Autorizadas</div>
+                <div style="font-size: 2em; font-weight: bold; color: #4A90D9;">{{ paciente.sesiones_autorizadas }}</div>
+            </div>
+            <div>
+                <div style="color: #666; font-size: 0.9em;">Restantes</div>
+                <div style="font-size: 2em; font-weight: bold; 
+                            {% if paciente.sesiones_restantes <= 3 %}color: #dc3545;
+                            {% elif paciente.sesiones_restantes <= 7 %}color: #ffc107;
+                            {% else %}color: #28a745;{% endif %}">
+                    {{ paciente.sesiones_restantes|default:"—" }}
+                </div>
+            </div>
+        </div>
+        
+        {% if paciente.fecha_vencimiento_sesiones %}
+        <div style="text-align: center; margin-top: 15px; color: #666;">
+            📅 Vencimiento: <strong>{{ paciente.fecha_vencimiento_sesiones|date:"d/m/Y" }}</strong>
+            {% if paciente.fecha_vencimiento_sesiones < hoy %}
+                <span style="color: #dc3545;">⚠️ ¡Vencido!</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+
+    <!-- Historia Clínica -->
+    <div class="card" style="grid-column: 1 / -1;">
+        <h3 style="margin-bottom: 15px;">📝 Historia Clínica {% if historia %}<span style="font-size: 0.8em; color: #999;">N° {{ historia.numero_historia }}</span>{% endif %}</h3>
+        
+        {% if historia %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <div><strong>Antecedentes Personales:</strong><p style="color: #666;">{{ historia.antecedentes_personales|default:"Sin datos" }}</p></div>
+                <div><strong>Antecedentes Familiares:</strong><p style="color: #666;">{{ historia.antecedentes_familiares|default:"Sin datos" }}</p></div>
+                <div><strong>Alergias:</strong><p style="color: #666;">{{ historia.alergias|default:"Sin datos" }}</p></div>
+                <div><strong>Medicación Habitual:</strong><p style="color: #666;">{{ historia.medicacion_habitual|default:"Sin datos" }}</p></div>
+            </div>
+            
+            <h4>📅 Últimas Evoluciones</h4>
+            {% if evoluciones %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 8px;">Fecha</th>
+                            <th style="padding: 8px;">Motivo</th>
+                            <th style="padding: 8px;">Diagnóstico</th>
+                            <th style="padding: 8px;">Profesional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evo in evoluciones|slice:":10" %}
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 8px;">{{ evo.creado|date:"d/m/Y" }}</td>
+                            <td style="padding: 8px;">{{ evo.motivo_consulta|truncatechars:40 }}</td>
+                            <td style="padding: 8px;">{{ evo.diagnostico|truncatechars:40|default:"—" }}</td>
+                            <td style="padding: 8px;">{{ evo.profesional.nombre_completo }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="padding: 20px; text-align: center; color: #999;">Sin evoluciones</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: #999;">No hay evoluciones registradas.</p>
+            {% endif %}
+        {% else %}
+            <p style="color: #999;">Historia clínica no creada.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Últimos Turnos -->
+    <div class="card" style="grid-column: 1 / -1;">
+        <h3 style="margin-bottom: 15px;">📅 Últimos Turnos</h3>
+        {% if turnos %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 8px;">Fecha</th>
+                        <th style="padding: 8px;">Hora</th>
+                        <th style="padding: 8px;">Tipo</th>
+                        <th style="padding: 8px;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in turnos %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px;">{{ t.fecha|date:"d/m/Y" }}</td>
+                        <td style="padding: 8px;">{{ t.hora_inicio|time:"H:i" }}</td>
+                        <td style="padding: 8px;">{{ t.tipo_consulta|default:"—" }}</td>
+                        <td style="padding: 8px;">{{ t.get_estado_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #999;">No hay turnos registrados.</p>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}

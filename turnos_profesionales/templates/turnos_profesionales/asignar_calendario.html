@@ -1,0 +1,129 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Asignar Turno{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1 style="margin-bottom: 10px;">📅 Asignar Turno</h1>
+    
+    <!-- Info del slot seleccionado -->
+    <div class="card" style="margin-bottom: 20px; background: #f0f7ff; border: 2px solid #4A90D9;">
+        <div style="display: flex; justify-content: space-around; text-align: center;">
+            <div>
+                <div style="color: #666; font-size: 0.9em;">Fecha</div>
+                <div style="font-size: 1.3em; font-weight: bold;">{{ fecha|date:"d/m/Y" }}</div>
+                <div style="color: #666;">{{ fecha|date:"l" }}</div>
+            </div>
+            <div>
+                <div style="color: #666; font-size: 0.9em;">Horario</div>
+                <div style="font-size: 1.3em; font-weight: bold;">{{ hora|time:"H:i" }} - {{ hora_fin|time:"H:i" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Buscar paciente -->
+    <div class="card" style="margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px;">🔍 Buscar Paciente</h3>
+        <form method="get">
+            <input type="hidden" name="fecha" value="{{ fecha_str }}">
+            <input type="hidden" name="hora" value="{{ hora_str }}">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" name="buscar" value="{{ busqueda }}" 
+                       placeholder="Nombre, apellido o DNI..."
+                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <button type="submit" class="btn">Buscar</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Resultados de búsqueda -->
+    {% if pacientes %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="fecha" value="{{ fecha_str }}">
+        <input type="hidden" name="hora" value="{{ hora_str }}">
+        
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px;">👥 Seleccioná el paciente</h3>
+            
+            {% for paciente in pacientes %}
+            <label style="
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+            " class="paciente-label" onclick="seleccionarPaciente(this)">
+                <input type="radio" name="paciente_id" value="{{ paciente.id }}" 
+                       style="margin-right: 15px;" class="paciente-radio">
+                <div style="flex: 1;">
+                    <div style="font-weight: bold;">{{ paciente.nombre_completo }}</div>
+                    <div style="font-size: 0.85em; color: #666;">
+                        DNI: {{ paciente.dni }} | Tel: {{ paciente.telefono }}
+                        {% if paciente.obra_social %}
+                            | {{ paciente.obra_social.sigla }}
+                        {% endif %}
+                    </div>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <!-- Datos adicionales -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px;">📝 Datos del Turno</h3>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Tipo de Consulta</label>
+                <input type="text" name="tipo_consulta" 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                       placeholder="Ej: Control general, primera consulta...">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Notas Internas</label>
+                <textarea name="notas" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                          placeholder="Notas visibles solo para el profesional..."></textarea>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px; font-size: 1.1em;">
+                ✅ Asignar Turno
+            </button>
+            <a href="{% url 'calendario_semanal' %}" class="btn" style="padding: 12px 30px; background: #6c757d;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+    
+    {% elif busqueda %}
+        <div class="card" style="text-align: center; padding: 30px;">
+            <p style="color: #666; margin-bottom: 15px;">No se encontraron pacientes con "{{ busqueda }}"</p>
+            <a href="{% url 'registrar_paciente' %}" class="btn btn-success">➕ Registrar Nuevo Paciente</a>
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 30px;">
+            <p style="color: #999;">Buscá un paciente para asignarle el turno.</p>
+            <p style="color: #999; font-size: 0.9em;">También podés 
+                <a href="{% url 'registrar_paciente' %}">registrar uno nuevo</a>.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function seleccionarPaciente(label) {
+    document.querySelectorAll('.paciente-label').forEach(l => {
+        l.style.border = '2px solid #ddd';
+        l.style.background = 'white';
+    });
+    label.style.border = '2px solid #28a745';
+    label.style.background = '#f0fff4';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Inicio - Sistema de Gestión de Turnos{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 50px 0;">
+    <h2 style="font-size: 2.5em; margin-bottom: 10px; color: #4A90D9;">
+        Bienvenido al Sistema
+    </h2>
+    <p style="font-size: 1.3em; color: #666; margin-bottom: 40px;">
+        Gestioná tus turnos de manera simple y eficiente
+    </p>
+    
+    <div style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap;">
+        <!-- Modalidad Rápida -->
+        <div class="card" style="width: 320px; text-align: left;">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">⚡</div>
+            <h3 style="text-align: center; margin-bottom: 10px;">Modalidad Rápida</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Ideal para peluquerías, barberías y negocios que priorizan la agilidad.
+            </p>
+            <ul style="list-style: none; margin-bottom: 20px;">
+                <li>✅ Sin registro previo</li>
+                <li>✅ Turno en segundos</li>
+                <li>✅ Confirmación por WhatsApp</li>
+            </ul>
+            <div style="text-align: center;">
+                <a href="{% url 'sacar_turno_rapido' %}" class="btn" style="width: 100%;">Sacar Turno Rápido</a>
+            </div>
+        </div>
+        
+        <!-- Modalidad Profesional -->
+        <div class="card" style="width: 320px; text-align: left;">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">👨‍⚕️</div>
+            <h3 style="text-align: center; margin-bottom: 10px;">Modalidad Profesional</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Para consultorios, kinesiólogos y profesionales de la salud.
+            </p>
+            <ul style="list-style: none; margin-bottom: 20px;">
+                <li>✅ Historia clínica</li>
+                <li>✅ Seguimiento de pacientes</li>
+                <li>✅ Gestión de obra social</li>
+            </ul>
+            <div style="text-align: center;">
+                <a href="{% url 'panel_profesional' %}" class="btn btn-success" style="width: 100%;">Panel Profesional</a>
+            </div>
+        </div>
+        
+        <!-- Administración -->
+        <div class="card" style="width: 320px; text-align: left;">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">⚙️</div>
+            <h3 style="text-align: center; margin-bottom: 10px;">Administración</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Gestioná profesionales, agendas y configurá el sistema.
+            </p>
+            <ul style="list-style: none; margin-bottom: 20px;">
+                <li>✅ Dashboard de turnos</li>
+                <li>✅ Reportes y estadísticas</li>
+                <li>✅ Configuración general</li>
+            </ul>
+            <div style="text-align: center;">
+                <a href="{% url 'admin:index' %}" class="btn" style="width: 100%; background-color: #6c757d;">
+                    Panel de Administración
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

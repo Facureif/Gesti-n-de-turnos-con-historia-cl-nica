@@ -1,0 +1,155 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Panel Profesional - {{ profesional.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1>👨‍⚕️ Panel Profesional</h1>
+        <p style="color: #666;">Bienvenido/a, Dr/a. {{ profesional.nombre_completo }}</p>
+        <p style="color: #999; font-size: 0.9em;">Matrícula: {{ profesional.matricula }}</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'mi_perfil' %}" class="btn" style="background: #6c757d;">👤 Mi Perfil</a>
+        <a href="{% url 'calendario_semanal' %}" class="btn" style="background: #17a2b8;">📅 Calendario Semanal</a>
+        <a href="{% url 'buscar_paciente' %}" class="btn" style="background: #6c757d;">🔍 Buscar Paciente</a>
+        <a href="{% url 'registrar_paciente' %}" class="btn btn-success">➕ Nuevo Paciente</a>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #4A90D9;">{{ total_hoy }}</div>
+        <div style="color: #666;">Turnos Hoy</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #28a745;">{{ confirmados_hoy }}</div>
+        <div style="color: #666;">Confirmados</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #ffc107;">{{ pendientes_hoy }}</div>
+        <div style="color: #666;">Pendientes</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #6c757d;">{{ completados_hoy }}</div>
+        <div style="color: #666;">Completados</div>
+    </div>
+</div>
+
+<!-- Turnos de Hoy -->
+<div class="card">
+    <h2 style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
+        📅 Hoy - {{ hoy|date:"d/m/Y" }}
+    </h2>
+    
+    {% if turnos_hoy %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    <th style="padding: 10px; text-align: left;">Hora</th>
+                    <th style="padding: 10px; text-align: left;">Paciente</th>
+                    <th style="padding: 10px; text-align: left;">O.S.</th>
+                    <th style="padding: 10px; text-align: center;">Sesiones</th>
+                    <th style="padding: 10px; text-align: left;">Estado</th>
+                    <th style="padding: 10px; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for turno in turnos_hoy %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px;">{{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}</td>
+                    <td style="padding: 10px;">
+                        <a href="{% url 'ficha_paciente' turno.paciente.id %}" style="color: #4A90D9; text-decoration: none;">
+                            {{ turno.paciente.nombre_completo }}
+                        </a>
+                        {% if turno.tipo_consulta %}
+                            <br><small style="color: #999;">{{ turno.tipo_consulta }}</small>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px;">
+                        {% if turno.paciente.obra_social %}
+                            {{ turno.paciente.obra_social.sigla }}
+                            {% if turno.paciente.plan_obra_social %}
+                                <br><small style="color: #999;">{{ turno.paciente.plan_obra_social.nombre }}</small>
+                            {% endif %}
+                        {% else %}
+                            <span style="color: #999;">Particular</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px; text-align: center;">
+                        {% if turno.paciente.sesiones_restantes is not None %}
+                            <span style="
+                                padding: 3px 10px;
+                                border-radius: 15px;
+                                font-size: 0.85em;
+                                font-weight: bold;
+                                {% if turno.paciente.sesiones_restantes <= 3 %}
+                                    background: #f8d7da; color: #721c24;
+                                {% elif turno.paciente.sesiones_restantes <= 7 %}
+                                    background: #fff3cd; color: #856404;
+                                {% else %}
+                                    background: #d4edda; color: #155724;
+                                {% endif %}
+                            ">
+                                {{ turno.paciente.sesiones_restantes }}/{{ turno.paciente.sesiones_autorizadas|default:"?" }}
+                            </span>
+                        {% else %}
+                            <span style="color: #999;">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px;">
+                        <span style="
+                            padding: 3px 10px; border-radius: 15px; font-size: 0.85em;
+                            {% if turno.estado == 'confirmado' %}background: #d4edda; color: #155724;
+                            {% elif turno.estado == 'pendiente' %}background: #fff3cd; color: #856404;
+                            {% elif turno.estado == 'completado' %}background: #d6d8db; color: #383d41;
+                            {% elif turno.estado == 'cancelado' %}background: #f8d7da; color: #721c24;
+                            {% elif turno.estado == 'en_sala' %}background: #cce5ff; color: #004085;
+                            {% else %}background: #e2e3e5; color: #383d41;{% endif %}
+                        ">{{ turno.get_estado_display }}</span>
+                    </td>
+                    <td style="padding: 10px; text-align: center;">
+                        {% if turno.estado == 'pendiente' %}
+                            <a href="{% url 'editar_turno_pro' turno.id %}" class="btn" style="padding: 5px 10px; font-size: 0.85em; background: #6c757d;">✏️</a>
+                            <a href="{% url 'confirmar_turno_pro' turno.id %}" class="btn btn-success" style="padding: 5px 10px; font-size: 0.85em;">✓</a>
+                            <a href="{% url 'cancelar_turno_pro' turno.id %}" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.85em;">✕</a>
+                        {% elif turno.estado == 'confirmado' %}
+                            <a href="{% url 'completar_turno_pro' turno.id %}" class="btn btn-success" style="padding: 5px 10px; font-size: 0.85em;">✅ Atender</a>
+                            <a href="{% url 'no_asistio_pro' turno.id %}" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.85em;">✕ No Asistió</a>
+                        {% elif turno.estado == 'completado' %}
+                            <span style="color: #28a745;">✅ Atendido</span>
+                        {% elif turno.estado == 'cancelado' %}
+                            <span style="color: #dc3545;">🚫 Cancelado</span>
+                        {% elif turno.estado == 'no_asistio' %}
+                            <span style="color: #6c757d;">😞 No Asistió</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align: center; color: #999; padding: 20px;">No hay turnos para hoy</p>
+    {% endif %}
+</div>
+
+<!-- Próximos turnos -->
+{% if proximos_turnos %}
+<div class="card" style="margin-top: 20px;">
+    <h2 style="margin-bottom: 20px;">📆 Próximos Turnos</h2>
+    <ul style="list-style: none;">
+        {% for turno in proximos_turnos %}
+        <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+            <span><strong>{{ turno.fecha|date:"d/m" }}</strong> {{ turno.hora_inicio|time:"H:i" }}</span>
+            <span>{{ turno.paciente.nombre_completo }}</span>
+            <span style="padding: 2px 10px; border-radius: 15px; font-size: 0.8em; 
+                         background: {% if turno.estado == 'confirmado' %}#d4edda; color:#155724{% else %}#fff3cd; color:#856404{% endif %};">
+                {{ turno.get_estado_display }}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
