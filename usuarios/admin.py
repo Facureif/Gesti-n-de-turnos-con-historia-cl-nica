@@ -44,6 +44,9 @@ class UsuarioAdmin(UserAdmin):
         ('Fechas', {
             'fields': ('last_login', 'date_joined')
         }),
+        ('Consultorio', {
+            'fields': ('establecimiento',)
+        }),
     )
     
     # Campos que se muestran en el formulario de CREACIÓN

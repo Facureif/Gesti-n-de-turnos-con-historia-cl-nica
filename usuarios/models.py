@@ -12,7 +12,13 @@ class Usuario(AbstractUser):
     
     rol = models.CharField(max_length=20, choices=ROLES, default='paciente')
     telefono = models.CharField(max_length=20, blank=True)
-    
+    establecimiento = models.ForeignKey(
+    'establecimientos.Establecimiento',
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    verbose_name='Establecimiento'
+)
     def __str__(self):
         return f"{self.get_full_name()} ({self.get_rol_display()})"
     

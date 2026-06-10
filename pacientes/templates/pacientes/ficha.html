@@ -9,9 +9,15 @@
         <p style="color: #666; font-size: 1.2em;">{{ paciente.nombre_completo }}</p>
     </div>
     <div>
-        <a href="{% url 'editar_paciente' paciente.id %}" class="btn" style="background: #ffc107; color: #333;">✏️ Editar</a>
+        {% if not es_secretaria %}
+            <a href="{% url 'editar_paciente' paciente.id %}" class="btn" style="background: #ffc107; color: #333;">✏️ Editar</a>
+        {% endif %}
         <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success">📅 Asignar Turno</a>
-        <a href="{% url 'panel_profesional' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+        {% if request.user.rol == 'secretaria' %}
+            <a href="{% url 'panel_secretaria' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+        {% else %}
+            <a href="{% url 'panel_profesional' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+        {% endif %}
     </div>
 </div>
 
@@ -82,6 +88,7 @@
 
 
     <!-- Historia Clínica -->
+    {% if not es_secretaria %}
     <div class="card" style="grid-column: 1 / -1;">
         <h3 style="margin-bottom: 15px;">📝 Historia Clínica {% if historia %}<span style="font-size: 0.8em; color: #999;">N° {{ historia.numero_historia }}</span>{% endif %}</h3>
         
@@ -124,6 +131,7 @@
             <p style="color: #999;">Historia clínica no creada.</p>
         {% endif %}
     </div>
+    {% endif %}
     
     <!-- Últimos Turnos -->
     <div class="card" style="grid-column: 1 / -1;">

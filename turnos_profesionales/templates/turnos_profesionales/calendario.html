@@ -8,6 +8,23 @@
         <h1>📅 Calendario Semanal</h1>
         <p style="color: #666;">{{ lunes|date:"d/m/Y" }} - {{ domingo|date:"d/m/Y" }}</p>
     </div>
+
+    {% if request.user.rol == 'secretaria' and profesionales_consultorio %}
+    <div class="card" style="margin-bottom: 20px;">
+        <form method="get" style="display: flex; gap: 15px; align-items: center;">
+            <label style="font-weight: bold;">Profesional:</label>
+            <select name="profesional" onchange="this.form.submit()" 
+                    style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 5px;">
+                {% for prof in profesionales_consultorio %}
+                    <option value="{{ prof.id }}" {% if profesional.id == prof.id %}selected{% endif %}>
+                        {{ prof.nombre_completo }} - {{ prof.get_especialidad_display }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endif %}
+    
     <div style="display: flex; gap: 10px;">
         <a href="?fecha={{ semana_anterior }}" class="btn" style="background: #6c757d;">← Semana Anterior</a>
         <a href="?fecha={{ semana_siguiente }}" class="btn">Semana Siguiente →</a>

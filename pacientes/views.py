@@ -12,11 +12,16 @@ from turnos_profesionales.models import TurnoProfesional
 @login_required
 def registrar_paciente(request):
     """El profesional registra un nuevo paciente."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    if request.user.rol == 'secretaria':
+        profesional = None
+    elif request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = None
     
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -81,10 +86,18 @@ def registrar_paciente(request):
 @login_required
 def buscar_paciente(request):
     """Buscar pacientes por nombre, apellido o DNI."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    if request.user.rol == 'secretaria':
+        profesional = None
+    elif request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = None  
+
+
     pacientes = []
     busqueda = ''
     
@@ -106,10 +119,17 @@ def buscar_paciente(request):
 @login_required
 def ficha_paciente(request, paciente_id):
     """Ficha completa del paciente con HC y turnos."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    if request.user.rol == 'secretaria':
+        profesional = None
+    elif request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = None
+
     paciente = get_object_or_404(Paciente, id=paciente_id)
     
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
@@ -127,17 +147,23 @@ def ficha_paciente(request, paciente_id):
         'paciente': paciente,
         'historia': historia,
         'evoluciones': evoluciones,
-        'turnos': turnos
+        'turnos': turnos,
+        'es_secretaria': request.user.rol == 'secretaria'
     })
 
 @login_required
 def editar_paciente(request, paciente_id):
     """Editar datos del paciente."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    if request.user.rol == 'secretaria':
+        profesional = None
+    elif request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = None
     paciente = get_object_or_404(Paciente, id=paciente_id)
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
     

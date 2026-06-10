@@ -42,7 +42,13 @@
                 <li>✅ Gestión de obra social</li>
             </ul>
             <div style="text-align: center;">
-                <a href="{% url 'panel_profesional' %}" class="btn btn-success" style="width: 100%;">Panel Profesional</a>
+                {% if user.is_authenticated %}
+                    {% if user.rol == 'profesional' %}
+                        <a href="{% url 'panel_profesional' %}" class="btn btn-success">Panel Profesional</a>
+                    {% elif user.rol == 'secretaria' %}
+                        <a href="{% url 'panel_secretaria' %}" class="btn btn-success">Panel Secretaría</a>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
         

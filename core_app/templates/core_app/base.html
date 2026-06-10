@@ -101,6 +101,13 @@
         <div>
             <a href="{% url 'home' %}">Inicio</a>
             {% if user.is_authenticated %}
+                {% if user.rol == 'profesional' %}
+                    <a href="{% url 'panel_profesional' %}">Mi Panel</a>
+                    <a href="{% url 'calendario_semanal' %}">Calendario</a>
+                {% elif user.rol == 'secretaria' %}
+                    <a href="{% url 'panel_secretaria' %}">📋 Panel Secretaría</a>
+                    <a href="{% url 'calendario_semanal' %}">Calendario</a>
+                {% endif %}
                 <span style="margin: 0 10px;">👋 {{ user.get_full_name|default:user.username }}</span>
                 <a href="{% url 'admin:index' %}">Admin</a>
                 <a href="{% url 'logout' %}">Cerrar Sesión</a>

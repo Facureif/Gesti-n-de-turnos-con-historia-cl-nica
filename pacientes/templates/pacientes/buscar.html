@@ -4,8 +4,14 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        {% if request.user.rol == 'secretaria' %}
+            <a href="{% url 'panel_secretaria' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+        {% else %}
+            <a href="{% url 'panel_profesional' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+        {% endif %}
+    </div>
     <h1 style="margin-bottom: 10px;">🔍 Buscar Paciente</h1>
-    
     <div class="card" style="margin-bottom: 20px;">
         <form method="get">
             <div style="display: flex; gap: 10px;">

@@ -16,11 +16,25 @@ from historias_clinicas.models import HistoriaClinica, Evolucion
 @login_required
 def panel_profesional(request):
     """Panel principal del profesional. Muestra turnos del día."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso a esta sección.')
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    # Si es secretaria, puede ver el panel de cualquier profesional
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimiento=request.user.establecimiento, activo=True
+            ).first()
+            if not profesional:
+                messages.error(request, 'No hay profesionales en el consultorio.')
+                return redirect('panel_secretaria')
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    
     hoy = date.today()
     
     # Turnos de hoy
@@ -64,33 +78,39 @@ def panel_profesional(request):
 @login_required
 def confirmar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
-    if request.user != turno.profesional.usuario:
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés permiso.')
         return redirect('panel_profesional')
     
     turno.estado = 'confirmado'
     turno.save()
     messages.success(request, f'Turno de {turno.paciente.nombre_completo} confirmado.')
+    
+    if request.user.rol == 'secretaria':
+        return redirect('panel_secretaria')
     return redirect('panel_profesional')
 
 
 @login_required
 def cancelar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
-    if request.user != turno.profesional.usuario:
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés permiso.')
         return redirect('panel_profesional')
     
     turno.estado = 'cancelado'
     turno.save()
     messages.warning(request, f'Turno de {turno.paciente.nombre_completo} cancelado.')
+    
+    if request.user.rol == 'secretaria':
+        return redirect('panel_secretaria')
     return redirect('panel_profesional')
 
 
 @login_required
 def completar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
-    if request.user != turno.profesional.usuario:
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés permiso.')
         return redirect('panel_profesional')
     
@@ -117,127 +137,35 @@ def completar_turno(request, turno_id):
     else:
         messages.success(request, f'Turno de {paciente.nombre_completo} completado.')
     
+    # Solo el profesional puede cargar evolución
+    if request.user.rol == 'secretaria':
+        if request.user.rol == 'secretaria':
+            return redirect('panel_secretaria')
     return redirect('cargar_evolucion', turno_id=turno.id)
 
 
 @login_required
 def no_asistio_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
-    if request.user != turno.profesional.usuario:
+    if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés permiso.')
         return redirect('panel_profesional')
     
     turno.estado = 'no_asistio'
     turno.save()
     messages.warning(request, f'{turno.paciente.nombre_completo} no asistió.')
+    
+    if request.user.rol == 'secretaria':
+        return redirect('panel_secretaria')
     return redirect('panel_profesional')
 
-
-# ============ REGISTRO DE PACIENTES ============
-
-@login_required
-def registrar_paciente(request):
-    """Permite al profesional registrar un nuevo paciente."""
-    if request.user.rol != 'profesional':
-        return redirect('home')
-    
-    profesional = get_object_or_404(Profesional, usuario=request.user)
-    
-    if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        apellido = request.POST.get('apellido')
-        dni = request.POST.get('dni')
-        fecha_nacimiento = request.POST.get('fecha_nacimiento')
-        telefono = request.POST.get('telefono')
-        email = request.POST.get('email', '')
-        direccion = request.POST.get('direccion', '')
-        obra_social_id = request.POST.get('obra_social', '')
-        numero_afiliado = request.POST.get('numero_afiliado', '')
-        
-        # Validaciones
-        if not all([nombre, apellido, dni, fecha_nacimiento, telefono]):
-            messages.error(request, 'Completá todos los campos obligatorios.')
-            return redirect('registrar_paciente')
-        
-        # Verificar si ya existe
-        if Paciente.objects.filter(dni=dni).exists():
-            messages.error(request, 'Ya existe un paciente con ese DNI.')
-            return redirect('registrar_paciente')
-        
-        # Crear paciente
-        paciente = Paciente.objects.create(
-            nombre=nombre,
-            apellido=apellido,
-            dni=dni,
-            fecha_nacimiento=fecha_nacimiento,
-            telefono=telefono,
-            email=email,
-            direccion=direccion,
-            numero_afiliado=numero_afiliado,
-        )
-        
-        # Asignar obra social si corresponde
-        if obra_social_id:
-            from obras_sociales.models import ObraSocial
-            paciente.obra_social = ObraSocial.objects.get(id=obra_social_id)
-            paciente.save()
-        
-        # Crear historia clínica automáticamente
-        HistoriaClinica.objects.create(
-            paciente=paciente,
-            numero_historia=f"HC-{paciente.id:06d}"
-        )
-        
-        messages.success(request, f'Paciente {paciente.nombre_completo} registrado correctamente.')
-        return redirect('ficha_paciente', paciente_id=paciente.id)
-    
-    from obras_sociales.models import ObraSocial
-    obras_sociales = ObraSocial.objects.filter(activo=True)
-    
-    return render(request, 'turnos_profesionales/registrar_paciente.html', {
-        'profesional': profesional,
-        'obras_sociales': obras_sociales
-    })
-
-
-# ============ FICHA DEL PACIENTE ============
-
-@login_required
-def ficha_paciente(request, paciente_id):
-    """Muestra la ficha completa del paciente con su historial."""
-    if request.user.rol != 'profesional':
-        return redirect('home')
-    
-    profesional = get_object_or_404(Profesional, usuario=request.user)
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-    
-    # Historia clínica
-    historia = HistoriaClinica.objects.filter(paciente=paciente).first()
-    evoluciones = Evolucion.objects.filter(
-        historia_clinica=historia
-    ).order_by('-creado') if historia else []
-    
-    # Turnos del paciente con este profesional
-    turnos = TurnoProfesional.objects.filter(
-        profesional=profesional,
-        paciente=paciente
-    ).order_by('-fecha', '-hora_inicio')[:20]
-    
-    return render(request, 'turnos_profesionales/ficha_paciente.html', {
-        'profesional': profesional,
-        'paciente': paciente,
-        'historia': historia,
-        'evoluciones': evoluciones,
-        'turnos': turnos
-    })
-
-
-# ============ CARGA DE EVOLUCIÓN ============
+# ============ CARGA DE EVOLUCIÓN (SOLO PROFESIONAL) ============
 
 @login_required
 def cargar_evolucion(request, turno_id):
-    """Carga la evolución después de completar un turno."""
+    """Carga la evolución después de completar un turno. Solo profesional."""
     if request.user.rol != 'profesional':
+        messages.error(request, 'Solo el profesional puede cargar evoluciones.')
         return redirect('home')
     
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
@@ -287,42 +215,26 @@ def cargar_evolucion(request, turno_id):
     })
 
 
-# ============ BUSCAR PACIENTE (para asignar turno) ============
-
-@login_required
-def buscar_paciente(request):
-    """Busca pacientes para asignar un turno."""
-    if request.user.rol != 'profesional':
-        return redirect('home')
-    
-    profesional = get_object_or_404(Profesional, usuario=request.user)
-    pacientes = []
-    busqueda = ''
-    
-    if request.GET.get('q'):
-        busqueda = request.GET.get('q')
-        pacientes = Paciente.objects.filter(
-            Q(nombre__icontains=busqueda) |
-            Q(apellido__icontains=busqueda) |
-            Q(dni__icontains=busqueda)
-        )[:20]
-    
-    return render(request, 'turnos_profesionales/buscar_paciente.html', {
-        'profesional': profesional,
-        'pacientes': pacientes,
-        'busqueda': busqueda
-    })
-
-
 # ============ ASIGNAR TURNO A PACIENTE ============
 
 @login_required
 def asignar_turno(request, paciente_id):
-    """El profesional asigna un turno a un paciente existente."""
-    if request.user.rol != 'profesional':
+    """Asigna un turno a un paciente existente."""
+    if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    # Obtener profesional según el rol
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimiento=request.user.establecimiento, activo=True
+            ).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
     
@@ -392,6 +304,9 @@ def asignar_turno(request, paciente_id):
         )
         
         messages.success(request, f'Turno asignado a {paciente.nombre_completo} el {fecha.strftime("%d/%m/%Y")} a las {hora_str}.')
+        
+        if request.user.rol == 'secretaria':
+            return redirect('panel_secretaria')
         return redirect('panel_profesional')
     
     # GET - Mostrar horarios disponibles
@@ -440,25 +355,39 @@ def asignar_turno(request, paciente_id):
                         'slots': slots
                     })
     
+    # Si es secretaria, pasar lista de profesionales
+    profesionales_consultorio = None
+    if request.user.rol == 'secretaria':
+        profesionales_consultorio = Profesional.objects.filter(
+            establecimiento=request.user.establecimiento, activo=True
+        )
+    
     return render(request, 'turnos_profesionales/asignar_turno.html', {
         'profesional': profesional,
         'paciente': paciente,
         'dias_disponibles': dias_disponibles,
-        'hoy': hoy
+        'hoy': hoy,
+        'profesionales_consultorio': profesionales_consultorio,
     })
+
+
+# ============ EDITAR TURNO ============
 
 @login_required
 def editar_turno(request, turno_id):
     """Editar un turno existente (cambiar fecha, hora, estado, notas)."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
-    profesional = get_object_or_404(Profesional, usuario=request.user)
     
-    if request.user != turno.profesional.usuario:
-        messages.error(request, 'No tenés permiso para editar este turno.')
-        return redirect('panel_profesional')
+    if request.user.rol == 'secretaria':
+        profesional = turno.profesional  # La secretaria edita el turno del profesional que lo tiene
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+        if request.user != turno.profesional.usuario:
+            messages.error(request, 'No tenés permiso para editar este turno.')
+            return redirect('panel_profesional')
     
     hoy = date.today()
     
@@ -522,6 +451,9 @@ def editar_turno(request, turno_id):
         turno.save()
         
         messages.success(request, 'Turno actualizado correctamente.')
+        
+        if request.user.rol == 'secretaria':
+            return redirect('panel_secretaria')
         return redirect('panel_profesional')
     
     # GET - Mostrar formulario con horarios disponibles
@@ -577,13 +509,29 @@ def editar_turno(request, turno_id):
         'hoy': hoy
     })
 
+
+# ============ CALENDARIO SEMANAL ============
+
 @login_required
 def calendario_semanal(request):
-    """Vista de calendario semanal para el profesional."""
-    if request.user.rol != 'profesional':
+    """Vista de calendario semanal para profesional o secretaria."""
+    if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    # Si es secretaria, puede ver calendario de cualquier profesional
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimiento=request.user.establecimiento, activo=True
+            ).first()
+            if not profesional:
+                messages.error(request, 'No hay profesionales en el consultorio.')
+                return redirect('panel_secretaria')
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
     
     # Determinar la semana a mostrar (por defecto la actual)
     fecha_str = request.GET.get('fecha')
@@ -595,7 +543,7 @@ def calendario_semanal(request):
     else:
         fecha_base = date.today()
     
-    hoy = date.today()  # ← AGREGAR ESTA LÍNEA
+    hoy = date.today()
     
     # Encontrar el lunes de esa semana
     lunes = fecha_base - timedelta(days=fecha_base.weekday())
@@ -654,10 +602,8 @@ def calendario_semanal(request):
                         slot_bloqueado = False
                         for b in bloqueos_dia:
                             if b.hora_inicio is None and b.hora_fin is None:
-                                # Día completo bloqueado
                                 slot_bloqueado = True
                             elif b.hora_inicio and b.hora_fin:
-                                # Bloqueo por rango horario
                                 if hora_actual >= b.hora_inicio and hora_fin_slot <= b.hora_fin:
                                     slot_bloqueado = True
                         
@@ -693,6 +639,13 @@ def calendario_semanal(request):
     semana_anterior = lunes - timedelta(days=7)
     semana_siguiente = lunes + timedelta(days=7)
     
+    # Si es secretaria, pasar lista de profesionales
+    profesionales_consultorio = None
+    if request.user.rol == 'secretaria':
+        profesionales_consultorio = Profesional.objects.filter(
+            establecimiento=request.user.establecimiento, activo=True
+        )
+    
     return render(request, 'turnos_profesionales/calendario.html', {
         'profesional': profesional,
         'dias_semana': dias_semana,
@@ -700,16 +653,30 @@ def calendario_semanal(request):
         'domingo': lunes + timedelta(days=6),
         'semana_anterior': semana_anterior.strftime('%Y-%m-%d'),
         'semana_siguiente': semana_siguiente.strftime('%Y-%m-%d'),
-        'hoy': hoy,  # ← AGREGAR ESTA LÍNEA
+        'hoy': hoy,
+        'profesionales_consultorio': profesionales_consultorio,
     })
+
+
+# ============ ASIGNAR TURNO DESDE CALENDARIO ============
 
 @login_required
 def asignar_turno_calendario(request):
     """Asignar turno desde el calendario con fecha y hora predefinidas."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    # Obtener profesional según el rol
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimiento=request.user.establecimiento, activo=True
+            ).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
     
     fecha_str = request.GET.get('fecha', '')
     hora_str = request.GET.get('hora', '')
@@ -805,13 +772,24 @@ def asignar_turno_calendario(request):
     })
 
 
+# ============ BLOQUEAR/DESBLOQUEAR DÍAS ============
+
 @login_required
 def bloquear_dia(request):
     """Bloquear un día o rango horario."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
-    profesional = get_object_or_404(Profesional, usuario=request.user)
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimiento=request.user.establecimiento, activo=True
+            ).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
     
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
@@ -861,18 +839,84 @@ def bloquear_dia(request):
 @login_required
 def desbloquear_dia(request, bloqueo_id):
     """Desbloquear un día."""
-    if request.user.rol != 'profesional':
+    if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
     bloqueo = get_object_or_404(BloqueoAgenda, id=bloqueo_id)
-    profesional = get_object_or_404(Profesional, usuario=request.user)
     
-    if bloqueo.agenda.profesional != profesional:
-        messages.error(request, 'No tenés permiso.')
-        return redirect('calendario_semanal')
+    if request.user.rol == 'secretaria':
+        if bloqueo.agenda.profesional.establecimiento != request.user.establecimiento:
+            messages.error(request, 'No tenés permiso.')
+            return redirect('calendario_semanal')
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+        if bloqueo.agenda.profesional != profesional:
+            messages.error(request, 'No tenés permiso.')
+            return redirect('calendario_semanal')
     
     bloqueo.activo = False
     bloqueo.save()
     
     messages.success(request, f'Bloqueo del {bloqueo.fecha.strftime("%d/%m/%Y")} eliminado.')
     return redirect('calendario_semanal')
+
+
+# ============ PANEL SECRETARIA ============
+
+@login_required
+def panel_secretaria(request):
+    """Panel para la secretaria/recepcionista del consultorio."""
+    if request.user.rol != 'secretaria':
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    if not request.user.establecimiento:
+        messages.error(request, 'No tenés un consultorio asignado.')
+        return redirect('home')
+    
+    establecimiento = request.user.establecimiento
+    hoy = date.today()
+    
+    # Obtener todos los profesionales del consultorio
+    profesionales = Profesional.objects.filter(
+        establecimiento=establecimiento,
+        activo=True
+    )
+    
+    # Si se selecciona un profesional específico
+    profesional_id = request.GET.get('profesional')
+    profesional_seleccionado = None
+    if profesional_id:
+        profesional_seleccionado = get_object_or_404(Profesional, 
+                                                      id=profesional_id, 
+                                                      establecimiento=establecimiento)
+    
+    # Turnos de hoy (todos o de un profesional)
+    if profesional_seleccionado:
+        turnos_hoy = TurnoProfesional.objects.filter(
+            profesional=profesional_seleccionado,
+            fecha=hoy
+        ).order_by('hora_inicio')
+    else:
+        turnos_hoy = TurnoProfesional.objects.filter(
+            profesional__in=profesionales,
+            fecha=hoy
+        ).order_by('profesional', 'hora_inicio')
+    
+    # Estadísticas
+    total_hoy = turnos_hoy.count()
+    pendientes = turnos_hoy.filter(estado='pendiente').count()
+    confirmados = turnos_hoy.filter(estado='confirmado').count()
+    en_sala = turnos_hoy.filter(estado='en_sala').count()
+    
+    return render(request, 'turnos_profesionales/panel_secretaria.html', {
+        'profesionales': profesionales,
+        'profesional_seleccionado': profesional_seleccionado,
+        'turnos_hoy': turnos_hoy,
+        'hoy': hoy,
+        'total_hoy': total_hoy,
+        'pendientes': pendientes,
+        'confirmados': confirmados,
+        'en_sala': en_sala,
+        'establecimiento': establecimiento,
+    })
