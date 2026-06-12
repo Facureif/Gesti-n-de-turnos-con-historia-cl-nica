@@ -12,6 +12,33 @@
             | O.S.: {{ paciente.obra_social.sigla }}
         {% endif %}
     </p>
+
+    <!-- Selector de profesional (solo secretaria) -->
+    {% if request.user.rol == 'secretaria' and profesionales_consultorio %}
+    <div class="card" style="margin-bottom: 20px;">
+        <h3 style="margin-bottom: 10px;">👨‍⚕️ Seleccioná el Profesional</h3>
+        <form method="get" style="display: flex; gap: 10px; align-items: center;">
+            <select name="profesional" onchange="this.form.submit()" 
+                    style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em;">
+                {% for prof in profesionales_consultorio %}
+                    <option value="{{ prof.id }}" {% if profesional.id == prof.id %}selected{% endif %}>
+                        {{ prof.nombre_completo }} - {{ prof.get_especialidad_display }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endif %}
+    {% if profesional.establecimientos.count > 1 %}
+    <div style="margin-bottom: 15px;">
+        <label><strong>Consultorio</strong></label>
+        <select name="establecimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            {% for est in profesional.establecimientos.all %}
+                <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
     
     {% if dias_disponibles %}
         <form method="post">

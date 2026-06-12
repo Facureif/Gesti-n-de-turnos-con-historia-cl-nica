@@ -109,6 +109,20 @@
             </div>
         </div>
         
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px;">🏥 Consultorios donde atendés</h3>
+            <select name="establecimientos" multiple 
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 120px;">
+                {% for est in establecimientos_disponibles %}
+                    <option value="{{ est.id }}" 
+                        {% if est in profesional.establecimientos.all %}selected{% endif %}>
+                        {{ est.nombre }} - {{ est.direccion }}
+                    </option>
+                {% endfor %}
+            </select>
+            <small style="color: #666;">Mantené Ctrl/Cmd para seleccionar varios consultorios</small>
+        </div>
+
         <!-- Horarios de atención -->
         <div class="card" style="margin-bottom: 20px;">
             <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">

@@ -110,7 +110,12 @@
                 {% endif %}
                 <span style="margin: 0 10px;">👋 {{ user.get_full_name|default:user.username }}</span>
                 <a href="{% url 'admin:index' %}">Admin</a>
-                <a href="{% url 'logout' %}">Cerrar Sesión</a>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: white; cursor: pointer; font: inherit; text-decoration: underline;">
+                        Cerrar Sesión
+                    </button>
+                </form>
             {% else %}
                 <a href="{% url 'login' %}">Ingresar</a>
                 <a href="{% url 'registro' %}">Registrarse</a>

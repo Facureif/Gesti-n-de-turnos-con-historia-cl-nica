@@ -49,13 +49,11 @@ class Profesional(Persona):
     null=True,
     verbose_name='Foto de Perfil'
     )
-    establecimiento = models.ForeignKey(
+    establecimientos = models.ManyToManyField(
     'establecimientos.Establecimiento',
-    on_delete=models.SET_NULL,
-    null=True,
     blank=True,
     related_name='profesionales',
-    verbose_name='Establecimiento'
+    verbose_name='Consultorios donde atiende'
     )
 
     class Meta:

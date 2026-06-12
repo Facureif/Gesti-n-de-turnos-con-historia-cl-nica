@@ -35,7 +35,16 @@
             </div>
         </form>
     </div>
-    
+    {% if profesional.establecimientos.count > 1 %}
+    <div style="margin-bottom: 15px;">
+        <label><strong>Consultorio</strong></label>
+        <select name="establecimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            {% for est in profesional.establecimientos.all %}
+                <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
     <!-- Resultados de búsqueda -->
     {% if pacientes %}
     <form method="post">

@@ -12,6 +12,8 @@ urlpatterns = [
     path('pacientes/', include('pacientes.urls')), 
     path('rapido/', include('turnos_rapidos.urls')),        
     path('profesional/', include('turnos_profesionales.urls')), 
+    path('paciente/', include('pacientes.urls_portal')),
+
 
 ]
 

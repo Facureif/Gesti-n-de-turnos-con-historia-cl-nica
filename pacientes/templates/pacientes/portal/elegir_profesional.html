@@ -1,0 +1,53 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Sacar Turno - Elegir Profesional{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="text-align: center; margin-bottom: 10px;">📅 Sacar Turno</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 30px;">
+        Elegí al profesional con quien querés atenderte
+    </p>
+
+    {% if profesionales %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            {% for prof in profesionales %}
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 3em; margin-bottom: 10px;">👨‍⚕️</div>
+                <h3>{{ prof.nombre_completo }}</h3>
+                <p style="color: #4A90D9; margin-bottom: 10px;">
+                    {{ prof.get_especialidad_display }}
+                </p>
+                {% if prof.descripcion %}
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
+                        {{ prof.descripcion|truncatechars:80 }}
+                    </p>
+                {% endif %}
+                <div style="margin-bottom: 15px;">
+                    {% for est in prof.establecimientos.all %}
+                        <span style="display: inline-block; padding: 2px 8px; background: #e9ecef; 
+                                     border-radius: 10px; font-size: 0.75em; margin: 2px;">
+                            {{ est.nombre }}
+                        </span>
+                    {% endfor %}
+                </div>
+                {% if prof.establecimientos.count == 1 %}
+                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn" style="width: 100%;">
+                        Sacar Turno
+                    </a>
+                {% else %}
+                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}" class="btn" style="width: 100%;">
+                        Sacar Turno
+                    </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="color: #999;">No hay profesionales disponibles en este momento.</p>
+            <a href="{% url 'panel_paciente' %}" class="btn" style="margin-top: 15px;">↩ Volver</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}  

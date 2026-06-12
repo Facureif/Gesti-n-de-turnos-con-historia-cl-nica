@@ -28,7 +28,11 @@
     <div style="display: flex; gap: 10px;">
         <a href="?fecha={{ semana_anterior }}" class="btn" style="background: #6c757d;">← Semana Anterior</a>
         <a href="?fecha={{ semana_siguiente }}" class="btn">Semana Siguiente →</a>
-        <a href="{% url 'panel_profesional' %}" class="btn" style="background: #4A90D9;">Hoy</a>
+        {% if request.user.rol == 'secretaria' %}
+            <a href="{% url 'panel_secretaria' %}" class="btn" style="background: #4A90D9;">Hoy</a>
+        {% else %}
+            <a href="{% url 'panel_profesional' %}" class="btn" style="background: #4A90D9;">Hoy</a>
+        {% endif %}
     </div>
 </div>
 

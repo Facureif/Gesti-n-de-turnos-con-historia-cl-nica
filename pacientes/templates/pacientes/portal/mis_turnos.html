@@ -1,0 +1,69 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Mis Turnos - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>📋 Mis Turnos</h1>
+        <div>
+            <a href="{% url 'sacar_turno_paciente' %}" class="btn btn-success">📅 Sacar Turno</a>
+            <a href="{% url 'panel_paciente' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
+        </div>
+    </div>
+
+    <div class="card">
+        {% if turnos %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 10px; text-align: left;">Fecha</th>
+                        <th style="padding: 10px; text-align: left;">Hora</th>
+                        <th style="padding: 10px; text-align: left;">Profesional</th>
+                        <th style="padding: 10px; text-align: left;">Consultorio</th>
+                        <th style="padding: 10px; text-align: left;">Estado</th>
+                        <th style="padding: 10px; text-align: center;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for turno in turnos %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">{{ turno.fecha|date:"d/m/Y" }}</td>
+                        <td style="padding: 10px;">{{ turno.hora_inicio|time:"H:i" }}</td>
+                        <td style="padding: 10px;">{{ turno.profesional.nombre_completo }}</td>
+                        <td style="padding: 10px;">{{ turno.establecimiento.nombre|default:"—" }}</td>
+                        <td style="padding: 10px;">
+                            <span style="padding: 3px 10px; border-radius: 15px; font-size: 0.85em;
+                                {% if turno.estado == 'confirmado' %}background: #d4edda; color: #155724;
+                                {% elif turno.estado == 'pendiente' %}background: #fff3cd; color: #856404;
+                                {% elif turno.estado == 'completado' %}background: #e2e3e5; color: #383d41;
+                                {% elif turno.estado == 'cancelado' %}background: #f8d7da; color: #721c24;
+                                {% elif turno.estado == 'no_asistio' %}background: #f8d7da; color: #721c24;
+                                {% endif %}">
+                                {{ turno.get_estado_display }}
+                            </span>
+                        </td>
+                        <td style="padding: 10px; text-align: center;">
+                            {% if turno.estado == 'pendiente' or turno.estado == 'confirmado' %}
+                                <a href="{% url 'cancelar_turno_paciente' turno.id %}" 
+                                   class="btn btn-danger" style="padding: 3px 10px; font-size: 0.8em;"
+                                   onclick="return confirm('¿Cancelar este turno?')">
+                                    ✕ Cancelar
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align: center; color: #999; padding: 40px;">
+                No tenés turnos registrados.
+            </p>
+            <div style="text-align: center;">
+                <a href="{% url 'sacar_turno_paciente' %}" class="btn btn-success">📅 Sacar mi primer turno</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

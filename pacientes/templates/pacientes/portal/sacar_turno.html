@@ -1,0 +1,143 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Sacar Turno - {{ profesional.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1 style="text-align: center; margin-bottom: 5px;">📅 Sacar Turno</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 5px;">
+        {{ profesional.get_especialidad_display }}
+    </p>
+    <p style="text-align: center; color: #4A90D9; font-weight: bold; margin-bottom: 30px;">
+        Dr/a. {{ profesional.nombre_completo }}
+    </p>
+
+    <!-- Consultorio (ANTES del form, al cambiar recarga la página) -->
+    {% if profesional.establecimientos.count > 1 %}
+    <div class="card" style="margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px;">🏥 Elegí el consultorio</h3>
+        <select onchange="cambiarConsultorio(this.value)" 
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em;">
+            <option value="">-- Seleccioná un consultorio --</option>
+            {% for est in profesional.establecimientos.all %}
+                <option value="{{ est.id }}" {% if establecimiento_seleccionado and establecimiento_seleccionado.id == est.id %}selected{% endif %}>
+                    {{ est.nombre }} - {{ est.direccion }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    {% if dias_disponibles %}
+        <form method="post" id="form-turno">
+            {% csrf_token %}
+
+            <!-- Consultorio oculto (ya seleccionado arriba) -->
+            {% if establecimiento_seleccionado %}
+                <input type="hidden" name="establecimiento" value="{{ establecimiento_seleccionado.id }}">
+            {% endif %}
+
+            <!-- Elegir día -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">1️⃣ Elegí el día</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% for dia in dias_disponibles %}
+                    <label style="
+                        padding: 12px 15px;
+                        border: 2px solid #ddd;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        text-align: center;
+                        min-width: 90px;
+                    " class="dia-label" onclick="marcarDia(this)">
+                        <input type="radio" name="fecha" value="{{ dia.fecha_str }}" 
+                            style="display: none;" class="dia-radio"
+                            {% if forloop.first %}checked{% endif %}>
+                        <div style="font-weight: bold; font-size: 1.2em;">{{ dia.fecha|date:"d" }}</div>
+                        <div style="font-size: 0.8em; color: #666;">{{ dia.fecha|date:"M" }}</div>
+                        <div style="font-size: 0.75em; color: #999;">{{ dia.nombre_dia|slice:":3" }}</div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Elegir hora -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">2️⃣ Elegí el horario</h3>
+                <div id="horarios-container">
+                    {% for dia in dias_disponibles %}
+                    <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
+                        style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
+                        {% for slot in dia.slots %}
+                        <label style="
+                            padding: 10px 20px;
+                            border: 2px solid #4A90D9;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            color: #4A90D9;
+                            font-weight: bold;
+                        " class="hora-label" onclick="marcarHora(this)">
+                            <input type="radio" name="hora" value="{{ slot }}" style="display: none;">
+                            {{ slot }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Tipo consulta -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">3️⃣ Información adicional</h3>
+                <input type="text" name="tipo_consulta" 
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                    placeholder="Ej: Control, dolor, consulta...">
+            </div>
+
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
+                ✅ Confirmar Turno
+            </button>
+        </form>
+    {% elif establecimiento_seleccionado %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="font-size: 1.2em; color: #666;">No hay turnos disponibles en este consultorio.</p>
+            <p style="color: #999;">Probá con otro consultorio o más adelante.</p>
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="font-size: 1.2em; color: #666;">Seleccioná un consultorio para ver los turnos disponibles.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function cambiarConsultorio(establecimientoId) {
+    if (establecimientoId) {
+        window.location.href = window.location.pathname + '?establecimiento=' + establecimientoId;
+    }
+}
+
+function marcarDia(label) {
+    let fecha = label.querySelector('input').value;
+    document.querySelectorAll('.horarios-dia').forEach(d => d.style.display = 'none');
+    let div = document.querySelector(`.horarios-dia[data-fecha="${fecha}"]`);
+    if (div) div.style.display = 'flex';
+    
+    document.querySelectorAll('.dia-label').forEach(l => {
+        l.style.border = '2px solid #ddd';
+        l.style.background = 'white';
+    });
+    label.style.border = '2px solid #4A90D9';
+    label.style.background = '#f0f7ff';
+}
+
+function marcarHora(label) {
+    document.querySelectorAll('.hora-label').forEach(l => {
+        l.style.border = '2px solid #4A90D9';
+        l.style.background = 'white';
+    });
+    label.style.border = '2px solid #28a745';
+    label.style.background = '#f0fff4';
+}
+</script>
+{% endblock %}

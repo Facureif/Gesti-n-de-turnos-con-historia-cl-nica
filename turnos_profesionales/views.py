@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.db.models import Q
 from datetime import date, timedelta, datetime
 
+from establecimientos.models import Establecimiento
+
 from .models import TurnoProfesional
 from profesionales.models import Profesional
 from pacientes.models import Paciente
@@ -22,18 +24,41 @@ def panel_profesional(request):
     
     # Si es secretaria, puede ver el panel de cualquier profesional
     if request.user.rol == 'secretaria':
+        establecimiento_id = request.GET.get('establecimiento')
         profesional_id = request.GET.get('profesional')
-        if profesional_id:
+        
+        if establecimiento_id and profesional_id:
             profesional = get_object_or_404(Profesional, id=profesional_id)
-        else:
+        elif establecimiento_id:
+            # Mostrar el primer profesional de ese consultorio
             profesional = Profesional.objects.filter(
-                establecimiento=request.user.establecimiento, activo=True
+                establecimientos__id=establecimiento_id,
+                activo=True
             ).first()
-            if not profesional:
-                messages.error(request, 'No hay profesionales en el consultorio.')
-                return redirect('panel_secretaria')
+        else:
+            # Mostrar el primer profesional del primer consultorio
+            profesional = Profesional.objects.filter(
+                establecimientos=request.user.establecimiento,
+                activo=True
+            ).first()
+        
+        if not profesional:
+            messages.error(request, 'No hay profesionales disponibles.')
+            return redirect('panel_secretaria')
+        
+        # Pasar lista de consultorios y profesionales para los selectores
+        establecimientos = request.user.establecimiento.__class__.objects.filter(
+            profesionales__isnull=False
+        ).distinct() if request.user.establecimiento else []
+        
+        profesionales_consultorio = Profesional.objects.filter(
+            establecimientos=request.user.establecimiento,
+            activo=True
+        )
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
+        establecimientos = profesional.establecimientos.all()
+        profesionales_consultorio = None
     
     hoy = date.today()
     
@@ -112,7 +137,7 @@ def completar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés permiso.')
-        return redirect('panel_profesional')
+        return redirect('home')
     
     turno.estado = 'completado'
     turno.save()
@@ -123,7 +148,6 @@ def completar_turno(request, turno_id):
         paciente.sesiones_restantes -= 1
         paciente.save()
         
-        # Alerta si quedan pocas sesiones
         if paciente.sesiones_restantes <= 3:
             messages.warning(
                 request, 
@@ -137,10 +161,11 @@ def completar_turno(request, turno_id):
     else:
         messages.success(request, f'Turno de {paciente.nombre_completo} completado.')
     
-    # Solo el profesional puede cargar evolución
+    # Secretaria no carga evolución, vuelve a su panel
     if request.user.rol == 'secretaria':
-        if request.user.rol == 'secretaria':
-            return redirect('panel_secretaria')
+        return redirect('panel_secretaria')
+    
+    # Profesional sí carga evolución
     return redirect('cargar_evolucion', turno_id=turno.id)
 
 
@@ -230,10 +255,14 @@ def asignar_turno(request, paciente_id):
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
             profesional = Profesional.objects.filter(
-                establecimiento=request.user.establecimiento, activo=True
+                establecimientos=request.user.establecimiento, activo=True
             ).first()
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
+    
+    if not profesional:
+        messages.error(request, 'No hay profesionales disponibles.')
+        return redirect('panel_secretaria' if request.user.rol == 'secretaria' else 'home')
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
@@ -254,6 +283,14 @@ def asignar_turno(request, paciente_id):
         except ValueError:
             messages.error(request, 'Fecha u hora inválida.')
             return redirect('asignar_turno', paciente_id=paciente.id)
+        
+        # Obtener establecimiento
+        establecimiento = None
+        establecimiento_id = request.POST.get('establecimiento')
+        if establecimiento_id:
+            establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
+        else:
+            establecimiento = profesional.establecimientos.first()
         
         # Verificar disponibilidad
         agenda = Agenda.objects.filter(
@@ -278,7 +315,6 @@ def asignar_turno(request, paciente_id):
             messages.error(request, 'El profesional no atiende ese día.')
             return redirect('asignar_turno', paciente_id=paciente.id)
         
-        # Verificar si ya hay turno
         existe = TurnoProfesional.objects.filter(
             profesional=profesional,
             fecha=fecha,
@@ -294,6 +330,7 @@ def asignar_turno(request, paciente_id):
         
         TurnoProfesional.objects.create(
             profesional=profesional,
+            establecimiento=establecimiento,
             paciente=paciente,
             fecha=fecha,
             hora_inicio=hora,
@@ -355,11 +392,10 @@ def asignar_turno(request, paciente_id):
                         'slots': slots
                     })
     
-    # Si es secretaria, pasar lista de profesionales
     profesionales_consultorio = None
     if request.user.rol == 'secretaria':
         profesionales_consultorio = Profesional.objects.filter(
-            establecimiento=request.user.establecimiento, activo=True
+            establecimientos=request.user.establecimiento, activo=True
         )
     
     return render(request, 'turnos_profesionales/asignar_turno.html', {
@@ -369,7 +405,6 @@ def asignar_turno(request, paciente_id):
         'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
     })
-
 
 # ============ EDITAR TURNO ============
 
@@ -525,7 +560,7 @@ def calendario_semanal(request):
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
             profesional = Profesional.objects.filter(
-                establecimiento=request.user.establecimiento, activo=True
+                establecimientos=request.user.establecimiento, activo=True
             ).first()
             if not profesional:
                 messages.error(request, 'No hay profesionales en el consultorio.')
@@ -643,7 +678,7 @@ def calendario_semanal(request):
     profesionales_consultorio = None
     if request.user.rol == 'secretaria':
         profesionales_consultorio = Profesional.objects.filter(
-            establecimiento=request.user.establecimiento, activo=True
+            establecimientos=request.user.establecimiento, activo=True
         )
     
     return render(request, 'turnos_profesionales/calendario.html', {
@@ -673,10 +708,21 @@ def asignar_turno_calendario(request):
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
             profesional = Profesional.objects.filter(
-                establecimiento=request.user.establecimiento, activo=True
+                establecimientos=request.user.establecimiento, activo=True
             ).first()
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
+    
+    establecimiento = None
+    if request.user.rol == 'secretaria':
+        establecimiento_id = request.POST.get('establecimiento')
+        if establecimiento_id:
+            establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
+        else:
+            establecimiento = profesional.establecimientos.first()
+    else:
+        # Si el profesional atiende en varios, elegir uno (o el primero)
+        establecimiento = profesional.establecimientos.first()    
     
     fecha_str = request.GET.get('fecha', '')
     hora_str = request.GET.get('hora', '')
@@ -720,7 +766,11 @@ def asignar_turno_calendario(request):
         
         if not paciente_id:
             messages.error(request, 'Seleccioná un paciente.')
-            return redirect(f'{request.path}?fecha={fecha_str}&hora={hora_str}')
+            # Mantener parámetros al redirigir
+            url = f'{request.path}?fecha={fecha_str}&hora={hora_str}'
+            if request.user.rol == 'secretaria' and profesional_id:
+                url += f'&profesional={profesional_id}'
+            return redirect(url)
         
         paciente = get_object_or_404(Paciente, id=paciente_id)
         
@@ -738,6 +788,7 @@ def asignar_turno_calendario(request):
         
         TurnoProfesional.objects.create(
             profesional=profesional,
+            establecimiento=establecimiento,
             paciente=paciente,
             fecha=fecha,
             hora_inicio=hora,
@@ -786,7 +837,7 @@ def bloquear_dia(request):
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
             profesional = Profesional.objects.filter(
-                establecimiento=request.user.establecimiento, activo=True
+                establecimientos=request.user.establecimiento, activo=True
             ).first()
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
@@ -845,7 +896,7 @@ def desbloquear_dia(request, bloqueo_id):
     bloqueo = get_object_or_404(BloqueoAgenda, id=bloqueo_id)
     
     if request.user.rol == 'secretaria':
-        if bloqueo.agenda.profesional.establecimiento != request.user.establecimiento:
+        if request.user.establecimiento not in bloqueo.agenda.profesional.establecimientos.all():
             messages.error(request, 'No tenés permiso.')
             return redirect('calendario_semanal')
     else:
@@ -879,7 +930,7 @@ def panel_secretaria(request):
     
     # Obtener todos los profesionales del consultorio
     profesionales = Profesional.objects.filter(
-        establecimiento=establecimiento,
+        establecimientos=establecimiento,
         activo=True
     )
     
@@ -887,9 +938,7 @@ def panel_secretaria(request):
     profesional_id = request.GET.get('profesional')
     profesional_seleccionado = None
     if profesional_id:
-        profesional_seleccionado = get_object_or_404(Profesional, 
-                                                      id=profesional_id, 
-                                                      establecimiento=establecimiento)
+        profesional_seleccionado = get_object_or_404(Profesional, id=profesional_id, establecimientos=establecimiento)
     
     # Turnos de hoy (todos o de un profesional)
     if profesional_seleccionado:
@@ -900,6 +949,7 @@ def panel_secretaria(request):
     else:
         turnos_hoy = TurnoProfesional.objects.filter(
             profesional__in=profesionales,
+            establecimiento=establecimiento,  # ← Agregar este filtro
             fecha=hoy
         ).order_by('profesional', 'hora_inicio')
     
@@ -920,3 +970,100 @@ def panel_secretaria(request):
         'en_sala': en_sala,
         'establecimiento': establecimiento,
     })
+
+@login_required
+def calendario_multi(request):
+    """Calendario que muestra todos los profesionales del consultorio en columnas."""
+    if request.user.rol != 'secretaria':
+        messages.error(request, 'Solo la secretaria puede ver este calendario.')
+        return redirect('home')
+    
+    if not request.user.establecimiento:
+        messages.error(request, 'No tenés un consultorio asignado.')
+        return redirect('home')
+    
+    establecimiento = request.user.establecimiento
+    profesionales = Profesional.objects.filter(
+        establecimientos=establecimiento,
+        activo=True
+    ).order_by('apellido', 'nombre')
+    
+    # Determinar la semana
+    fecha_str = request.GET.get('fecha')
+    if fecha_str:
+        try:
+            fecha_base = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        except ValueError:
+            fecha_base = date.today()
+    else:
+        fecha_base = date.today()
+    
+    hoy = date.today()
+    lunes = fecha_base - timedelta(days=fecha_base.weekday())
+    nombres_dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+    
+    # Crear estructura: días con turnos de cada profesional
+    dias_semana = []
+    
+    for i in range(7):
+        dia = lunes + timedelta(days=i)
+        turnos_por_profesional = {}
+        
+        for prof in profesionales:
+            turnos_dia = TurnoProfesional.objects.filter(
+                profesional=prof,
+                fecha=dia
+            ).order_by('hora_inicio')
+            
+            turnos_por_profesional[prof.id] = {
+                'profesional': prof,
+                'turnos': turnos_dia,
+                'atiende': False,
+                'color': prof.color_calendario
+            }
+            
+            # Verificar si atiende ese día
+            agenda = Agenda.objects.filter(
+                profesional=prof,
+                activo=True,
+                fecha_inicio__lte=dia
+            ).filter(
+                Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=dia)
+            ).first()
+            
+            if agenda:
+                horario = HorarioAtencion.objects.filter(
+                    agenda=agenda,
+                    dia=dia.weekday()
+                ).first()
+                if horario:
+                    turnos_por_profesional[prof.id]['atiende'] = True
+        
+        dias_semana.append({
+            'fecha': dia,
+            'nombre': nombres_dias[i],
+            'es_hoy': dia == hoy,
+            'turnos_por_profesional': turnos_por_profesional,
+        })
+    
+    semana_anterior = lunes - timedelta(days=7)
+    semana_siguiente = lunes + timedelta(days=7)
+    
+    # Horas del consultorio (se pueden obtener de las agendas)
+    horas = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', 
+            '14:00', '15:00', '16:00', '17:00', '18:00', '19:00']
+
+    return render(request, 'turnos_profesionales/calendario_multi.html', {
+        'profesionales': profesionales,
+        'dias_semana': dias_semana,
+        'lunes': lunes,
+        'domingo': lunes + timedelta(days=6),
+        'semana_anterior': semana_anterior.strftime('%Y-%m-%d'),
+        'semana_siguiente': semana_siguiente.strftime('%Y-%m-%d'),
+        'hoy': hoy,
+        'establecimiento': establecimiento,
+        'horas': horas,
+    })
+
+
+

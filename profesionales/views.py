@@ -1,5 +1,6 @@
 from django.utils import timezone
 from datetime import date, timedelta
+from establecimientos.models import Establecimiento
 from turnos.models import Turno
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -36,6 +37,8 @@ def mi_perfil(request):
         profesional.descripcion = request.POST.get('descripcion', profesional.descripcion)
         profesional.color_calendario = request.POST.get('color_calendario', profesional.color_calendario)
         profesional.acepta_obra_social = request.POST.get('acepta_obra_social') == 'on'
+        establecimientos_ids = request.POST.getlist('establecimientos')
+        profesional.establecimientos.set(establecimientos_ids)
         
         # Foto de perfil
         if 'foto' in request.FILES:
@@ -47,59 +50,7 @@ def mi_perfil(request):
         return redirect('mi_perfil')
     
     return render(request, 'profesionales/perfil.html', {
-        'profesional': profesional
-    })
+    'profesional': profesional,
+    'establecimientos_disponibles': Establecimiento.objects.filter(activo=True),
+})
 
-@login_required
-def panel_profesional(request):
-    # Verificar que el usuario sea profesional
-    if request.user.rol != 'profesional':
-        return redirect('home')
-    
-    try:
-        profesional = Profesional.objects.get(usuario=request.user)
-    except Profesional.DoesNotExist:
-        return redirect('home')
-    
-    hoy = date.today()
-    
-    # Turnos de hoy
-    turnos_hoy = Turno.objects.filter(
-        profesional=profesional,
-        fecha=hoy
-    ).order_by('hora_inicio')
-    
-    # Turnos de mañana
-    manana = hoy + timedelta(days=1)
-    turnos_manana = Turno.objects.filter(
-        profesional=profesional,
-        fecha=manana
-    ).order_by('hora_inicio')
-    
-    # Próximos turnos (próximos 7 días)
-    proxima_semana = hoy + timedelta(days=7)
-    proximos_turnos = Turno.objects.filter(
-        profesional=profesional,
-        fecha__range=[manana + timedelta(days=1), proxima_semana],
-        estado__in=['pendiente', 'confirmado']
-    ).order_by('fecha', 'hora_inicio')
-    
-    # Estadísticas rápidas
-    total_hoy = turnos_hoy.count()
-    confirmados_hoy = turnos_hoy.filter(estado='confirmado').count()
-    pendientes_hoy = turnos_hoy.filter(estado='pendiente').count()
-    completados_hoy = turnos_hoy.filter(estado='completado').count()
-    
-    contexto = {
-        'profesional': profesional,
-        'hoy': hoy,
-        'turnos_hoy': turnos_hoy,
-        'turnos_manana': turnos_manana,
-        'proximos_turnos': proximos_turnos,
-        'total_hoy': total_hoy,
-        'confirmados_hoy': confirmados_hoy,
-        'pendientes_hoy': pendientes_hoy,
-        'completados_hoy': completados_hoy,
-    }
-    
-    return render(request, 'profesionales/panel.html', contexto)

@@ -4,7 +4,7 @@ from .models import Profesional
 
 @admin.register(Profesional)
 class ProfesionalAdmin(admin.ModelAdmin):
-    list_display = ('nombre_completo', 'especialidad', 'matricula','telefono', 'usuario_rol', 'establecimiento', 'activo')
+    list_display = ('nombre_completo', 'especialidad', 'matricula','telefono', 'usuario_rol','mostrar_consultorios', 'activo')
     list_filter = ('especialidad', 'activo')
     search_fields = ('nombre', 'apellido', 'dni', 'matricula')
     ordering = ('apellido', 'nombre')
@@ -22,13 +22,17 @@ class ProfesionalAdmin(admin.ModelAdmin):
             'fields': ('acepta_obra_social', 'activo')
         }),
         ('Consultorio', {
-            'fields': ('establecimiento',)
+            'fields': ('establecimientos',)
         }),
     )
     
     def usuario_rol(self, obj):
         return obj.usuario.get_rol_display() if obj.usuario else '—'
     usuario_rol.short_description = 'Rol del Usuario'
+
+    def mostrar_consultorios(self, obj):
+        return ", ".join([e.nombre for e in obj.establecimientos.all()])
+    mostrar_consultorios.short_description = 'Consultorios'
     
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -43,3 +47,5 @@ class ProfesionalAdmin(admin.ModelAdmin):
                 'Si no aparece ninguno, creá primero un Usuario con rol "profesional" desde la sección Usuarios.'
             )
         return form
+    
+    

@@ -19,13 +19,12 @@ from django.contrib.auth.decorators import login_required
 #     return render(request, 'core_app/home.html')
 
 from django.shortcuts import render, redirect
-
 def home(request):
     if request.user.is_authenticated:
         if request.user.rol == 'profesional':
             return redirect('panel_profesional')
         elif request.user.rol == 'secretaria':
-            return redirect('panel_secretaria')  # La secretaria va a su panel
+            return redirect('panel_secretaria')
         elif request.user.rol == 'paciente':
             return redirect('panel_paciente')
     return render(request, 'core_app/home.html')

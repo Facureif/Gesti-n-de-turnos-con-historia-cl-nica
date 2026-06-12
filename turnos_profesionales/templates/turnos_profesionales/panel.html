@@ -48,6 +48,7 @@
             <thead>
                 <tr style="background: #f8f9fa;">
                     <th style="padding: 10px; text-align: left;">Hora</th>
+                    <th style="padding: 10px; text-align: left;">Consultorio</th>
                     <th style="padding: 10px; text-align: left;">Paciente</th>
                     <th style="padding: 10px; text-align: left;">O.S.</th>
                     <th style="padding: 10px; text-align: center;">Sesiones</th>
@@ -59,6 +60,9 @@
                 {% for turno in turnos_hoy %}
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 10px;">{{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}</td>
+                    <td style="padding: 10px; font-size: 0.85em; color: #666;">
+                        {{ turno.establecimiento.nombre|default:"—" }}
+                    </td>
                     <td style="padding: 10px;">
                         <a href="{% url 'ficha_paciente' turno.paciente.id %}" style="color: #4A90D9; text-decoration: none;">
                             {{ turno.paciente.nombre_completo }}

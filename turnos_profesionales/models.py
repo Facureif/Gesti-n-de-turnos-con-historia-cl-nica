@@ -62,7 +62,13 @@ class TurnoProfesional(ModeloBase):
         default=True,
         verbose_name='Enviar Recordatorio'
     )
-    
+    establecimiento = models.ForeignKey(
+    'establecimientos.Establecimiento',
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    verbose_name='Consultorio'
+)
     class Meta:
         verbose_name = 'Turno Profesional'
         verbose_name_plural = 'Turnos Profesionales'

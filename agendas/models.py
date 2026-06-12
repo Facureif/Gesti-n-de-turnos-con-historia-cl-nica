@@ -24,6 +24,14 @@ class Agenda(ModeloBase):
         verbose_name='Minutos entre turnos'
     )
     
+    establecimiento = models.ForeignKey(
+    'establecimientos.Establecimiento',
+    on_delete=models.CASCADE,
+    null=True,
+    blank=True,
+    verbose_name='Consultorio'
+)
+
     class Meta:
         verbose_name = 'Agenda'
         verbose_name_plural = 'Agendas'
