@@ -1,0 +1,111 @@
+<div class="card" style="margin-bottom: 20px;">
+    <h3 style="margin-bottom: 10px;">📎 Adjuntar archivos</h3>
+    
+    <!-- Zona de arrastrar y soltar -->
+    <div id="drop-zone" style="
+        border: 2px dashed #ddd;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        background: #fafafa;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 10px;
+    " ondrop="handleDrop(event)" ondragover="handleDragOver(event)" onclick="document.getElementById('archivos-input').click()">
+        <div style="font-size: 2em;">📁</div>
+        <p style="color: #666; margin: 10px 0;">Arrastrá archivos acá o hacé clic para seleccionar</p>
+        <p style="color: #999; font-size: 0.85em;">Imágenes (JPG, PNG, GIF, WebP) | Máx. 10 archivos</p>
+    </div>
+    
+    <input type="file" name="archivos" id="archivos-input" multiple accept="image/*" 
+           style="display: none;" onchange="mostrarPrevia(this.files)">
+    
+    <!-- Previa de imágenes -->
+    <div id="previa-container" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;"></div>
+    
+    <div style="margin-bottom: 10px;">
+        <input type="text" name="descripcion_archivo" 
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+               placeholder="Descripción de los archivos (opcional)">
+    </div>
+</div>
+
+<script>
+const maxFiles = 10;
+let archivosSeleccionados = [];
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('drop-zone').style.borderColor = '#4A90D9';
+    document.getElementById('drop-zone').style.background = '#f0f7ff';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('drop-zone').style.borderColor = '#ddd';
+    document.getElementById('drop-zone').style.background = '#fafafa';
+    
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    agregarArchivos(files);
+}
+
+function mostrarPrevia(fileList) {
+    const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    agregarArchivos(files);
+}
+
+function agregarArchivos(nuevosArchivos) {
+    if (archivosSeleccionados.length + nuevosArchivos.length > maxFiles) {
+        alert('Máximo ' + maxFiles + ' archivos permitidos.');
+        return;
+    }
+    
+    archivosSeleccionados = [...archivosSeleccionados, ...nuevosArchivos];
+    actualizarPrevia();
+    actualizarInput();
+}
+
+function eliminarArchivo(index) {
+    archivosSeleccionados.splice(index, 1);
+    actualizarPrevia();
+    actualizarInput();
+}
+
+function actualizarPrevia() {
+    const container = document.getElementById('previa-container');
+    container.innerHTML = '';
+    
+    archivosSeleccionados.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;';
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
+                <button onclick="eliminarArchivo(${index})" type="button" style="
+                    position: absolute; top: 2px; right: 2px;
+                    background: #dc3545; color: white; border: none;
+                    border-radius: 50%; width: 20px; height: 20px;
+                    font-size: 12px; cursor: pointer; line-height: 1;
+                ">✕</button>
+            `;
+            container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function actualizarInput() {
+    const dt = new DataTransfer();
+    archivosSeleccionados.forEach(f => dt.items.add(f));
+    document.getElementById('archivos-input').files = dt.files;
+}
+
+// Restaurar drag & drop al salir
+document.getElementById('drop-zone').addEventListener('dragleave', function(e) {
+    this.style.borderColor = '#ddd';
+    this.style.background = '#fafafa';
+});
+</script>

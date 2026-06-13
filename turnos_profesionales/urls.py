@@ -16,4 +16,5 @@ urlpatterns = [
     path('desbloquear/<int:bloqueo_id>/', views.desbloquear_dia, name='desbloquear_dia'),
     path('secretaria/panel/', views.panel_secretaria, name='panel_secretaria'),
     path('calendario-multi/', views.calendario_multi, name='calendario_multi'),
+    path('reprogramar/<int:turno_id>/', views.reprogramar_turno, name='reprogramar_turno'),
 ]

@@ -29,7 +29,7 @@
     {% endif %}
 
     {% if dias_disponibles %}
-        <form method="post" id="form-turno">
+        <form method="post" id="form-turno" enctype="multipart/form-data">
             {% csrf_token %}
 
             <!-- Consultorio oculto (ya seleccionado arriba) -->
@@ -93,7 +93,10 @@
                     style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
                     placeholder="Ej: Control, dolor, consulta...">
             </div>
-
+            
+            <!-- SUBIDA DE ARCHIVOS -->
+            {% include 'core_app/includes/upload_archivos.html' %}
+            
             <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
                 ✅ Confirmar Turno
             </button>

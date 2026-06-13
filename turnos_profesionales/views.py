@@ -214,6 +214,7 @@ def cargar_evolucion(request, turno_id):
         tratamiento = request.POST.get('tratamiento', '')
         indicaciones = request.POST.get('indicaciones', '')
         proximo_control = request.POST.get('proximo_control', '')
+        medicacion_recetada = request.POST.get('medicacion_recetada', '')
         
         if not motivo:
             messages.error(request, 'El motivo de consulta es obligatorio.')
@@ -227,8 +228,21 @@ def cargar_evolucion(request, turno_id):
             diagnostico=diagnostico,
             tratamiento_realizado=tratamiento,
             indicaciones=indicaciones,
+            medicacion_recetada=medicacion_recetada,
             proximo_control=proximo_control if proximo_control else None
         )
+        
+        # Guardar archivos adjuntos
+        from historias_clinicas.models import ArchivoClinico
+        archivos = request.FILES.getlist('archivos')
+        descripcion_archivo = request.POST.get('descripcion_archivo', '')
+        for archivo in archivos:
+            ArchivoClinico.objects.create(
+                evolucion=evolucion,
+                archivo=archivo,
+                descripcion=descripcion_archivo,
+                tipo='foto'
+            )
         
         messages.success(request, 'Evolución cargada correctamente.')
         return redirect('panel_profesional')
@@ -248,7 +262,6 @@ def asignar_turno(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
-    # Obtener profesional según el rol
     if request.user.rol == 'secretaria':
         profesional_id = request.GET.get('profesional')
         if profesional_id:
@@ -284,7 +297,6 @@ def asignar_turno(request, paciente_id):
             messages.error(request, 'Fecha u hora inválida.')
             return redirect('asignar_turno', paciente_id=paciente.id)
         
-        # Obtener establecimiento
         establecimiento = None
         establecimiento_id = request.POST.get('establecimiento')
         if establecimiento_id:
@@ -292,7 +304,6 @@ def asignar_turno(request, paciente_id):
         else:
             establecimiento = profesional.establecimientos.first()
         
-        # Verificar disponibilidad
         agenda = Agenda.objects.filter(
             profesional=profesional,
             activo=True,
@@ -328,7 +339,7 @@ def asignar_turno(request, paciente_id):
         
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=horario.duracion_turno)).time()
         
-        TurnoProfesional.objects.create(
+        turno = TurnoProfesional.objects.create(
             profesional=profesional,
             establecimiento=establecimiento,
             paciente=paciente,
@@ -339,6 +350,17 @@ def asignar_turno(request, paciente_id):
             tipo_consulta=tipo_consulta,
             notas_internas=notas
         )
+        
+        # Guardar archivos adjuntos
+        from .models import ArchivoTurno
+        archivos = request.FILES.getlist('archivos')
+        descripcion_archivo = request.POST.get('descripcion_archivo', '')
+        for archivo in archivos:
+            ArchivoTurno.objects.create(
+                turno=turno,
+                archivo=archivo,
+                descripcion=descripcion_archivo
+            )
         
         messages.success(request, f'Turno asignado a {paciente.nombre_completo} el {fecha.strftime("%d/%m/%Y")} a las {hora_str}.')
         
@@ -406,6 +428,7 @@ def asignar_turno(request, paciente_id):
         'profesionales_consultorio': profesionales_consultorio,
     })
 
+
 # ============ EDITAR TURNO ============
 
 @login_required
@@ -417,7 +440,7 @@ def editar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
     
     if request.user.rol == 'secretaria':
-        profesional = turno.profesional  # La secretaria edita el turno del profesional que lo tiene
+        profesional = turno.profesional
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
         if request.user != turno.profesional.usuario:
@@ -444,7 +467,6 @@ def editar_turno(request, turno_id):
             messages.error(request, 'Fecha u hora inválida.')
             return redirect('editar_turno_pro', turno_id=turno.id)
         
-        # Si cambió la fecha/hora, verificar disponibilidad
         if fecha != turno.fecha or hora != turno.hora_inicio:
             existe = TurnoProfesional.objects.filter(
                 profesional=profesional,
@@ -463,7 +485,6 @@ def editar_turno(request, turno_id):
         turno.tipo_consulta = tipo_consulta
         turno.notas_internas = notas
 
-        # Recalcular hora_fin según la duración configurada en la agenda
         agenda = Agenda.objects.filter(
             profesional=profesional,
             activo=True,
@@ -472,7 +493,7 @@ def editar_turno(request, turno_id):
             Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha)
         ).first()
         
-        duracion = 30  # default
+        duracion = 30
         if agenda:
             dia_semana = fecha.weekday()
             horario_atencion = HorarioAtencion.objects.filter(
@@ -484,6 +505,17 @@ def editar_turno(request, turno_id):
         
         turno.hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
         turno.save()
+        
+        # Guardar archivos adjuntos nuevos
+        from .models import ArchivoTurno
+        archivos = request.FILES.getlist('archivos')
+        descripcion_archivo = request.POST.get('descripcion_archivo', '')
+        for archivo in archivos:
+            ArchivoTurno.objects.create(
+                turno=turno,
+                archivo=archivo,
+                descripcion=descripcion_archivo
+            )
         
         messages.success(request, 'Turno actualizado correctamente.')
         
@@ -543,7 +575,6 @@ def editar_turno(request, turno_id):
         'dias_disponibles': dias_disponibles,
         'hoy': hoy
     })
-
 
 # ============ CALENDARIO SEMANAL ============
 
@@ -1065,5 +1096,154 @@ def calendario_multi(request):
         'horas': horas,
     })
 
-
+@login_required
+def reprogramar_turno(request, turno_id):
+    """Reprogramar un turno existente a otra fecha/hora."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    turno = get_object_or_404(TurnoProfesional, id=turno_id)
+    
+    if request.user.rol == 'secretaria':
+        profesional = turno.profesional
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+        if request.user != turno.profesional.usuario:
+            messages.error(request, 'No tenés permiso.')
+            return redirect('panel_profesional')
+    
+    hoy = date.today()
+    
+    if request.method == 'POST':
+        fecha_str = request.POST.get('fecha')
+        hora_str = request.POST.get('hora')
+        establecimiento_id = request.POST.get('establecimiento')
+        
+        if not all([fecha_str, hora_str]):
+            messages.error(request, 'Seleccioná fecha y hora.')
+            return redirect('reprogramar_turno', turno_id=turno.id)
+        
+        try:
+            nueva_fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            nueva_hora = datetime.strptime(hora_str, '%H:%M').time()
+        except ValueError:
+            messages.error(request, 'Fecha u hora inválida.')
+            return redirect('reprogramar_turno', turno_id=turno.id)
+        
+        # No permitir fechas pasadas
+        if nueva_fecha < hoy:
+            messages.error(request, 'No podés reprogramar a una fecha pasada.')
+            return redirect('reprogramar_turno', turno_id=turno.id)
+        
+        # Verificar disponibilidad
+        existe = TurnoProfesional.objects.filter(
+            profesional=profesional,
+            fecha=nueva_fecha,
+            hora_inicio=nueva_hora,
+            estado__in=['pendiente', 'confirmado']
+        ).exclude(id=turno.id).exists()
+        
+        if existe:
+            messages.error(request, 'Ese horario ya está ocupado.')
+            return redirect('reprogramar_turno', turno_id=turno.id)
+        
+        # Actualizar establecimiento si se seleccionó
+        if establecimiento_id:
+            turno.establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
+        
+        # Guardar fecha anterior para el mensaje
+        fecha_anterior = turno.fecha
+        hora_anterior = turno.hora_inicio
+        
+        # Actualizar turno
+        turno.fecha = nueva_fecha
+        turno.hora_inicio = nueva_hora
+        
+        # Recalcular hora_fin
+        duracion = 30
+        agenda = Agenda.objects.filter(
+            profesional=profesional,
+            activo=True,
+            fecha_inicio__lte=nueva_fecha
+        ).filter(
+            Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=nueva_fecha)
+        ).first()
+        
+        if agenda:
+            dia_semana = nueva_fecha.weekday()
+            horario_atencion = HorarioAtencion.objects.filter(
+                agenda=agenda,
+                dia=dia_semana
+            ).first()
+            if horario_atencion:
+                duracion = horario_atencion.duracion_turno
+        
+        turno.hora_fin = (datetime.combine(nueva_fecha, nueva_hora) + timedelta(minutes=duracion)).time()
+        turno.save()
+        
+        messages.success(
+            request, 
+            f'Turno de {turno.paciente.nombre_completo} reprogramado del {fecha_anterior.strftime("%d/%m/%Y")} a las {hora_anterior.strftime("%H:%M")} → {nueva_fecha.strftime("%d/%m/%Y")} a las {nueva_hora.strftime("%H:%M")}.'
+        )
+        
+        if request.user.rol == 'secretaria':
+            return redirect('panel_secretaria')
+        return redirect('panel_profesional')
+    
+    # GET - Mostrar slots disponibles desde hoy
+    dias_disponibles = []
+    agenda = Agenda.objects.filter(
+        profesional=profesional,
+        activo=True,
+        fecha_inicio__lte=hoy + timedelta(days=30)
+    ).first()
+    
+    if agenda:
+        for i in range(30):
+            fecha = hoy + timedelta(days=i)
+            dia_semana = fecha.weekday()
+            
+            horario = HorarioAtencion.objects.filter(
+                agenda=agenda,
+                dia=dia_semana
+            ).first()
+            
+            if horario:
+                hora_actual = horario.hora_inicio
+                slots = []
+                
+                while hora_actual < horario.hora_fin:
+                    hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
+                    
+                    if hora_fin_slot <= horario.hora_fin:
+                        ocupado = TurnoProfesional.objects.filter(
+                            profesional=profesional,
+                            fecha=fecha,
+                            hora_inicio=hora_actual,
+                            estado__in=['pendiente', 'confirmado']
+                        ).exclude(id=turno.id).exists()
+                        
+                        if not ocupado:
+                            slots.append({
+                                'hora': hora_actual.strftime('%H:%M'),
+                                'hora_fin': hora_fin_slot.strftime('%H:%M')
+                            })
+                    
+                    hora_actual = hora_fin_slot
+                
+                if slots:
+                    dias_disponibles.append({
+                        'fecha': fecha,
+                        'fecha_str': fecha.strftime('%Y-%m-%d'),
+                        'nombre_dia': fecha.strftime('%A'),
+                        'es_hoy': fecha == hoy,
+                        'slots': slots
+                    })
+    
+    return render(request, 'turnos_profesionales/reprogramar_turno.html', {
+        'profesional': profesional,
+        'turno': turno,
+        'dias_disponibles': dias_disponibles,
+        'hoy': hoy
+    })
 

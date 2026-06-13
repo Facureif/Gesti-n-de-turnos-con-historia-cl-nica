@@ -1,0 +1,129 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Reprogramar Turno{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h1 style="margin-bottom: 5px;">🔄 Reprogramar Turno</h1>
+    <p style="color: #666; margin-bottom: 20px;">
+        Paciente: <strong>{{ turno.paciente.nombre_completo }}</strong><br>
+        Turno actual: {{ turno.fecha|date:"d/m/Y" }} a las {{ turno.hora_inicio|time:"H:i" }}
+    </p>
+
+    <!-- Advertencia si es para hoy -->
+    {% if turno.fecha == hoy %}
+    <div class="card" style="background: #fff3cd; border: 2px solid #ffc107; margin-bottom: 20px;">
+        <p style="color: #856404; margin: 0;">
+            ⚠️ Este turno es para <strong>hoy</strong>. ¿Estás seguro de reprogramarlo?
+        </p>
+    </div>
+    {% endif %}
+
+    {% if dias_disponibles %}
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Día -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">1️⃣ Nueva fecha</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% for dia in dias_disponibles %}
+                    <label style="
+                        padding: 12px 15px;
+                        border: 2px solid {% if dia.fecha == turno.fecha %}#28a745{% else %}#ddd{% endif %};
+                        border-radius: 8px;
+                        cursor: pointer;
+                        text-align: center;
+                        min-width: 85px;
+                        background: {% if dia.fecha == turno.fecha %}#f0fff4{% else %}white{% endif %};
+                    " class="dia-label" onclick="marcarDia(this, '{{ dia.fecha_str }}')">
+                        <input type="radio" name="fecha" value="{{ dia.fecha_str }}" style="display: none;"
+                               {% if dia.fecha == turno.fecha %}checked{% endif %}>
+                        <div style="font-weight: bold;">{{ dia.fecha|date:"d" }}</div>
+                        <div style="font-size: 0.8em; color: #666;">{{ dia.fecha|date:"M" }}</div>
+                        <div style="font-size: 0.7em; color: #999;">{{ dia.nombre_dia|slice:":3" }}</div>
+                        {% if dia.es_hoy %}<div style="font-size: 0.6em; color: #4A90D9;">HOY</div>{% endif %}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Hora -->
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">2️⃣ Nuevo horario</h3>
+                <div id="horarios-container">
+                    {% for dia in dias_disponibles %}
+                    <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
+                         style="display: {% if dia.fecha == turno.fecha %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
+                        {% for slot in dia.slots %}
+                        <label style="
+                            padding: 10px 18px;
+                            border: 2px solid #4A90D9;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: bold;
+                            color: #4A90D9;
+                        " class="hora-label" onclick="marcarHora(this)">
+                            <input type="radio" name="hora" value="{{ slot.hora }}" style="display: none;">
+                            {{ slot.hora }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Consultorio (si atiende en varios) -->
+            {% if profesional.establecimientos.count > 1 %}
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px;">🏥 Consultorio</h3>
+                <select name="establecimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    {% for est in profesional.establecimientos.all %}
+                        <option value="{{ est.id }}" {% if turno.establecimiento.id == est.id %}selected{% endif %}>
+                            {{ est.nombre }} - {{ est.direccion }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px;">
+                    ✅ Confirmar Reprogramación
+                </button>
+                <a href="{% url 'panel_profesional' %}" class="btn" style="padding: 12px 30px; background: #6c757d;">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="color: #666;">No hay horarios disponibles para reprogramar.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function marcarDia(label, fecha) {
+    document.querySelectorAll('.horarios-dia').forEach(d => d.style.display = 'none');
+    let div = document.querySelector(`.horarios-dia[data-fecha="${fecha}"]`);
+    if (div) div.style.display = 'flex';
+    
+    document.querySelectorAll('.dia-label').forEach(l => {
+        l.style.border = '2px solid #ddd';
+        l.style.background = 'white';
+    });
+    label.style.border = '2px solid #4A90D9';
+    label.style.background = '#f0f7ff';
+}
+
+function marcarHora(label) {
+    document.querySelectorAll('.hora-label').forEach(l => {
+        l.style.border = '2px solid #4A90D9';
+        l.style.background = 'white';
+    });
+    label.style.border = '2px solid #28a745';
+    label.style.background = '#f0fff4';
+}
+</script>
+{% endblock %}

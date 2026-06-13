@@ -1,3 +1,5 @@
+from datetime import date
+from turnos_profesionales.models import TurnoProfesional
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,7 +8,7 @@ from .models import Paciente
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
 from historias_clinicas.models import HistoriaClinica, Evolucion
-from turnos_profesionales.models import TurnoProfesional
+
 
 
 @login_required
@@ -141,13 +143,29 @@ def ficha_paciente(request, paciente_id):
         profesional=profesional,
         paciente=paciente
     ).order_by('-fecha', '-hora_inicio')[:20]
+
+    # Próximos turnos (pendientes y confirmados)
+    hoy = date.today()
+    proximos_turnos = TurnoProfesional.objects.filter(
+        paciente=paciente,
+        fecha__gte=hoy,
+        estado__in=['pendiente', 'confirmado']
+    ).order_by('fecha', 'hora_inicio')
+
+    # Turnos pasados
+    turnos_pasados = TurnoProfesional.objects.filter(
+        paciente=paciente,
+        estado__in=['completado', 'cancelado', 'no_asistio']
+    ).order_by('-fecha', '-hora_inicio')[:20]
     
     return render(request, 'pacientes/ficha.html', {
         'profesional': profesional,
         'paciente': paciente,
         'historia': historia,
         'evoluciones': evoluciones,
-        'turnos': turnos,
+        'proximos_turnos': proximos_turnos,
+        'turnos': turnos_pasados,
+        'hoy': hoy,
         'es_secretaria': request.user.rol == 'secretaria'
     })
 

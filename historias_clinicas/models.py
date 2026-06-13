@@ -43,7 +43,7 @@ class Evolucion(ModeloBase):
         verbose_name='Historia Clínica'
     )
     turno = models.OneToOneField(
-        'turnos.Turno',
+        'turnos_profesionales.TurnoProfesional',  # ← CORREGIDO
         on_delete=models.CASCADE,
         verbose_name='Turno'
     )
@@ -52,6 +52,10 @@ class Evolucion(ModeloBase):
         on_delete=models.CASCADE,
         verbose_name='Profesional'
     )
+    medicacion_recetada = models.TextField(
+    blank=True,
+    verbose_name='Medicación Recetada'
+)
     motivo_consulta = models.TextField(verbose_name='Motivo de Consulta')
     diagnostico = models.TextField(blank=True, verbose_name='Diagnóstico')
     tratamiento_realizado = models.TextField(

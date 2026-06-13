@@ -1,5 +1,6 @@
 {% extends 'core_app/base.html' %}
 
+
 {% block title %}Asignar Turno - {{ paciente.nombre_completo }}{% endblock %}
 
 {% block content %}
@@ -41,7 +42,7 @@
     {% endif %}
     
     {% if dias_disponibles %}
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- Elegir día -->
@@ -113,6 +114,8 @@
                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
                               placeholder="Notas visibles solo para el profesional..."></textarea>
                 </div>
+                <!-- SUBIDA DE ARCHIVOS -->
+                {% include 'core_app/includes/upload_archivos.html' %}
                 
                 <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
                     ✅ Asignar Turno

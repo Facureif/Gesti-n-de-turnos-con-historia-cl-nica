@@ -5,11 +5,12 @@
 {% block content %}
 <div style="max-width: 700px; margin: 0 auto;">
     <h1 style="margin-bottom: 5px;">✏️ Editar Turno</h1>
+    
     <p style="color: #666; margin-bottom: 20px;">
         Paciente: <strong>{{ turno.paciente.nombre_completo }}</strong>
     </p>
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
         <!-- Fecha y Hora -->
@@ -65,7 +66,27 @@
                 {% endfor %}
             </div>
         </div>
-        
+
+        <!-- Archivos existentes -->
+        {% if turno.archivos.all %}
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 10px;">📎 Archivos adjuntos</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                {% for archivo in turno.archivos.all %}
+                <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+                    {% if archivo.es_imagen %}
+                        <img src="{{ archivo.archivo.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <a href="{{ archivo.archivo.url }}" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f8f9fa; text-decoration: none;">
+                            📄
+                        </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Estado y Notas -->
         <div class="card" style="margin-bottom: 20px;">
             <h3 style="margin-bottom: 15px;">📝 Información</h3>
@@ -94,6 +115,36 @@
             </div>
         </div>
         
+        <!-- SUBIDA DE ARCHIVOS -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 10px;">📎 Agregar archivos</h3>
+            
+            <div style="
+                border: 2px dashed #ddd;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                background: #fafafa;
+                cursor: pointer;
+                margin-bottom: 10px;
+            " onclick="document.getElementById('archivos-input-editar').click()">
+                <div style="font-size: 2em;">📁</div>
+                <p style="color: #666; margin: 5px 0;">Hacé clic para seleccionar archivos</p>
+                <p style="color: #999; font-size: 0.85em;">Imágenes (JPG, PNG, GIF, WebP)</p>
+            </div>
+            
+            <input type="file" name="archivos" id="archivos-input-editar" multiple accept="image/*" 
+                   style="display: none;" onchange="mostrarPreviaEditar(this.files)">
+            
+            <div id="previa-editar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;"></div>
+            
+            <div>
+                <input type="text" name="descripcion_archivo" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+                       placeholder="Descripción de los archivos (opcional)">
+            </div>
+        </div>
+
         <!-- Botones -->
         <div style="display: flex; gap: 10px;">
             <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px;">
@@ -129,6 +180,22 @@ function seleccionarHora(label) {
     label.style.border = '2px solid #28a745';
     label.style.background = '#f0fff4';
     label.style.color = '#28a745';
+}
+
+function mostrarPreviaEditar(fileList) {
+    const container = document.getElementById('previa-editar');
+    container.innerHTML = '';
+    Array.from(fileList).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;';
+            div.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;">';
+            container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 </script>
 {% endblock %}
