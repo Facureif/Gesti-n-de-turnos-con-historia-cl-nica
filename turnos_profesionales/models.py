@@ -69,6 +69,10 @@ class TurnoProfesional(ModeloBase):
     blank=True,
     verbose_name='Consultorio'
 )
+    es_sobreturno = models.BooleanField(
+    default=False,
+    verbose_name='Sobreturno'
+)
 
     class Meta:
         verbose_name = 'Turno Profesional'

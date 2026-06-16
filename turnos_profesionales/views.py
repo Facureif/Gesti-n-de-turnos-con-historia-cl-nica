@@ -244,6 +244,95 @@ def cargar_evolucion(request, turno_id):
                 tipo='foto'
             )
         
+        # Si hay próximo control, crear turno automáticamente
+        if proximo_control:
+            try:
+                fecha_control = datetime.strptime(proximo_control, '%Y-%m-%d').date()
+                hora_preferida = request.POST.get('proximo_control_hora', '')
+                
+                # Buscar slot disponible
+                agenda = Agenda.objects.filter(
+                    profesional=profesional,
+                    activo=True,
+                    fecha_inicio__lte=fecha_control
+                ).filter(
+                    Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha_control)
+                ).first()
+                
+                if agenda:
+                    dia_semana = fecha_control.weekday()
+                    horario = HorarioAtencion.objects.filter(
+                        agenda=agenda,
+                        dia=dia_semana
+                    ).first()
+                    
+                    if horario:
+                        slot_encontrado = None
+                        
+                        # Si el profesional eligió una hora, intentar usarla
+                        if hora_preferida:
+                            try:
+                                hora_pref = datetime.strptime(hora_preferida, '%H:%M').time()
+                                # Verificar si está libre
+                                ocupado = TurnoProfesional.objects.filter(
+                                    profesional=profesional,
+                                    fecha=fecha_control,
+                                    hora_inicio=hora_pref,
+                                    estado__in=['pendiente', 'confirmado']
+                                ).exists()
+                                
+                                if not ocupado:
+                                    # Verificar que esté dentro del horario de atención
+                                    if horario.hora_inicio <= hora_pref and (
+                                        datetime.combine(fecha_control, hora_pref) + 
+                                        timedelta(minutes=horario.duracion_turno)
+                                    ).time() <= horario.hora_fin:
+                                        slot_encontrado = hora_pref
+                            except:
+                                pass
+                        
+                        # Si no se encontró con la hora preferida, buscar primer libre
+                        if not slot_encontrado:
+                            hora_actual = horario.hora_inicio
+                            while hora_actual < horario.hora_fin:
+                                ocupado = TurnoProfesional.objects.filter(
+                                    profesional=profesional,
+                                    fecha=fecha_control,
+                                    hora_inicio=hora_actual,
+                                    estado__in=['pendiente', 'confirmado']
+                                ).exists()
+                                
+                                if not ocupado:
+                                    slot_encontrado = hora_actual
+                                    break
+                                
+                                hora_actual = (datetime.combine(fecha_control, hora_actual) + 
+                                              timedelta(minutes=horario.duracion_turno)).time()
+                        
+                        if slot_encontrado:
+                            hora_fin_control = (datetime.combine(fecha_control, slot_encontrado) + 
+                                               timedelta(minutes=horario.duracion_turno)).time()
+                            
+                            TurnoProfesional.objects.create(
+                                profesional=profesional,
+                                establecimiento=turno.establecimiento,
+                                paciente=turno.paciente,
+                                fecha=fecha_control,
+                                hora_inicio=slot_encontrado,
+                                hora_fin=hora_fin_control,
+                                estado='pendiente',
+                                tipo_consulta='Control',
+                                notas_internas=f'Turno generado automáticamente desde evolución del {turno.fecha.strftime("%d/%m/%Y")}'
+                            )
+                            
+                            messages.success(request, 
+                                f'✅ Turno de control creado para el {fecha_control.strftime("%d/%m/%Y")} a las {slot_encontrado.strftime("%H:%M")}.')
+                        else:
+                            messages.info(request, 
+                                f'⚠️ No se encontraron horarios libres para el {fecha_control.strftime("%d/%m/%Y")}. Asignalo manualmente.')
+            except Exception as e:
+                pass  # Si falla, no interrumpe
+        
         messages.success(request, 'Evolución cargada correctamente.')
         return redirect('panel_profesional')
     
@@ -621,7 +710,7 @@ def calendario_semanal(request):
     for i in range(7):
         dia = lunes + timedelta(days=i)
         
-        # Obtener turnos de ese día
+        # Obtener turnos de ese día (todos: normales y sobreturnos)
         turnos_dia = TurnoProfesional.objects.filter(
             profesional=profesional,
             fecha=dia
@@ -658,11 +747,11 @@ def calendario_semanal(request):
                                     timedelta(minutes=h.duracion_turno)).time()
                     
                     if hora_fin_slot <= h.hora_fin:
-                        turno_en_slot = None
+                        # Buscar TODOS los turnos en este horario
+                        turnos_en_horario = []
                         for t in turnos_dia:
                             if t.hora_inicio == hora_actual:
-                                turno_en_slot = t
-                                break
+                                turnos_en_horario.append(t)
                         
                         # Verificar si el slot está bloqueado
                         slot_bloqueado = False
@@ -674,12 +763,23 @@ def calendario_semanal(request):
                                     slot_bloqueado = True
                         
                         if not slot_bloqueado:
-                            horarios_dia.append({
-                                'hora_inicio': hora_actual,
-                                'hora_fin': hora_fin_slot,
-                                'turno': turno_en_slot,
-                                'disponible': turno_en_slot is None
-                            })
+                            if turnos_en_horario:
+                                # Agregar cada turno como un slot (el primero normal, el resto sobreturnos)
+                                for turno in turnos_en_horario:
+                                    horarios_dia.append({
+                                        'hora_inicio': hora_actual,
+                                        'hora_fin': hora_fin_slot,
+                                        'turno': turno,
+                                        'disponible': False
+                                    })
+                            else:
+                                # Slot vacío
+                                horarios_dia.append({
+                                    'hora_inicio': hora_actual,
+                                    'hora_fin': hora_fin_slot,
+                                    'turno': None,
+                                    'disponible': True
+                                })
                     
                     hora_actual = hora_fin_slot
         
@@ -722,7 +822,6 @@ def calendario_semanal(request):
         'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
     })
-
 
 # ============ ASIGNAR TURNO DESDE CALENDARIO ============
 
@@ -1247,3 +1346,235 @@ def reprogramar_turno(request, turno_id):
         'hoy': hoy
     })
 
+@login_required
+def crear_sobreturno(request, paciente_id):
+    """Crear un sobreturno (urgencia) para un paciente."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimientos=request.user.establecimiento, activo=True
+            ).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    hoy = date.today()
+    
+    if request.method == 'POST':
+        fecha_str = request.POST.get('fecha')
+        hora_str = request.POST.get('hora')
+        duracion = int(request.POST.get('duracion', 15))
+        tipo_consulta = request.POST.get('tipo_consulta', 'URGENCIA - Sobreturno')
+        notas = request.POST.get('notas', '')
+        establecimiento_id = request.POST.get('establecimiento')
+        
+        if not all([fecha_str, hora_str]):
+            messages.error(request, 'Seleccioná fecha y hora.')
+            return redirect('crear_sobreturno', paciente_id=paciente.id)
+        
+        try:
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            hora = datetime.strptime(hora_str, '%H:%M').time()
+        except ValueError:
+            messages.error(request, 'Fecha u hora inválida.')
+            return redirect('crear_sobreturno', paciente_id=paciente.id)
+        
+        hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
+        
+        establecimiento = None
+        if establecimiento_id:
+            establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
+        else:
+            establecimiento = profesional.establecimientos.first()
+        
+        TurnoProfesional.objects.create(
+            profesional=profesional,
+            establecimiento=establecimiento,
+            paciente=paciente,
+            fecha=fecha,
+            hora_inicio=hora,
+            hora_fin=hora_fin,
+            estado='confirmado',
+            tipo_consulta=tipo_consulta,
+            notas_internas=notas,
+            es_sobreturno=True
+        )
+        
+        messages.success(request, f'¡Sobreturno creado! {paciente.nombre_completo} - {fecha.strftime("%d/%m/%Y")} a las {hora_str}.')
+        
+        if request.user.rol == 'secretaria':
+            return redirect('panel_secretaria')
+        return redirect('panel_profesional')
+    
+    return render(request, 'turnos_profesionales/sobreturno.html', {
+        'profesional': profesional,
+        'paciente': paciente,
+        'hoy': hoy
+    })
+
+@login_required
+def sobreturno_calendario(request):
+    """Crear sobreturno desde el calendario (con fecha/hora predefinida)."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimientos=request.user.establecimiento, activo=True
+            ).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    
+    fecha_str = request.GET.get('fecha', '')
+    hora_str = request.GET.get('hora', '')
+    hora_fin_str = request.GET.get('hora_fin', '')
+    
+    if request.method == 'POST':
+        paciente_id = request.POST.get('paciente_id')
+        tipo_consulta = request.POST.get('tipo_consulta', 'URGENCIA - Sobreturno')
+        notas = request.POST.get('notas', '')
+        establecimiento_id = request.POST.get('establecimiento')
+        
+        if not paciente_id:
+            messages.error(request, 'Seleccioná un paciente.')
+            return redirect(request.path + f'?fecha={fecha_str}&hora={hora_str}&hora_fin={hora_fin_str}')
+        
+        paciente = get_object_or_404(Paciente, id=paciente_id)
+        
+        try:
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            hora = datetime.strptime(hora_str, '%H:%M').time()
+            hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time() if hora_fin_str else (
+                datetime.combine(fecha, hora) + timedelta(minutes=15)
+            ).time()
+        except ValueError:
+            messages.error(request, 'Fecha u hora inválida.')
+            return redirect('calendario_semanal')
+        
+        establecimiento = None
+        if establecimiento_id:
+            establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
+        else:
+            establecimiento = profesional.establecimientos.first()
+        
+        TurnoProfesional.objects.create(
+            profesional=profesional,
+            establecimiento=establecimiento,
+            paciente=paciente,
+            fecha=fecha,
+            hora_inicio=hora,
+            hora_fin=hora_fin,
+            estado='confirmado',
+            tipo_consulta=tipo_consulta,
+            notas_internas=notas,
+            es_sobreturno=True
+        )
+        
+        messages.success(request, f'🚨 Sobreturno creado para {paciente.nombre_completo}.')
+        return redirect('calendario_semanal')
+    
+    # GET - Buscar paciente
+    busqueda = request.GET.get('buscar', '')
+    pacientes = []
+    if busqueda:
+        pacientes = Paciente.objects.filter(
+            Q(nombre__icontains=busqueda) |
+            Q(apellido__icontains=busqueda) |
+            Q(dni__icontains=busqueda)
+        )[:15]
+    
+    return render(request, 'turnos_profesionales/sobreturno_calendario.html', {
+        'profesional': profesional,
+        'fecha_str': fecha_str,
+        'hora_str': hora_str,
+        'hora_fin_str': hora_fin_str,
+        'pacientes': pacientes,
+        'busqueda': busqueda
+    })
+
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A5
+from reportlab.lib.units import cm
+
+@login_required
+def generar_receta(request, evolucion_id):
+    """Genera un PDF con la receta médica."""
+    evolucion = get_object_or_404(Evolucion, id=evolucion_id)
+    paciente = evolucion.historia_clinica.paciente
+    profesional = evolucion.profesional
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="receta_{paciente.apellido}_{evolucion.creado.strftime("%Y%m%d")}.pdf"'
+    
+    p = canvas.Canvas(response, pagesize=A5)
+    width, height = A5
+    
+    # Título
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(2*cm, height - 2*cm, "RECETA MÉDICA")
+    
+    # Línea separadora
+    p.line(2*cm, height - 2.3*cm, width - 2*cm, height - 2.3*cm)
+    
+    # Datos del profesional
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(2*cm, height - 3*cm, f"Profesional: {profesional.nombre_completo}")
+    p.setFont("Helvetica", 10)
+    p.drawString(2*cm, height - 3.5*cm, f"Especialidad: {profesional.get_especialidad_display()}")
+    p.drawString(2*cm, height - 4*cm, f"Matrícula: {profesional.matricula}")
+    
+    # Datos del paciente
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(2*cm, height - 5*cm, f"Paciente: {paciente.nombre_completo}")
+    p.setFont("Helvetica", 10)
+    p.drawString(2*cm, height - 5.5*cm, f"DNI: {paciente.dni}")
+    p.drawString(2*cm, height - 6*cm, f"Fecha: {evolucion.creado.strftime('%d/%m/%Y')}")
+    
+    # Diagnóstico
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(2*cm, height - 7*cm, "Diagnóstico:")
+    p.setFont("Helvetica", 10)
+    p.drawString(2*cm, height - 7.5*cm, evolucion.diagnostico or "No especificado")
+    
+    # Medicación recetada
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(2*cm, height - 9*cm, "Medicación Recetada:")
+    p.setFont("Helvetica", 10)
+    
+    y = height - 9.5*cm
+    for linea in (evolucion.medicacion_recetada or "No se recetó medicación").split('\n'):
+        p.drawString(2*cm, y, linea.strip())
+        y -= 0.5*cm
+    
+    # Indicaciones
+    if evolucion.indicaciones:
+        y -= 0.5*cm
+        p.setFont("Helvetica-Bold", 11)
+        p.drawString(2*cm, y, "Indicaciones:")
+        p.setFont("Helvetica", 10)
+        y -= 0.5*cm
+        for linea in evolucion.indicaciones.split('\n'):
+            p.drawString(2*cm, y, linea.strip())
+            y -= 0.5*cm
+            
+    # Firma
+    p.line(2*cm, 4*cm, 8*cm, 4*cm)
+    p.setFont("Helvetica", 8)
+    p.drawString(2*cm, 3.5*cm, f"Dr/a. {profesional.nombre_completo}")
+    p.drawString(2*cm, 3.2*cm, f"Mat. {profesional.matricula}")
+    
+    p.showPage()
+    p.save()
+    
+    return response    

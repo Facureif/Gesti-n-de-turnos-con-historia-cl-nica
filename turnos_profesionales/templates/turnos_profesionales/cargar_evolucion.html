@@ -49,9 +49,14 @@
             </div>
             
             <div style="margin-bottom: 20px;">
-                <label>Próximo Control</label>
-                <input type="date" name="proximo_control"
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <label><strong>Próximo Control</strong></label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="date" name="proximo_control" id="proximo-control-fecha"
+                           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <input type="time" name="proximo_control_hora" id="proximo-control-hora" value="09:00"
+                           style="width: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <small style="color: #666;">Si completás la fecha, se generará un turno automáticamente en el primer horario libre. Si especificás hora, se usará esa.</small>
             </div>
 
             <!-- SUBIDA DE ARCHIVOS -->

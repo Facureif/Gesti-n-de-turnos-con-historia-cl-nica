@@ -65,7 +65,7 @@
                     </td>
                     <td style="padding: 10px;">
                         <a href="{% url 'ficha_paciente' turno.paciente.id %}" style="color: #4A90D9; text-decoration: none;">
-                            {{ turno.paciente.nombre_completo }}
+                            {% if turno.es_sobreturno %}🚨 {% endif %}{{ turno.paciente.nombre_completo }}
                         </a>
                         {% if turno.tipo_consulta %}
                             <br><small style="color: #999;">{{ turno.tipo_consulta }}</small>
@@ -74,28 +74,16 @@
                     <td style="padding: 10px;">
                         {% if turno.paciente.obra_social %}
                             {{ turno.paciente.obra_social.sigla }}
-                            {% if turno.paciente.plan_obra_social %}
-                                <br><small style="color: #999;">{{ turno.paciente.plan_obra_social.nombre }}</small>
-                            {% endif %}
                         {% else %}
                             <span style="color: #999;">Particular</span>
                         {% endif %}
                     </td>
                     <td style="padding: 10px; text-align: center;">
                         {% if turno.paciente.sesiones_restantes is not None %}
-                            <span style="
-                                padding: 3px 10px;
-                                border-radius: 15px;
-                                font-size: 0.85em;
-                                font-weight: bold;
-                                {% if turno.paciente.sesiones_restantes <= 3 %}
-                                    background: #f8d7da; color: #721c24;
-                                {% elif turno.paciente.sesiones_restantes <= 7 %}
-                                    background: #fff3cd; color: #856404;
-                                {% else %}
-                                    background: #d4edda; color: #155724;
-                                {% endif %}
-                            ">
+                            <span style="padding: 3px 10px; border-radius: 15px; font-size: 0.85em; font-weight: bold;
+                                {% if turno.paciente.sesiones_restantes <= 3 %}background: #f8d7da; color: #721c24;
+                                {% elif turno.paciente.sesiones_restantes <= 7 %}background: #fff3cd; color: #856404;
+                                {% else %}background: #d4edda; color: #155724;{% endif %}">
                                 {{ turno.paciente.sesiones_restantes }}/{{ turno.paciente.sesiones_autorizadas|default:"?" }}
                             </span>
                         {% else %}
@@ -103,15 +91,14 @@
                         {% endif %}
                     </td>
                     <td style="padding: 10px;">
-                        <span style="
-                            padding: 3px 10px; border-radius: 15px; font-size: 0.85em;
+                        <span style="padding: 3px 10px; border-radius: 15px; font-size: 0.85em;
                             {% if turno.estado == 'confirmado' %}background: #d4edda; color: #155724;
                             {% elif turno.estado == 'pendiente' %}background: #fff3cd; color: #856404;
                             {% elif turno.estado == 'completado' %}background: #d6d8db; color: #383d41;
                             {% elif turno.estado == 'cancelado' %}background: #f8d7da; color: #721c24;
-                            {% elif turno.estado == 'en_sala' %}background: #cce5ff; color: #004085;
-                            {% else %}background: #e2e3e5; color: #383d41;{% endif %}
-                        ">{{ turno.get_estado_display }}</span>
+                            {% else %}background: #e2e3e5; color: #383d41;{% endif %}">
+                            {{ turno.get_estado_display }}
+                        </span>
                     </td>
                     <td style="padding: 10px; text-align: center;">
                         {% if turno.estado == 'pendiente' %}
@@ -147,7 +134,7 @@
         {% for turno in proximos_turnos %}
         <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
             <span><strong>{{ turno.fecha|date:"d/m" }}</strong> {{ turno.hora_inicio|time:"H:i" }}</span>
-            <span>{{ turno.paciente.nombre_completo }}</span>
+            <span>{% if turno.es_sobreturno %}🚨 {% endif %}{{ turno.paciente.nombre_completo }}</span>
             <span style="padding: 2px 10px; border-radius: 15px; font-size: 0.8em; 
                          background: {% if turno.estado == 'confirmado' %}#d4edda; color:#155724{% else %}#fff3cd; color:#856404{% endif %};">
                 {{ turno.get_estado_display }}

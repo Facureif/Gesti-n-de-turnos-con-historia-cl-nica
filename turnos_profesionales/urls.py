@@ -17,4 +17,7 @@ urlpatterns = [
     path('secretaria/panel/', views.panel_secretaria, name='panel_secretaria'),
     path('calendario-multi/', views.calendario_multi, name='calendario_multi'),
     path('reprogramar/<int:turno_id>/', views.reprogramar_turno, name='reprogramar_turno'),
+    path('sobreturno/<int:paciente_id>/', views.crear_sobreturno, name='crear_sobreturno'),
+    path('sobreturno-calendario/', views.sobreturno_calendario, name='sobreturno_calendario'),
+    path('receta/<int:evolucion_id>/', views.generar_receta, name='generar_receta'),
 ]

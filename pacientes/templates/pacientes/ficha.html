@@ -13,6 +13,7 @@
             <a href="{% url 'editar_paciente' paciente.id %}" class="btn" style="background: #ffc107; color: #333;">✏️ Editar</a>
         {% endif %}
         <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success">📅 Asignar Turno</a>
+        <a href="{% url 'crear_sobreturno' paciente.id %}" class="btn btn-danger">🚨 Sobreturno</a>
         {% if request.user.rol == 'secretaria' %}
             <a href="{% url 'panel_secretaria' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
         {% else %}
@@ -55,10 +56,7 @@
     <!-- Sesiones -->
     {% if paciente.sesiones_autorizadas %}
     <div class="card">
-        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
-            📊 Sesiones de Obra Social
-        </h3>
-        
+        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">📊 Sesiones de Obra Social</h3>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; text-align: center;">
             <div>
                 <div style="color: #666; font-size: 0.9em;">Autorizadas</div>
@@ -74,13 +72,9 @@
                 </div>
             </div>
         </div>
-        
         {% if paciente.fecha_vencimiento_sesiones %}
         <div style="text-align: center; margin-top: 15px; color: #666;">
             📅 Vencimiento: <strong>{{ paciente.fecha_vencimiento_sesiones|date:"d/m/Y" }}</strong>
-            {% if paciente.fecha_vencimiento_sesiones < hoy %}
-                <span style="color: #dc3545;">⚠️ ¡Vencido!</span>
-            {% endif %}
         </div>
         {% endif %}
     </div>
@@ -89,7 +83,7 @@
     <!-- Historia Clínica -->
     {% if not es_secretaria %}
     <div class="card" style="grid-column: 1 / -1;">
-        <h3 style="margin-bottom: 15px;">📝 Historia Clínica {% if historia %}<span style="font-size: 0.8em; color: #999;"></span>{% endif %}</h3>
+        <h3 style="margin-bottom: 15px;">📝 Historia Clínica</h3>
         
         {% if historia %}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
@@ -118,7 +112,12 @@
                             <td style="padding: 8px;">{{ evo.creado|date:"d/m/Y" }}</td>
                             <td style="padding: 8px;">{{ evo.motivo_consulta|truncatechars:40 }}</td>
                             <td style="padding: 8px;">{{ evo.diagnostico|truncatechars:40|default:"—" }}</td>
-                            <td style="padding: 8px;">{{ evo.medicacion_recetada|truncatechars:50|default:"—" }}</td>
+                            <td style="padding: 8px;">
+                                {{ evo.medicacion_recetada|truncatechars:50|default:"—" }}
+                                {% if evo.medicacion_recetada %}
+                                    <br><a href="{% url 'generar_receta' evo.id %}" class="btn" style="padding: 2px 8px; font-size: 0.7em; background: #17a2b8; color: white; margin-top: 3px;" target="_blank">📄 Receta</a>
+                                {% endif %}
+                            </td>
                             <td style="padding: 8px;">{{ evo.profesional.nombre_completo }}</td>
                             <td style="padding: 8px;">
                                 {% if evo.archivos.all %}
@@ -135,7 +134,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" style="padding: 20px; text-align: center; color: #999;">Sin evoluciones</td></tr>
+                        <tr><td colspan="6" style="padding: 20px; text-align: center; color: #999;">Sin evoluciones</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -148,61 +147,41 @@
     </div>
     {% endif %}
     
-
-        <!-- Próximos Turnos -->
-        <div class="card" style="grid-column: 1 / -1;">
-            <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #ff9800;">
-                📅 Próximos Turnos
-            </h3>
-            {% if proximos_turnos %}
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th style="padding: 8px;">Fecha</th>
-                            <th style="padding: 8px;">Hora</th>
-                            <th style="padding: 8px;">Consultorio</th>
-                            <th style="padding: 8px;">Tipo</th>
-                            <th style="padding: 8px;">Estado</th>
-                            <th style="padding: 8px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for t in proximos_turnos %}
-                        <tr style="border-bottom: 1px solid #eee; {% if t.fecha == hoy %}background: #fffde7;{% endif %}">
-                            <td style="padding: 8px;">
-                                {{ t.fecha|date:"d/m/Y" }}
-                                {% if t.fecha == hoy %}<br><span style="color: #dc3545; font-size: 0.8em;">HOY</span>{% endif %}
-                            </td>
-                            <td style="padding: 8px;">{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
-                            <td style="padding: 8px;">{{ t.establecimiento.nombre|default:"—" }}</td>
-                            <td style="padding: 8px;">{{ t.tipo_consulta|default:"—" }}</td>
-                            <td style="padding: 8px;">
-                                <span style="padding: 2px 10px; border-radius: 15px; font-size: 0.8em;
-                                    {% if t.estado == 'confirmado' %}background: #d4edda; color: #155724;
-                                    {% elif t.estado == 'pendiente' %}background: #fff3cd; color: #856404;
-                                    {% endif %}">
-                                    {{ t.get_estado_display }}
-                                </span>
-                            </td>
-                            <td style="padding: 8px; white-space: nowrap;">
-                                <a href="{% url 'editar_turno_pro' t.id %}" class="btn" style="padding: 3px 8px; font-size: 0.8em; background: #6c757d;">✏️</a>
-                                <a href="{% url 'reprogramar_turno' t.id %}" class="btn" style="padding: 3px 8px; font-size: 0.8em; background: #ff9800; color: white;">🔄</a>
-                                {% if t.estado != 'cancelado' and t.estado != 'completado' %}
-                                    <a href="{% url 'cancelar_turno_pro' t.id %}" class="btn btn-danger" style="padding: 3px 8px; font-size: 0.8em;"
-                                    onclick="return confirm('¿Cancelar este turno?')">✕</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p style="color: #999; text-align: center; padding: 20px;">No hay turnos próximos.</p>
-                <div style="text-align: center;">
-                    <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success">📅 Asignar Turno</a>
-                </div>
-            {% endif %}
-        </div>
+    <!-- Próximos Turnos -->
+    <div class="card" style="grid-column: 1 / -1;">
+        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #ff9800;">📅 Próximos Turnos</h3>
+        {% if proximos_turnos %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 8px;">Fecha</th>
+                        <th style="padding: 8px;">Hora</th>
+                        <th style="padding: 8px;">Consultorio</th>
+                        <th style="padding: 8px;">Tipo</th>
+                        <th style="padding: 8px;">Estado</th>
+                        <th style="padding: 8px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in proximos_turnos %}
+                    <tr style="border-bottom: 1px solid #eee; {% if t.fecha == hoy %}background: #fffde7;{% endif %}">
+                        <td style="padding: 8px;">{{ t.fecha|date:"d/m/Y" }}</td>
+                        <td style="padding: 8px;">{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
+                        <td style="padding: 8px;">{{ t.establecimiento.nombre|default:"—" }}</td>
+                        <td style="padding: 8px;">{{ t.tipo_consulta|default:"—" }}</td>
+                        <td style="padding: 8px;">{{ t.get_estado_display }}</td>
+                        <td style="padding: 8px; white-space: nowrap;">
+                            <a href="{% url 'editar_turno_pro' t.id %}" class="btn" style="padding: 3px 8px; font-size: 0.8em; background: #6c757d;">✏️</a>
+                            <a href="{% url 'reprogramar_turno' t.id %}" class="btn" style="padding: 3px 8px; font-size: 0.8em; background: #ff9800; color: white;">🔄</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #999; text-align: center; padding: 20px;">No hay turnos próximos.</p>
+        {% endif %}
+    </div>
 
     <!-- Últimos Turnos -->
     <div class="card" style="grid-column: 1 / -1;">
