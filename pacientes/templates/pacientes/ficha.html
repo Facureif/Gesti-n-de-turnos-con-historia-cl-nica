@@ -157,6 +157,7 @@
                         <th style="padding: 8px;">Fecha</th>
                         <th style="padding: 8px;">Hora</th>
                         <th style="padding: 8px;">Consultorio</th>
+                        <th style="padding: 8px;">Profesional</th>
                         <th style="padding: 8px;">Tipo</th>
                         <th style="padding: 8px;">Estado</th>
                         <th style="padding: 8px;">Acciones</th>
@@ -168,6 +169,7 @@
                         <td style="padding: 8px;">{{ t.fecha|date:"d/m/Y" }}</td>
                         <td style="padding: 8px;">{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
                         <td style="padding: 8px;">{{ t.establecimiento.nombre|default:"—" }}</td>
+                        <td style="padding: 8px;">{{ t.profesional.nombre_completo }}</td>
                         <td style="padding: 8px;">{{ t.tipo_consulta|default:"—" }}</td>
                         <td style="padding: 8px;">{{ t.get_estado_display }}</td>
                         <td style="padding: 8px; white-space: nowrap;">
@@ -192,6 +194,7 @@
                     <tr style="background: #f8f9fa;">
                         <th style="padding: 8px;">Fecha</th>
                         <th style="padding: 8px;">Hora</th>
+                        <th style="padding: 8px;">Profesional</th>
                         <th style="padding: 8px;">Tipo</th>
                         <th style="padding: 8px;">Estado</th>
                     </tr>
@@ -201,6 +204,7 @@
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 8px;">{{ t.fecha|date:"d/m/Y" }}</td>
                         <td style="padding: 8px;">{{ t.hora_inicio|time:"H:i" }}</td>
+                        <td style="padding: 8px;">{{ t.profesional.nombre_completo }}</td>
                         <td style="padding: 8px;">{{ t.tipo_consulta|default:"—" }}</td>
                         <td style="padding: 8px;">{{ t.get_estado_display }}</td>
                     </tr>

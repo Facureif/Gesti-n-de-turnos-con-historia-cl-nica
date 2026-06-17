@@ -117,11 +117,9 @@ def sacar_turno_paciente(request, profesional_id=None):
         'profesionales': profesionales
     })
 
-
 def mostrar_formulario_paciente(request, paciente, profesional, hoy):
     """Muestra el formulario para que el paciente elija fecha y hora."""
     
-    # Obtener consultorio preseleccionado (si viene por GET)
     establecimiento_id = request.GET.get('establecimiento')
     establecimiento_seleccionado = None
     if establecimiento_id:
@@ -154,31 +152,35 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
         
         establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
         
-        # Verificar disponibilidad
-        existe = TurnoProfesional.objects.filter(
+        # Verificar disponibilidad con pacientes simultáneos
+        turnos_en_horario = TurnoProfesional.objects.filter(
             profesional=profesional,
             establecimiento=establecimiento,
             fecha=fecha,
             hora_inicio=hora,
             estado__in=['pendiente', 'confirmado']
-        ).exists()
+        ).count()
         
-        if existe:
-            messages.error(request, 'Ese horario ya está ocupado.')
-            return redirect('sacar_turno_paciente_profesional', profesional_id=profesional.id)
-        
-        # Obtener duración
-        duracion = 30
         agenda = Agenda.objects.filter(
             profesional=profesional,
             establecimiento=establecimiento,
             activo=True,
             fecha_inicio__lte=fecha
         ).first()
+        
+        max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
+        
+        if turnos_en_horario >= max_simultaneos:
+            messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes).')
+            return redirect('sacar_turno_paciente_profesional', profesional_id=profesional.id)
+        
+        # Obtener duración
+        duracion = 30
         if agenda:
+            dia_semana = fecha.weekday()
             horario = HorarioAtencion.objects.filter(
                 agenda=agenda,
-                dia=fecha.weekday()
+                dia=dia_semana
             ).first()
             if horario:
                 duracion = horario.duracion_turno
@@ -199,18 +201,9 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
         messages.success(request, f'¡Turno reservado! Tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre} con {profesional.nombre_completo}.')
         return redirect('panel_paciente')
     
-
-    print("=" * 50)
-    print("POST data:", request.POST)
-    print("establecimiento_id:", request.POST.get('establecimiento'))
-    print("fecha:", request.POST.get('fecha'))
-    print("hora:", request.POST.get('hora'))
-    print("=" * 50)
-
     # GET - Mostrar horarios disponibles
     dias_disponibles = []
     
-    # Si hay consultorio seleccionado, buscar agenda de ese consultorio
     if establecimiento_seleccionado:
         agendas = Agenda.objects.filter(
             profesional=profesional,
@@ -219,7 +212,6 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
             fecha_inicio__lte=hoy + timedelta(days=30)
         )
     else:
-        # Si no, buscar todas las agendas del profesional
         agendas = Agenda.objects.filter(
             profesional=profesional,
             activo=True,
@@ -229,7 +221,9 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
     agenda = agendas.first()
     
     if agenda:
+        max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
         establecimiento_agenda = agenda.establecimiento
+        
         for i in range(30):
             fecha = hoy + timedelta(days=i)
             dia_semana = fecha.weekday()
@@ -247,15 +241,15 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
                     hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
                     
                     if hora_fin_slot <= horario.hora_fin:
-                        ocupado = TurnoProfesional.objects.filter(
+                        ocupados = TurnoProfesional.objects.filter(
                             profesional=profesional,
                             establecimiento=establecimiento_agenda,
                             fecha=fecha,
                             hora_inicio=hora_actual,
                             estado__in=['pendiente', 'confirmado']
-                        ).exists()
+                        ).count()
                         
-                        if not ocupado:
+                        if ocupados < max_simultaneos:
                             slots.append(hora_actual.strftime('%H:%M'))
                     
                     hora_actual = hora_fin_slot

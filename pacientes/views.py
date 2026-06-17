@@ -117,7 +117,6 @@ def buscar_paciente(request):
         'busqueda': busqueda
     })
 
-
 @login_required
 def ficha_paciente(request, paciente_id):
     """Ficha completa del paciente con HC y turnos."""
@@ -127,36 +126,51 @@ def ficha_paciente(request, paciente_id):
     
     if request.user.rol == 'secretaria':
         profesional = None
+        establecimiento = request.user.establecimiento
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
+        establecimiento = None
     else:
         profesional = None
+        establecimiento = None
 
     paciente = get_object_or_404(Paciente, id=paciente_id)
+    hoy = date.today()
     
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
     evoluciones = Evolucion.objects.filter(
         historia_clinica=historia
     ).order_by('-creado') if historia else []
     
-    turnos = TurnoProfesional.objects.filter(
-        profesional=profesional,
-        paciente=paciente
-    ).order_by('-fecha', '-hora_inicio')[:20]
-
     # Próximos turnos (pendientes y confirmados)
-    hoy = date.today()
-    proximos_turnos = TurnoProfesional.objects.filter(
-        paciente=paciente,
-        fecha__gte=hoy,
-        estado__in=['pendiente', 'confirmado']
-    ).order_by('fecha', 'hora_inicio')
+    if request.user.rol == 'secretaria':
+        # Secretaria solo ve turnos de SU consultorio
+        proximos_turnos = TurnoProfesional.objects.filter(
+            paciente=paciente,
+            fecha__gte=hoy,
+            estado__in=['pendiente', 'confirmado'],
+            establecimiento=establecimiento
+        ).order_by('fecha', 'hora_inicio')
+    else:
+        # Profesional ve todos los turnos del paciente
+        proximos_turnos = TurnoProfesional.objects.filter(
+            paciente=paciente,
+            fecha__gte=hoy,
+            estado__in=['pendiente', 'confirmado']
+        ).order_by('fecha', 'hora_inicio')
 
     # Turnos pasados
-    turnos_pasados = TurnoProfesional.objects.filter(
-        paciente=paciente,
-        estado__in=['completado', 'cancelado', 'no_asistio']
-    ).order_by('-fecha', '-hora_inicio')[:20]
+    if request.user.rol == 'secretaria':
+        turnos_pasados = TurnoProfesional.objects.filter(
+            paciente=paciente,
+            estado__in=['completado', 'cancelado', 'no_asistio'],
+            establecimiento=establecimiento
+        ).order_by('-fecha', '-hora_inicio')[:20]
+    else:
+        turnos_pasados = TurnoProfesional.objects.filter(
+            paciente=paciente,
+            estado__in=['completado', 'cancelado', 'no_asistio']
+        ).order_by('-fecha', '-hora_inicio')[:20]
     
     return render(request, 'pacientes/ficha.html', {
         'profesional': profesional,

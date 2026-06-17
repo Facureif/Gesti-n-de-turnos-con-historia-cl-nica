@@ -31,6 +31,12 @@ class Agenda(ModeloBase):
     blank=True,
     verbose_name='Consultorio'
 )
+    
+    pacientes_simultaneos = models.IntegerField(
+    default=1,
+    verbose_name='Pacientes simultáneos',
+    help_text='Cantidad máxima de pacientes que puede atender al mismo tiempo'
+)
 
     class Meta:
         verbose_name = 'Agenda'

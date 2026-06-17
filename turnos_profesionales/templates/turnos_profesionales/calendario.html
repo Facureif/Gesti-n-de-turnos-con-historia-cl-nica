@@ -107,6 +107,9 @@
                         {% endif %}
                     {% else %}
                         <div style="font-size: 0.8em;">+ Click para nuevo turno</div>
+                        {% if slot.lugares_restantes and slot.lugares_restantes > 1 %}
+                            <div style="font-size: 0.7em; color: #28a745;">{{ slot.lugares_restantes }} lugares</div>
+                        {% endif %}
                     {% endif %}
                 </div>
                 {% endfor %}

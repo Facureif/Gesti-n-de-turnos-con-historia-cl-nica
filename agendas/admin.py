@@ -16,7 +16,7 @@ class BloqueoAgendaInline(admin.TabularInline):
 
 @admin.register(Agenda)
 class AgendaAdmin(admin.ModelAdmin):
-    list_display = ('profesional', 'fecha_inicio', 'fecha_fin', 
+    list_display = ('profesional', 'fecha_inicio', 'fecha_fin', 'pacientes_simultaneos',
                     'cantidad_horarios', 'activo')
     list_filter = ('profesional__especialidad', 'activo')
     search_fields = ('profesional__nombre', 'profesional__apellido')
@@ -24,7 +24,7 @@ class AgendaAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (None, {
-            'fields': ('profesional', 'fecha_inicio', 'fecha_fin')
+            'fields': ('profesional', 'fecha_inicio', 'fecha_fin', 'pacientes_simultaneos')
         }),
         ('Configuración', {
             'fields': ('acepta_sobreturnos', 'tiempo_entre_turnos', 'activo')

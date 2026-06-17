@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -131,7 +133,6 @@ def cancelar_turno(request, turno_id):
         return redirect('panel_secretaria')
     return redirect('panel_profesional')
 
-
 @login_required
 def completar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
@@ -140,34 +141,71 @@ def completar_turno(request, turno_id):
         return redirect('home')
     
     turno.estado = 'completado'
-    turno.save()
-    
-    # Descontar sesión si el paciente tiene sesiones
     paciente = turno.paciente
+    
+    # Descontar sesión
     if paciente.sesiones_restantes is not None and paciente.sesiones_restantes > 0:
         paciente.sesiones_restantes -= 1
         paciente.save()
-        
-        if paciente.sesiones_restantes <= 3:
-            messages.warning(
-                request, 
-                f'⚠️ ¡Atención! A {paciente.nombre_completo} le quedan solo {paciente.sesiones_restantes} sesiones.'
-            )
-        else:
-            messages.success(
-                request,
-                f'Turno completado. Sesiones restantes de {paciente.nombre_completo}: {paciente.sesiones_restantes}'
-            )
-    else:
-        messages.success(request, f'Turno de {paciente.nombre_completo} completado.')
     
-    # Secretaria no carga evolución, vuelve a su panel
-    if request.user.rol == 'secretaria':
-        return redirect('panel_secretaria')
+    # Precargar coseguro si tiene plan
+    if paciente.plan_obra_social:
+        plan = paciente.plan_obra_social
+        if plan.coseguro_fijo and plan.coseguro_fijo > 0:
+            turno.monto_coseguro = plan.coseguro_fijo
+        elif plan.coseguro_porcentaje and plan.coseguro_porcentaje > 0:
+            turno.monto_coseguro = 0  # Se calcula al poner el monto total
     
-    # Profesional sí carga evolución
-    return redirect('cargar_evolucion', turno_id=turno.id)
+    turno.save()
+    
+    # Redirigir a pantalla de cobro
+    return redirect('cobrar_turno', turno_id=turno.id)
 
+@login_required
+def cobrar_turno(request, turno_id):
+    """Pantalla para registrar el cobro del turno."""
+    turno = get_object_or_404(TurnoProfesional, id=turno_id)
+    
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    paciente = turno.paciente
+    plan = paciente.plan_obra_social
+    
+    if request.method == 'POST':
+        monto_total = request.POST.get('monto_total', '')
+        monto_os = request.POST.get('monto_os', '')
+        monto_coseguro = request.POST.get('monto_coseguro', '')
+        
+        if monto_total:
+            turno.monto_total = Decimal(monto_total)
+        if monto_os:
+            turno.monto_os = Decimal(monto_os)
+        if monto_coseguro:
+            turno.monto_coseguro = Decimal(monto_coseguro)
+        
+        turno.save()
+        
+        # Calcular automáticamente lo que falta
+        if turno.monto_total and turno.monto_os and not turno.monto_coseguro:
+            turno.monto_coseguro = turno.monto_total - turno.monto_os
+            turno.save()
+        
+        coseguro_msg = ''
+        if turno.monto_coseguro and turno.monto_coseguro > 0:
+            coseguro_msg = f' | 💰 Cobrar al paciente: ${turno.monto_coseguro}'
+        
+        messages.success(request, f'Cobro registrado.{coseguro_msg}')
+        
+        if request.user.rol == 'secretaria':
+            return redirect('panel_secretaria')
+        return redirect('cargar_evolucion', turno_id=turno.id)
+    
+    return render(request, 'turnos_profesionales/cobrar_turno.html', {
+        'turno': turno,
+        'paciente': paciente,
+        'plan': plan
+    })
 
 @login_required
 def no_asistio_turno(request, turno_id):
@@ -393,40 +431,38 @@ def asignar_turno(request, paciente_id):
         else:
             establecimiento = profesional.establecimientos.first()
         
-        agenda = Agenda.objects.filter(
-            profesional=profesional,
-            activo=True,
-            fecha_inicio__lte=fecha,
-        ).filter(
-            Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha)
-        ).first()
-        
-        if not agenda:
-            messages.error(request, 'No hay agenda configurada para esa fecha.')
-            return redirect('asignar_turno', paciente_id=paciente.id)
-        
-        dia_semana = fecha.weekday()
-        horario = HorarioAtencion.objects.filter(
-            agenda=agenda,
-            dia=dia_semana
-        ).first()
-        
-        if not horario:
-            messages.error(request, 'El profesional no atiende ese día.')
-            return redirect('asignar_turno', paciente_id=paciente.id)
-        
-        existe = TurnoProfesional.objects.filter(
+        # Verificar disponibilidad con pacientes simultáneos
+        turnos_en_horario = TurnoProfesional.objects.filter(
             profesional=profesional,
             fecha=fecha,
             hora_inicio=hora,
             estado__in=['pendiente', 'confirmado']
-        ).exists()
+        ).count()
         
-        if existe:
-            messages.error(request, 'Ese horario ya está ocupado.')
+        agenda = Agenda.objects.filter(
+            profesional=profesional,
+            activo=True,
+            fecha_inicio__lte=fecha
+        ).first()
+        
+        max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
+        
+        if turnos_en_horario >= max_simultaneos:
+            messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes simultáneos).')
             return redirect('asignar_turno', paciente_id=paciente.id)
         
-        hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=horario.duracion_turno)).time()
+        # Obtener duración
+        duracion = 30
+        if agenda:
+            dia_semana = fecha.weekday()
+            horario = HorarioAtencion.objects.filter(
+                agenda=agenda,
+                dia=dia_semana
+            ).first()
+            if horario:
+                duracion = horario.duracion_turno
+        
+        hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
         
         turno = TurnoProfesional.objects.create(
             profesional=profesional,
@@ -440,7 +476,7 @@ def asignar_turno(request, paciente_id):
             notas_internas=notas
         )
         
-        # Guardar archivos adjuntos
+        # Guardar archivos
         from .models import ArchivoTurno
         archivos = request.FILES.getlist('archivos')
         descripcion_archivo = request.POST.get('descripcion_archivo', '')
@@ -465,6 +501,8 @@ def asignar_turno(request, paciente_id):
         fecha_inicio__lte=hoy + timedelta(days=30)
     ).first()
     
+    max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
+    
     if agenda:
         for i in range(30):
             fecha = hoy + timedelta(days=i)
@@ -483,14 +521,14 @@ def asignar_turno(request, paciente_id):
                     hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
                     
                     if hora_fin_slot <= horario.hora_fin:
-                        ocupado = TurnoProfesional.objects.filter(
+                        ocupados = TurnoProfesional.objects.filter(
                             profesional=profesional,
                             fecha=fecha,
                             hora_inicio=hora_actual,
                             estado__in=['pendiente', 'confirmado']
-                        ).exists()
+                        ).count()
                         
-                        if not ocupado:
+                        if ocupados < max_simultaneos:
                             slots.append(hora_actual.strftime('%H:%M'))
                     
                     hora_actual = hora_fin_slot
@@ -515,6 +553,7 @@ def asignar_turno(request, paciente_id):
         'dias_disponibles': dias_disponibles,
         'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
+        'max_simultaneos': max_simultaneos,
     })
 
 
@@ -673,7 +712,6 @@ def calendario_semanal(request):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
-    # Si es secretaria, puede ver calendario de cualquier profesional
     if request.user.rol == 'secretaria':
         profesional_id = request.GET.get('profesional')
         if profesional_id:
@@ -688,7 +726,6 @@ def calendario_semanal(request):
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
     
-    # Determinar la semana a mostrar (por defecto la actual)
     fecha_str = request.GET.get('fecha')
     if fecha_str:
         try:
@@ -699,24 +736,19 @@ def calendario_semanal(request):
         fecha_base = date.today()
     
     hoy = date.today()
-    
-    # Encontrar el lunes de esa semana
     lunes = fecha_base - timedelta(days=fecha_base.weekday())
     
-    # Crear los 7 días de la semana
     dias_semana = []
     nombres_dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
     
     for i in range(7):
         dia = lunes + timedelta(days=i)
         
-        # Obtener turnos de ese día (todos: normales y sobreturnos)
         turnos_dia = TurnoProfesional.objects.filter(
             profesional=profesional,
             fecha=dia
         ).order_by('hora_inicio')
         
-        # Determinar si el profesional atiende ese día
         agenda = Agenda.objects.filter(
             profesional=profesional,
             activo=True,
@@ -725,7 +757,6 @@ def calendario_semanal(request):
             Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=dia)
         ).first()
         
-        # Verificar si el día está bloqueado
         bloqueos_dia = []
         if agenda:
             bloqueos_dia = BloqueoAgenda.objects.filter(
@@ -733,6 +764,8 @@ def calendario_semanal(request):
                 fecha=dia,
                 activo=True
             )
+        
+        max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
         
         horarios_dia = []
         if agenda:
@@ -747,13 +780,11 @@ def calendario_semanal(request):
                                     timedelta(minutes=h.duracion_turno)).time()
                     
                     if hora_fin_slot <= h.hora_fin:
-                        # Buscar TODOS los turnos en este horario
                         turnos_en_horario = []
                         for t in turnos_dia:
                             if t.hora_inicio == hora_actual:
                                 turnos_en_horario.append(t)
                         
-                        # Verificar si el slot está bloqueado
                         slot_bloqueado = False
                         for b in bloqueos_dia:
                             if b.hora_inicio is None and b.hora_fin is None:
@@ -764,26 +795,37 @@ def calendario_semanal(request):
                         
                         if not slot_bloqueado:
                             if turnos_en_horario:
-                                # Agregar cada turno como un slot (el primero normal, el resto sobreturnos)
+                                # Agregar cada turno
                                 for turno in turnos_en_horario:
                                     horarios_dia.append({
                                         'hora_inicio': hora_actual,
                                         'hora_fin': hora_fin_slot,
                                         'turno': turno,
-                                        'disponible': False
+                                        'disponible': False,
+                                        'lugares_restantes': 0
+                                    })
+                                
+                                # Si hay lugar para más, agregar slot disponible
+                                lugares_ocupados = len([t for t in turnos_en_horario if not t.es_sobreturno])
+                                if lugares_ocupados < max_simultaneos:
+                                    horarios_dia.append({
+                                        'hora_inicio': hora_actual,
+                                        'hora_fin': hora_fin_slot,
+                                        'turno': None,
+                                        'disponible': True,
+                                        'lugares_restantes': max_simultaneos - lugares_ocupados
                                     })
                             else:
-                                # Slot vacío
                                 horarios_dia.append({
                                     'hora_inicio': hora_actual,
                                     'hora_fin': hora_fin_slot,
                                     'turno': None,
-                                    'disponible': True
+                                    'disponible': True,
+                                    'lugares_restantes': max_simultaneos
                                 })
                     
                     hora_actual = hora_fin_slot
         
-        # Determinar si está bloqueado el día completo
         dia_completo_bloqueado = False
         for b in bloqueos_dia:
             if b.hora_inicio is None and b.hora_fin is None:
@@ -798,14 +840,13 @@ def calendario_semanal(request):
             'bloqueado': dia_completo_bloqueado,
             'bloqueos': bloqueos_dia,
             'horarios': horarios_dia,
-            'total_turnos': turnos_dia.count()
+            'total_turnos': turnos_dia.count(),
+            'max_simultaneos': max_simultaneos
         })
     
-    # Semanas anterior y siguiente
     semana_anterior = lunes - timedelta(days=7)
     semana_siguiente = lunes + timedelta(days=7)
     
-    # Si es secretaria, pasar lista de profesionales
     profesionales_consultorio = None
     if request.user.rol == 'secretaria':
         profesionales_consultorio = Profesional.objects.filter(
@@ -904,17 +945,27 @@ def asignar_turno_calendario(request):
         
         paciente = get_object_or_404(Paciente, id=paciente_id)
         
-        # Verificar que no esté ocupado
-        existe = TurnoProfesional.objects.filter(
+        # Verificar cuántos turnos hay en ese horario
+        turnos_en_horario = TurnoProfesional.objects.filter(
             profesional=profesional,
             fecha=fecha,
             hora_inicio=hora,
             estado__in=['pendiente', 'confirmado']
-        ).exists()
-        
-        if existe:
-            messages.error(request, 'Ese horario ya fue ocupado.')
-            return redirect('calendario_semanal')
+        ).count()
+
+        # Obtener el máximo de pacientes simultáneos
+        max_simultaneos = 1
+        agenda = Agenda.objects.filter(
+            profesional=profesional,
+            activo=True,
+            fecha_inicio__lte=fecha
+        ).first()
+        if agenda:
+            max_simultaneos = agenda.pacientes_simultaneos
+
+        if turnos_en_horario >= max_simultaneos:
+            messages.error(request, f'Ese horario ya está completo (máx. {max_simultaneos} pacientes).')
+            return redirect('calendario_semanal', paciente_id=paciente.id)
         
         TurnoProfesional.objects.create(
             profesional=profesional,
@@ -1578,3 +1629,189 @@ def generar_receta(request, evolucion_id):
     p.save()
     
     return response    
+
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth, TruncWeek, TruncDay
+
+@login_required
+def dashboard(request):
+    """Dashboard con métricas e informes."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    if request.user.rol == 'secretaria':
+        establecimiento = request.user.establecimiento
+        profesionales = Profesional.objects.filter(establecimientos=establecimiento, activo=True)
+        profesional_seleccionado = None
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional_seleccionado = get_object_or_404(Profesional, id=profesional_id, establecimientos=establecimiento)
+            turnos_base = TurnoProfesional.objects.filter(profesional=profesional_seleccionado)
+        else:
+            turnos_base = TurnoProfesional.objects.filter(profesional__in=profesionales)
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+        establecimiento = None
+        profesionales = None
+        profesional_seleccionado = profesional
+        turnos_base = TurnoProfesional.objects.filter(profesional=profesional)
+    
+    hoy = date.today()
+    
+    # Período seleccionado
+    periodo = request.GET.get('periodo', 'mes')
+    if periodo == 'hoy':
+        inicio = hoy
+        fin = hoy
+    elif periodo == 'semana':
+        inicio = hoy - timedelta(days=hoy.weekday())
+        fin = inicio + timedelta(days=6)
+    elif periodo == 'mes':
+        inicio = hoy.replace(day=1)
+        fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    else:  # año
+        inicio = hoy.replace(month=1, day=1)
+        fin = hoy.replace(month=12, day=31)
+    
+    turnos_periodo = turnos_base.filter(fecha__range=[inicio, fin])
+    
+    # Métricas generales
+    total_turnos = turnos_periodo.count()
+    completados = turnos_periodo.filter(estado='completado').count()
+    cancelados = turnos_periodo.filter(estado='cancelado').count()
+    no_asistieron = turnos_periodo.filter(estado='no_asistio').count()
+    pendientes = turnos_periodo.filter(estado='pendiente').count()
+    
+    # Tasa de asistencia
+    if total_turnos > 0:
+        tasa_asistencia = round((completados / total_turnos) * 100)
+    else:
+        tasa_asistencia = 0
+    
+    # Pacientes únicos
+    pacientes_unicos = turnos_periodo.values('paciente').distinct().count()
+    
+    # Obra social más usada
+    obras_sociales = turnos_periodo.exclude(paciente__obra_social__isnull=True).values(
+        'paciente__obra_social__nombre', 'paciente__obra_social__sigla'
+    ).annotate(total=Count('id')).order_by('-total')[:5]
+    
+    # Pacientes más frecuentes
+    pacientes_frecuentes = turnos_periodo.values(
+        'paciente__nombre', 'paciente__apellido', 'paciente__id'
+    ).annotate(total=Count('id')).order_by('-total')[:10]
+    
+    # Turnos por día (gráfico)
+    turnos_por_dia = turnos_periodo.values('fecha').annotate(total=Count('id')).order_by('fecha')
+    
+    # Turnos por estado
+    turnos_por_estado = [
+        {'estado': 'Completados', 'total': completados, 'color': '#28a745'},
+        {'estado': 'Cancelados', 'total': cancelados, 'color': '#dc3545'},
+        {'estado': 'No Asistieron', 'total': no_asistieron, 'color': '#6c757d'},
+        {'estado': 'Pendientes', 'total': pendientes, 'color': '#ffc107'},
+    ]
+    
+    # Ingresos por coseguros
+    total_coseguros = turnos_periodo.filter(monto_coseguro__isnull=False).aggregate(
+        total=Sum('monto_coseguro')
+    )['total'] or 0
+    
+    # Comparativa profesional (solo secretaria)
+    comparativa_profesional = []
+    if request.user.rol == 'secretaria' and not profesional_seleccionado:
+        comparativa_profesional = turnos_periodo.values(
+            'profesional__nombre', 'profesional__apellido'
+        ).annotate(
+            total=Count('id'),
+            completados=Count('id', filter=Q(estado='completado')),
+            cancelados=Count('id', filter=Q(estado='cancelado'))
+        ).order_by('-total')
+    
+    contexto = {
+        'total_turnos': total_turnos,
+        'completados': completados,
+        'cancelados': cancelados,
+        'no_asistieron': no_asistieron,
+        'pendientes': pendientes,
+        'tasa_asistencia': tasa_asistencia,
+        'pacientes_unicos': pacientes_unicos,
+        'obras_sociales': obras_sociales,
+        'pacientes_frecuentes': pacientes_frecuentes,
+        'turnos_por_dia': turnos_por_dia,
+        'turnos_por_estado': turnos_por_estado,
+        'total_coseguros': total_coseguros,
+        'comparativa_profesional': comparativa_profesional,
+        'periodo': periodo,
+        'inicio': inicio,
+        'fin': fin,
+        'profesionales': profesionales,
+        'profesional_seleccionado': profesional_seleccionado,
+    }
+    
+    return render(request, 'turnos_profesionales/dashboard.html', contexto)
+
+
+from django.http import HttpResponse
+from openpyxl import Workbook
+
+@login_required
+def exportar_excel(request):
+    """Exportar turnos a Excel."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    hoy = date.today()
+    
+    if request.user.rol == 'secretaria':
+        establecimiento = request.user.establecimiento
+        profesionales = Profesional.objects.filter(establecimientos=establecimiento, activo=True)
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional_seleccionado = get_object_or_404(Profesional, id=profesional_id, establecimientos=establecimiento)
+            turnos_base = TurnoProfesional.objects.filter(profesional=profesional_seleccionado)
+        else:
+            turnos_base = TurnoProfesional.objects.filter(profesional__in=profesionales)
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+        turnos_base = TurnoProfesional.objects.filter(profesional=profesional)
+    
+    # Período
+    periodo = request.GET.get('periodo', 'mes')
+    if periodo == 'hoy':
+        inicio = hoy
+        fin = hoy
+    elif periodo == 'semana':
+        inicio = hoy - timedelta(days=hoy.weekday())
+        fin = inicio + timedelta(days=6)
+    elif periodo == 'mes':
+        inicio = hoy.replace(day=1)
+        fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    else:
+        inicio = hoy.replace(month=1, day=1)
+        fin = hoy.replace(month=12, day=31)
+    
+    turnos_periodo = turnos_base.filter(fecha__range=[inicio, fin])
+    
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Turnos"
+    ws.append(['Fecha', 'Hora', 'Paciente', 'DNI', 'Obra Social', 'Estado', 'Coseguro', 'Consultorio'])
+    
+    for t in turnos_periodo:
+        ws.append([
+            t.fecha.strftime('%d/%m/%Y'),
+            t.hora_inicio.strftime('%H:%M'),
+            t.paciente.nombre_completo,
+            t.paciente.dni,
+            t.paciente.obra_social.sigla if t.paciente.obra_social else 'Particular',
+            t.get_estado_display(),
+            float(t.monto_coseguro) if t.monto_coseguro else 0,
+            t.establecimiento.nombre if t.establecimiento else '—'
+        ])
+    
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=turnos_{inicio.strftime("%Y%m%d")}_{fin.strftime("%Y%m%d")}.xlsx'
+    wb.save(response)
+    return response

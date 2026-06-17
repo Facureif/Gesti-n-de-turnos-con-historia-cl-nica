@@ -14,6 +14,7 @@
         <a href="{% url 'calendario_semanal' %}" class="btn" style="background: #17a2b8;">📅 Calendario Semanal</a>
         <a href="{% url 'buscar_paciente' %}" class="btn" style="background: #6c757d;">🔍 Buscar Paciente</a>
         <a href="{% url 'registrar_paciente' %}" class="btn btn-success">➕ Nuevo Paciente</a>
+        <a href="{% url 'dashboard' %}" class="btn" style="background: #6f42c1;">📊 Dashboard</a>
     </div>
 </div>
 
@@ -53,6 +54,7 @@
                     <th style="padding: 10px; text-align: left;">O.S.</th>
                     <th style="padding: 10px; text-align: center;">Sesiones</th>
                     <th style="padding: 10px; text-align: left;">Estado</th>
+                    <th style="padding: 10px; text-align: center;">Coseg.</th>
                     <th style="padding: 10px; text-align: center;">Acciones</th>
                 </tr>
             </thead>
@@ -99,6 +101,15 @@
                             {% else %}background: #e2e3e5; color: #383d41;{% endif %}">
                             {{ turno.get_estado_display }}
                         </span>
+                    </td>
+                    <td style="padding: 10px; text-align: center;">
+                        {% if turno.monto_coseguro %}
+                            <span style="color: #dc3545; font-weight: bold;">${{ turno.monto_coseguro }}</span>
+                        {% elif turno.paciente.plan_obra_social and turno.paciente.plan_obra_social.coseguro_porcentaje %}
+                            <span style="color: #ffc107;">{{ turno.paciente.plan_obra_social.coseguro_porcentaje }}%</span>
+                        {% else %}
+                            —
+                        {% endif %}
                     </td>
                     <td style="padding: 10px; text-align: center;">
                         {% if turno.estado == 'pendiente' %}

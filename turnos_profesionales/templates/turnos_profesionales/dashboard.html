@@ -1,0 +1,150 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>📊 Dashboard</h1>
+    <div style="display: flex; gap: 10px;">
+        <a href="?periodo=hoy" class="btn" style="background: {% if periodo == 'hoy' %}#4A90D9{% else %}#6c757d{% endif %};">Hoy</a>
+        <a href="?periodo=semana" class="btn" style="background: {% if periodo == 'semana' %}#4A90D9{% else %}#6c757d{% endif %};">Semana</a>
+        <a href="?periodo=mes" class="btn" style="background: {% if periodo == 'mes' %}#4A90D9{% else %}#6c757d{% endif %};">Mes</a>
+        <a href="?periodo=año" class="btn" style="background: {% if periodo == 'año' %}#4A90D9{% else %}#6c757d{% endif %};">Año</a>
+    </div>
+</div>
+
+<p style="color: #666;">{{ inicio|date:"d/m/Y" }} - {{ fin|date:"d/m/Y" }}</p>
+
+<!-- Métricas principales -->
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #4A90D9;">{{ total_turnos }}</div>
+        <div style="color: #666;">Total Turnos</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #28a745;">{{ tasa_asistencia }}%</div>
+        <div style="color: #666;">Tasa Asistencia</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #ffc107;">{{ pacientes_unicos }}</div>
+        <div style="color: #666;">Pacientes Únicos</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: bold; color: #dc3545;">${{ total_coseguros|floatformat:0 }}</div>
+        <div style="color: #666;">Coseguros</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    
+    <!-- Turnos por estado -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;">📊 Turnos por Estado</h3>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            {% for item in turnos_por_estado %}
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 1.5em; font-weight: bold; color: {{ item.color }};">{{ item.total }}</div>
+                <div style="font-size: 0.8em; color: #666;">{{ item.estado }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Obras sociales -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;">🏥 Obras Sociales</h3>
+        {% if obras_sociales %}
+            <ul style="list-style: none;">
+                {% for os in obras_sociales %}
+                <li style="padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                    <span>{{ os.paciente__obra_social__sigla|default:os.paciente__obra_social__nombre }}</span>
+                    <span style="font-weight: bold;">{{ os.total }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #999;">Sin datos</p>
+        {% endif %}
+    </div>
+    
+    <!-- Pacientes frecuentes -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;">👥 Pacientes Frecuentes</h3>
+        {% if pacientes_frecuentes %}
+            <ul style="list-style: none;">
+                {% for p in pacientes_frecuentes|slice:":5" %}
+                <li style="padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                    <a href="{% url 'ficha_paciente' p.paciente__id %}" style="color: #4A90D9; text-decoration: none;">
+                        {{ p.paciente__nombre }} {{ p.paciente__apellido }}
+                    </a>
+                    <span style="font-weight: bold;">{{ p.total }} turnos</span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #999;">Sin datos</p>
+        {% endif %}
+    </div>
+    
+    <!-- Turnos por día -->
+    <div class="card">
+        <h3 style="margin-bottom: 15px;">📅 Turnos por Día</h3>
+        {% if turnos_por_dia %}
+            <div style="max-height: 200px; overflow-y: auto;">
+                <table style="width: 100%; font-size: 0.9em;">
+                    {% for dia in turnos_por_dia %}
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 4px;">{{ dia.fecha|date:"d/m" }}</td>
+                        <td style="padding: 4px;">
+                            <div style="background: #4A90D9; height: 16px; width: {% widthratio dia.total total_turnos 100 %}%; min-width: 20px; border-radius: 4px;"></div>
+                        </td>
+                        <td style="padding: 4px; font-weight: bold;">{{ dia.total }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <p style="color: #999;">Sin datos</p>
+        {% endif %}
+    </div>
+    
+</div>
+
+<!-- Comparativa profesional (solo secretaria) -->
+{% if comparativa_profesional %}
+<div class="card" style="margin-top: 20px;">
+    <h3 style="margin-bottom: 15px;">👨‍⚕️ Comparativa por Profesional</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8f9fa;">
+                <th style="padding: 10px;">Profesional</th>
+                <th style="padding: 10px;">Total</th>
+                <th style="padding: 10px;">Completados</th>
+                <th style="padding: 10px;">Cancelados</th>
+                <th style="padding: 10px;">Tasa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in comparativa_profesional %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">{{ p.profesional__nombre }} {{ p.profesional__apellido }}</td>
+                <td style="padding: 10px; font-weight: bold;">{{ p.total }}</td>
+                <td style="padding: 10px; color: #28a745;">{{ p.completados }}</td>
+                <td style="padding: 10px; color: #dc3545;">{{ p.cancelados }}</td>
+                <td style="padding: 10px;">
+                    {% if p.total > 0 %}
+                        {{ p.completados|floatformat:0 }}%
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Botón exportar -->
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'exportar_excel' %}?periodo={{ periodo }}" class="btn btn-success">📥 Exportar a Excel</a>
+</div>
+{% endblock %}

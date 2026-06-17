@@ -74,6 +74,17 @@ class TurnoProfesional(ModeloBase):
     verbose_name='Sobreturno'
 )
 
+    monto_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Monto Total')
+    monto_os = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Cubre OS')
+
+    monto_coseguro = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Coseguro cobrado'
+    )
+
     class Meta:
         verbose_name = 'Turno Profesional'
         verbose_name_plural = 'Turnos Profesionales'

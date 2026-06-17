@@ -1,0 +1,64 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Registrar Cobro{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <h1>💰 Registrar Cobro</h1>
+    <p style="color: #666; margin-bottom: 20px;">
+        Paciente: <strong>{{ paciente.nombre_completo }}</strong><br>
+        Fecha: {{ turno.fecha|date:"d/m/Y" }} | {{ turno.hora_inicio|time:"H:i" }}
+    </p>
+    
+    {% if plan %}
+    <div class="card" style="background: #f0f7ff; margin-bottom: 20px;">
+        <p style="margin: 0;"><strong>{{ plan.obra_social.nombre }} - {{ plan.nombre }}</strong></p>
+        {% if plan.coseguro_fijo %}
+            <p style="margin: 5px 0 0 0;">Coseguro fijo: <strong>${{ plan.coseguro_fijo }}</strong></p>
+        {% elif plan.coseguro_porcentaje %}
+            <p style="margin: 5px 0 0 0;">Coseguro: <strong>{{ plan.coseguro_porcentaje }}%</strong></p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 15px;">
+                <label><strong>Monto Total de la Consulta</strong></label>
+                <input type="number" name="monto_total" step="0.01" min="0"
+                       value="{{ turno.monto_total|default:'' }}"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                       placeholder="Ej: 5000.00">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label><strong>Cubre la Obra Social</strong></label>
+                <input type="number" name="monto_os" step="0.01" min="0"
+                       value="{{ turno.monto_os|default:'' }}"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                       placeholder="Ej: 4000.00">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label><strong>Coseguro a cargo del paciente</strong></label>
+                <input type="number" name="monto_coseguro" step="0.01" min="0"
+                       value="{{ turno.monto_coseguro|default:'' }}"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                       placeholder="Se calcula automáticamente si dejás vacío">
+                <small style="color: #666;">Dejalo vacío y se calcula: Monto Total - Cubre OS</small>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px;">
+                    💾 Guardar y continuar
+                </button>
+                <a href="{% url 'cargar_evolucion' turno.id %}" class="btn" style="padding: 12px 20px; background: #6c757d;">
+                    Saltar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
