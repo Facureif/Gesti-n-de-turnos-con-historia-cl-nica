@@ -148,3 +148,8 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
+
+# Google Calendar
+GOOGLE_CREDENTIALS_DIR = os.path.join(BASE_DIR, 'credentials')
+os.makedirs(GOOGLE_CREDENTIALS_DIR, exist_ok=True)

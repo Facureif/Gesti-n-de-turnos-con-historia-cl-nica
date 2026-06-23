@@ -2,49 +2,154 @@
 
 {% block title %}Asignar Turno{% endblock %}
 
+{% block extra_css %}
+<style>
+    .slot-info-card {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid var(--primary);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .slot-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        text-align: center;
+    }
+    
+    .slot-info-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+    
+    .slot-info-label {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+    
+    .paciente-option {
+        display: flex;
+        align-items: center;
+        padding: 14px 16px;
+        border: 2px solid var(--gray-300);
+        border-radius: var(--radius);
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: white;
+    }
+    
+    .paciente-option:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+    
+    .paciente-option.selected {
+        border-color: var(--success);
+        background: var(--success-light);
+    }
+    
+    .paciente-option input[type="radio"] {
+        margin-right: 14px;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--success);
+    }
+    
+    .paciente-info {
+        flex: 1;
+    }
+    
+    .paciente-nombre {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--gray-900);
+    }
+    
+    .paciente-detalle {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin-top: 2px;
+    }
+    
+    .paciente-badge {
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 700px; margin: 0 auto;">
-    <h1 style="margin-bottom: 10px;">📅 Asignar Turno</h1>
+<div style="max-width: 750px; margin: 0 auto;">
+    <div class="flex-between mb-6">
+        <div class="page-header mb-0">
+            <h1><i class="fas fa-calendar-plus text-success"></i> Asignar Turno</h1>
+        </div>
+        <a href="{% url 'calendario_semanal' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Volver al Calendario
+        </a>
+    </div>
     
     <!-- Info del slot seleccionado -->
-    <div class="card" style="margin-bottom: 20px; background: #f0f7ff; border: 2px solid #4A90D9;">
-        <div style="display: flex; justify-content: space-around; text-align: center;">
+    <div class="slot-info-card">
+        <div class="slot-info-grid">
             <div>
-                <div style="color: #666; font-size: 0.9em;">Fecha</div>
-                <div style="font-size: 1.3em; font-weight: bold;">{{ fecha|date:"d/m/Y" }}</div>
-                <div style="color: #666;">{{ fecha|date:"l" }}</div>
+                <div class="slot-info-label"><i class="fas fa-calendar"></i> FECHA</div>
+                <div class="slot-info-value">{{ fecha|date:"d/m/Y" }}</div>
+                <div style="color: var(--gray-500); font-size: 0.9rem;">{{ fecha|date:"l" }}</div>
             </div>
             <div>
-                <div style="color: #666; font-size: 0.9em;">Horario</div>
-                <div style="font-size: 1.3em; font-weight: bold;">{{ hora|time:"H:i" }} - {{ hora_fin|time:"H:i" }}</div>
+                <div class="slot-info-label"><i class="fas fa-clock"></i> HORARIO</div>
+                <div class="slot-info-value">{{ hora|time:"H:i" }} - {{ hora_fin|time:"H:i" }}</div>
             </div>
         </div>
     </div>
     
-    <!-- Buscar paciente -->
-    <div class="card" style="margin-bottom: 20px;">
-        <h3 style="margin-bottom: 15px;">🔍 Buscar Paciente</h3>
-        <form method="get">
-            <input type="hidden" name="fecha" value="{{ fecha_str }}">
-            <input type="hidden" name="hora" value="{{ hora_str }}">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" name="buscar" value="{{ busqueda }}" 
-                       placeholder="Nombre, apellido o DNI..."
-                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                <button type="submit" class="btn">Buscar</button>
-            </div>
-        </form>
-    </div>
+    <!-- Selector de consultorio si hay múltiples -->
     {% if profesional.establecimientos.count > 1 %}
-    <div style="margin-bottom: 15px;">
-        <label><strong>Consultorio</strong></label>
-        <select name="establecimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-building text-primary"></i> Consultorio
+            </h3>
+        </div>
+        <select name="establecimiento" style="width: 100%; padding: 12px 16px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 1rem; background: white;">
             {% for est in profesional.establecimientos.all %}
                 <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
             {% endfor %}
         </select>
     </div>
     {% endif %}
+    
+    <!-- Buscar paciente -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-search text-primary"></i> Buscar Paciente
+            </h3>
+        </div>
+        <form method="get">
+            <input type="hidden" name="fecha" value="{{ fecha_str }}">
+            <input type="hidden" name="hora" value="{{ hora_str }}">
+            <div class="flex gap-2">
+                <div style="flex: 1; position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400);"></i>
+                    <input type="text" name="buscar" value="{{ busqueda }}" 
+                           placeholder="Nombre, apellido o DNI..."
+                           style="width: 100%; padding: 14px 16px 14px 44px; border: 1px solid var(--gray-300); border-radius: var(--radius-lg); font-family: inherit; font-size: 1rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           autofocus>
+                </div>
+                <button type="submit" class="btn" style="padding: 14px 28px;">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+    
     <!-- Resultados de búsqueda -->
     {% if pacientes %}
     <form method="post">
@@ -52,87 +157,101 @@
         <input type="hidden" name="fecha" value="{{ fecha_str }}">
         <input type="hidden" name="hora" value="{{ hora_str }}">
         
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px;">👥 Seleccioná el paciente</h3>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-users text-primary"></i> Seleccioná el Paciente
+                </h3>
+                <span class="badge badge-info">{{ pacientes.count }} encontrado(s)</span>
+            </div>
             
             {% for paciente in pacientes %}
-            <label style="
-                display: flex;
-                align-items: center;
-                padding: 12px;
-                border: 2px solid #ddd;
-                border-radius: 8px;
-                margin-bottom: 8px;
-                cursor: pointer;
-                transition: all 0.2s;
-            " class="paciente-label" onclick="seleccionarPaciente(this)">
-                <input type="radio" name="paciente_id" value="{{ paciente.id }}" 
-                       style="margin-right: 15px;" class="paciente-radio">
-                <div style="flex: 1;">
-                    <div style="font-weight: bold;">{{ paciente.nombre_completo }}</div>
-                    <div style="font-size: 0.85em; color: #666;">
-                        DNI: {{ paciente.dni }} | Tel: {{ paciente.telefono }}
-                        {% if paciente.obra_social %}
-                            | {{ paciente.obra_social.sigla }}
-                        {% endif %}
+            <label class="paciente-option" onclick="seleccionarPaciente(this)">
+                <input type="radio" name="paciente_id" value="{{ paciente.id }}">
+                <div class="paciente-info">
+                    <div class="paciente-nombre">{{ paciente.nombre_completo }}</div>
+                    <div class="paciente-detalle">
+                        DNI: {{ paciente.dni }} · Tel: {{ paciente.telefono }}
+                        {% if paciente.obra_social %} · {{ paciente.obra_social.sigla }}{% endif %}
                     </div>
                 </div>
+                {% if paciente.obra_social %}
+                <span class="badge badge-info paciente-badge">{{ paciente.obra_social.sigla }}</span>
+                {% endif %}
             </label>
             {% endfor %}
         </div>
         
-        <!-- Datos adicionales -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px;">📝 Datos del Turno</h3>
-            
-            <div style="margin-bottom: 15px;">
-                <label>Tipo de Consulta</label>
-                <input type="text" name="tipo_consulta" 
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                       placeholder="Ej: Control general, primera consulta...">
+        <!-- Datos del turno -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clipboard-list text-primary"></i> Datos del Turno
+                </h3>
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Notas Internas</label>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                    Tipo de Consulta
+                </label>
+                <input type="text" name="tipo_consulta" 
+                       style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                       placeholder="Ej: Control general, primera consulta..."
+                       onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                    Notas Internas
+                </label>
                 <textarea name="notas" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                          placeholder="Notas visibles solo para el profesional..."></textarea>
+                          style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
+                          placeholder="Notas visibles solo para el profesional..."
+                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
             </div>
         </div>
         
-        <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px; font-size: 1.1em;">
-                ✅ Asignar Turno
+        <div class="flex gap-3">
+            <button type="submit" class="btn btn-success btn-lg" style="flex: 1; justify-content: center; padding: 14px;">
+                <i class="fas fa-check-circle"></i> Asignar Turno
             </button>
-            <a href="{% url 'calendario_semanal' %}" class="btn" style="padding: 12px 30px; background: #6c757d;">
-                Cancelar
+            <a href="{% url 'calendario_semanal' %}" class="btn btn-secondary btn-lg" style="padding: 14px 32px; justify-content: center;">
+                <i class="fas fa-times"></i> Cancelar
             </a>
         </div>
     </form>
     
     {% elif busqueda %}
-        <div class="card" style="text-align: center; padding: 30px;">
-            <p style="color: #666; margin-bottom: 15px;">No se encontraron pacientes con "{{ busqueda }}"</p>
-            <a href="{% url 'registrar_paciente' %}" class="btn btn-success">➕ Registrar Nuevo Paciente</a>
+        <div class="card">
+            <div class="empty-state">
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--gray-600);">No se encontraron resultados</p>
+                <p class="text-muted">No hay pacientes que coincidan con "<strong>{{ busqueda }}</strong>"</p>
+                <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 20px;">
+                    <i class="fas fa-user-plus"></i> Registrar Nuevo Paciente
+                </a>
+            </div>
         </div>
     {% else %}
-        <div class="card" style="text-align: center; padding: 30px;">
-            <p style="color: #999;">Buscá un paciente para asignarle el turno.</p>
-            <p style="color: #999; font-size: 0.9em;">También podés 
-                <a href="{% url 'registrar_paciente' %}">registrar uno nuevo</a>.
-            </p>
+        <div class="card">
+            <div class="empty-state">
+                <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <p style="color: var(--gray-500);">Buscá un paciente para asignarle el turno</p>
+                <p style="color: var(--gray-400); font-size: 0.9rem;">
+                    También podés <a href="{% url 'registrar_paciente' %}" style="color: var(--primary);">registrar uno nuevo</a>
+                </p>
+            </div>
         </div>
     {% endif %}
 </div>
 
 <script>
 function seleccionarPaciente(label) {
-    document.querySelectorAll('.paciente-label').forEach(l => {
-        l.style.border = '2px solid #ddd';
-        l.style.background = 'white';
+    document.querySelectorAll('.paciente-option').forEach(l => {
+        l.classList.remove('selected');
     });
-    label.style.border = '2px solid #28a745';
-    label.style.background = '#f0fff4';
+    label.classList.add('selected');
+    label.querySelector('input[type="radio"]').checked = true;
 }
 </script>
 {% endblock %}

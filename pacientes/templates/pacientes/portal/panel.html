@@ -14,8 +14,10 @@
             <a href="{% url 'mis_turnos' %}" class="btn" style="background: #6c757d;">📋 Mis Turnos</a>
         </div>
     </div>
+    {% if cliente %}
+        <p style="color: #666;">🏥 {{ cliente.nombre }}</p>
+    {% endif %}
 
-    <!-- Sesiones -->
     {% if paciente.sesiones_autorizadas %}
     <div class="card" style="margin-bottom: 20px; background: #f0f7ff;">
         <h3 style="margin-bottom: 10px;">🎫 Tus Sesiones</h3>
@@ -34,11 +36,16 @@
     </div>
     {% endif %}
 
-    <!-- Próximos Turnos -->
+
+    <div class="card" style="margin-bottom: 15px; background: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 8px;">
+        <p style="margin: 0; color: #856404; font-size: 0.9em;">
+            ⚠️ <strong>Importante:</strong> Si cancelás un turno con menos de 24 horas de anticipación, 
+            se descontará una sesión de tu obra social.
+        </p>
+    </div>
+
     <div class="card" style="margin-bottom: 20px;">
-        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #28a745;">
-            📅 Próximos Turnos
-        </h3>
+        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #28a745;">📅 Próximos Turnos</h3>
         {% if proximos_turnos %}
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
@@ -79,7 +86,6 @@
         {% endif %}
     </div>
 
-    <!-- Últimos Turnos -->
     {% if ultimos_turnos %}
     <div class="card">
         <h3 style="margin-bottom: 15px;">📋 Últimas Visitas</h3>

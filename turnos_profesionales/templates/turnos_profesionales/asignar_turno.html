@@ -1,26 +1,176 @@
 {% extends 'core_app/base.html' %}
 
-
 {% block title %}Asignar Turno - {{ paciente.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .day-selector {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .day-option {
+        padding: 14px 16px;
+        border: 2px solid var(--gray-300);
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        text-align: center;
+        min-width: 90px;
+        transition: all 0.2s ease;
+        background: white;
+    }
+    
+    .day-option:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+    
+    .day-option.selected {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+    
+    .day-option input[type="radio"] {
+        display: none;
+    }
+    
+    .day-number {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--gray-900);
+    }
+    
+    .day-month {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+    
+    .day-name {
+        font-size: 0.75rem;
+        color: var(--gray-400);
+        text-transform: uppercase;
+    }
+    
+    .time-slots {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .time-option {
+        display: block;
+        padding: 12px 20px;
+        border: 2px solid var(--primary);
+        border-radius: var(--radius);
+        cursor: pointer;
+        color: var(--primary);
+        font-weight: 600;
+        transition: all 0.2s ease;
+        background: white;
+    }
+    
+    .time-option:hover {
+        background: var(--primary-light);
+    }
+    
+    .time-option.selected {
+        border-color: var(--success);
+        background: var(--success-light);
+        color: #065f46;
+    }
+    
+    .time-option input[type="radio"] {
+        display: none;
+    }
+    
+    .paciente-info-bar {
+        background: var(--primary-light);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .paciente-info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 700px; margin: 0 auto;">
-    <h1 style="margin-bottom: 5px;">📅 Asignar Turno</h1>
-    <p style="color: #666; margin-bottom: 20px;">
-        Paciente: <strong>{{ paciente.nombre_completo }}</strong> | 
-        DNI: {{ paciente.dni }}
+<div style="max-width: 750px; margin: 0 auto;">
+    <div class="flex-between mb-6">
+        <div class="page-header mb-0">
+            <h1><i class="fas fa-calendar-plus text-success"></i> Asignar Turno</h1>
+        </div>
+        <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+    
+    <!-- Info del paciente -->
+    <div class="paciente-info-bar">
+        <div class="paciente-info-item">
+            <i class="fas fa-user text-primary"></i>
+            <strong>{{ paciente.nombre_completo }}</strong>
+        </div>
+        <div class="paciente-info-item">
+            <i class="fas fa-id-card text-primary"></i>
+            DNI: {{ paciente.dni }}
+        </div>
         {% if paciente.obra_social %}
-            | O.S.: {{ paciente.obra_social.sigla }}
+        <div class="paciente-info-item">
+            <i class="fas fa-shield-alt text-primary"></i>
+            {{ paciente.obra_social.sigla }}
+        </div>
         {% endif %}
-    </p>
+        {% if paciente.sesiones_restantes is not None %}
+        <div class="paciente-info-item">
+            <i class="fas fa-ticket-alt text-primary"></i>
+            {{ paciente.sesiones_restantes }} sesiones
+        </div>
+        {% endif %}
+    </div>
 
     <!-- Selector de profesional (solo secretaria) -->
     {% if request.user.rol == 'secretaria' and profesionales_consultorio %}
-    <div class="card" style="margin-bottom: 20px;">
-        <h3 style="margin-bottom: 10px;">👨‍⚕️ Seleccioná el Profesional</h3>
-        <form method="get" style="display: flex; gap: 10px; align-items: center;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-user-md text-primary"></i> Seleccioná el Profesional
+            </h3>
+        </div>
+        <form method="get">
             <select name="profesional" onchange="this.form.submit()" 
-                    style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em;">
+                    style="width: 100%; padding: 12px 16px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 1rem; background: white;">
                 {% for prof in profesionales_consultorio %}
                     <option value="{{ prof.id }}" {% if profesional.id == prof.id %}selected{% endif %}>
                         {{ prof.nombre_completo }} - {{ prof.get_especialidad_display }}
@@ -30,10 +180,16 @@
         </form>
     </div>
     {% endif %}
+    
+    <!-- Selector de consultorio si hay múltiples -->
     {% if profesional.establecimientos.count > 1 %}
-    <div style="margin-bottom: 15px;">
-        <label><strong>Consultorio</strong></label>
-        <select name="establecimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-building text-primary"></i> Consultorio
+            </h3>
+        </div>
+        <select name="establecimiento" style="width: 100%; padding: 12px 16px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 1rem; background: white;">
             {% for est in profesional.establecimientos.all %}
                 <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
             {% endfor %}
@@ -45,50 +201,41 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <!-- Elegir día -->
-            <div class="card" style="margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px;">1️⃣ Elegí el día</h3>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <!-- Paso 1: Elegir día -->
+            <div class="card">
+                <div class="step-indicator">
+                    <span class="step-number">1</span>
+                    <span style="font-weight: 600; color: var(--gray-700);">Elegí el día</span>
+                </div>
+                
+                <div class="day-selector">
                     {% for dia in dias_disponibles %}
-                    <label style="
-                        padding: 12px 15px;
-                        border: 2px solid #ddd;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        text-align: center;
-                        min-width: 90px;
-                        transition: all 0.2s;
-                    " class="dia-label" onclick="seleccionarDia(this, '{{ dia.fecha_str }}')">
+                    <label class="day-option {% if forloop.first %}selected{% endif %}" 
+                           onclick="seleccionarDia(this, '{{ dia.fecha_str }}')">
                         <input type="radio" name="fecha" value="{{ dia.fecha_str }}" 
-                               style="display: none;" class="dia-radio"
                                {% if forloop.first %}checked{% endif %}>
-                        <div style="font-weight: bold; font-size: 1.2em;">{{ dia.fecha|date:"d" }}</div>
-                        <div style="font-size: 0.8em; color: #666;">{{ dia.fecha|date:"M" }}</div>
-                        <div style="font-size: 0.75em; color: #999;">{{ dia.nombre_dia|slice:":3" }}</div>
+                        <div class="day-number">{{ dia.fecha|date:"d" }}</div>
+                        <div class="day-month">{{ dia.fecha|date:"M" }}</div>
+                        <div class="day-name">{{ dia.nombre_dia|slice:":3" }}</div>
                     </label>
                     {% endfor %}
                 </div>
             </div>
             
-            <!-- Elegir hora -->
-            <div class="card" style="margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px;">2️⃣ Elegí el horario</h3>
+            <!-- Paso 2: Elegir hora -->
+            <div class="card">
+                <div class="step-indicator">
+                    <span class="step-number">2</span>
+                    <span style="font-weight: 600; color: var(--gray-700);">Elegí el horario</span>
+                </div>
+                
                 <div id="horarios-container">
                     {% for dia in dias_disponibles %}
-                    <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
-                         style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
+                    <div class="time-slots horarios-dia" data-fecha="{{ dia.fecha_str }}" 
+                         style="display: {% if forloop.first %}flex{% else %}none{% endif %};">
                         {% for slot in dia.slots %}
-                        <label style="
-                            display: block;
-                            padding: 10px 20px;
-                            border: 2px solid #4A90D9;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            color: #4A90D9;
-                            font-weight: bold;
-                        " class="hora-label" onclick="seleccionarHora(this)">
-                            <input type="radio" name="hora" value="{{ slot }}" 
-                                   style="display: none;" class="hora-radio">
+                        <label class="time-option" onclick="seleccionarHora(this)">
+                            <input type="radio" name="hora" value="{{ slot }}">
                             {{ slot }}
                         </label>
                         {% endfor %}
@@ -97,36 +244,51 @@
                 </div>
             </div>
             
-            <!-- Datos adicionales -->
+            <!-- Paso 3: Información adicional -->
             <div class="card">
-                <h3 style="margin-bottom: 15px;">3️⃣ Información adicional</h3>
+                <div class="step-indicator">
+                    <span class="step-number">3</span>
+                    <span style="font-weight: 600; color: var(--gray-700);">Información adicional</span>
+                </div>
                 
-                <div style="margin-bottom: 15px;">
-                    <label>Tipo de Consulta</label>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Tipo de Consulta
+                    </label>
                     <input type="text" name="tipo_consulta" 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                           placeholder="Ej: Control general, urgencia, primera consulta...">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           placeholder="Ej: Control general, urgencia, primera consulta..."
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 
-                <div style="margin-bottom: 15px;">
-                    <label>Notas Internas</label>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Notas Internas
+                    </label>
                     <textarea name="notas" rows="2"
-                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                              placeholder="Notas visibles solo para el profesional..."></textarea>
+                              style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
+                              placeholder="Notas visibles solo para el profesional..."
+                              onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
                 </div>
-                <!-- SUBIDA DE ARCHIVOS -->
-                {% include 'core_app/includes/upload_archivos.html' %}
                 
-                <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
-                    ✅ Asignar Turno
-                </button>
+                <!-- Subida de archivos -->
+                {% include 'core_app/includes/upload_archivos.html' %}
             </div>
+            
+            <button type="submit" class="btn btn-success btn-lg" style="width: 100%; padding: 16px; font-size: 1.1rem; justify-content: center;">
+                <i class="fas fa-check-circle"></i> Asignar Turno
+            </button>
         </form>
     {% else %}
-        <div class="card" style="text-align: center; padding: 40px;">
-            <p style="color: #666; font-size: 1.1em;">No hay horarios disponibles.</p>
-            <p style="color: #999;">Configurá la agenda del profesional para ver los horarios.</p>
-            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn" style="margin-top: 15px;">↩ Volver a la ficha</a>
+        <div class="card">
+            <div class="empty-state">
+                <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--gray-600);">No hay horarios disponibles</p>
+                <p class="text-muted">Configurá la agenda del profesional para ver los horarios.</p>
+                <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary" style="margin-top: 20px;">
+                    <i class="fas fa-arrow-left"></i> Volver a la ficha
+                </a>
+            </div>
         </div>
     {% endif %}
 </div>
@@ -143,32 +305,26 @@ function seleccionarDia(label, fecha) {
     }
     
     // Resaltar día seleccionado
-    document.querySelectorAll('.dia-label').forEach(l => {
-        l.style.border = '2px solid #ddd';
-        l.style.background = 'white';
+    document.querySelectorAll('.day-option').forEach(l => {
+        l.classList.remove('selected');
     });
-    label.style.border = '2px solid #4A90D9';
-    label.style.background = '#f0f7ff';
+    label.classList.add('selected');
 }
 
 function seleccionarHora(label) {
     // Resaltar hora seleccionada
-    document.querySelectorAll('.hora-label').forEach(l => {
-        l.style.border = '2px solid #4A90D9';
-        l.style.background = 'white';
-        l.style.color = '#4A90D9';
+    document.querySelectorAll('.time-option').forEach(l => {
+        l.classList.remove('selected');
     });
-    label.style.border = '2px solid #28a745';
-    label.style.background = '#f0fff4';
-    label.style.color = '#28a745';
+    label.classList.add('selected');
 }
 
-// Resaltar primer día al cargar
+// Inicializar
 document.addEventListener('DOMContentLoaded', function() {
-    let primerDia = document.querySelector('.dia-radio:checked');
-    if (primerDia) {
-        primerDia.closest('.dia-label').style.border = '2px solid #4A90D9';
-        primerDia.closest('.dia-label').style.background = '#f0f7ff';
+    let primerDia = document.querySelector('.day-option.selected');
+    if (!primerDia) {
+        primerDia = document.querySelector('.day-option');
+        if (primerDia) primerDia.classList.add('selected');
     }
 });
 </script>

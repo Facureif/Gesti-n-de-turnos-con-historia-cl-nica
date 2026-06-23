@@ -3,63 +3,115 @@
 {% block title %}Buscar Paciente{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <div style="margin-bottom: 20px;">
-        {% if request.user.rol == 'secretaria' %}
-            <a href="{% url 'panel_secretaria' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
-        {% else %}
-            <a href="{% url 'panel_profesional' %}" class="btn" style="background: #6c757d;">↩ Volver</a>
-        {% endif %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="flex-between mb-6">
+        <div class="page-header mb-0">
+            <h1><i class="fas fa-search text-primary"></i> Buscar Paciente</h1>
+            <p>Encontrá pacientes por nombre, apellido o DNI</p>
+        </div>
+        <div>
+            {% if request.user.rol == 'secretaria' %}
+                <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            {% else %}
+                <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            {% endif %}
+        </div>
     </div>
-    <h1 style="margin-bottom: 10px;">🔍 Buscar Paciente</h1>
-    <div class="card" style="margin-bottom: 20px;">
+    
+    <!-- Barra de búsqueda -->
+    <div class="card" style="margin-bottom: 24px;">
         <form method="get">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" name="q" value="{{ busqueda }}" 
-                       placeholder="Buscar por nombre, apellido o DNI..."
-                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em;">
-                <button type="submit" class="btn" style="padding: 10px 20px;">Buscar</button>
+            <div class="flex gap-2">
+                <div style="flex: 1; position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400);"></i>
+                    <input type="text" name="q" value="{{ busqueda }}" 
+                           placeholder="Buscar por nombre, apellido o DNI..."
+                           style="width: 100%; padding: 14px 16px 14px 44px; border: 1px solid var(--gray-300); border-radius: var(--radius-lg); font-family: inherit; font-size: 1rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           autofocus>
+                </div>
+                <button type="submit" class="btn" style="padding: 14px 28px; font-size: 1rem;">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
             </div>
         </form>
     </div>
     
     {% if pacientes %}
         <div class="card">
-            <h3 style="margin-bottom: 15px;">Resultados ({{ pacientes.count }})</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #f8f9fa;">
-                        <th style="padding: 10px; text-align: left;">Paciente</th>
-                        <th style="padding: 10px; text-align: left;">DNI</th>
-                        <th style="padding: 10px; text-align: left;">Teléfono</th>
-                        <th style="padding: 10px; text-align: left;">O.S.</th>
-                        <th style="padding: 10px; text-align: center;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in pacientes %}
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px;">{{ p.nombre_completo }}</td>
-                        <td style="padding: 10px;">{{ p.dni }}</td>
-                        <td style="padding: 10px;">{{ p.telefono }}</td>
-                        <td style="padding: 10px;">{{ p.obra_social.sigla|default:"Particular" }}</td>
-                        <td style="padding: 10px; text-align: center;">
-                            <a href="{% url 'ficha_paciente' p.id %}" class="btn" style="padding: 5px 10px; font-size: 0.85em;">📋 Ficha</a>
-                            <a href="{% url 'asignar_turno' p.id %}" class="btn btn-success" style="padding: 5px 10px; font-size: 0.85em;">📅 Turno</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-users text-primary"></i> 
+                    Resultados encontrados
+                </h3>
+                <span class="badge badge-info">{{ pacientes.count }} paciente(s)</span>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>DNI</th>
+                            <th>Teléfono</th>
+                            <th>Obra Social</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in pacientes %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'ficha_paciente' p.id %}" style="color: var(--gray-900); text-decoration: none; font-weight: 500;">
+                                    {{ p.nombre_completo }}
+                                </a>
+                            </td>
+                            <td><span style="font-family: monospace;">{{ p.dni }}</span></td>
+                            <td>{{ p.telefono }}</td>
+                            <td>
+                                {% if p.obra_social %}
+                                    <span class="badge badge-info">{{ p.obra_social.sigla }}</span>
+                                {% else %}
+                                    <span class="text-muted">Particular</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a href="{% url 'ficha_paciente' p.id %}" class="btn btn-sm">
+                                        <i class="fas fa-folder-open"></i> Ficha
+                                    </a>
+                                    <a href="{% url 'asignar_turno' p.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-calendar-plus"></i> Turno
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     {% elif busqueda %}
-        <div class="card" style="text-align: center; padding: 40px;">
-            <p style="font-size: 1.2em; color: #666;">No se encontraron pacientes con "{{ busqueda }}"</p>
-            <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 15px;">➕ Registrar Paciente</a>
+        <div class="card">
+            <div class="empty-state">
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--gray-600);">No se encontraron resultados</p>
+                <p class="text-muted">No hay pacientes que coincidan con "<strong>{{ busqueda }}</strong>"</p>
+                <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 20px;">
+                    <i class="fas fa-user-plus"></i> Registrar Nuevo Paciente
+                </a>
+            </div>
         </div>
     {% else %}
-        <div class="card" style="text-align: center; padding: 40px;">
-            <p style="color: #999;">Ingresá un nombre, apellido o DNI para buscar.</p>
+        <div class="card">
+            <div class="empty-state">
+                <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--gray-300);"></i>
+                <p style="color: var(--gray-500);">Ingresá un nombre, apellido o DNI para buscar pacientes</p>
+            </div>
         </div>
     {% endif %}
 </div>

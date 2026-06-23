@@ -3,52 +3,106 @@
 {% block title %}Registrar Paciente{% endblock %}
 
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-    <h1 style="margin-bottom: 20px;">➕ Registrar Nuevo Paciente</h1>
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="page-header">
+        <h1><i class="fas fa-user-plus text-success"></i> Registrar Nuevo Paciente</h1>
+        <p>Completá los datos para crear un nuevo paciente</p>
+    </div>
     
-    <div class="card">
-        <form method="post">
-            {% csrf_token %}
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Datos Personales -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-user text-primary"></i> Datos Personales
+                </h3>
+            </div>
             
-            <h3>Datos Personales</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label>Nombre *</label>
-                    <input type="text" name="nombre" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Nombre <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="nombre" required 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           placeholder="Ingresá el nombre">
                 </div>
                 <div>
-                    <label>Apellido *</label>
-                    <input type="text" name="apellido" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Apellido <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="apellido" required 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           placeholder="Ingresá el apellido">
                 </div>
                 <div>
-                    <label>DNI *</label>
-                    <input type="text" name="dni" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        DNI <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="dni" required 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           placeholder="Sin puntos ni espacios">
                 </div>
                 <div>
-                    <label>Fecha de Nacimiento *</label>
-                    <input type="date" name="fecha_nacimiento" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Fecha de Nacimiento <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="date" name="fecha_nacimiento" required 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 <div>
-                    <label>Teléfono *</label>
-                    <input type="text" name="telefono" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Teléfono <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="telefono" required 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           placeholder="Ej: 11 2345-6789">
                 </div>
                 <div>
-                    <label>Email</label>
-                    <input type="email" name="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Email
+                    </label>
+                    <input type="email" name="email" 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           placeholder="ejemplo@correo.com">
                 </div>
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Dirección</label>
-                <input type="text" name="direccion" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <div style="margin-top: 20px;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                    Dirección
+                </label>
+                <input type="text" name="direccion" 
+                       style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                       onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                       placeholder="Calle, número, piso, depto.">
+            </div>
+        </div>
+        
+        <!-- Obra Social -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-shield-alt text-primary"></i> Obra Social
+                </h3>
             </div>
             
-            <h3>🏥 Obra Social</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div>
-                    <label>Obra Social</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Obra Social
+                    </label>
                     <select name="obra_social" id="select-obra-social" onchange="cargarPlanes(this.value)"
-                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; background: white; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                         <option value="">Particular</option>
                         {% for os in obras_sociales %}
                             <option value="{{ os.id }}">{{ os.nombre }} ({{ os.sigla }})</option>
@@ -56,48 +110,69 @@
                     </select>
                 </div>
                 <div>
-                    <label>Plan</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Plan
+                    </label>
                     <select name="plan_obra_social" id="select-plan" disabled
-                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; background: white; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                         <option value="">Primero seleccioná una obra social</option>
                     </select>
                 </div>
                 <div>
-                    <label>N° Afiliado</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        N° Afiliado
+                    </label>
                     <input type="text" name="numero_afiliado" 
-                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-            </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div>
-                        <label>Sesiones Autorizadas</label>
-                        <input type="number" name="sesiones_autorizadas" min="0" 
-                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                            placeholder="Ej: 20">
-                    </div>
-                    <div>
-                        <label>Sesiones Restantes</label>
-                        <input type="number" name="sesiones_restantes" min="0" 
-                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                            placeholder="Ej: 20">
-                    </div>
-                    <div>
-                        <label>Vencimiento</label>
-                        <input type="date" name="fecha_vencimiento" 
-                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           placeholder="Número de afiliado">
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;">
-                Registrar Paciente
-            </button>
-        </form>
-    </div>
+            <div style="padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                <h4 style="margin-bottom: 16px; color: var(--gray-700); font-size: 0.95rem;">
+                    <i class="fas fa-chart-bar text-primary"></i> Sesiones de Obra Social
+                </h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                            Sesiones Autorizadas
+                        </label>
+                        <input type="number" name="sesiones_autorizadas" min="0" 
+                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                               placeholder="Ej: 20"
+                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                            Sesiones Restantes
+                        </label>
+                        <input type="number" name="sesiones_restantes" min="0" 
+                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                               placeholder="Ej: 20"
+                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                            Vencimiento
+                        </label>
+                        <input type="date" name="fecha_vencimiento" 
+                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-success btn-lg" style="width: 100%; padding: 16px; font-size: 1.1rem; margin-top: 24px; justify-content: center;">
+            <i class="fas fa-user-plus"></i> Registrar Paciente
+        </button>
+    </form>
 </div>
 
 <script>
-// Cargar planes según la obra social seleccionada
 const planesPorOS = {};
 {% for os in obras_sociales %}
     planesPorOS[{{ os.id }}] = [
@@ -123,12 +198,10 @@ function cargarPlanes(obraSocialId) {
     }
 }
 
-// Cargar planes al iniciar si ya hay obra social seleccionada
 document.addEventListener('DOMContentLoaded', function() {
     const selectOS = document.getElementById('select-obra-social');
     if (selectOS && selectOS.value) {
         cargarPlanes(selectOS.value);
-        // Marcar plan seleccionado si existe
         {% if paciente and paciente.plan_obra_social %}
             const selectPlan = document.getElementById('select-plan');
             if (selectPlan) {

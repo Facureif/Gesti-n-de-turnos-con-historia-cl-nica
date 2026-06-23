@@ -3,6 +3,13 @@
 {% block title %}Sacar Turno - Elegir Profesional{% endblock %}
 
 {% block content %}
+
+{% if config.modo == 'consultorio' and config.establecimiento_principal %}
+    <p style="text-align: center; color: #666; margin-bottom: 20px;">
+        🏥 {{ config.establecimiento_principal.nombre }}
+    </p>
+{% endif %}
+
 <div style="max-width: 800px; margin: 0 auto;">
     <h1 style="text-align: center; margin-bottom: 10px;">📅 Sacar Turno</h1>
     <p style="text-align: center; color: #666; margin-bottom: 30px;">

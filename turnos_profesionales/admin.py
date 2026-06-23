@@ -11,7 +11,7 @@ class ArchivoTurnoInline(admin.TabularInline):
 @admin.register(TurnoProfesional)
 class TurnoProfesionalAdmin(admin.ModelAdmin):
     list_display = ('fecha', 'hora_inicio', 'profesional', 'paciente', 'monto_coseguro',
-                    'establecimiento', 'estado', 'obra_social')
+                    'establecimiento', 'estado', 'google_event_id',  'obra_social')
     list_filter = ('estado', 'profesional', 'establecimiento', 'obra_social', 'fecha')
     search_fields = ('paciente__nombre', 'paciente__apellido', 'profesional__nombre')
     date_hierarchy = 'fecha'

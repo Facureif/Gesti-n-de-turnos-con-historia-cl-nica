@@ -85,6 +85,8 @@ class TurnoProfesional(ModeloBase):
         verbose_name='Coseguro cobrado'
     )
 
+    google_event_id = models.CharField(max_length=200, blank=True, null=True, verbose_name='ID Evento Google')
+
     class Meta:
         verbose_name = 'Turno Profesional'
         verbose_name_plural = 'Turnos Profesionales'

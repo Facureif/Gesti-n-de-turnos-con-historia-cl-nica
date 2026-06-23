@@ -4,118 +4,169 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
-    <h1 style="margin-bottom: 5px;">✏️ Editar Paciente</h1>
-    <p style="color: #666; margin-bottom: 20px;">{{ paciente.nombre_completo }}</p>
+    <div class="page-header">
+        <h1><i class="fas fa-user-edit text-primary"></i> Editar Paciente</h1>
+        <p>{{ paciente.nombre_completo }}</p>
+    </div>
     
     <form method="post">
         {% csrf_token %}
         
         <!-- Datos Personales -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">👤 Datos Personales</h3>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-user text-primary"></i> Datos Personales
+                </h3>
+            </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label>Nombre *</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Nombre <span style="color: var(--danger);">*</span>
+                    </label>
                     <input type="text" name="nombre" value="{{ paciente.nombre }}" required 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 <div>
-                    <label>Apellido *</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Apellido <span style="color: var(--danger);">*</span>
+                    </label>
                     <input type="text" name="apellido" value="{{ paciente.apellido }}" required 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 <div>
-                    <label>DNI *</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        DNI <span style="color: var(--danger);">*</span>
+                    </label>
                     <input type="text" name="dni" value="{{ paciente.dni }}" required 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 <div>
-                    <label>Fecha de Nacimiento *</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Fecha de Nacimiento <span style="color: var(--danger);">*</span>
+                    </label>
                     <input type="date" name="fecha_nacimiento" value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}" required 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 <div>
-                    <label>Teléfono *</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Teléfono <span style="color: var(--danger);">*</span>
+                    </label>
                     <input type="text" name="telefono" value="{{ paciente.telefono }}" required 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
                 <div>
-                    <label>Email</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Email
+                    </label>
                     <input type="email" name="email" value="{{ paciente.email }}" 
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
             </div>
             
-            <div style="margin-top: 15px;">
-                <label>Dirección</label>
+            <div style="margin-top: 20px;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                    Dirección
+                </label>
                 <input type="text" name="direccion" value="{{ paciente.direccion }}" 
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                       style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                       onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
             </div>
         </div>
         
         <!-- Obra Social -->
-        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">🏥 Obra Social</h3>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-            <div>
-                <label>Obra Social</label>
-                <select name="obra_social" id="select-obra-social" onchange="cargarPlanes(this.value)"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                    <option value="">Particular</option>
-                    {% for os in obras_sociales %}
-                        <option value="{{ os.id }}" {% if paciente.obra_social.id == os.id %}selected{% endif %}>
-                            {{ os.nombre }} ({{ os.sigla }})
-                        </option>
-                    {% endfor %}
-                </select>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-shield-alt text-primary"></i> Obra Social
+                </h3>
             </div>
-            <div>
-                <label>Plan</label>
-                <select name="plan_obra_social" id="select-plan"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                    <option value="">Sin plan</option>
-                    {% if paciente.obra_social %}
-                        {% for plan in paciente.obra_social.planes.all %}
-                            <option value="{{ plan.id }}" {% if paciente.plan_obra_social.id == plan.id %}selected{% endif %}>
-                                {{ plan.nombre }}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Obra Social
+                    </label>
+                    <select name="obra_social" id="select-obra-social" onchange="cargarPlanes(this.value)"
+                            style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; background: white; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                        <option value="">Particular</option>
+                        {% for os in obras_sociales %}
+                            <option value="{{ os.id }}" {% if paciente.obra_social.id == os.id %}selected{% endif %}>
+                                {{ os.nombre }} ({{ os.sigla }})
                             </option>
                         {% endfor %}
-                    {% endif %}
-                </select>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Plan
+                    </label>
+                    <select name="plan_obra_social" id="select-plan"
+                            style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; background: white; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                        <option value="">Sin plan</option>
+                        {% if paciente.obra_social %}
+                            {% for plan in paciente.obra_social.planes.all %}
+                                <option value="{{ plan.id }}" {% if paciente.plan_obra_social.id == plan.id %}selected{% endif %}>
+                                    {{ plan.nombre }}
+                                </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        N° Afiliado
+                    </label>
+                    <input type="text" name="numero_afiliado" value="{{ paciente.numero_afiliado }}" 
+                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                </div>
             </div>
-            <div>
-                <label>N° Afiliado</label>
-                <input type="text" name="numero_afiliado" value="{{ paciente.numero_afiliado }}" 
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            </div>
-        </div>
+            
             <!-- Sesiones -->
-            <div class="card" style="margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
-                    📊 Sesiones de Obra Social
-                </h3>
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--gray-200);">
+                <h4 style="margin-bottom: 16px; color: var(--gray-700); font-size: 0.95rem;">
+                    <i class="fas fa-chart-bar text-primary"></i> Sesiones de Obra Social
+                </h4>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div>
-                        <label>Sesiones Autorizadas</label>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                            Sesiones Autorizadas
+                        </label>
                         <input type="number" name="sesiones_autorizadas" min="0" 
-                            value="{{ paciente.sesiones_autorizadas|default:'' }}"
-                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                            placeholder="Ej: 20">
+                               value="{{ paciente.sesiones_autorizadas|default:'' }}"
+                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                               placeholder="Ej: 20"
+                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                     </div>
                     <div>
-                        <label>Sesiones Restantes</label>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                            Sesiones Restantes
+                        </label>
                         <input type="number" name="sesiones_restantes" min="0" 
-                            value="{{ paciente.sesiones_restantes|default:'' }}"
-                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                            placeholder="Ej: 15">
+                               value="{{ paciente.sesiones_restantes|default:'' }}"
+                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                               placeholder="Ej: 15"
+                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                     </div>
                     <div>
-                        <label>Vencimiento</label>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                            Vencimiento
+                        </label>
                         <input type="date" name="fecha_vencimiento" 
-                            value="{{ paciente.fecha_vencimiento_sesiones|date:'Y-m-d'|default:'' }}"
-                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                               value="{{ paciente.fecha_vencimiento_sesiones|date:'Y-m-d'|default:'' }}"
+                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
+                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                     </div>
                 </div>
             </div>
@@ -123,52 +174,65 @@
         
         <!-- Historia Clínica -->
         {% if historia %}
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4A90D9;">
-                📝 Historia Clínica 
-                <span style="font-size: 0.8em; color: #999;">N° {{ historia.numero_historia }}</span>
-            </h3>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-notes-medical text-primary"></i> Historia Clínica
+                </h3>
+                <span class="badge badge-info">N° {{ historia.numero_historia }}</span>
+            </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label>Antecedentes Personales</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Antecedentes Personales
+                    </label>
                     <textarea name="antecedentes_personales" rows="3"
-                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">{{ historia.antecedentes_personales }}</textarea>
+                              style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
+                              onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">{{ historia.antecedentes_personales }}</textarea>
                 </div>
                 <div>
-                    <label>Antecedentes Familiares</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Antecedentes Familiares
+                    </label>
                     <textarea name="antecedentes_familiares" rows="3"
-                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">{{ historia.antecedentes_familiares }}</textarea>
+                              style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
+                              onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">{{ historia.antecedentes_familiares }}</textarea>
                 </div>
                 <div>
-                    <label>Alergias</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Alergias
+                    </label>
                     <textarea name="alergias" rows="2"
-                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">{{ historia.alergias }}</textarea>
+                              style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
+                              onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">{{ historia.alergias }}</textarea>
                 </div>
                 <div>
-                    <label>Medicación Habitual</label>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
+                        Medicación Habitual
+                    </label>
                     <textarea name="medicacion_habitual" rows="2"
-                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">{{ historia.medicacion_habitual }}</textarea>
+                              style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
+                              onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">{{ historia.medicacion_habitual }}</textarea>
                 </div>
             </div>
         </div>
         {% endif %}
         
         <!-- Botones -->
-        <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px; font-size: 1.1em;">
-                💾 Guardar Cambios
+        <div class="flex gap-3" style="margin-top: 24px;">
+            <button type="submit" class="btn btn-success btn-lg" style="flex: 1; justify-content: center; padding: 14px; font-size: 1rem;">
+                <i class="fas fa-save"></i> Guardar Cambios
             </button>
-            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn" 
-               style="padding: 12px 30px; background: #6c757d; text-align: center;">
-                Cancelar
+            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-lg" 
+               style="padding: 14px 32px; justify-content: center;">
+                <i class="fas fa-times"></i> Cancelar
             </a>
         </div>
     </form>
 </div>
 
 <script>
-// Cargar planes según la obra social seleccionada
 const planesPorOS = {};
 {% for os in obras_sociales %}
     planesPorOS[{{ os.id }}] = [
@@ -181,7 +245,6 @@ const planesPorOS = {};
 function cargarPlanes(obraSocialId) {
     const selectPlan = document.getElementById('select-plan');
     selectPlan.innerHTML = '<option value="">Sin plan</option>';
-    selectPlan.disabled = true;
     
     if (obraSocialId && planesPorOS[obraSocialId]) {
         planesPorOS[obraSocialId].forEach(function(plan) {
@@ -190,16 +253,13 @@ function cargarPlanes(obraSocialId) {
             option.textContent = plan.nombre;
             selectPlan.appendChild(option);
         });
-        selectPlan.disabled = false;
     }
 }
 
-// Cargar planes al iniciar si ya hay obra social seleccionada
 document.addEventListener('DOMContentLoaded', function() {
     const selectOS = document.getElementById('select-obra-social');
     if (selectOS && selectOS.value) {
         cargarPlanes(selectOS.value);
-        // Marcar plan seleccionado si existe
         {% if paciente and paciente.plan_obra_social %}
             const selectPlan = document.getElementById('select-plan');
             if (selectPlan) {

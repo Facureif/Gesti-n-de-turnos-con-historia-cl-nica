@@ -28,3 +28,6 @@ def home(request):
         elif request.user.rol == 'paciente':
             return redirect('panel_paciente')
     return render(request, 'core_app/home.html')
+
+
+    

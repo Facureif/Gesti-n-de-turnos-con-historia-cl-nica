@@ -5,6 +5,7 @@ from django.db.models import Q
 from datetime import date, timedelta, datetime
 
 from establecimientos.models import Establecimiento
+from core_app.models import ClienteSaaS, ConfiguracionSistema
 
 from .models import Paciente
 from profesionales.models import Profesional
@@ -27,6 +28,15 @@ def panel_paciente(request):
     
     hoy = date.today()
     
+    # Obtener cliente SaaS de la sesión para filtrar profesionales
+    cliente_slug = request.session.get('cliente_slug')
+    cliente = None
+    if cliente_slug:
+        try:
+            cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+        except ClienteSaaS.DoesNotExist:
+            pass
+    
     # Próximos turnos
     proximos_turnos = TurnoProfesional.objects.filter(
         paciente=paciente,
@@ -44,6 +54,7 @@ def panel_paciente(request):
         'paciente': paciente,
         'proximos_turnos': proximos_turnos,
         'ultimos_turnos': ultimos_turnos,
+        'cliente': cliente,  # pasar al template
     })
 
 
@@ -67,63 +78,103 @@ def mis_turnos(request):
 
 @login_required
 def cancelar_turno_paciente(request, turno_id):
-    """El paciente cancela su turno (solo con 24hs de anticipación)."""
+    """El paciente cancela su turno."""
     if request.user.rol != 'paciente':
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, usuario=request.user)
     turno = get_object_or_404(TurnoProfesional, id=turno_id, paciente=paciente)
     
-    # Verificar que no sea el mismo día o menos de 24hs
     ahora = datetime.now()
     fecha_hora_turno = datetime.combine(turno.fecha, turno.hora_inicio)
-    
-    if (fecha_hora_turno - ahora).total_seconds() < 86400:  # 24 horas
-        messages.error(request, 'No podés cancelar un turno con menos de 24 horas de anticipación. Contactá al consultorio.')
-        return redirect('panel_paciente')
+    horas_restantes = (fecha_hora_turno - ahora).total_seconds() / 3600
     
     turno.estado = 'cancelado'
     turno.save()
     
-    messages.success(request, f'Turno del {turno.fecha.strftime("%d/%m/%Y")} a las {turno.hora_inicio.strftime("%H:%M")} cancelado.')
+    if horas_restantes < 24:
+        messages.warning(request, f'Turno cancelado con menos de 24hs. Se descontará una sesión de obra social si corresponde.')
+    else:
+        messages.success(request, f'Turno del {turno.fecha.strftime("%d/%m/%Y")} a las {turno.hora_inicio.strftime("%H:%M")} cancelado.')
+    
     return redirect('panel_paciente')
 
 
 @login_required
 def sacar_turno_paciente(request, profesional_id=None):
-    """El paciente saca un turno por sí mismo."""
     if request.user.rol != 'paciente':
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, usuario=request.user)
     hoy = date.today()
     
+    # Obtener cliente SaaS de la sesión
+    cliente_slug = request.session.get('cliente_slug')
+    cliente = None
+    if cliente_slug:
+        try:
+            cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+        except ClienteSaaS.DoesNotExist:
+            pass
+    
     if profesional_id:
         profesional = get_object_or_404(Profesional, id=profesional_id, activo=True)
-        return mostrar_formulario_paciente(request, paciente, profesional, hoy)
+        # Verificar que pertenezca al cliente si es consultorio
+        if cliente and cliente.tipo == 'consultorio':
+            if cliente.establecimiento not in profesional.establecimientos.all():
+                messages.error(request, 'Profesional no disponible en este consultorio.')
+                return redirect('panel_paciente')
+        return mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente)
     
-    # Mostrar profesionales disponibles (los que ya lo atendieron o todos)
-    profesionales_ids = TurnoProfesional.objects.filter(
-        paciente=paciente
-    ).values_list('profesional_id', flat=True).distinct()
-    
-    profesionales = Profesional.objects.filter(
-        Q(id__in=profesionales_ids) | Q(establecimientos__isnull=False),
-        activo=True
-    ).distinct()[:10]
+    # Filtrado según cliente
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            profesionales = Profesional.objects.filter(
+                establecimientos=cliente.establecimiento, activo=True
+            )
+        else:  # profesional independiente
+            profesionales = Profesional.objects.filter(
+                id=cliente.profesional.id, activo=True
+            )
+    else:
+        # Sin cliente en sesión, usar configuración del sistema
+        config = ConfiguracionSistema.obtener()
+        if config.modo == 'consultorio' and config.establecimiento_principal:
+            # Modo consultorio: solo profesionales de ese consultorio
+            profesionales = Profesional.objects.filter(
+                establecimientos=config.establecimiento_principal,
+                activo=True
+            ).distinct()
+        else:
+            # Modo profesional independiente: todos los profesionales
+            profesionales_ids = TurnoProfesional.objects.filter(
+                paciente=paciente
+            ).values_list('profesional_id', flat=True).distinct()
+            
+            profesionales = Profesional.objects.filter(
+                Q(id__in=profesionales_ids) | Q(establecimientos__isnull=False),
+                activo=True
+            ).distinct()[:10]
     
     return render(request, 'pacientes/portal/elegir_profesional.html', {
         'paciente': paciente,
-        'profesionales': profesionales
+        'profesionales': profesionales,
+        'cliente': cliente,
     })
 
-def mostrar_formulario_paciente(request, paciente, profesional, hoy):
+
+def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=None):
     """Muestra el formulario para que el paciente elija fecha y hora."""
     
     establecimiento_id = request.GET.get('establecimiento')
     establecimiento_seleccionado = None
     if establecimiento_id:
         establecimiento_seleccionado = get_object_or_404(Establecimiento, id=establecimiento_id)
+        # Verificar que el establecimiento pertenezca al cliente si es consultorio
+        if cliente and cliente.tipo == 'consultorio':
+            if establecimiento_seleccionado != cliente.establecimiento:
+                messages.error(request, 'Establecimiento no autorizado.')
+                return redirect('panel_paciente')
     
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
@@ -151,6 +202,12 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
             return redirect('sacar_turno_paciente_profesional', profesional_id=profesional.id)
         
         establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
+        
+        # Verificar que el establecimiento pertenezca al cliente si es consultorio
+        if cliente and cliente.tipo == 'consultorio':
+            if establecimiento != cliente.establecimiento:
+                messages.error(request, 'Establecimiento no autorizado.')
+                return redirect('panel_paciente')
         
         # Verificar disponibilidad con pacientes simultáneos
         turnos_en_horario = TurnoProfesional.objects.filter(
@@ -212,11 +269,20 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
             fecha_inicio__lte=hoy + timedelta(days=30)
         )
     else:
-        agendas = Agenda.objects.filter(
-            profesional=profesional,
-            activo=True,
-            fecha_inicio__lte=hoy + timedelta(days=30)
-        )
+        # Si hay cliente consultorio, filtrar por su establecimiento
+        if cliente and cliente.tipo == 'consultorio':
+            agendas = Agenda.objects.filter(
+                profesional=profesional,
+                establecimiento=cliente.establecimiento,
+                activo=True,
+                fecha_inicio__lte=hoy + timedelta(days=30)
+            )
+        else:
+            agendas = Agenda.objects.filter(
+                profesional=profesional,
+                activo=True,
+                fecha_inicio__lte=hoy + timedelta(days=30)
+            )
     
     agenda = agendas.first()
     
@@ -267,5 +333,6 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy):
         'profesional': profesional,
         'dias_disponibles': dias_disponibles,
         'hoy': hoy,
-        'establecimiento_seleccionado': establecimiento_seleccionado
+        'establecimiento_seleccionado': establecimiento_seleccionado,
+        'cliente': cliente,
     })

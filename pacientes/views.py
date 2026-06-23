@@ -142,7 +142,7 @@ def ficha_paciente(request, paciente_id):
         historia_clinica=historia
     ).order_by('-creado') if historia else []
     
-    # Próximos turnos (pendientes y confirmados)
+    # Próximos turnos
     if request.user.rol == 'secretaria':
         # Secretaria solo ve turnos de SU consultorio
         proximos_turnos = TurnoProfesional.objects.filter(
@@ -151,13 +151,16 @@ def ficha_paciente(request, paciente_id):
             estado__in=['pendiente', 'confirmado'],
             establecimiento=establecimiento
         ).order_by('fecha', 'hora_inicio')
-    else:
-        # Profesional ve todos los turnos del paciente
+    elif request.user.rol == 'profesional':
+        # Profesional solo ve SUS propios turnos con este paciente
         proximos_turnos = TurnoProfesional.objects.filter(
+            profesional=profesional,
             paciente=paciente,
             fecha__gte=hoy,
             estado__in=['pendiente', 'confirmado']
         ).order_by('fecha', 'hora_inicio')
+    else:
+        proximos_turnos = []
 
     # Turnos pasados
     if request.user.rol == 'secretaria':
@@ -166,11 +169,14 @@ def ficha_paciente(request, paciente_id):
             estado__in=['completado', 'cancelado', 'no_asistio'],
             establecimiento=establecimiento
         ).order_by('-fecha', '-hora_inicio')[:20]
-    else:
+    elif request.user.rol == 'profesional':
         turnos_pasados = TurnoProfesional.objects.filter(
+            profesional=profesional,
             paciente=paciente,
             estado__in=['completado', 'cancelado', 'no_asistio']
         ).order_by('-fecha', '-hora_inicio')[:20]
+    else:
+        turnos_pasados = []
     
     return render(request, 'pacientes/ficha.html', {
         'profesional': profesional,
@@ -182,6 +188,7 @@ def ficha_paciente(request, paciente_id):
         'hoy': hoy,
         'es_secretaria': request.user.rol == 'secretaria'
     })
+
 
 @login_required
 def editar_paciente(request, paciente_id):
