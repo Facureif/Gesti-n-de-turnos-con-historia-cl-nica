@@ -55,6 +55,12 @@ class Profesional(Persona):
     related_name='profesionales',
     verbose_name='Consultorios donde atiende'
     )
+    frase_destacada = models.CharField(max_length=200, blank=True, verbose_name='Frase destacada')
+    precio_particular = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Precio consulta particular')
+    obras_sociales_texto = models.TextField(blank=True, verbose_name='Obras sociales (texto libre)')
+    servicios_texto = models.TextField(blank=True, verbose_name='Servicios / Especializaciones')
+    servicios_destacados = models.TextField(blank=True, verbose_name='Servicios destacados')
+    especializaciones = models.TextField(blank=True, verbose_name='Especializaciones')
 
     class Meta:
         verbose_name = 'Profesional'
@@ -63,6 +69,24 @@ class Profesional(Persona):
     
     def __str__(self):
         return f"{self.nombre_completo} - {self.get_especialidad_display()}"
+    
+    def get_obras_sociales_list(self):
+        """Devuelve lista de obras sociales desde el texto."""
+        if self.obras_sociales_texto:
+            return [x.strip() for x in self.obras_sociales_texto.replace(',', '\n').split('\n') if x.strip()]
+        return []
+
+    def get_servicios_list(self):
+        """Devuelve lista de servicios desde el texto."""
+        if self.servicios_destacados:
+            return [x.strip() for x in self.servicios_destacados.replace(',', '\n').split('\n') if x.strip()]
+        return []
+
+    def get_especializaciones_list(self):
+        """Devuelve lista de especializaciones desde el texto."""
+        if self.especializaciones:
+            return [x.strip() for x in self.especializaciones.replace(',', '\n').split('\n') if x.strip()]
+        return []
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver

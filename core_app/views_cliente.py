@@ -7,31 +7,34 @@ from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
 from django.db.models import Q
 from agendas.models import Agenda, HorarioAtencion
-
+import random
+import string
 
 def portal(request, cliente_slug):
-    """Portal público según el cliente SaaS."""
     cliente = get_object_or_404(ClienteSaaS, slug=cliente_slug, activo=True)
-    # Guardar en sesión para que las vistas de paciente sepan desde dónde vienen
     request.session['cliente_slug'] = cliente_slug
+    
     if cliente.tipo == 'consultorio':
         profesionales = Profesional.objects.filter(
             establecimientos=cliente.establecimiento, activo=True
-        )
-        contexto = {
+        ).prefetch_related('agenda_set__horarios')
+        
+        return render(request, 'core_app/landing_consultorio.html', {
             'cliente': cliente,
             'profesionales': profesionales,
-            'modo': 'consultorio'
-        }
+        })
     else:
-        contexto = {
+        profesional = cliente.profesional
+        consultorios = profesional.establecimientos.all()
+        # Agendas por consultorio
+        for est in consultorios:
+            est.agenda = Agenda.objects.filter(profesional=profesional, establecimiento=est, activo=True).first()
+        
+        return render(request, 'core_app/landing_profesional.html', {
             'cliente': cliente,
-            'profesional': cliente.profesional,
-            'consultorios': cliente.profesional.establecimientos.all() if cliente.profesional else [],
-            'modo': 'profesional'
-        }
-    
-    return render(request, 'core_app/publico/portal.html', contexto)
+            'profesional': profesional,
+            'consultorios': consultorios,
+        })
 
 def sacar_turno(request, cliente_slug, profesional_id):
     """Formulario público para sacar turno."""
@@ -40,7 +43,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
     
     hoy = date.today()
     
-    # Consultorios disponibles según el tipo de cliente
     if cliente.tipo == 'consultorio':
         consultorios_disponibles = profesional.establecimientos.filter(id=cliente.establecimiento.id)
     else:
@@ -73,7 +75,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
         
         establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
         
-        # Buscar agenda
         agenda = Agenda.objects.filter(
             profesional=profesional, establecimiento=establecimiento,
             activo=True, fecha_inicio__lte=fecha
@@ -85,27 +86,21 @@ def sacar_turno(request, cliente_slug, profesional_id):
             messages.error(request, 'No hay agenda configurada para esta fecha y consultorio.')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
         
-        # Verificar que atienda ese día
         horario_dia = HorarioAtencion.objects.filter(agenda=agenda, dia=fecha.weekday()).first()
         if not horario_dia:
             messages.error(request, 'El profesional no atiende este día.')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
         
-        # Verificar que la hora esté dentro del horario
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=horario_dia.duracion_turno)).time()
         if hora > horario_dia.hora_fin or hora_fin > horario_dia.hora_fin:
             messages.error(request, 'Horario fuera del rango de atención.')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
         
-        # Verificar disponibilidad con pacientes simultáneos
         max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
         
         turnos_en_horario = TurnoProfesional.objects.filter(
-            profesional=profesional,
-            establecimiento=establecimiento,
-            fecha=fecha,
-            hora_inicio=hora,
-            estado__in=['pendiente', 'confirmado']
+            profesional=profesional, establecimiento=establecimiento,
+            fecha=fecha, hora_inicio=hora, estado__in=['pendiente', 'confirmado']
         ).count()
         
         if turnos_en_horario >= max_simultaneos:
@@ -114,9 +109,11 @@ def sacar_turno(request, cliente_slug, profesional_id):
         
         # Buscar o crear paciente
         from pacientes.models import Paciente
-        import random
+        from usuarios.models import Usuario
+        import random as random_module
         
         paciente = None
+        credenciales = None
         
         if dni:
             paciente = Paciente.objects.filter(dni=dni).first()
@@ -132,34 +129,62 @@ def sacar_turno(request, cliente_slug, profesional_id):
             primer_nombre = partes[0] if partes else nombre
             apellido_temp = ' '.join(partes[1:]) if len(partes) > 1 else primer_nombre
             
-            dni_final = dni if dni else f"TMP{random.randint(10000, 99999)}"
+            dni_final = dni if dni else f"TMP{random_module.randint(10000, 99999)}"
             
-            # Verificar que el DNI no exista ya
             if Paciente.objects.filter(dni=dni_final).exists():
-                dni_final = f"TMP{random.randint(10000, 99999)}"
+                dni_final = f"TMP{random_module.randint(10000, 99999)}"
             
             paciente = Paciente.objects.create(
-                nombre=primer_nombre,
-                apellido=apellido_temp,
-                telefono=telefono,
-                email=email,
-                dni=dni_final,
-                fecha_nacimiento=hoy.replace(year=1990)
+                nombre=primer_nombre, apellido=apellido_temp,
+                telefono=telefono, email=email,
+                dni=dni_final, fecha_nacimiento=hoy.replace(year=1990)
             )
+            
+            # Crear usuario automáticamente
+            base_username = f"{primer_nombre.lower()}.{apellido_temp.lower()}".replace(" ", "")
+            username = base_username
+            if Usuario.objects.filter(username=username).exists():
+                username = f"{base_username}{random_module.randint(1, 999)}"
+            
+            password = dni if dni and not dni_final.startswith('TMP') else ''.join(random_module.choices(string.digits, k=6))
+            
+            usuario = Usuario.objects.create_user(
+                username=username, password=password,
+                first_name=primer_nombre, last_name=apellido_temp,
+                email=email or '', rol='paciente', telefono=telefono
+            )
+            paciente.usuario = usuario
+            paciente.save()
+            credenciales = (username, password)
         
-        # CREAR EL TURNO
+        else:
+            if not paciente.usuario:
+                primer_nombre = paciente.nombre
+                apellido_temp = paciente.apellido
+                base_username = f"{primer_nombre.lower()}.{apellido_temp.lower()}".replace(" ", "")
+                username = base_username
+                if Usuario.objects.filter(username=username).exists():
+                    username = f"{base_username}{random_module.randint(1, 999)}"
+                
+                password = paciente.dni if paciente.dni and not paciente.dni.startswith('TMP') else ''.join(random_module.choices(string.digits, k=6))
+                
+                usuario = Usuario.objects.create_user(
+                    username=username, password=password,
+                    first_name=primer_nombre, last_name=apellido_temp,
+                    email=paciente.email or '', rol='paciente', telefono=paciente.telefono
+                )
+                paciente.usuario = usuario
+                paciente.save()
+                credenciales = (username, password)
+        
+        # Crear el turno
         turno = TurnoProfesional.objects.create(
-            profesional=profesional,
-            establecimiento=establecimiento,
-            paciente=paciente,
-            fecha=fecha,
-            hora_inicio=hora,
-            hora_fin=hora_fin,
-            estado='pendiente',
-            tipo_consulta=tipo_consulta
+            profesional=profesional, establecimiento=establecimiento,
+            paciente=paciente, fecha=fecha, hora_inicio=hora,
+            hora_fin=hora_fin, estado='pendiente', tipo_consulta=tipo_consulta
         )
         
-        # Google Calendar (si está configurado)
+        # Google Calendar
         try:
             import threading
             from turnos_profesionales.views import crear_evento_google
@@ -167,10 +192,50 @@ def sacar_turno(request, cliente_slug, profesional_id):
         except:
             pass
         
-        messages.success(request, f'¡Turno reservado! {nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.')
+        # Enviar email con credenciales si corresponde
+        if credenciales and email:
+            try:
+                from django.core.mail import send_mail
+                send_mail(
+                    subject=f'Turno confirmado - {cliente.nombre}',
+                    message=(
+                        f'Hola {nombre}!\n\n'
+                        f'Tu turno fue reservado correctamente:\n'
+                        f'📅 Fecha: {fecha.strftime("%d/%m/%Y")}\n'
+                        f'⏰ Hora: {hora_str}\n'
+                        f'🏥 Consultorio: {establecimiento.nombre}\n'
+                        f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n\n'
+                        f'Podés gestionar tus turnos desde tu panel personal:\n'
+                        f'🔑 Usuario: {credenciales[0]}\n'
+                        f'🔒 Contraseña: {credenciales[1]}\n\n'
+                        f'Ingresá en: http://127.0.0.1:8000/usuarios/login/\n\n'
+                        f'¡Gracias por confiar en nosotros!'
+                    ),
+                    from_email=None,
+                    recipient_list=[email],
+                    fail_silently=True,
+                )
+            except:
+                pass  # Si falla el email, no interrumpe el flujo
+        
+        # Mensaje de éxito
+        if credenciales:
+            messages.success(request, 
+                f'¡Turno reservado!\n\n'
+                f'{nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.\n\n'
+                f'📱 Te enviamos un email con tus datos de acceso a {email}.\n'
+                f'🔑 Usuario: {credenciales[0]}\n'
+                f'🔒 Contraseña: {credenciales[1]}'
+            )
+        else:
+            messages.success(request, 
+                f'¡Turno reservado! {nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.\n'
+                f'Ingresá a tu panel con tu usuario habitual.'
+            )
+        
         return redirect('portal_cliente', cliente_slug=cliente_slug)
     
-    # GET - Mostrar horarios disponibles
+    # GET
     dias_disponibles = []
     for est in consultorios_disponibles:
         agenda = Agenda.objects.filter(
@@ -180,7 +245,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
         
         if agenda:
             max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
-            
             for i in range(30):
                 fecha = hoy + timedelta(days=i)
                 dia_semana = fecha.weekday()
@@ -201,18 +265,13 @@ def sacar_turno(request, cliente_slug, profesional_id):
                         hora_actual = hora_fin_slot
                     if slots:
                         dias_disponibles.append({
-                            'fecha': fecha,
-                            'fecha_str': fecha.strftime('%Y-%m-%d'),
-                            'nombre_dia': fecha.strftime('%A'),
-                            'slots': slots,
-                            'establecimiento': est.nombre,
-                            'establecimiento_id': est.id
+                            'fecha': fecha, 'fecha_str': fecha.strftime('%Y-%m-%d'),
+                            'nombre_dia': fecha.strftime('%A'), 'slots': slots,
+                            'establecimiento': est.nombre, 'establecimiento_id': est.id
                         })
     
     return render(request, 'core_app/publico/sacar_turno.html', {
-        'cliente': cliente,
-        'profesional': profesional,
+        'cliente': cliente, 'profesional': profesional,
         'dias_disponibles': dias_disponibles,
-        'consultorios_disponibles': consultorios_disponibles,
-        'hoy': hoy
+        'consultorios_disponibles': consultorios_disponibles, 'hoy': hoy
     })

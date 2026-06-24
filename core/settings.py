@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wo(8qr8hd$zob#wx_)@2%tji$d0d+j^m6e5egj=)gfrp)pf%s@'
+SECRET_KEY = config('SECRET_KEY', default='clave-por-defecto-solo-desarrollo')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -153,3 +155,25 @@ LOGOUT_REDIRECT_URL = 'home'
 # Google Calendar
 GOOGLE_CREDENTIALS_DIR = os.path.join(BASE_DIR, 'credentials')
 os.makedirs(GOOGLE_CREDENTIALS_DIR, exist_ok=True)
+
+
+
+import os
+from decouple import config
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Sistema de Turnos <noreply@example.com>')
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'facundourc98@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'
+# DEFAULT_FROM_EMAIL = 'Sistema de Turnos <facundourc98@gmail.com>'

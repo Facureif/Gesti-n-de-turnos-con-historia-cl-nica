@@ -24,6 +24,10 @@ class ProfesionalAdmin(admin.ModelAdmin):
         ('Consultorio', {
             'fields': ('establecimientos',)
         }),
+        ('Información para el Portal', {
+            'fields': ('frase_destacada', 'precio_particular', 'obras_sociales_texto', 
+                    'servicios_destacados', 'especializaciones')
+        }),
     )
     
     def usuario_rol(self, obj):

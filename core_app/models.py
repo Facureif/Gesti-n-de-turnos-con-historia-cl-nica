@@ -88,6 +88,17 @@ class ClienteSaaS(ModeloBase):
         verbose_name='Profesional'
     )
     activo = models.BooleanField(default=True)
+
+    hero_titulo = models.CharField(max_length=200, default='Sacá tu turno online', verbose_name='Título principal')
+    hero_subtitulo = models.TextField(default='Rápido, fácil y sin esperas', verbose_name='Subtítulo')
+    hero_imagen = models.ImageField(upload_to='landing/', blank=True, null=True, verbose_name='Imagen de fondo')
+    color_primario = models.CharField(max_length=7, default='#4A90D9', verbose_name='Color principal')
+    color_secundario = models.CharField(max_length=7, default='#28a745', verbose_name='Color secundario')
+    mostrar_profesionales = models.BooleanField(default=True, verbose_name='Mostrar profesionales')
+    mostrar_servicios = models.BooleanField(default=True, verbose_name='Mostrar servicios')
+    telefono_contacto = models.CharField(max_length=20, blank=True, verbose_name='Teléfono')
+    email_contacto = models.EmailField(blank=True, verbose_name='Email')
+    direccion = models.CharField(max_length=200, blank=True, verbose_name='Dirección')
     
     class Meta:
         verbose_name = 'Cliente SaaS'

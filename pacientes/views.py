@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from .models import Paciente
+from usuarios.models import Usuario
+import random, string
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
 from historias_clinicas.models import HistoriaClinica, Evolucion
@@ -68,14 +70,38 @@ def registrar_paciente(request):
         
         if plan_obra_social_id:
             paciente.plan_obra_social = Plan.objects.get(id=plan_obra_social_id)
+
+        # Generar username único
+        base_username = f"{nombre.lower()}.{apellido.lower()}".replace(" ", "")
+        username = base_username
+        if Usuario.objects.filter(username=username).exists():
+            username = f"{base_username}{random.randint(1,999)}"
+
+        # Generar contraseña: DNI si existe, si no una aleatoria
+        password = dni if dni else ''.join(random.choices(string.digits, k=6))
+
+        usuario = Usuario.objects.create_user(
+            username=username,
+            password=password,
+            first_name=nombre,
+            last_name=apellido,
+            email=email or '',
+            rol='paciente',
+            telefono=telefono
+        )
+        paciente.usuario = usuario
+        paciente.save()
+
+        messages.success(request, 
+            f'Paciente {paciente.nombre_completo} registrado correctamente.\n'
+            f'🔑 Usuario: {username} | Contraseña: {password}'
+        )    
             
         # Crear historia clínica
         HistoriaClinica.objects.create(
             paciente=paciente,
             numero_historia=f"HC-{paciente.id:06d}"
         )
-        
-        messages.success(request, f'Paciente {paciente.nombre_completo} registrado.')
         return redirect('ficha_paciente', paciente_id=paciente.id)
     
     obras_sociales = ObraSocial.objects.filter(activo=True)

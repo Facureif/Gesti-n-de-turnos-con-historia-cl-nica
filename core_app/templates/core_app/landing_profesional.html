@@ -1,0 +1,683 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}{{ profesional.nombre_completo }} - {{ profesional.get_especialidad_display }} | Turnos Online{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- CORRECCIÓN PARA ANULAR EL BASE.HTML --- */
+    /* Esto hace que el contenedor del base.html ocupe el 100% del ancho en esta página */
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    /* Aseguramos que el body o el wrapper no tengan padding extra */
+    .landing {
+        width: 100%;
+    }
+
+    /* --- RESET Y VARIABLES --- */
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --success: #059669;
+        --text: #1f2937;
+        --text-secondary: #4b5563;
+        --text-muted: #9ca3af;
+        --bg: #ffffff;
+        --bg-alt: #f8fafc;
+        --border: #e5e7eb;
+        --radius: 12px;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    /* --- CONTENEDOR INTERNO --- */
+    .container-custom {
+        width: 100%;
+        max-width: 1140px; /* Ancho controlado para el contenido */
+        margin: 0 auto;
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+
+    /* ========== HERO (Ancho completo) ========== */
+    .hero {
+        width: 100%;
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d3b2e 100%);
+        padding: 60px 0;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 750px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .hero-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255,255,255,0.2);
+        background: #e2e8f0;
+        margin-bottom: 16px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 6px 16px;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        color: #a5f3fc;
+        margin-bottom: 16px;
+    }
+
+    .hero h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 700;
+        margin: 0 0 6px 0;
+        letter-spacing: -0.02em;
+    }
+
+    .hero .especialidad-hero {
+        font-size: 1.1rem;
+        color: #93c5fd;
+        font-weight: 500;
+        margin: 0 0 10px 0;
+    }
+
+    .hero .frase-destacada {
+        font-size: 1rem;
+        color: #cbd5e1;
+        font-style: italic;
+        margin: 0 0 20px 0;
+    }
+
+    .hero-tags {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .hero-tag {
+        font-size: 0.8rem;
+        padding: 4px 14px;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #e2e8f0;
+    }
+
+    .btn-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        color: #0f172a;
+        padding: 12px 32px;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .btn-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+        color: var(--primary);
+    }
+
+    /* ========== SECCIONES ========== */
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-alt {
+        background: var(--bg-alt);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-label {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--primary);
+        margin-bottom: 6px;
+    }
+
+    .section-title {
+        font-size: clamp(1.5rem, 2.5vw, 2rem);
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .section-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-top: 4px;
+    }
+
+    /* ========== SOBRE MÍ ========== */
+    .sobre-mi-content {
+        max-width: 750px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .sobre-mi-content .descripcion {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 24px;
+    }
+
+    .especialidades-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+    }
+
+    .especialidad-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px 16px;
+        text-align: center;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .especialidad-card .icono {
+        font-size: 1.8rem;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .especialidad-card h4 {
+        font-weight: 600;
+        color: var(--text);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* ========== CONSULTORIOS ========== */
+    .consultorios-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .consultorio-card {
+        background: white;
+        border-radius: var(--radius);
+        padding: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .consultorio-card h3 {
+        color: var(--text);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .consultorio-card h3 i { color: var(--primary); }
+
+    .consultorio-card .dato {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin: 4px 0;
+    }
+
+    .consultorio-card .dato i {
+        color: var(--primary);
+        width: 18px;
+        margin-top: 3px;
+    }
+
+    .horarios-lista {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    .horarios-lista h4 {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 8px 0;
+    }
+
+    .horario-item {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        padding: 2px 0;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* ========== PRECIOS, SERVICIOS Y OBRAS SOCIALES ========== */
+    .info-destacada-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .info-destacada-card {
+        background: white;
+        border-radius: var(--radius);
+        padding: 28px 20px;
+        text-align: center;
+        border: 1px solid var(--border);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .info-destacada-card .icono-header {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .precio-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .precio-valor {
+        font-size: 1.8rem; 
+        font-weight: 700;
+        color: var(--success);
+        margin: 6px 0 0 0;
+    }
+
+    .obras-sociales-grid, .servicios-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .os-tag, .servicio-tag {
+        font-size: 0.8rem;
+        padding: 4px 14px;
+        border-radius: 9999px;
+        font-weight: 500;
+    }
+    
+    .os-tag { background: #ede9fe; color: #5b21b6; }
+    .servicio-tag { background: #dbeafe; color: #1e40af; }
+
+    /* ========== BENEFICIOS ========== */
+    .beneficios-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .beneficio-item {
+        text-align: center;
+        padding: 20px 12px;
+        border-radius: var(--radius);
+        background: white;
+        border: 1px solid var(--border);
+    }
+
+    .beneficio-icono {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .beneficio-item h4 {
+        font-weight: 700;
+        font-size: 1rem;
+        margin: 0 0 4px 0;
+    }
+
+    .beneficio-item p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    /* ========== CONTACTO ========== */
+    .contacto-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .contacto-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        background: white;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        flex: 1 1 auto;
+        min-width: 180px;
+        justify-content: center;
+    }
+
+    .contacto-item:hover {
+        border-color: var(--primary);
+        color: var(--text);
+    }
+
+    .contacto-item i { color: var(--primary); }
+
+    /* ========== FOOTER ========== */
+    .footer {
+        width: 100%;
+        background: #0f172a;
+        color: #94a3b8;
+        padding: 20px 0;
+        font-size: 0.85rem;
+    }
+
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .footer a {
+        color: #60a5fa;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    /* ========== MEDIA QUERIES ========== */
+    @media (max-width: 768px) {
+        .hero { padding: 40px 0; }
+        .section { padding: 40px 0; }
+        .consultorios-grid { grid-template-columns: 1fr; }
+        .info-destacada-grid { grid-template-columns: 1fr; }
+        .footer-content { flex-direction: column; text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing">
+
+    <!-- ========== HERO ========== -->
+    <section class="hero">
+        <div class="hero-content">
+            {% if profesional.foto %}
+                <img src="{{ profesional.foto.url }}" alt="{{ profesional.nombre_completo }}" class="hero-avatar">
+            {% else %}
+                <div class="hero-avatar-placeholder" style="width:120px;height:120px;border-radius:50%;background:#334155;display:inline-flex;align-items:center;justify-content:center;font-size:3rem;color:white;margin-bottom:16px;">
+                    👨‍⚕️
+                </div>
+            {% endif %}
+            
+            <h1>{{ profesional.nombre_completo }}</h1>
+            <p class="especialidad-hero">{{ profesional.get_especialidad_display }}</p>
+            
+            {% if profesional.frase_destacada %}
+                <p class="frase-destacada">"{{ profesional.frase_destacada }}"</p>
+            {% endif %}
+            
+            <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-hero">
+                <i class="fas fa-calendar-plus"></i> Sacar Turno Ahora
+            </a>
+        </div>
+    </section>
+<!-- ========== SOBRE MÍ ========== -->
+<section class="section">
+    <div class="container-custom">
+        <div class="section-header">
+            <span class="section-label">Profesional</span>
+            <h2 class="section-title">Sobre Mí</h2>
+        </div>
+        
+        <div class="sobre-mi-content">
+            {% if profesional.descripcion %}
+                <p class="descripcion">{{ profesional.descripcion }}</p>
+            {% endif %}
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
+                {% if profesional.get_especializaciones_list %}
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 8px;">🎯</div>
+                    <h4 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Especializaciones</h4>
+                    <ul style="list-style: none; padding: 0; color: #4b5563; font-size: 0.9rem; line-height: 1.8;">
+                        {% for esp in profesional.get_especializaciones_list %}
+                            <li>✓ {{ esp }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% if profesional.get_servicios_list %}
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 8px;">⭐</div>
+                    <h4 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Servicios</h4>
+                    <ul style="list-style: none; padding: 0; color: #4b5563; font-size: 0.9rem; line-height: 1.8;">
+                        {% for servicio in profesional.get_servicios_list %}
+                            <li>✓ {{ servicio }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 8px;">📅</div>
+                    <h4 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Disponibilidad</h4>
+                    <ul style="list-style: none; padding: 0; color: #4b5563; font-size: 0.9rem; line-height: 1.8;">
+                        <li>✓ Turnos online 24/7</li>
+                        <li>✓ Recordatorios automáticos</li>
+                        <li>✓ Cancelación sin cargo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- ========== DONDE ATIENDO ========== -->
+    {% if consultorios %}
+    <section class="section section-alt">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">Ubicaciones</span>
+                <h2 class="section-title">Donde Atiendo</h2>
+                <p class="section-subtitle">Consultorios y centros de atención.</p>
+            </div>
+            
+            <div class="consultorios-grid">
+                {% for est in consultorios %}
+                <div class="consultorio-card">
+                    <h3><i class="fas fa-clinic-medical"></i> {{ est.nombre }}</h3>
+                    
+                    {% if est.direccion %}
+                    <div class="dato">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ est.direccion }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if est.telefono %}
+                    <div class="dato">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ est.telefono }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if est.agenda %}
+                    <div class="horarios-lista">
+                        <h4><i class="far fa-clock"></i> Horarios</h4>
+                        {% for h in est.agenda.horarios.all %}
+                        <div class="horario-item">
+                            <span class="horario-dia">{{ h.get_dia_display }}</span>
+                            <span>{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+   <!-- ========== SERVICIOS Y COBERTURA ========== -->
+{% if profesional.precio_particular or profesional.get_obras_sociales_list %}
+<section class="section section-alt">
+    <div class="container-custom">
+        <div class="section-header">
+            <span class="section-label">Cobertura</span>
+            <h2 class="section-title">Precios y Obras Sociales</h2>
+        </div>
+        
+        <div class="info-destacada-grid">
+            {% if profesional.precio_particular %}
+            <div class="info-destacada-card">
+                <span class="icono-header">💵</span>
+                <div class="precio-label">Consulta Particular</div>
+                <div class="precio-valor">${{ profesional.precio_particular }}</div>
+            </div>
+            {% endif %}
+            
+            {% if profesional.get_obras_sociales_list %}
+            <div class="info-destacada-card">
+                <span class="icono-header">🏥</span>
+                <div class="precio-label">Obras Sociales que acepto</div>
+                <div class="obras-sociales-grid">
+                    {% for os in profesional.get_obras_sociales_list %}
+                        <span class="os-tag">{{ os }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+    <!-- ========== BENEFICIOS ========== -->
+    <section class="section section-alt">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">Ventajas</span>
+                <h2 class="section-title">¿Por qué sacar turno online?</h2>
+            </div>
+            
+            <div class="beneficios-grid">
+                <div class="beneficio-item">
+                    <div class="beneficio-icono" style="background: #dbeafe; color: #2563eb;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h4>Rápido</h4>
+                    <p>Reservá en segundos.</p>
+                </div>
+                <div class="beneficio-item">
+                    <div class="beneficio-icono" style="background: #d1fae5; color: #059669;">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h4>Cómodo</h4>
+                    <p>Desde cualquier dispositivo.</p>
+                </div>
+                <div class="beneficio-item">
+                    <div class="beneficio-icono" style="background: #fef3c7; color: #d97706;">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4>Recordatorios</h4>
+                    <p>Nunca más un turno perdido.</p>
+                </div>
+                <div class="beneficio-item">
+                    <div class="beneficio-icono" style="background: #ede9fe; color: #7c3aed;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h4>24/7</h4>
+                    <p>Disponible todo el día.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CONTACTO ========== -->
+    {% if profesional.telefono or profesional.email %}
+    <section class="section">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">Contacto</span>
+                <h2 class="section-title">¿Necesitás ayuda?</h2>
+            </div>
+            
+            <div class="contacto-grid">
+                {% if profesional.telefono %}
+                <a href="tel:{{ profesional.telefono }}" class="contacto-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>{{ profesional.telefono }}</span>
+                </a>
+                {% endif %}
+                {% if profesional.email %}
+                <a href="mailto:{{ profesional.email }}" class="contacto-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ profesional.email }}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="container-custom footer-content">
+            <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
+            <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+        </div>
+    </footer>
+
+</div>
+{% endblock %}

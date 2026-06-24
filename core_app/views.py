@@ -1,24 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 
-# def home(request):
-    # Si el usuario está logueado y es profesional, redirigir al panel
-    # if request.user.is_authenticated:
-    #     if request.user.rol == 'profesional':
-    #         return redirect('panel_profesional')
-    
-    # return render(request, 'core_app/home.html')
+from profesionales.models import Profesional
+from .models import ClienteSaaS
 
-
-# def home(request):
-#     if request.user.is_authenticated:
-#         if request.user.rol == 'profesional':
-#             # Por ahora redirigimos al panel rápido
-#             # Después podemos hacer que dependa del tipo de plan contratado
-#             return redirect('panel_rapido')
-#     return render(request, 'core_app/home.html')
-
-from django.shortcuts import render, redirect
 def home(request):
     if request.user.is_authenticated:
         if request.user.rol == 'profesional':
@@ -27,7 +12,4 @@ def home(request):
             return redirect('panel_secretaria')
         elif request.user.rol == 'paciente':
             return redirect('panel_paciente')
-    return render(request, 'core_app/home.html')
-
-
-    
+    return redirect('portal_cliente', cliente_slug='salta')  # O al que quieras por defecto
