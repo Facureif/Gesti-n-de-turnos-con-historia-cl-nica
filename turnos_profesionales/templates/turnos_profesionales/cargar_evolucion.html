@@ -93,12 +93,12 @@
             <strong>{{ turno.paciente.nombre_completo }}</strong>
         </div>
         <div class="evolucion-header-item">
-            <i class="fas fa-calendar text-primary"></i>
-            {{ turno.fecha|date:"d/m/Y" }}
+            <i class="fas fa-address-card text-primary"></i>
+            DNI: {{ turno.paciente.dni }}
         </div>
         <div class="evolucion-header-item">
-            <i class="fas fa-folder text-primary"></i>
-            HC: {{ historia.numero_historia }}
+            <i class="fas fa-calendar text-primary"></i>
+            {{ turno.fecha|date:"d/m/Y" }}
         </div>
     </div>
     

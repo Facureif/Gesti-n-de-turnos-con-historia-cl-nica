@@ -80,7 +80,6 @@
                     <th>O.S.</th>
                     <th>Sesiones</th>
                     <th>Estado</th>
-                    <th>Coseg.</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -132,15 +131,7 @@
                             <span class="badge badge-danger">No Asistió</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if turno.monto_coseguro %}
-                            <span style="color: var(--danger); font-weight: 600;">${{ turno.monto_coseguro }}</span>
-                        {% elif turno.paciente.plan_obra_social and turno.paciente.plan_obra_social.coseguro_porcentaje %}
-                            <span class="badge badge-warning">{{ turno.paciente.plan_obra_social.coseguro_porcentaje }}%</span>
-                        {% else %}
-                            <span class="text-muted">—</span>
-                        {% endif %}
-                    </td>
+                    
                     <td>
                         <div class="flex gap-2">
                             {% if turno.estado == 'pendiente' %}

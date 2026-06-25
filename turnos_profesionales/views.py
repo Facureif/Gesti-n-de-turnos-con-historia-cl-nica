@@ -221,8 +221,9 @@ def completar_turno(request, turno_id):
         threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
     except:
         pass
+
+    return redirect('cargar_evolucion', turno_id=turno.id)
     
-    return redirect('cobrar_turno', turno_id=turno.id)
 
 
 @login_required
@@ -261,12 +262,11 @@ def cobrar_turno(request, turno_id):
         
         if request.user.rol == 'secretaria':
             return redirect('panel_secretaria')
-        return redirect('cargar_evolucion', turno_id=turno.id)
+        return redirect('panel_profesional')
     
     return render(request, 'turnos_profesionales/cobrar_turno.html', {
         'turno': turno, 'paciente': paciente, 'plan': plan
     })
-
 
 @login_required
 def no_asistio_turno(request, turno_id):
@@ -413,7 +413,7 @@ def cargar_evolucion(request, turno_id):
                 pass
         
         messages.success(request, 'Evolución cargada correctamente.')
-        return redirect('panel_profesional')
+        return redirect('cobrar_turno', turno_id=turno.id) 
     
     return render(request, 'turnos_profesionales/cargar_evolucion.html', {
         'profesional': profesional, 'turno': turno, 'historia': historia
