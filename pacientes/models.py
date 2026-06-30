@@ -85,3 +85,45 @@ class Paciente(Persona):
     
     def __str__(self):
         return self.nombre_completo
+    
+
+class PacienteObraSocial(models.Model):
+    """Obras sociales del paciente (puede tener varias)."""
+    paciente = models.ForeignKey(
+        Paciente,
+        on_delete=models.CASCADE,
+        related_name='mis_obras_sociales'
+    )
+    obra_social = models.ForeignKey(
+        'obras_sociales.ObraSocial',
+        on_delete=models.CASCADE,
+        verbose_name='Obra Social'
+    )
+    plan = models.ForeignKey(
+        'obras_sociales.Plan',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Plan'
+    )
+    numero_afiliado = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='Número de Afiliado'
+    )
+    activa = models.BooleanField(
+        default=True,
+        verbose_name='Activa'
+    )
+    creado = models.DateTimeField(auto_now_add=True)
+    actualizado = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Obra Social del Paciente'
+        verbose_name_plural = 'Obras Sociales del Paciente'
+        ordering = ['-activa', 'obra_social__nombre']
+        unique_together = ['paciente', 'obra_social', 'plan']  # Evita duplicados
+    
+    def __str__(self):
+        plan_str = f" - {self.plan.nombre}" if self.plan else ""
+        return f"{self.obra_social.nombre}{plan_str} ({'Activa' if self.activa else 'Inactiva'})"    

@@ -15,14 +15,48 @@
         
         <div class="card" style="margin-bottom: 20px;">
             <h3>Tus datos</h3>
+            
+            <!-- Datos básicos -->
             <input type="text" name="nombre" placeholder="Nombre completo *" required
-                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="tel" name="telefono" placeholder="Teléfono *" required
-                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        
+            <input type="text" name="dni" placeholder="DNI"
+                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            
+            <!-- ✅ NUEVO: Fecha de nacimiento -->
+            <label style="display: block; margin-bottom: 5px; color: #666;">Fecha de nacimiento:</label>
+            <input type="date" name="fecha_nacimiento"
+                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            
+            <input type="tel" name="telefono" placeholder="Teléfono/Celular *" required
+                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            
             <input type="email" name="email" placeholder="Email"
-                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="text" name="dni" placeholder="DNI (opcional)"
-                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+            <h4 style="margin-bottom: 10px;">Obra Social (opcional)</h4>
+            
+            <!-- ✅ NUEVO: Obra Social - Select -->
+            <select name="obra_social" id="obra_social_select"
+                    style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <option value="">Seleccionar obra social...</option>
+                {% for os in obras_sociales %}
+                <option value="{{ os.id }}" data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                    {{ os.nombre }}
+                </option>
+                {% endfor %}
+                <option value="particular">Particular</option>
+            </select>
+            
+            <!-- ✅ NUEVO: Plan - Select dinámico -->
+            <select name="plan_obra_social" id="plan_select"
+                    style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; display: none;">
+                <option value="">Seleccionar plan...</option>
+            </select>
+            
+            <!-- ✅ NUEVO: Número de afiliado -->
+            <input type="text" name="numero_afiliado" placeholder="N° de afiliado"
+                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
         </div>
         
         {% if consultorios_disponibles.count > 1 %}
@@ -99,5 +133,28 @@ function marcarHora(label) {
     document.querySelectorAll('.hora-label').forEach(l => { l.style.border = '2px solid #4A90D9'; l.style.background = 'white'; });
     label.style.border = '2px solid #28a745'; label.style.background = '#f0fff4';
 }
+
+// ✅ NUEVO: Manejar cambio de obra social para mostrar planes
+document.getElementById('obra_social_select').addEventListener('change', function() {
+    var planSelect = document.getElementById('plan_select');
+    var selectedOption = this.options[this.selectedIndex];
+    
+    if (this.value === 'particular' || this.value === '') {
+        planSelect.style.display = 'none';
+        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        return;
+    }
+    
+    // Cargar planes dinámicamente
+    var planesData = selectedOption.getAttribute('data-planes');
+    if (planesData) {
+        var planes = JSON.parse(planesData);
+        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        planes.forEach(function(plan) {
+            planSelect.innerHTML += '<option value="' + plan.id + '">' + plan.nombre + '</option>';
+        });
+        planSelect.style.display = 'block';
+    }
+});
 </script>
 {% endblock %}

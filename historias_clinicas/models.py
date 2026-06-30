@@ -103,3 +103,50 @@ class ArchivoClinico(ModeloBase):
     
     def __str__(self):
         return f"{self.get_tipo_display()} - {self.descripcion}"
+    
+# historias_clinicas/models.py
+from django.db import models
+from pacientes.models import Paciente
+from profesionales.models import Profesional
+
+class FichaTecnica(models.Model):
+    """Ficha técnica específica por especialidad"""
+    
+    paciente = models.OneToOneField(
+        Paciente,
+        on_delete=models.CASCADE,
+        related_name='ficha_tecnica'
+    )
+    profesional = models.ForeignKey(
+        Profesional,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    especialidad = models.CharField(max_length=30)
+    
+    # Datos específicos guardados como JSON
+    datos_especificos = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Datos Específicos'
+    )
+    
+    notas_generales = models.TextField(
+        blank=True,
+        verbose_name='Notas Generales'
+    )
+    
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Ficha Técnica'
+        verbose_name_plural = 'Fichas Técnicas'
+    
+    def __str__(self):
+        return f"Ficha {self.especialidad} - {self.paciente}"
+    
+    def get_dato(self, clave, default=None):
+        """Obtener un dato específico del JSON"""
+        return self.datos_especificos.get(clave, default)

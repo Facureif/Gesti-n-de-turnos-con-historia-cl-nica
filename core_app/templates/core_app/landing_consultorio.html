@@ -40,7 +40,7 @@
         box-sizing: border-box;
     }
 
-    /* ========== HERO (Ancho completo) ========== */
+    /* ========== HERO ========== */
     .hero {
         width: 100%;
         background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d3b2e 100%);
@@ -129,7 +129,7 @@
 
     .section-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 32px;
     }
 
     .section-label {
@@ -155,6 +155,47 @@
         margin-top: 4px;
     }
 
+    /* ========== FILTROS DE ESPECIALIDAD ========== */
+    .filtros-especialidades {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 32px;
+    }
+
+    .filtro-pildora {
+        padding: 8px 18px;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    .filtro-pildora:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: #eff6ff;
+    }
+
+    .filtro-pildora.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        font-weight: 600;
+    }
+
+    .filtro-pildora .count {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-left: 4px;
+    }
+
     /* ========== PROFESIONALES ========== */
     .profesionales-list {
         display: flex;
@@ -168,6 +209,11 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         border: 1px solid var(--border);
         overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .profesional-card.oculto {
+        display: none;
     }
 
     .profesional-header {
@@ -347,6 +393,25 @@
         font-weight: 500;
     }
 
+    /* Mensaje sin resultados */
+    .sin-resultados {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+        display: none;
+    }
+
+    .sin-resultados.visible {
+        display: block;
+    }
+
+    .sin-resultados i {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
     /* ========== INFO DEL CONSULTORIO ========== */
     .info-grid {
         display: grid;
@@ -459,6 +524,11 @@
             padding: 40px 0; 
         }
         
+        .filtro-pildora {
+            font-size: 0.78rem;
+            padding: 6px 14px;
+        }
+        
         .profesional-header {
             flex-wrap: wrap;
             padding: 16px;
@@ -517,12 +587,32 @@
             <div class="section-header">
                 <span class="section-label">Equipo Profesional</span>
                 <h2 class="section-title">Nuestros Profesionales</h2>
-                <p class="section-subtitle">Conocé a nuestro equipo y elegí con quién querés atenderte.</p>
+                <p class="section-subtitle">Filtrá por especialidad y elegí con quién querés atenderte.</p>
             </div>
             
-            <div class="profesionales-list">
+            <!-- ========== FILTROS DE ESPECIALIDAD ========== -->
+            <div class="filtros-especialidades" id="filtros-container">
+                <span class="filtro-pildora active" data-especialidad="todas">
+                    Todos <span class="count">({{ profesionales|length }})</span>
+                </span>
+                {% for esp in especialidades_disponibles %}
+                <span class="filtro-pildora" data-especialidad="{{ esp.codigo }}">
+                    {{ esp.icono }} {{ esp.nombre }} <span class="count">({{ esp.total }})</span>
+                </span>
+                {% endfor %}
+            </div>
+            
+            <!-- Mensaje sin resultados -->
+            <div class="sin-resultados" id="sin-resultados">
+                <i class="fas fa-search"></i>
+                <p>No hay profesionales de esta especialidad.</p>
+                <p style="font-size: 0.9rem;">Probá seleccionando otra especialidad.</p>
+            </div>
+            
+            <!-- Lista de profesionales -->
+            <div class="profesionales-list" id="profesionales-list">
                 {% for prof in profesionales %}
-                <div class="profesional-card">
+                <div class="profesional-card" data-especialidad="{{ prof.especialidad }}">
                     <div class="profesional-header" onclick="toggleFicha('ficha-{{ prof.id }}', this)">
                         {% if prof.foto %}
                             <img src="{{ prof.foto.url }}" alt="{{ prof.nombre_completo }}" class="profesional-avatar">
@@ -723,6 +813,46 @@
 </div>
 
 <script>
+// Filtro por especialidad
+document.addEventListener('DOMContentLoaded', function() {
+    const filtros = document.querySelectorAll('.filtro-pildora');
+    const cards = document.querySelectorAll('.profesional-card');
+    const sinResultados = document.getElementById('sin-resultados');
+    
+    filtros.forEach(filtro => {
+        filtro.addEventListener('click', function() {
+            // Quitar active de todos
+            filtros.forEach(f => f.classList.remove('active'));
+            // Activar este
+            this.classList.add('active');
+            
+            const especialidadSeleccionada = this.dataset.especialidad;
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                if (especialidadSeleccionada === 'todas' || card.dataset.especialidad === especialidadSeleccionada) {
+                    card.classList.remove('oculto');
+                    visibleCount++;
+                } else {
+                    card.classList.add('oculto');
+                }
+            });
+            
+            // Mostrar/ocultar mensaje sin resultados
+            if (visibleCount === 0) {
+                sinResultados.classList.add('visible');
+            } else {
+                sinResultados.classList.remove('visible');
+            }
+            
+            // Cerrar todas las fichas expandidas
+            document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
+        });
+    });
+});
+
+// Toggle ficha
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);
     const flecha = document.getElementById('flecha-' + id.split('-')[1]);

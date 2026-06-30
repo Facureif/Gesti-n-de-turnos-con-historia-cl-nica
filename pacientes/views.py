@@ -9,7 +9,7 @@ from usuarios.models import Usuario
 import random, string
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
-from historias_clinicas.models import HistoriaClinica, Evolucion
+from historias_clinicas.models import FichaTecnica, HistoriaClinica, Evolucion
 
 
 
@@ -284,3 +284,66 @@ def editar_paciente(request, paciente_id):
         'historia': historia,
         'obras_sociales': obras_sociales
     })
+
+
+
+
+# Agregá al final de pacientes/views.py
+
+@login_required
+def ficha_tecnica(request, paciente_id):
+    """Ficha técnica específica según la especialidad del profesional."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    
+    # Obtener el profesional
+    if request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = Profesional.objects.first()
+    
+    # Obtener o crear la ficha técnica
+    ficha_tecnica, created = FichaTecnica.objects.get_or_create(
+        paciente=paciente,
+        defaults={
+            'profesional': profesional,
+            'especialidad': profesional.especialidad if profesional else 'general'
+        }
+    )
+    
+    # Templates por especialidad
+    templates_por_especialidad = {
+        'odontologia': 'pacientes/fichas_especialidades/odontologia.html',
+        'kinesiologia': 'pacientes/fichas_especialidades/kinesiologia.html',
+    }
+    
+    especialidad = profesional.especialidad if profesional else 'general'
+    template = templates_por_especialidad.get(
+        especialidad, 
+        'pacientes/fichas_especialidades/default.html'
+    )
+    
+    if request.method == 'POST':
+        # Guardar todos los datos del POST en el JSON
+        datos = {}
+        for key, value in request.POST.items():
+            if key not in ['csrfmiddlewaretoken', 'notas_generales']:
+                datos[key] = value
+        
+        ficha_tecnica.datos_especificos = datos
+        ficha_tecnica.notas_generales = request.POST.get('notas_generales', '')
+        ficha_tecnica.save()
+        
+        messages.success(request, 'Ficha técnica guardada correctamente.')
+        return redirect('ficha_tecnica', paciente_id=paciente.id)
+    
+    context = {
+        'paciente': paciente,
+        'ficha_tecnica': ficha_tecnica,
+        'profesional': profesional,
+    }
+    
+    return render(request, template, context)

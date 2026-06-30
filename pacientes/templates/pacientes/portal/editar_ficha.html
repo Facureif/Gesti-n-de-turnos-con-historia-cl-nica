@@ -1,0 +1,210 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Editar Mi Ficha - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1>✏️ Editar Mi Ficha</h1>
+    <p style="color: #666;">Actualizá tus datos personales</p>
+    
+    <!-- DATOS PERSONALES -->
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="editar_datos">
+        
+        <div class="card" style="margin-bottom: 20px;">
+            <h3>Datos Personales</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nombre</label>
+                    <input type="text" value="{{ paciente.nombre }}" disabled
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f5f5f5;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Apellido</label>
+                    <input type="text" value="{{ paciente.apellido }}" disabled
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f5f5f5;">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">DNI</label>
+                    <input type="text" value="{{ paciente.dni }}" disabled
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f5f5f5;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Fecha de Nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" 
+                           value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+            </div>
+            
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Teléfono *</label>
+            <input type="tel" name="telefono" value="{{ paciente.telefono }}" required
+                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
+            <input type="email" name="email" value="{{ paciente.email|default:'' }}"
+                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Dirección</label>
+            <input type="text" name="direccion" value="{{ paciente.direccion|default:'' }}"
+                   style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px; font-size: 1.1em;">
+                    💾 Guardar Datos Personales
+                </button>
+                <a href="{% url 'panel_paciente' %}" class="btn" style="flex: 1; padding: 12px; font-size: 1.1em; background: #6c757d; text-align: center; text-decoration: none;">
+                    Cancelar
+                </a>
+            </div>
+        </div>
+    </form>
+    
+    <!-- OBRAS SOCIALES -->
+    <div class="card" style="margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">🩺 Mis Obras Sociales</h3>
+            <button type="button" onclick="mostrarFormAgregar()" class="btn btn-success" style="padding: 8px 15px;">
+                ➕ Nueva Obra Social
+            </button>
+        </div>
+        
+        <!-- Formulario para agregar -->
+        <div id="form_agregar_os" style="display: none; margin-bottom: 20px; padding: 20px; background: #f0f7ff; border-radius: 8px; border: 1px solid #4A90D9;">
+            <h4 style="margin-bottom: 15px;">Agregar Obra Social</h4>
+            
+            <form method="post" id="form_os">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="agregar_os">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Obra Social *</label>
+                        <select name="obra_social" id="obra_social_select" required
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            <option value="">Seleccionar...</option>
+                            {% for os in obras_sociales %}
+                            <option value="{{ os.id }}" data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                                {{ os.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Plan</label>
+                        <select name="plan" id="plan_select"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; display: none;">
+                            <option value="">Seleccionar plan...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 10px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">N° de Afiliado</label>
+                    <input type="text" name="numero_afiliado_os" placeholder="N° de afiliado"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">💾 Guardar Obra Social</button>
+                    <button type="button" onclick="ocultarFormAgregar()" class="btn" style="flex: 1; background: #6c757d;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Tabla -->
+        {% if obras_sociales_paciente %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    <th style="padding: 12px; text-align: left;">Obra Social</th>
+                    <th style="padding: 12px; text-align: left;">Plan</th>
+                    <th style="padding: 12px; text-align: left;">N° Afiliado</th>
+                    <th style="padding: 12px; text-align: center;">Estado</th>
+                    <th style="padding: 12px; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mi_os in obras_sociales_paciente %}
+                <tr style="border-bottom: 1px solid #eee; {% if not mi_os.activa %}opacity: 0.5;{% endif %}">
+                    <td style="padding: 12px;">
+                        <strong>{{ mi_os.obra_social.nombre }}</strong>
+                    </td>
+                    <td style="padding: 12px; color: #666;">
+                        {{ mi_os.plan.nombre|default:"—" }}
+                    </td>
+                    <td style="padding: 12px; color: #666;">
+                        {{ mi_os.numero_afiliado|default:"—" }}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        {% if mi_os.activa %}
+                            <span style="background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 12px; font-size: 0.85em;">✅ Activa</span>
+                        {% else %}
+                            <span style="background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 12px; font-size: 0.85em;">❌ Inactiva</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <form method="post" style="display: inline;" onsubmit="return confirm('¿Eliminar esta obra social?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="eliminar_os">
+                            <input type="hidden" name="os_id" value="{{ mi_os.id }}">
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 12px; font-size: 0.85em;">🗑️ Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #999;">
+            <p style="font-size: 1.1em;">No tenés obras sociales cargadas.</p>
+            <p>Hacé clic en <strong>"Nueva Obra Social"</strong> para agregar una.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Manejar cambio de obra social para mostrar planes
+document.getElementById('obra_social_select').addEventListener('change', function() {
+    var planSelect = document.getElementById('plan_select');
+    var selectedOption = this.options[this.selectedIndex];
+    
+    if (!this.value) {
+        planSelect.style.display = 'none';
+        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        return;
+    }
+    
+    var planesData = selectedOption.getAttribute('data-planes');
+    if (planesData) {
+        var planes = JSON.parse(planesData);
+        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        planes.forEach(function(plan) {
+            planSelect.innerHTML += '<option value="' + plan.id + '">' + plan.nombre + '</option>';
+        });
+        planSelect.style.display = 'block';
+    } else {
+        planSelect.style.display = 'none';
+    }
+});
+
+function mostrarFormAgregar() {
+    document.getElementById('form_agregar_os').style.display = 'block';
+    document.getElementById('obra_social_select').value = '';
+    document.getElementById('plan_select').style.display = 'none';
+    document.getElementById('plan_select').innerHTML = '<option value="">Seleccionar plan...</option>';
+    document.querySelector('input[name="numero_afiliado_os"]').value = '';
+    document.getElementById('form_agregar_os').scrollIntoView({ behavior: 'smooth' });
+}
+
+function ocultarFormAgregar() {
+    document.getElementById('form_agregar_os').style.display = 'none';
+}
+</script>
+{% endblock %}

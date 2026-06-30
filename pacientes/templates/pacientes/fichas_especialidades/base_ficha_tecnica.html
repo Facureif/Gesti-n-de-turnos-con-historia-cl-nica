@@ -1,0 +1,41 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Ficha Técnica - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-6">
+    <div class="page-header mb-0">
+        <h1>
+            {% block ficha_icon %}{% endblock %}
+            {% block ficha_titulo %}Ficha Técnica{% endblock %}
+        </h1>
+        <p>{{ paciente.nombre_completo }} · {% block ficha_especialidad %}{% endblock %}</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Volver a la Ficha
+        </a>
+        <button type="submit" form="ficha-tecnica-form" class="btn btn-success btn-sm">
+            <i class="fas fa-save"></i> Guardar
+        </button>
+    </div>
+</div>
+
+<form id="ficha-tecnica-form" method="post">
+    {% csrf_token %}
+    
+    {% block ficha_contenido %}{% endblock %}
+    
+    <!-- Notas generales -->
+    <div class="card" style="margin-top: 24px;">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-sticky-note text-primary"></i> Notas Generales
+            </h3>
+        </div>
+        <textarea name="notas_generales" rows="3" 
+                  style="width: 100%; padding: 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit;"
+                  placeholder="Observaciones generales...">{{ ficha_tecnica.notas_generales|default:'' }}</textarea>
+    </div>
+</form>
+{% endblock %}

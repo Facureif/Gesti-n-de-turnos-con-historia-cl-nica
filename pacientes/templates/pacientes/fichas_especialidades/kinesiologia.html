@@ -1,0 +1,112 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+
+{% block ficha_icon %}💪{% endblock %}
+{% block ficha_titulo %}Ficha Kinesiológica{% endblock %}
+{% block ficha_especialidad %}Kinesiología{% endblock %}
+
+{% block ficha_contenido %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    
+    <!-- Evaluación Postural -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-child text-primary"></i> Evaluación Postural
+            </h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Tipo de postura
+                </label>
+                <select name="tipo_postura" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+                    <option value="">Seleccionar...</option>
+                    <option value="normal" {% if ficha_tecnica.datos_especificos.tipo_postura == 'normal' %}selected{% endif %}>Normal</option>
+                    <option value="cifotica" {% if ficha_tecnica.datos_especificos.tipo_postura == 'cifotica' %}selected{% endif %}>Cifótica</option>
+                    <option value="lordotica" {% if ficha_tecnica.datos_especificos.tipo_postura == 'lordotica' %}selected{% endif %}>Lordótica</option>
+                    <option value="escoliotica" {% if ficha_tecnica.datos_especificos.tipo_postura == 'escoliotica' %}selected{% endif %}>Escoliótica</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Alteraciones observadas
+                </label>
+                <textarea name="alteraciones_posturales" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">{{ ficha_tecnica.datos_especificos.alteraciones_posturales|default:'' }}</textarea>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lesiones -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-band-aid text-danger"></i> Lesiones Previas
+            </h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    ¿Tuvo lesiones previas?
+                </label>
+                <select name="tuvo_lesiones" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+                    <option value="">Seleccionar...</option>
+                    <option value="si" {% if ficha_tecnica.datos_especificos.tuvo_lesiones == 'si' %}selected{% endif %}>Sí</option>
+                    <option value="no" {% if ficha_tecnica.datos_especificos.tuvo_lesiones == 'no' %}selected{% endif %}>No</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Zona afectada
+                </label>
+                <input type="text" name="zona_afectada" 
+                       value="{{ ficha_tecnica.datos_especificos.zona_afectada|default:'' }}"
+                       placeholder="Ej: Rodilla derecha, hombro izquierdo..."
+                       style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Evaluación Muscular -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-dumbbell text-primary"></i> Evaluación Muscular
+            </h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Fuerza muscular (0-5)
+                </label>
+                <input type="number" name="fuerza_muscular" min="0" max="5" step="1"
+                       value="{{ ficha_tecnica.datos_especificos.fuerza_muscular|default:'' }}"
+                       style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Rango de movimiento
+                </label>
+                <select name="rango_movimiento" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+                    <option value="">Seleccionar...</option>
+                    <option value="completo" {% if ficha_tecnica.datos_especificos.rango_movimiento == 'completo' %}selected{% endif %}>Completo</option>
+                    <option value="limitado" {% if ficha_tecnica.datos_especificos.rango_movimiento == 'limitado' %}selected{% endif %}>Limitado</option>
+                    <option value="muy_limitado" {% if ficha_tecnica.datos_especificos.rango_movimiento == 'muy_limitado' %}selected{% endif %}>Muy limitado</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Objetivos -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-bullseye text-success"></i> Objetivos
+            </h3>
+        </div>
+        <textarea name="objetivos_tratamiento" rows="3"
+                  style="width: 100%; padding: 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit;"
+                  placeholder="Describí los objetivos del tratamiento...">{{ ficha_tecnica.datos_especificos.objetivos_tratamiento|default:'' }}</textarea>
+    </div>
+</div>
+{% endblock %}

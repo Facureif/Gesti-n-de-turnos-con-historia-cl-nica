@@ -7,9 +7,13 @@ class Profesional(Persona):
         ('odontologia', 'Odontología'),
         ('kinesiologia', 'Kinesiología'),
         ('psicologia', 'Psicología'),
+        ('nutricion', 'Nutrición'),
+        ('cardiologia', 'Cardiología'),
         ('medicina_general', 'Medicina General'),
         ('dermatologia', 'Dermatología'),
         ('estetica', 'Estética'),
+        ('pediatria', 'Pediatría'),
+        ('traumatologia', 'Traumatología'),
         ('veterinaria', 'Veterinaria'),
         ('otro', 'Otro'),
     ]
@@ -61,6 +65,13 @@ class Profesional(Persona):
     servicios_texto = models.TextField(blank=True, verbose_name='Servicios / Especializaciones')
     servicios_destacados = models.TextField(blank=True, verbose_name='Servicios destacados')
     especializaciones = models.TextField(blank=True, verbose_name='Especializaciones')
+
+    obras_sociales = models.ManyToManyField(
+        'obras_sociales.ObraSocial',
+        blank=True,
+        related_name='profesionales',
+        verbose_name='Obras Sociales'
+    )
 
     class Meta:
         verbose_name = 'Profesional'

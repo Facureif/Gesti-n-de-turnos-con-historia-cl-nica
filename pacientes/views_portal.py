@@ -6,8 +6,9 @@ from datetime import date, timedelta, datetime
 
 from establecimientos.models import Establecimiento
 from core_app.models import ClienteSaaS, ConfiguracionSistema
+from obras_sociales.models import ObraSocial, Plan
 
-from .models import Paciente
+from .models import Paciente, PacienteObraSocial
 from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
 from agendas.models import Agenda, HorarioAtencion
@@ -54,7 +55,7 @@ def panel_paciente(request):
         'paciente': paciente,
         'proximos_turnos': proximos_turnos,
         'ultimos_turnos': ultimos_turnos,
-        'cliente': cliente,  # pasar al template
+        'cliente': cliente,  
     })
 
 
@@ -335,4 +336,71 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         'hoy': hoy,
         'establecimiento_seleccionado': establecimiento_seleccionado,
         'cliente': cliente,
+    })
+
+@login_required
+def editar_mi_ficha(request):
+    """El paciente edita sus propios datos."""
+    if request.user.rol != 'paciente':
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    
+    if request.method == 'POST':
+        accion = request.POST.get('accion', '')
+        
+        if accion == 'agregar_os':
+            # Agregar obra social
+            obra_social_id = request.POST.get('obra_social')
+            plan_id = request.POST.get('plan', '')
+            numero_afiliado = request.POST.get('numero_afiliado_os', '')
+            
+            if obra_social_id:
+                obra_social = get_object_or_404(ObraSocial, id=obra_social_id)
+                plan = get_object_or_404(Plan, id=plan_id) if plan_id else None
+                
+                if not PacienteObraSocial.objects.filter(
+                    paciente=paciente, obra_social=obra_social, plan=plan
+                ).exists():
+                    PacienteObraSocial.objects.create(
+                        paciente=paciente,
+                        obra_social=obra_social,
+                        plan=plan,
+                        numero_afiliado=numero_afiliado,
+                        activa=True
+                    )
+                    messages.success(request, f'Obra social {obra_social.nombre} agregada.')
+                else:
+                    messages.warning(request, 'Ya tenés esa obra social con ese plan.')
+            
+            return redirect('editar_mi_ficha')
+        
+        elif accion == 'eliminar_os':
+            os_id = request.POST.get('os_id')
+            if os_id:
+                mi_os = get_object_or_404(PacienteObraSocial, id=os_id, paciente=paciente)
+                mi_os.delete()
+                messages.success(request, 'Obra social eliminada.')
+            return redirect('editar_mi_ficha')
+        
+        elif accion == 'editar_datos':
+            # Actualizar datos personales
+            paciente.telefono = request.POST.get('telefono', paciente.telefono)
+            paciente.email = request.POST.get('email', paciente.email)
+            paciente.direccion = request.POST.get('direccion', paciente.direccion)
+            paciente.fecha_nacimiento = request.POST.get('fecha_nacimiento') or paciente.fecha_nacimiento
+            
+            paciente.save()
+            messages.success(request, 'Tus datos fueron actualizados correctamente.')
+            return redirect('panel_paciente')
+    
+    # GET
+    obras_sociales = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
+    obras_sociales_paciente = paciente.mis_obras_sociales.all()
+    
+    return render(request, 'pacientes/portal/editar_ficha.html', {
+        'paciente': paciente,
+        'obras_sociales': obras_sociales,
+        'obras_sociales_paciente': obras_sociales_paciente,
     })

@@ -10,6 +10,18 @@
     </div>
     <div class="flex gap-2 flex-wrap">
         {% if not es_secretaria %}
+            <a href="{% url 'ficha_tecnica' paciente.id %}" class="btn btn-sm" style="background: #7c3aed;">
+                
+                {% if profesional.especialidad == 'odontologia' %}
+                    🦷 Ficha Odontológica
+                {% elif profesional.especialidad == 'kinesiologia' %}
+                    💪 Ficha Kinesiológica
+                {% else %}
+                    📋 Ficha Técnica
+                {% endif %}
+            </a>
+        {% endif %}
+        {% if not es_secretaria %}
             <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">
                 <i class="fas fa-pen"></i> Editar
             </a>

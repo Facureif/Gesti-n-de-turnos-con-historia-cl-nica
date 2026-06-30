@@ -1,0 +1,18 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+
+{% block ficha_icon %}📋{% endblock %}
+{% block ficha_titulo %}Ficha Técnica{% endblock %}
+{% block ficha_especialidad %}{{ profesional.get_especialidad_display }}{% endblock %}
+
+{% block ficha_contenido %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-info-circle text-primary"></i> Información General
+        </h3>
+    </div>
+    <textarea name="informacion_general" rows="5"
+              style="width: 100%; padding: 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit;"
+              placeholder="Información relevante del paciente...">{{ ficha_tecnica.datos_especificos.informacion_general|default:'' }}</textarea>
+</div>
+{% endblock %}

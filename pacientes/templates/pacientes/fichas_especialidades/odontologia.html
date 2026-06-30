@@ -1,0 +1,89 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+
+{% block ficha_icon %}🦷{% endblock %}
+{% block ficha_titulo %}Ficha Odontológica{% endblock %}
+{% block ficha_especialidad %}Odontología{% endblock %}
+
+{% block ficha_contenido %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    
+    <!-- Antecedentes Dentales -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-tooth text-primary"></i> Antecedentes Dentales
+            </h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Última consulta odontológica
+                </label>
+                <input type="date" name="ultima_consulta" 
+                       value="{{ ficha_tecnica.datos_especificos.ultima_consulta|default:'' }}"
+                       style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Frecuencia de cepillado
+                </label>
+                <select name="frecuencia_cepillado" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+                    <option value="">Seleccionar...</option>
+                    <option value="1" {% if ficha_tecnica.datos_especificos.frecuencia_cepillado == '1' %}selected{% endif %}>1 vez al día</option>
+                    <option value="2" {% if ficha_tecnica.datos_especificos.frecuencia_cepillado == '2' %}selected{% endif %}>2 veces al día</option>
+                    <option value="3" {% if ficha_tecnica.datos_especificos.frecuencia_cepillado == '3' %}selected{% endif %}>3 o más veces al día</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
+                    Usa hilo dental
+                </label>
+                <select name="usa_hilo_dental" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+                    <option value="">Seleccionar...</option>
+                    <option value="si" {% if ficha_tecnica.datos_especificos.usa_hilo_dental == 'si' %}selected{% endif %}>Sí</option>
+                    <option value="no" {% if ficha_tecnica.datos_especificos.usa_hilo_dental == 'no' %}selected{% endif %}>No</option>
+                    <option value="a_veces" {% if ficha_tecnica.datos_especificos.usa_hilo_dental == 'a_veces' %}selected{% endif %}>A veces</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hábitos -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-smoking text-danger"></i> Hábitos
+            </h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                <input type="checkbox" name="fuma" value="si" 
+                       {% if ficha_tecnica.datos_especificos.fuma == 'si' %}checked{% endif %}>
+                <span>Fuma</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                <input type="checkbox" name="bruxismo" value="si" 
+                       {% if ficha_tecnica.datos_especificos.bruxismo == 'si' %}checked{% endif %}>
+                <span>Bruxismo (rechina los dientes)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                <input type="checkbox" name="muerde_unias" value="si" 
+                       {% if ficha_tecnica.datos_especificos.muerde_unias == 'si' %}checked{% endif %}>
+                <span>Se muerde las uñas</span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Observaciones -->
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-clipboard-list text-primary"></i> Observaciones Odontológicas
+            </h3>
+        </div>
+        <textarea name="observaciones_odontologicas" rows="3"
+                  style="width: 100%; padding: 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit;"
+                  placeholder="Observaciones específicas...">{{ ficha_tecnica.datos_especificos.observaciones_odontologicas|default:'' }}</textarea>
+    </div>
+</div>
+{% endblock %}

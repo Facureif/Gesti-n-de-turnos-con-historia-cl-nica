@@ -5,6 +5,7 @@ from .models import ClienteSaaS
 from establecimientos.models import Establecimiento
 from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
+from obras_sociales.models import ObraSocial, Plan 
 from django.db.models import Q
 from agendas.models import Agenda, HorarioAtencion
 import random
@@ -14,19 +15,52 @@ def portal(request, cliente_slug):
     cliente = get_object_or_404(ClienteSaaS, slug=cliente_slug, activo=True)
     request.session['cliente_slug'] = cliente_slug
     
+    # Iconos para cada especialidad
+    ICONOS_ESPECIALIDAD = {
+        'odontologia': '🦷',
+        'kinesiologia': '💪',
+        'psicologia': '🧠',
+        'nutricion': '🥗',
+        'medicina_general': '🩺',
+        'cardiologia': '❤️',
+        'dermatologia': '🔬',
+        'pediatria': '👶',
+        'traumatologia': '🦴',
+        'otra': '👨‍⚕️',
+    }
+    
     if cliente.tipo == 'consultorio':
         profesionales = Profesional.objects.filter(
             establecimientos=cliente.establecimiento, activo=True
         ).prefetch_related('agenda_set__horarios')
         
+        # Armar lista de especialidades disponibles (solo las que tiene el consultorio)
+        especialidades_disponibles = []
+        especialidades_vistas = set()
+        
+        for prof in profesionales:
+            codigo = prof.especialidad
+            if codigo and codigo not in especialidades_vistas:
+                especialidades_vistas.add(codigo)
+                total = sum(1 for p in profesionales if p.especialidad == codigo)
+                especialidades_disponibles.append({
+                    'codigo': codigo,
+                    'nombre': prof.get_especialidad_display(),
+                    'icono': ICONOS_ESPECIALIDAD.get(codigo, '👨‍⚕️'),
+                    'total': total,
+                })
+        
+        # Ordenar alfabéticamente por nombre
+        especialidades_disponibles.sort(key=lambda x: x['nombre'])
+        
         return render(request, 'core_app/landing_consultorio.html', {
             'cliente': cliente,
             'profesionales': profesionales,
+            'especialidades_disponibles': especialidades_disponibles,
         })
     else:
         profesional = cliente.profesional
         consultorios = profesional.establecimientos.all()
-        # Agendas por consultorio
         for est in consultorios:
             est.agenda = Agenda.objects.filter(profesional=profesional, establecimiento=est, activo=True).first()
         
@@ -57,6 +91,12 @@ def sacar_turno(request, cliente_slug, profesional_id):
         hora_str = request.POST.get('hora')
         establecimiento_id = request.POST.get('establecimiento')
         tipo_consulta = request.POST.get('tipo_consulta', '')
+        
+        # ✅ NUEVOS CAMPOS
+        fecha_nacimiento = request.POST.get('fecha_nacimiento', '')
+        numero_afiliado = request.POST.get('numero_afiliado', '')
+        obra_social_id = request.POST.get('obra_social', '')
+        plan_obra_social_id = request.POST.get('plan_obra_social', '')
         
         if not all([nombre, telefono, fecha_str, hora_str, establecimiento_id]):
             messages.error(request, 'Completá todos los campos obligatorios.')
@@ -107,6 +147,34 @@ def sacar_turno(request, cliente_slug, profesional_id):
             messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes).')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
         
+        # ✅ PROCESAR OBRA SOCIAL Y PLAN
+        obra_social = None
+        plan_obra_social = None
+        if obra_social_id and obra_social_id != 'particular':
+            try:
+                from obras_sociales.models import ObraSocial, Plan
+                obra_social = ObraSocial.objects.get(id=obra_social_id)
+                if plan_obra_social_id:
+                    try:
+                        plan_obra_social = Plan.objects.get(id=plan_obra_social_id, obra_social=obra_social)
+                    except Plan.DoesNotExist:
+                        pass
+            except ObraSocial.DoesNotExist:
+                pass
+        
+        # ✅ PROCESAR FECHA DE NACIMIENTO
+        fecha_nac = None
+        if fecha_nacimiento:
+            try:
+                fecha_nac = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                fecha_nac = None
+        
+        # Preparar nombre y apellido
+        partes = nombre.strip().split()
+        primer_nombre = partes[0] if partes else nombre
+        apellido_temp = ' '.join(partes[1:]) if len(partes) > 1 else primer_nombre
+        
         # Buscar o crear paciente
         from pacientes.models import Paciente
         from usuarios.models import Usuario
@@ -125,19 +193,22 @@ def sacar_turno(request, cliente_slug, profesional_id):
             paciente = Paciente.objects.filter(telefono=telefono).first()
         
         if not paciente:
-            partes = nombre.strip().split()
-            primer_nombre = partes[0] if partes else nombre
-            apellido_temp = ' '.join(partes[1:]) if len(partes) > 1 else primer_nombre
-            
+            # ✅ CREAR NUEVO PACIENTE
             dni_final = dni if dni else f"TMP{random_module.randint(10000, 99999)}"
             
             if Paciente.objects.filter(dni=dni_final).exists():
                 dni_final = f"TMP{random_module.randint(10000, 99999)}"
             
             paciente = Paciente.objects.create(
-                nombre=primer_nombre, apellido=apellido_temp,
-                telefono=telefono, email=email,
-                dni=dni_final, fecha_nacimiento=hoy.replace(year=1990)
+                nombre=primer_nombre, 
+                apellido=apellido_temp,
+                telefono=telefono, 
+                email=email,
+                dni=dni_final, 
+                fecha_nacimiento=fecha_nac or hoy.replace(year=1990),
+                obra_social=obra_social,
+                numero_afiliado=numero_afiliado if numero_afiliado else '',
+                plan_obra_social=plan_obra_social,
             )
             
             # Crear usuario automáticamente
@@ -158,9 +229,26 @@ def sacar_turno(request, cliente_slug, profesional_id):
             credenciales = (username, password)
         
         else:
+            # ✅ ACTUALIZAR PACIENTE EXISTENTE CON TODOS LOS DATOS DEL FORMULARIO
+            paciente.nombre = primer_nombre
+            paciente.apellido = apellido_temp
+            paciente.telefono = telefono
+            if email:
+                paciente.email = email
+            if dni:
+                paciente.dni = dni
+            if fecha_nac:
+                paciente.fecha_nacimiento = fecha_nac
+            if obra_social:
+                paciente.obra_social = obra_social
+            if numero_afiliado:
+                paciente.numero_afiliado = numero_afiliado
+            if plan_obra_social:
+                paciente.plan_obra_social = plan_obra_social
+            paciente.save()
+            
+            # Crear usuario si no tiene
             if not paciente.usuario:
-                primer_nombre = paciente.nombre
-                apellido_temp = paciente.apellido
                 base_username = f"{primer_nombre.lower()}.{apellido_temp.lower()}".replace(" ", "")
                 username = base_username
                 if Usuario.objects.filter(username=username).exists():
@@ -204,7 +292,10 @@ def sacar_turno(request, cliente_slug, profesional_id):
                         f'📅 Fecha: {fecha.strftime("%d/%m/%Y")}\n'
                         f'⏰ Hora: {hora_str}\n'
                         f'🏥 Consultorio: {establecimiento.nombre}\n'
-                        f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n\n'
+                        f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n'
+                        f'🩺 Obra Social: {obra_social.nombre if obra_social else "Particular"}\n'
+                        f'📋 Plan: {plan_obra_social.nombre if plan_obra_social else "N/A"}\n'
+                        f'🔢 N° Afiliado: {numero_afiliado if numero_afiliado else "N/A"}\n\n'
                         f'Podés gestionar tus turnos desde tu panel personal:\n'
                         f'🔑 Usuario: {credenciales[0]}\n'
                         f'🔒 Contraseña: {credenciales[1]}\n\n'
@@ -216,7 +307,7 @@ def sacar_turno(request, cliente_slug, profesional_id):
                     fail_silently=True,
                 )
             except:
-                pass  # Si falla el email, no interrumpe el flujo
+                pass
         
         # Mensaje de éxito
         if credenciales:
@@ -270,8 +361,18 @@ def sacar_turno(request, cliente_slug, profesional_id):
                             'establecimiento': est.nombre, 'establecimiento_id': est.id
                         })
     
+    # ✅ OBTENER SOLO LAS OBRAS SOCIALES CON LAS QUE TRABAJA EL PROFESIONAL
+    from obras_sociales.models import ObraSocial
+    # Si el profesional tiene configuradas obras sociales, mostrar esas
+    # Si no tiene ninguna configurada, mostrar todas (asume que atiende todas)
+    if profesional.obras_sociales.exists():
+        obras_sociales = profesional.obras_sociales.filter(activo=True).prefetch_related('planes')
+    else:
+        obras_sociales = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
+    
     return render(request, 'core_app/publico/sacar_turno.html', {
         'cliente': cliente, 'profesional': profesional,
         'dias_disponibles': dias_disponibles,
-        'consultorios_disponibles': consultorios_disponibles, 'hoy': hoy
+        'consultorios_disponibles': consultorios_disponibles, 'hoy': hoy,
+        'obras_sociales': obras_sociales,  
     })
