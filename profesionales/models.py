@@ -72,6 +72,11 @@ class Profesional(Persona):
         related_name='profesionales',
         verbose_name='Obras Sociales'
     )
+    planes = models.ManyToManyField(
+        'obras_sociales.Plan',
+        blank=True,
+        verbose_name='Planes'
+    )
 
     class Meta:
         verbose_name = 'Profesional'
