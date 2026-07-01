@@ -133,32 +133,58 @@
                 Si necesitás cambiarlos, contactá al administrador.
             </p>
             
-            {% with agenda=profesional.agenda_set.first %}
-                {% if agenda %}
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #f8f9fa;">
-                                <th style="padding: 10px;">Día</th>
-                                <th style="padding: 10px;">Inicio</th>
-                                <th style="padding: 10px;">Fin</th>
-                                <th style="padding: 10px;">Duración</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for h in agenda.horarios.all %}
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 10px;">{{ h.get_dia_display }}</td>
-                                <td style="padding: 10px;">{{ h.hora_inicio|time:"H:i" }}</td>
-                                <td style="padding: 10px;">{{ h.hora_fin|time:"H:i" }}</td>
-                                <td style="padding: 10px;">{{ h.duracion_turno }} min</td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="4" style="padding: 20px; text-align: center; color: #999;">Sin horarios configurados</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            {% with agendas=profesional.agenda_set.all %}
+                {% if agendas %}
+                    {% for agenda in agendas %}
+                        <div style="margin-bottom: 20px; background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 700; color: #1e293b;">
+                                <i class="fas fa-building" style="color: #2563eb;"></i>
+                                {{ agenda.establecimiento.nombre }}
+                                <span style="font-weight: 400; color: #64748b; font-size: 0.85rem;">
+                                    · {{ agenda.establecimiento.direccion|default:"Sin dirección" }}
+                                </span>
+                                <span style="margin-left: auto; font-size: 0.75rem; color: #9ca3af;">
+                                    {{ agenda.pacientes_simultaneos }} paciente(s) simultáneo(s)
+                                </span>
+                            </div>
+                            
+                            {% if agenda.horarios.all %}
+                                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+                                    <thead>
+                                        <tr style="background: #f1f5f9;">
+                                            <th style="padding: 8px 12px; text-align: left; font-size: 0.8rem; color: #64748b;">Día</th>
+                                            <th style="padding: 8px 12px; text-align: left; font-size: 0.8rem; color: #64748b;">Inicio</th>
+                                            <th style="padding: 8px 12px; text-align: left; font-size: 0.8rem; color: #64748b;">Fin</th>
+                                            <th style="padding: 8px 12px; text-align: left; font-size: 0.8rem; color: #64748b;">Duración</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for h in agenda.horarios.all %}
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td style="padding: 8px 12px; font-weight: 500;">{{ h.get_dia_display }}</td>
+                                            <td style="padding: 8px 12px;">{{ h.hora_inicio|time:"H:i" }}</td>
+                                            <td style="padding: 8px 12px;">{{ h.hora_fin|time:"H:i" }}</td>
+                                            <td style="padding: 8px 12px;">{{ h.duracion_turno }} min</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" style="padding: 16px; text-align: center; color: #9ca3af;">
+                                                Sin horarios en este consultorio
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p style="color: #9ca3af; text-align: center; padding: 12px;">Sin horarios configurados</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 {% else %}
-                    <p style="color: #999; text-align: center; padding: 20px;">No tenés una agenda configurada.</p>
+                    <div style="text-align: center; padding: 32px; color: #9ca3af;">
+                        <i class="fas fa-calendar-times" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                        <p>No tenés agendas configuradas.</p>
+                    </div>
                 {% endif %}
             {% endwith %}
         </div>
