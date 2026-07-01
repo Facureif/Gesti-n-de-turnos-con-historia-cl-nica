@@ -259,14 +259,16 @@ def cobrar_turno(request, turno_id):
             coseguro_msg = f' | 💰 Cobrar al paciente: ${turno.monto_coseguro}'
         
         messages.success(request, f'Cobro registrado.{coseguro_msg}')
-        
+        return redirect('panel_profesional')
+    
         if request.user.rol == 'secretaria':
             return redirect('panel_secretaria')
-        return redirect('panel_profesional')
+        return redirect('cargar_evolucion', turno_id=turno.id)
     
     return render(request, 'turnos_profesionales/cobrar_turno.html', {
         'turno': turno, 'paciente': paciente, 'plan': plan
     })
+
 
 @login_required
 def no_asistio_turno(request, turno_id):
@@ -691,6 +693,14 @@ def calendario_semanal(request):
             if not profesional:
                 messages.error(request, 'No hay profesionales en el consultorio.')
                 return redirect('panel_secretaria')
+@login_required
+def calendario_semanal(request):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    if request.user.rol == 'secretaria':
+        # ... (código de secretaria, igual que antes) ...
+        pass
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
     
@@ -708,64 +718,76 @@ def calendario_semanal(request):
     dias_semana = []
     nombres_dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
     
+    agendas = Agenda.objects.filter(
+        profesional=profesional, activo=True
+    ).select_related('establecimiento')
+    
     for i in range(7):
         dia = lunes + timedelta(days=i)
         turnos_dia = TurnoProfesional.objects.filter(profesional=profesional, fecha=dia).order_by('hora_inicio')
-        agenda = Agenda.objects.filter(profesional=profesional, activo=True, fecha_inicio__lte=dia).filter(
-            Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=dia)
-        ).first()
         
+        horarios_por_consultorio = {}
+        dia_bloqueado = False
         bloqueos_dia = []
-        if agenda:
-            bloqueos_dia = BloqueoAgenda.objects.filter(agenda=agenda, fecha=dia, activo=True)
         
-        max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
-        horarios_dia = []
-        
-        if agenda:
-            horarios = HorarioAtencion.objects.filter(agenda=agenda, dia=dia.weekday())
-            for h in horarios:
-                hora_actual = h.hora_inicio
-                while hora_actual < h.hora_fin:
-                    hora_fin_slot = (datetime.combine(dia, hora_actual) + timedelta(minutes=h.duracion_turno)).time()
-                    if hora_fin_slot <= h.hora_fin:
-                        turnos_en_horario = [t for t in turnos_dia if t.hora_inicio == hora_actual]
-                        slot_bloqueado = False
-                        for b in bloqueos_dia:
-                            if b.hora_inicio is None and b.hora_fin is None:
-                                slot_bloqueado = True
-                            elif b.hora_inicio and b.hora_fin:
-                                if hora_actual >= b.hora_inicio and hora_fin_slot <= b.hora_fin:
-                                    slot_bloqueado = True
-                        
-                        if not slot_bloqueado:
-                            if turnos_en_horario:
-                                for turno in turnos_en_horario:
-                                    horarios_dia.append({
-                                        'hora_inicio': hora_actual, 'hora_fin': hora_fin_slot,
-                                        'turno': turno, 'disponible': False, 'lugares_restantes': 0
+        for agenda in agendas:
+            if agenda.fecha_inicio <= dia and (agenda.fecha_fin is None or agenda.fecha_fin >= dia):
+                bloqueos = BloqueoAgenda.objects.filter(agenda=agenda, fecha=dia, activo=True)
+                bloqueos_dia.extend(bloqueos)
+                
+                if any(b.hora_inicio is None and b.hora_fin is None for b in bloqueos):
+                    dia_bloqueado = True
+                
+                est_nombre = agenda.establecimiento.nombre
+                if est_nombre not in horarios_por_consultorio:
+                    horarios_por_consultorio[est_nombre] = []
+                
+                horarios = HorarioAtencion.objects.filter(agenda=agenda, dia=dia.weekday())
+                for h in horarios:
+                    hora_actual = h.hora_inicio
+                    while hora_actual < h.hora_fin:
+                        hora_fin_slot = (datetime.combine(dia, hora_actual) + timedelta(minutes=h.duracion_turno)).time()
+                        if hora_fin_slot <= h.hora_fin:
+                            slot_bloqueado = False
+                            for b in bloqueos:
+                                if b.hora_inicio and b.hora_fin:
+                                    if hora_actual >= b.hora_inicio and hora_fin_slot <= b.hora_fin:
+                                        slot_bloqueado = True
+                                        break
+                            
+                            if not slot_bloqueado:
+                                turnos_en_horario = [t for t in turnos_dia if t.hora_inicio == hora_actual]
+                                if turnos_en_horario:
+                                    for turno in turnos_en_horario:
+                                        horarios_por_consultorio[est_nombre].append({
+                                            'hora_inicio': hora_actual,
+                                            'hora_fin': hora_fin_slot,
+                                            'turno': turno,
+                                            'disponible': False,
+                                            'lugares_restantes': 0,
+                                        })
+                                else:
+                                    horarios_por_consultorio[est_nombre].append({
+                                        'hora_inicio': hora_actual,
+                                        'hora_fin': hora_fin_slot,
+                                        'turno': None,
+                                        'disponible': True,
+                                        'lugares_restantes': agenda.pacientes_simultaneos,
                                     })
-                                lugares_ocupados = len([t for t in turnos_en_horario if not t.es_sobreturno])
-                                if lugares_ocupados < max_simultaneos:
-                                    horarios_dia.append({
-                                        'hora_inicio': hora_actual, 'hora_fin': hora_fin_slot,
-                                        'turno': None, 'disponible': True,
-                                        'lugares_restantes': max_simultaneos - lugares_ocupados
-                                    })
-                            else:
-                                horarios_dia.append({
-                                    'hora_inicio': hora_actual, 'hora_fin': hora_fin_slot,
-                                    'turno': None, 'disponible': True, 'lugares_restantes': max_simultaneos
-                                })
-                    hora_actual = hora_fin_slot
+                        hora_actual = hora_fin_slot
         
-        dia_completo_bloqueado = any(b.hora_inicio is None and b.hora_fin is None for b in bloqueos_dia)
+        # Ordenar slots dentro de cada consultorio
+        for est in horarios_por_consultorio:
+            horarios_por_consultorio[est].sort(key=lambda x: x['hora_inicio'])
         
         dias_semana.append({
-            'fecha': dia, 'nombre': nombres_dias[i], 'es_hoy': dia == hoy,
-            'atiende': len(horarios_dia) > 0, 'bloqueado': dia_completo_bloqueado,
-            'bloqueos': bloqueos_dia, 'horarios': horarios_dia,
-            'total_turnos': turnos_dia.count(), 'max_simultaneos': max_simultaneos
+            'fecha': dia,
+            'nombre': nombres_dias[i],
+            'es_hoy': dia == hoy,
+            'atiende': any(len(slots) > 0 for slots in horarios_por_consultorio.values()),
+            'bloqueado': dia_bloqueado,
+            'bloqueos': bloqueos_dia,
+            'horarios_por_consultorio': horarios_por_consultorio,
         })
     
     semana_anterior = lunes - timedelta(days=7)
@@ -778,11 +800,14 @@ def calendario_semanal(request):
         )
     
     return render(request, 'turnos_profesionales/calendario.html', {
-        'profesional': profesional, 'dias_semana': dias_semana,
-        'lunes': lunes, 'domingo': lunes + timedelta(days=6),
+        'profesional': profesional,
+        'dias_semana': dias_semana,
+        'lunes': lunes,
+        'domingo': lunes + timedelta(days=6),
         'semana_anterior': semana_anterior.strftime('%Y-%m-%d'),
         'semana_siguiente': semana_siguiente.strftime('%Y-%m-%d'),
-        'hoy': hoy, 'profesionales_consultorio': profesionales_consultorio,
+        'hoy': hoy,
+        'profesionales_consultorio': profesionales_consultorio,
     })
 
 

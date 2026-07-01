@@ -130,6 +130,25 @@
         font-weight: 500;
     }
     
+    .consultorio-separator {
+        padding: 6px 12px;
+        background:var(--gray-400);
+        border-bottom: 1px solid var(--gray-200);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .consultorio-separator i {
+        font-size: 0.8rem;
+        color: white;
+    }
+    
     .calendar-footer {
         padding: 6px;
         text-align: center;
@@ -298,57 +317,63 @@
         
         <div class="calendar-slots">
             {% if dia.atiende %}
-                {% for slot in dia.horarios %}
-                <div class="calendar-slot 
-                    {% if slot.turno %}
-                        {% if slot.turno.es_sobreturno %}sobreturno
-                        {% elif slot.turno.estado == 'confirmado' %}confirmado
-                        {% elif slot.turno.estado == 'pendiente' %}pendiente
-                        {% elif slot.turno.estado == 'completado' %}completado
-                        {% elif slot.turno.estado == 'cancelado' %}cancelado
-                        {% endif %}
-                    {% else %}empty
-                    {% endif %}" 
-                    onclick="{% if slot.turno %}
-                        mostrarModalTurno(
-                            '{{ slot.turno.id }}',
-                            '{{ slot.turno.paciente.nombre_completo|escapejs }}',
-                            '{{ slot.turno.paciente.telefono|escapejs }}',
-                            '{{ slot.turno.fecha|date:'d/m/Y' }}',
-                            '{{ slot.hora_inicio|time:'H:i' }}',
-                            '{{ slot.hora_fin|time:'H:i' }}',
-                            '{{ slot.turno.tipo_consulta|default:'—'|escapejs }}',
-                            '{{ slot.turno.get_estado_display }}',
-                            '{{ slot.turno.estado }}',
-                            '{% if slot.turno.paciente.sesiones_restantes %}{{ slot.turno.paciente.sesiones_restantes }}/{{ slot.turno.paciente.sesiones_autorizadas }}{% else %}—{% endif %}',
-                            '{{ slot.turno.paciente.id }}',
-                            '{{ slot.turno.es_sobreturno|yesno:'si,no' }}'
-                        )
-                    {% else %}
-                        mostrarModalSlot(
-                            '{{ dia.fecha|date:'Y-m-d' }}',
-                            '{{ slot.hora_inicio|time:'H:i' }}',
-                            '{{ slot.hora_fin|time:'H:i' }}'
-                        )
-                    {% endif %}">
-                    
-                    <div class="calendar-slot-time">
-                        {{ slot.hora_inicio|time:"H:i" }} - {{ slot.hora_fin|time:"H:i" }}
-                        {% if slot.turno and slot.turno.es_sobreturno %}🚨{% endif %}
+                {% for est_nombre, slots in dia.horarios_por_consultorio.items %}
+                    <div class="consultorio-separator">
+                        <i class="fas fa-building"></i> {{ est_nombre }}
                     </div>
                     
-                    {% if slot.turno %}
-                        <div class="calendar-slot-patient">{{ slot.turno.paciente.nombre_completo }}</div>
-                        {% if slot.turno.tipo_consulta %}
-                            <div class="calendar-slot-type">{{ slot.turno.tipo_consulta }}</div>
+                    {% for slot in slots %}
+                    <div class="calendar-slot 
+                        {% if slot.turno %}
+                            {% if slot.turno.es_sobreturno %}sobreturno
+                            {% elif slot.turno.estado == 'confirmado' %}confirmado
+                            {% elif slot.turno.estado == 'pendiente' %}pendiente
+                            {% elif slot.turno.estado == 'completado' %}completado
+                            {% elif slot.turno.estado == 'cancelado' %}cancelado
+                            {% endif %}
+                        {% else %}empty
+                        {% endif %}" 
+                        onclick="{% if slot.turno %}
+                            mostrarModalTurno(
+                                '{{ slot.turno.id }}',
+                                '{{ slot.turno.paciente.nombre_completo|escapejs }}',
+                                '{{ slot.turno.paciente.telefono|escapejs }}',
+                                '{{ slot.turno.fecha|date:'d/m/Y' }}',
+                                '{{ slot.hora_inicio|time:'H:i' }}',
+                                '{{ slot.hora_fin|time:'H:i' }}',
+                                '{{ slot.turno.tipo_consulta|default:'—'|escapejs }}',
+                                '{{ slot.turno.get_estado_display }}',
+                                '{{ slot.turno.estado }}',
+                                '{% if slot.turno.paciente.sesiones_restantes %}{{ slot.turno.paciente.sesiones_restantes }}/{{ slot.turno.paciente.sesiones_autorizadas }}{% else %}—{% endif %}',
+                                '{{ slot.turno.paciente.id }}',
+                                '{{ slot.turno.es_sobreturno|yesno:'si,no' }}'
+                            )
+                        {% else %}
+                            mostrarModalSlot(
+                                '{{ dia.fecha|date:'Y-m-d' }}',
+                                '{{ slot.hora_inicio|time:'H:i' }}',
+                                '{{ slot.hora_fin|time:'H:i' }}'
+                            )
+                        {% endif %}">
+                        
+                        <div class="calendar-slot-time">
+                            {{ slot.hora_inicio|time:"H:i" }} - {{ slot.hora_fin|time:"H:i" }}
+                            {% if slot.turno and slot.turno.es_sobreturno %}🚨{% endif %}
+                        </div>
+                        
+                        {% if slot.turno %}
+                            <div class="calendar-slot-patient">{{ slot.turno.paciente.nombre_completo }}</div>
+                            {% if slot.turno.tipo_consulta %}
+                                <div class="calendar-slot-type">{{ slot.turno.tipo_consulta }}</div>
+                            {% endif %}
+                        {% else %}
+                            <div class="calendar-slot-add">+ Nuevo turno</div>
+                            {% if slot.lugares_restantes and slot.lugares_restantes > 1 %}
+                                <div class="calendar-slot-availability">{{ slot.lugares_restantes }} lugares</div>
+                            {% endif %}
                         {% endif %}
-                    {% else %}
-                        <div class="calendar-slot-add">+ Nuevo turno</div>
-                        {% if slot.lugares_restantes and slot.lugares_restantes > 1 %}
-                            <div class="calendar-slot-availability">{{ slot.lugares_restantes }} lugares</div>
-                        {% endif %}
-                    {% endif %}
-                </div>
+                    </div>
+                    {% endfor %}
                 {% endfor %}
             {% else %}
                 <div class="empty-state" style="padding: 20px;">
@@ -517,7 +542,6 @@
 </div>
 
 <script>
-// Funciones modales
 function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaFin, tipo, estadoDisplay, estado, sesiones, pacienteId, esSobreturno) {
     document.getElementById('modal-turno-paciente').textContent = (esSobreturno === 'si' ? '🚨 ' : '') + paciente;
     document.getElementById('modal-turno-fecha').textContent = fecha;
@@ -586,7 +610,6 @@ function toggleHoras() {
         document.getElementById('dia-completo').checked ? 'none' : 'grid';
 }
 
-// Cerrar modales al hacer clic fuera
 ['modal-turno', 'modal-slot', 'modal-bloqueo'].forEach(function(id) {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) {

@@ -8,14 +8,77 @@ from turnos_profesionales.models import TurnoProfesional
 from obras_sociales.models import ObraSocial, Plan 
 from django.db.models import Q
 from agendas.models import Agenda, HorarioAtencion
+from django.http import JsonResponse
 import random
 import string
+
+
+def api_horarios_disponibles(request, cliente_slug, establecimiento_id):
+    """API que devuelve horarios disponibles para un profesional y establecimiento."""
+    profesional_id = request.GET.get('profesional_id')
+    
+    if not profesional_id:
+        return JsonResponse({'error': 'Falta profesional_id'}, status=400)
+    
+    try:
+        profesional = Profesional.objects.get(id=profesional_id, activo=True)
+        establecimiento = Establecimiento.objects.get(id=establecimiento_id)
+    except (Profesional.DoesNotExist, Establecimiento.DoesNotExist):
+        return JsonResponse({'dias': []})
+    
+    hoy = date.today()
+    dias = []
+    
+    agenda = Agenda.objects.filter(
+        profesional=profesional,
+        establecimiento=establecimiento,
+        activo=True,
+        fecha_inicio__lte=hoy + timedelta(days=30)
+    ).first()
+    
+    if agenda:
+        max_simultaneos = agenda.pacientes_simultaneos if agenda.pacientes_simultaneos else 1
+        
+        for i in range(30):
+            fecha = hoy + timedelta(days=i)
+            dia_semana = fecha.weekday()
+            
+            horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
+            
+            if horario:
+                hora_actual = horario.hora_inicio
+                slots = []
+                
+                while hora_actual < horario.hora_fin:
+                    hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
+                    
+                    if hora_fin_slot <= horario.hora_fin:
+                        ocupados = TurnoProfesional.objects.filter(
+                            profesional=profesional,
+                            establecimiento=establecimiento,
+                            fecha=fecha,
+                            hora_inicio=hora_actual,
+                            estado__in=['pendiente', 'confirmado']
+                        ).count()
+                        
+                        if ocupados < max_simultaneos:
+                            slots.append(hora_actual.strftime('%H:%M'))
+                    
+                    hora_actual = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
+                
+                if slots:
+                    dias.append({
+                        'fecha_str': fecha.strftime('%Y-%m-%d'),
+                        'slots': slots
+                    })
+    
+    return JsonResponse({'dias': dias})
+
 
 def portal(request, cliente_slug):
     cliente = get_object_or_404(ClienteSaaS, slug=cliente_slug, activo=True)
     request.session['cliente_slug'] = cliente_slug
     
-    # Iconos para cada especialidad
     ICONOS_ESPECIALIDAD = {
         'odontologia': '🦷',
         'kinesiologia': '💪',
@@ -34,7 +97,6 @@ def portal(request, cliente_slug):
             establecimientos=cliente.establecimiento, activo=True
         ).prefetch_related('agenda_set__horarios')
         
-        # Armar lista de especialidades disponibles (solo las que tiene el consultorio)
         especialidades_disponibles = []
         especialidades_vistas = set()
         
@@ -50,7 +112,6 @@ def portal(request, cliente_slug):
                     'total': total,
                 })
         
-        # Ordenar alfabéticamente por nombre
         especialidades_disponibles.sort(key=lambda x: x['nombre'])
         
         return render(request, 'core_app/landing_consultorio.html', {
@@ -70,18 +131,18 @@ def portal(request, cliente_slug):
             'consultorios': consultorios,
         })
 
+
 def sacar_turno(request, cliente_slug, profesional_id):
     """Formulario público para sacar turno."""
     cliente = get_object_or_404(ClienteSaaS, slug=cliente_slug, activo=True)
     profesional = get_object_or_404(Profesional, id=profesional_id, activo=True)
-    
     hoy = date.today()
     
     if cliente.tipo == 'consultorio':
         consultorios_disponibles = profesional.establecimientos.filter(id=cliente.establecimiento.id)
     else:
         consultorios_disponibles = profesional.establecimientos.all()
-    
+
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         telefono = request.POST.get('telefono')
@@ -91,8 +152,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
         hora_str = request.POST.get('hora')
         establecimiento_id = request.POST.get('establecimiento')
         tipo_consulta = request.POST.get('tipo_consulta', '')
-        
-        # ✅ NUEVOS CAMPOS
         fecha_nacimiento = request.POST.get('fecha_nacimiento', '')
         numero_afiliado = request.POST.get('numero_afiliado', '')
         obra_social_id = request.POST.get('obra_social', '')
@@ -147,12 +206,10 @@ def sacar_turno(request, cliente_slug, profesional_id):
             messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes).')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
         
-        # ✅ PROCESAR OBRA SOCIAL Y PLAN
         obra_social = None
         plan_obra_social = None
         if obra_social_id and obra_social_id != 'particular':
             try:
-                from obras_sociales.models import ObraSocial, Plan
                 obra_social = ObraSocial.objects.get(id=obra_social_id)
                 if plan_obra_social_id:
                     try:
@@ -162,7 +219,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
             except ObraSocial.DoesNotExist:
                 pass
         
-        # ✅ PROCESAR FECHA DE NACIMIENTO
         fecha_nac = None
         if fecha_nacimiento:
             try:
@@ -170,12 +226,10 @@ def sacar_turno(request, cliente_slug, profesional_id):
             except (ValueError, TypeError):
                 fecha_nac = None
         
-        # Preparar nombre y apellido
         partes = nombre.strip().split()
         primer_nombre = partes[0] if partes else nombre
         apellido_temp = ' '.join(partes[1:]) if len(partes) > 1 else primer_nombre
         
-        # Buscar o crear paciente
         from pacientes.models import Paciente
         from usuarios.models import Usuario
         import random as random_module
@@ -185,33 +239,25 @@ def sacar_turno(request, cliente_slug, profesional_id):
         
         if dni:
             paciente = Paciente.objects.filter(dni=dni).first()
-        
         if not paciente and email:
             paciente = Paciente.objects.filter(email=email).first()
-        
         if not paciente and telefono:
             paciente = Paciente.objects.filter(telefono=telefono).first()
         
         if not paciente:
-            # ✅ CREAR NUEVO PACIENTE
             dni_final = dni if dni else f"TMP{random_module.randint(10000, 99999)}"
-            
             if Paciente.objects.filter(dni=dni_final).exists():
                 dni_final = f"TMP{random_module.randint(10000, 99999)}"
             
             paciente = Paciente.objects.create(
-                nombre=primer_nombre, 
-                apellido=apellido_temp,
-                telefono=telefono, 
-                email=email,
-                dni=dni_final, 
+                nombre=primer_nombre, apellido=apellido_temp,
+                telefono=telefono, email=email, dni=dni_final,
                 fecha_nacimiento=fecha_nac or hoy.replace(year=1990),
                 obra_social=obra_social,
                 numero_afiliado=numero_afiliado if numero_afiliado else '',
                 plan_obra_social=plan_obra_social,
             )
             
-            # Crear usuario automáticamente
             base_username = f"{primer_nombre.lower()}.{apellido_temp.lower()}".replace(" ", "")
             username = base_username
             if Usuario.objects.filter(username=username).exists():
@@ -227,35 +273,24 @@ def sacar_turno(request, cliente_slug, profesional_id):
             paciente.usuario = usuario
             paciente.save()
             credenciales = (username, password)
-        
         else:
-            # ✅ ACTUALIZAR PACIENTE EXISTENTE CON TODOS LOS DATOS DEL FORMULARIO
             paciente.nombre = primer_nombre
             paciente.apellido = apellido_temp
             paciente.telefono = telefono
-            if email:
-                paciente.email = email
-            if dni:
-                paciente.dni = dni
-            if fecha_nac:
-                paciente.fecha_nacimiento = fecha_nac
-            if obra_social:
-                paciente.obra_social = obra_social
-            if numero_afiliado:
-                paciente.numero_afiliado = numero_afiliado
-            if plan_obra_social:
-                paciente.plan_obra_social = plan_obra_social
+            if email: paciente.email = email
+            if dni: paciente.dni = dni
+            if fecha_nac: paciente.fecha_nacimiento = fecha_nac
+            if obra_social: paciente.obra_social = obra_social
+            if numero_afiliado: paciente.numero_afiliado = numero_afiliado
+            if plan_obra_social: paciente.plan_obra_social = plan_obra_social
             paciente.save()
             
-            # Crear usuario si no tiene
             if not paciente.usuario:
                 base_username = f"{primer_nombre.lower()}.{apellido_temp.lower()}".replace(" ", "")
                 username = base_username
                 if Usuario.objects.filter(username=username).exists():
                     username = f"{base_username}{random_module.randint(1, 999)}"
-                
                 password = paciente.dni if paciente.dni and not paciente.dni.startswith('TMP') else ''.join(random_module.choices(string.digits, k=6))
-                
                 usuario = Usuario.objects.create_user(
                     username=username, password=password,
                     first_name=primer_nombre, last_name=apellido_temp,
@@ -265,14 +300,12 @@ def sacar_turno(request, cliente_slug, profesional_id):
                 paciente.save()
                 credenciales = (username, password)
         
-        # Crear el turno
         turno = TurnoProfesional.objects.create(
             profesional=profesional, establecimiento=establecimiento,
             paciente=paciente, fecha=fecha, hora_inicio=hora,
             hora_fin=hora_fin, estado='pendiente', tipo_consulta=tipo_consulta
         )
         
-        # Google Calendar
         try:
             import threading
             from turnos_profesionales.views import crear_evento_google
@@ -280,7 +313,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
         except:
             pass
         
-        # Enviar email con credenciales si corresponde
         if credenciales and email:
             try:
                 from django.core.mail import send_mail
@@ -292,10 +324,7 @@ def sacar_turno(request, cliente_slug, profesional_id):
                         f'📅 Fecha: {fecha.strftime("%d/%m/%Y")}\n'
                         f'⏰ Hora: {hora_str}\n'
                         f'🏥 Consultorio: {establecimiento.nombre}\n'
-                        f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n'
-                        f'🩺 Obra Social: {obra_social.nombre if obra_social else "Particular"}\n'
-                        f'📋 Plan: {plan_obra_social.nombre if plan_obra_social else "N/A"}\n'
-                        f'🔢 N° Afiliado: {numero_afiliado if numero_afiliado else "N/A"}\n\n'
+                        f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n\n'
                         f'Podés gestionar tus turnos desde tu panel personal:\n'
                         f'🔑 Usuario: {credenciales[0]}\n'
                         f'🔒 Contraseña: {credenciales[1]}\n\n'
@@ -309,7 +338,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
             except:
                 pass
         
-        # Mensaje de éxito
         if credenciales:
             messages.success(request, 
                 f'¡Turno reservado!\n\n'
@@ -320,59 +348,20 @@ def sacar_turno(request, cliente_slug, profesional_id):
             )
         else:
             messages.success(request, 
-                f'¡Turno reservado! {nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.\n'
-                f'Ingresá a tu panel con tu usuario habitual.'
+                f'¡Turno reservado! {nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.'
             )
         
         return redirect('portal_cliente', cliente_slug=cliente_slug)
     
     # GET
-    dias_disponibles = []
-    for est in consultorios_disponibles:
-        agenda = Agenda.objects.filter(
-            profesional=profesional, establecimiento=est,
-            activo=True, fecha_inicio__lte=hoy + timedelta(days=30)
-        ).first()
-        
-        if agenda:
-            max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
-            for i in range(30):
-                fecha = hoy + timedelta(days=i)
-                dia_semana = fecha.weekday()
-                horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
-                if horario:
-                    hora_actual = horario.hora_inicio
-                    slots = []
-                    while hora_actual < horario.hora_fin:
-                        hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
-                        if hora_fin_slot <= horario.hora_fin:
-                            ocupados = TurnoProfesional.objects.filter(
-                                profesional=profesional, establecimiento=est,
-                                fecha=fecha, hora_inicio=hora_actual,
-                                estado__in=['pendiente', 'confirmado']
-                            ).count()
-                            if ocupados < max_simultaneos:
-                                slots.append(hora_actual.strftime('%H:%M'))
-                        hora_actual = hora_fin_slot
-                    if slots:
-                        dias_disponibles.append({
-                            'fecha': fecha, 'fecha_str': fecha.strftime('%Y-%m-%d'),
-                            'nombre_dia': fecha.strftime('%A'), 'slots': slots,
-                            'establecimiento': est.nombre, 'establecimiento_id': est.id
-                        })
-    
-    # ✅ OBTENER SOLO LAS OBRAS SOCIALES CON LAS QUE TRABAJA EL PROFESIONAL
-    from obras_sociales.models import ObraSocial
-    # Si el profesional tiene configuradas obras sociales, mostrar esas
-    # Si no tiene ninguna configurada, mostrar todas (asume que atiende todas)
     if profesional.obras_sociales.exists():
         obras_sociales = profesional.obras_sociales.filter(activo=True).prefetch_related('planes')
     else:
         obras_sociales = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
     
     return render(request, 'core_app/publico/sacar_turno.html', {
-        'cliente': cliente, 'profesional': profesional,
-        'dias_disponibles': dias_disponibles,
-        'consultorios_disponibles': consultorios_disponibles, 'hoy': hoy,
-        'obras_sociales': obras_sociales,  
+        'cliente': cliente,
+        'profesional': profesional,
+        'consultorios': consultorios_disponibles,
+        'obras_sociales': obras_sociales,
     })

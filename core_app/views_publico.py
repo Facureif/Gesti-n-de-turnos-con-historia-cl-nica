@@ -53,3 +53,5 @@ def sacar_turno_profesional(request, username):
         'profesional': profesional,
         'consultorios': profesional.establecimientos.all()
     })
+
+

@@ -2,139 +2,274 @@
 
 {% block title %}Sacar Turno - {{ profesional.nombre_completo }}{% endblock %}
 
-{% block content %}
-<div style="max-width: 700px; margin: 0 auto;">
-    <h1 style="text-align: center;">📅 Sacar Turno</h1>
-    <p style="text-align: center; color: #4A90D9; font-weight: bold;">
-        {{ profesional.nombre_completo }} - {{ profesional.get_especialidad_display }}
-    </p>
+{% block extra_css %}
+<style>
+    .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
     
-    {% if dias_disponibles %}
-    <form method="post">
+    :root {
+        --primary: #2563eb; --success: #059669; --text: #1f2937;
+        --text-secondary: #4b5563; --text-muted: #9ca3af;
+        --bg-alt: #f8fafc; --border: #e5e7eb; --radius: 12px;
+    }
+
+    .container-custom { width: 100%; max-width: 650px; margin: 0 auto; padding: 0 20px 40px; }
+    .page-top { background: var(--bg-alt); border-bottom: 1px solid var(--border); padding: 28px 0; text-align: center; margin-bottom: 28px; }
+    .page-top h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); margin: 0 0 4px 0; }
+    .page-top .profesional-nombre { color: var(--primary); font-weight: 600; }
+
+    .card { background: white; border-radius: var(--radius); padding: 22px; margin-bottom: 16px; border: 1px solid var(--border); }
+    .card h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 14px 0; }
+
+    .input-field { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; margin-bottom: 10px; box-sizing: border-box; }
+    .input-field:focus { outline: none; border-color: var(--primary); }
+    .select-field { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; margin-bottom: 10px; background: white; box-sizing: border-box; }
+
+    .consultorio-confirmado { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; background: #f0fdf4; border-radius: 8px; font-size: 0.85rem; color: #065f46; }
+    .consultorio-unico { display: flex; align-items: center; gap: 10px; }
+    .consultorio-unico i { color: var(--primary); }
+
+    .dias-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dia-label { padding: 12px 14px; border: 2px solid var(--border); border-radius: var(--radius); cursor: pointer; text-align: center; min-width: 75px; transition: all 0.2s ease; background: white; }
+    .dia-label:hover { border-color: var(--primary); }
+    .dia-label.seleccionado { border-color: var(--primary); background: #eff6ff; }
+    .dia-label input { display: none; }
+    .dia-numero { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+    .dia-mes { font-size: 0.75rem; color: var(--text-muted); }
+    .dia-nombre { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+
+    .horarios-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hora-label { padding: 10px 18px; border: 2px solid var(--primary); border-radius: var(--radius); cursor: pointer; color: var(--primary); font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease; background: white; }
+    .hora-label:hover { background: #eff6ff; }
+    .hora-label.seleccionada { border-color: var(--success); background: #f0fdf4; color: #065f46; }
+    .hora-label input { display: none; }
+
+    .btn-confirmar { display: inline-flex; align-items: center; gap: 8px; background: var(--success); color: white; padding: 14px 28px; border-radius: 9999px; font-weight: 600; font-size: 1rem; border: none; cursor: pointer; width: 100%; justify-content: center; box-sizing: border-box; }
+    .btn-confirmar:hover { background: #047857; }
+
+    .sin-turnos { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .loading-spinner { text-align: center; padding: 20px; color: var(--text-muted); }
+
+    @media (max-width: 600px) { .dia-label { min-width: 60px; padding: 10px 8px; } .hora-label { padding: 8px 14px; font-size: 0.8rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-top">
+    <h1>📅 Sacar Turno</h1>
+    <p class="profesional-nombre">{{ profesional.nombre_completo }} · {{ profesional.get_especialidad_display }}</p>
+</div>
+
+<div class="container-custom">
+    <form method="post" id="form-turno">
         {% csrf_token %}
         
-        <div class="card" style="margin-bottom: 20px;">
-            <h3>Tus datos</h3>
-            
-            <!-- Datos básicos -->
-            <input type="text" name="nombre" placeholder="Nombre completo *" required
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                        
-            <input type="text" name="dni" placeholder="DNI"
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            
-            <!-- ✅ NUEVO: Fecha de nacimiento -->
-            <label style="display: block; margin-bottom: 5px; color: #666;">Fecha de nacimiento:</label>
-            <input type="date" name="fecha_nacimiento"
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            
-            <input type="tel" name="telefono" placeholder="Teléfono/Celular *" required
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            
-            <input type="email" name="email" placeholder="Email"
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-
-            <h4 style="margin-bottom: 10px;">Obra Social (opcional)</h4>
-            
-            <!-- ✅ NUEVO: Obra Social - Select -->
-            <select name="obra_social" id="obra_social_select"
-                    style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                <option value="">Seleccionar obra social...</option>
-                {% for os in obras_sociales %}
-                <option value="{{ os.id }}" data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
-                    {{ os.nombre }}
-                </option>
-                {% endfor %}
-                <option value="particular">Particular</option>
-            </select>
-            
-            <!-- ✅ NUEVO: Plan - Select dinámico -->
-            <select name="plan_obra_social" id="plan_select"
-                    style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; display: none;">
-                <option value="">Seleccionar plan...</option>
-            </select>
-            
-            <!-- ✅ NUEVO: Número de afiliado -->
-            <input type="text" name="numero_afiliado" placeholder="N° de afiliado"
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-        </div>
-        
-        {% if consultorios_disponibles.count > 1 %}
-        <div class="card" style="margin-bottom: 20px;">
-            <h3>Consultorio</h3>
-            <select name="establecimiento" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                <option value="">Seleccioná...</option>
-                {% for est in consultorios_disponibles %}
+        <!-- ========== 1° CONSULTORIO ========== -->
+        {% if consultorios.count > 1 %}
+        <div class="card">
+            <h3>🏥 1° Elegí el consultorio</h3>
+            <select id="establecimiento-select" class="select-field">
+                <option value="">Seleccioná un consultorio...</option>
+                {% for est in consultorios %}
                 <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
                 {% endfor %}
             </select>
+            <div id="consultorio-info" style="display: none;" class="consultorio-confirmado">
+                <i class="fas fa-check-circle"></i>
+                <span id="consultorio-info-texto"></span>
+            </div>
+            <input type="hidden" name="establecimiento" id="establecimiento-hidden">
         </div>
-        {% elif consultorios_disponibles.count == 1 %}
-            <input type="hidden" name="establecimiento" value="{{ consultorios_disponibles.first.id }}">
+        {% elif consultorios.count == 1 %}
+            <input type="hidden" name="establecimiento" value="{{ consultorios.first.id }}" id="establecimiento-hidden">
+            <div class="card">
+                <h3>🏥 Consultorio</h3>
+                <div class="consultorio-unico">
+                    <i class="fas fa-building"></i>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text);">{{ consultorios.first.nombre }}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">{{ consultorios.first.direccion }}</div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
         
-        <div class="card" style="margin-bottom: 20px;">
-            <h3>Día y horario</h3>
-            
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                {% for dia in dias_disponibles %}
-                <label style="padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; min-width: 85px;"
-                       class="dia-label" onclick="marcarDia(this, '{{ dia.fecha_str }}')">
-                    <input type="radio" name="fecha" value="{{ dia.fecha_str }}" style="display: none;" {% if forloop.first %}checked{% endif %}>
-                    <div style="font-weight: bold;">{{ dia.fecha|date:"d" }}</div>
-                    <div style="font-size: 0.8em;">{{ dia.fecha|date:"M" }}</div>
-                    <div style="font-size: 0.7em; color: #999;">{{ dia.nombre_dia|slice:":3" }}</div>
-                </label>
-                {% endfor %}
+        <!-- Loading -->
+        <div class="loading-spinner" id="loading-horarios" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
+        </div>
+        
+        <!-- ========== 2° DÍAS Y HORARIOS ========== -->
+        <div id="horarios-container" style="display: none;">
+            <div class="card">
+                <h3>2️⃣ Elegí el día</h3>
+                <div class="dias-grid" id="dias-grid"></div>
             </div>
-            
-            <div id="horarios-container">
-                {% for dia in dias_disponibles %}
-                <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
-                     style="display: {% if forloop.first %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
-                    {% for slot in dia.slots %}
-                    <label style="padding: 10px 20px; border: 2px solid #4A90D9; border-radius: 8px; cursor: pointer; font-weight: bold; color: #4A90D9;"
-                           class="hora-label" onclick="marcarHora(this)">
-                        <input type="radio" name="hora" value="{{ slot }}" style="display: none;">
-                        {{ slot }}
-                    </label>
+            <div class="card">
+                <h3>3️⃣ Elegí el horario</h3>
+                <div class="horarios-grid" id="horarios-grid"></div>
+            </div>
+        </div>
+        
+        <!-- Sin turnos -->
+        <div class="card sin-turnos" id="sin-turnos" style="display: none;">
+            <div style="font-size: 3rem; margin-bottom: 12px; opacity: 0.4;">📅</div>
+            <p style="font-weight: 500;">No hay turnos disponibles en este consultorio</p>
+            <p style="color: var(--text-muted);">Probá seleccionando otro consultorio.</p>
+        </div>
+        
+        <!-- ========== 3° DATOS DEL PACIENTE ========== -->
+        <div id="datos-paciente" style="display: none;">
+            <div class="card">
+                <h3>👤 Tus Datos</h3>
+                
+                <input type="text" name="nombre" placeholder="Nombre completo *" required class="input-field">
+                <input type="text" name="dni" placeholder="DNI (opcional)" class="input-field">
+                
+                <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Fecha de nacimiento</label>
+                <input type="date" name="fecha_nacimiento" class="input-field">
+                
+                <input type="tel" name="telefono" placeholder="Teléfono/Celular *" required class="input-field">
+                <input type="email" name="email" placeholder="Email (opcional)" class="input-field">
+                
+                <h3 style="margin-top: 16px;">🏥 Obra Social (opcional)</h3>
+                
+                <select name="obra_social" id="obra_social_select" class="select-field">
+                    <option value="">Seleccionar obra social...</option>
+                    {% for os in obras_sociales %}
+                    <option value="{{ os.id }}" data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                        {{ os.nombre }}
+                    </option>
                     {% endfor %}
-                </div>
-                {% endfor %}
+                    <option value="particular">Particular</option>
+                </select>
+                
+                <select name="plan_obra_social" id="plan_select" class="select-field" style="display: none;">
+                    <option value="">Seleccionar plan...</option>
+                </select>
+                
+                <input type="text" name="numero_afiliado" placeholder="N° de afiliado" class="input-field">
             </div>
+            
+            <div class="card">
+                <h3>📝 Información adicional</h3>
+                <input type="text" name="tipo_consulta" placeholder="Motivo de consulta (opcional)" class="input-field">
+            </div>
+            
+            <button type="submit" class="btn-confirmar">
+                <i class="fas fa-check-circle"></i> Confirmar Turno
+            </button>
         </div>
-        
-        <div class="card" style="margin-bottom: 20px;">
-            <input type="text" name="tipo_consulta" placeholder="Motivo de consulta (opcional)"
-                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-        </div>
-        
-        <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1.1em;">
-            ✅ Confirmar Turno
-        </button>
     </form>
-    {% else %}
-    <div class="card" style="text-align: center; padding: 40px;">
-        <p>No hay turnos disponibles.</p>
-    </div>
-    {% endif %}
 </div>
 
 <script>
-function marcarDia(label, fecha) {
-    document.querySelectorAll('.horarios-dia').forEach(d => d.style.display = 'none');
-    let div = document.querySelector(`.horarios-dia[data-fecha="${fecha}"]`);
-    if (div) div.style.display = 'flex';
-    document.querySelectorAll('.dia-label').forEach(l => { l.style.border = '2px solid #ddd'; l.style.background = 'white'; });
-    label.style.border = '2px solid #4A90D9'; label.style.background = '#f0f7ff';
-}
-function marcarHora(label) {
-    document.querySelectorAll('.hora-label').forEach(l => { l.style.border = '2px solid #4A90D9'; l.style.background = 'white'; });
-    label.style.border = '2px solid #28a745'; label.style.background = '#f0fff4';
+// Cargar horarios al seleccionar consultorio
+{% if consultorios.count > 1 %}
+document.getElementById('establecimiento-select').addEventListener('change', function() {
+    var establecimientoId = this.value;
+    if (establecimientoId) {
+        var selectedOption = this.options[this.selectedIndex];
+        document.getElementById('consultorio-info').style.display = 'flex';
+        document.getElementById('consultorio-info-texto').textContent = selectedOption.textContent;
+        document.getElementById('establecimiento-hidden').value = establecimientoId;
+        cargarHorarios(establecimientoId);
+    } else {
+        document.getElementById('consultorio-info').style.display = 'none';
+        document.getElementById('establecimiento-hidden').value = '';
+        document.getElementById('horarios-container').style.display = 'none';
+        document.getElementById('datos-paciente').style.display = 'none';
+        document.getElementById('sin-turnos').style.display = 'none';
+    }
+});
+{% endif %}
+
+// Cargar automáticamente si hay un solo consultorio
+{% if consultorios.count == 1 %}
+document.addEventListener('DOMContentLoaded', function() {
+    cargarHorarios('{{ consultorios.first.id }}');
+});
+{% endif %}
+
+function cargarHorarios(establecimientoId) {
+    document.getElementById('loading-horarios').style.display = 'block';
+    document.getElementById('horarios-container').style.display = 'none';
+    document.getElementById('sin-turnos').style.display = 'none';
+    document.getElementById('datos-paciente').style.display = 'none';
+    
+    // URL corregida con el slug del cliente
+    var url = '/{{ cliente.slug }}/api/horarios-disponibles/' + establecimientoId + '/?profesional_id={{ profesional.id }}';
+    
+    fetch(url)
+        .then(function(response) { 
+            return response.json(); 
+        })
+        .then(function(data) {
+            document.getElementById('loading-horarios').style.display = 'none';
+            
+            if (data.dias && data.dias.length > 0) {
+                mostrarDiasHorarios(data.dias);
+                document.getElementById('horarios-container').style.display = 'block';
+                document.getElementById('datos-paciente').style.display = 'block';
+            } else {
+                document.getElementById('sin-turnos').style.display = 'block';
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            document.getElementById('loading-horarios').style.display = 'none';
+            document.getElementById('sin-turnos').style.display = 'block';
+        });
 }
 
-// ✅ NUEVO: Manejar cambio de obra social para mostrar planes
+function mostrarDiasHorarios(dias) {
+    var diasGrid = document.getElementById('dias-grid');
+    var horariosGrid = document.getElementById('horarios-grid');
+    diasGrid.innerHTML = '';
+    horariosGrid.innerHTML = '';
+    
+    dias.forEach(function(dia, index) {
+        var fecha = new Date(dia.fecha_str + 'T00:00:00');
+        var nombreDia = fecha.toLocaleDateString('es-AR', { weekday: 'short' });
+        var numeroDia = fecha.getDate();
+        var mes = fecha.toLocaleDateString('es-AR', { month: 'short' });
+        
+        var diaLabel = document.createElement('label');
+        diaLabel.className = 'dia-label' + (index === 0 ? ' seleccionado' : '');
+        diaLabel.onclick = function() { marcarDia(this, dia.fecha_str); };
+        diaLabel.innerHTML = '<input type="radio" name="fecha" value="' + dia.fecha_str + '" ' + (index === 0 ? 'checked' : '') + '>' +
+            '<div class="dia-numero">' + numeroDia + '</div>' +
+            '<div class="dia-mes">' + mes + '</div>' +
+            '<div class="dia-nombre">' + nombreDia + '</div>';
+        diasGrid.appendChild(diaLabel);
+        
+        dia.slots.forEach(function(slot) {
+            var horaLabel = document.createElement('label');
+            horaLabel.className = 'hora-label';
+            horaLabel.style.display = index === 0 ? 'inline-flex' : 'none';
+            horaLabel.setAttribute('data-fecha', dia.fecha_str);
+            horaLabel.onclick = function() { marcarHora(this); };
+            horaLabel.innerHTML = '<input type="radio" name="hora" value="' + slot + '">' + slot;
+            horariosGrid.appendChild(horaLabel);
+        });
+    });
+}
+
+function marcarDia(label, fecha) {
+    document.querySelectorAll('.dia-label').forEach(function(l) { l.classList.remove('seleccionado'); });
+    label.classList.add('seleccionado');
+    document.querySelectorAll('.hora-label').forEach(function(h) {
+        h.style.display = h.getAttribute('data-fecha') === fecha ? 'inline-flex' : 'none';
+        h.classList.remove('seleccionada');
+    });
+}
+
+function marcarHora(label) {
+    document.querySelectorAll('.hora-label').forEach(function(l) { l.classList.remove('seleccionada'); });
+    label.classList.add('seleccionada');
+}
+
+// Obra social - cargar planes
 document.getElementById('obra_social_select').addEventListener('change', function() {
     var planSelect = document.getElementById('plan_select');
     var selectedOption = this.options[this.selectedIndex];
@@ -145,7 +280,6 @@ document.getElementById('obra_social_select').addEventListener('change', functio
         return;
     }
     
-    // Cargar planes dinámicamente
     var planesData = selectedOption.getAttribute('data-planes');
     if (planesData) {
         var planes = JSON.parse(planesData);

@@ -1,3 +1,4 @@
+# agendas/admin.py
 from django.contrib import admin
 from .models import Agenda, HorarioAtencion, BloqueoAgenda
 
@@ -16,15 +17,15 @@ class BloqueoAgendaInline(admin.TabularInline):
 
 @admin.register(Agenda)
 class AgendaAdmin(admin.ModelAdmin):
-    list_display = ('profesional', 'fecha_inicio', 'fecha_fin', 'pacientes_simultaneos',
-                    'cantidad_horarios', 'activo')
-    list_filter = ('profesional__especialidad', 'activo')
-    search_fields = ('profesional__nombre', 'profesional__apellido')
+    list_display = ('profesional', 'establecimiento', 'fecha_inicio', 'fecha_fin', 
+                    'pacientes_simultaneos', 'cantidad_horarios', 'activo')
+    list_filter = ('establecimiento', 'profesional__especialidad', 'activo')
+    search_fields = ('profesional__nombre', 'profesional__apellido', 'establecimiento__nombre')
     inlines = [HorarioAtencionInline, BloqueoAgendaInline]
     
     fieldsets = (
         (None, {
-            'fields': ('profesional', 'fecha_inicio', 'fecha_fin', 'pacientes_simultaneos')
+            'fields': ('profesional', 'establecimiento', 'fecha_inicio', 'fecha_fin', 'pacientes_simultaneos')
         }),
         ('Configuración', {
             'fields': ('acepta_sobreturnos', 'tiempo_entre_turnos', 'activo')
@@ -39,13 +40,13 @@ class AgendaAdmin(admin.ModelAdmin):
 @admin.register(HorarioAtencion)
 class HorarioAtencionAdmin(admin.ModelAdmin):
     list_display = ('agenda', 'dia', 'hora_inicio', 'hora_fin', 'duracion_turno')
-    list_filter = ('dia', 'agenda__profesional')
+    list_filter = ('dia', 'agenda__profesional', 'agenda__establecimiento')
     ordering = ('agenda', 'dia', 'hora_inicio')
 
 
 @admin.register(BloqueoAgenda)
 class BloqueoAgendaAdmin(admin.ModelAdmin):
     list_display = ('agenda', 'fecha', 'motivo', 'activo')
-    list_filter = ('agenda__profesional', 'fecha')
+    list_filter = ('agenda__profesional', 'agenda__establecimiento', 'fecha')
     search_fields = ('motivo',)
     date_hierarchy = 'fecha'
