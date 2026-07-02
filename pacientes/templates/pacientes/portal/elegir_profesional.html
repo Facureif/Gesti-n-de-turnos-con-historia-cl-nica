@@ -2,59 +2,89 @@
 
 {% block title %}Sacar Turno - Elegir Profesional{% endblock %}
 
+{% block extra_css %}
+<style>
+    .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    
+    .page-container { max-width: 900px; margin: 0 auto; padding: 0 20px 40px; }
+    
+    .page-header { text-align: center; padding: 32px 0 24px; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; }
+    .page-header p { color: #64748b; font-size: 0.95rem; }
+    
+    .profesionales-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    
+    .profesional-card { background: white; border-radius: 16px; padding: 28px 20px; text-align: center; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: all 0.25s ease; display: flex; flex-direction: column; }
+    .profesional-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
+    
+    .profesional-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #dbeafe, #bfdbfe); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #2563eb; margin: 0 auto 14px; }
+    .profesional-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    
+    .profesional-card h3 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; }
+    .profesional-card .especialidad { color: #2563eb; font-weight: 600; font-size: 0.85rem; margin-bottom: 10px; }
+    .profesional-card .descripcion { color: #64748b; font-size: 0.85rem; margin-bottom: 14px; line-height: 1.5; flex: 1; }
+    
+    .consultorio-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: 16px; }
+    .consultorio-tag { padding: 3px 10px; background: #f1f5f9; border-radius: 20px; font-size: 0.7rem; color: #64748b; }
+    
+    .btn-sacar-turno { display: inline-flex; align-items: center; gap: 6px; background: #059669; color: white; padding: 10px 20px; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.2s ease; justify-content: center; }
+    .btn-sacar-turno:hover { background: #047857; transform: translateY(-1px); }
+    
+    .empty-state { text-align: center; padding: 48px 20px; color: #9ca3af; }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
 {% block content %}
-
-{% if config.modo == 'consultorio' and config.establecimiento_principal %}
-    <p style="text-align: center; color: #666; margin-bottom: 20px;">
-        🏥 {{ config.establecimiento_principal.nombre }}
-    </p>
-{% endif %}
-
-<div style="max-width: 800px; margin: 0 auto;">
-    <h1 style="text-align: center; margin-bottom: 10px;">📅 Sacar Turno</h1>
-    <p style="text-align: center; color: #666; margin-bottom: 30px;">
-        Elegí al profesional con quien querés atenderte
-    </p>
+<div class="page-container">
+    <div class="page-header">
+        <h1>📅 Sacar Turno</h1>
+        <p>Elegí al profesional con quien querés atenderte</p>
+    </div>
 
     {% if profesionales %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+        <div class="profesionales-grid">
             {% for prof in profesionales %}
-            <div class="card" style="text-align: center;">
-                <div style="font-size: 3em; margin-bottom: 10px;">👨‍⚕️</div>
+            <div class="profesional-card">
+                <div class="profesional-avatar">
+                    {% if prof.foto %}
+                        <img src="{{ prof.foto.url }}" alt="{{ prof.nombre_completo }}">
+                    {% else %}
+                        <i class="fas fa-user-md"></i>
+                    {% endif %}
+                </div>
                 <h3>{{ prof.nombre_completo }}</h3>
-                <p style="color: #4A90D9; margin-bottom: 10px;">
-                    {{ prof.get_especialidad_display }}
-                </p>
+                <p class="especialidad">{{ prof.get_especialidad_display }}</p>
                 {% if prof.descripcion %}
-                    <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
-                        {{ prof.descripcion|truncatechars:80 }}
-                    </p>
+                    <p class="descripcion">{{ prof.descripcion|truncatechars:80 }}</p>
                 {% endif %}
-                <div style="margin-bottom: 15px;">
-                    {% for est in prof.establecimientos.all %}
-                        <span style="display: inline-block; padding: 2px 8px; background: #e9ecef; 
-                                     border-radius: 10px; font-size: 0.75em; margin: 2px;">
-                            {{ est.nombre }}
-                        </span>
-                    {% endfor %}
+                <div class="consultorio-tags">
+                    {% if cliente and cliente.tipo == 'consultorio' %}
+                        <span class="consultorio-tag">{{ cliente.establecimiento.nombre }}</span>
+                    {% else %}
+                        {% for est in prof.establecimientos.all %}
+                            <span class="consultorio-tag">{{ est.nombre }}</span>
+                        {% endfor %}
+                    {% endif %}
                 </div>
                 {% if prof.establecimientos.count == 1 %}
-                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn" style="width: 100%;">
-                        Sacar Turno
+                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn-sacar-turno">
+                        <i class="fas fa-calendar-plus"></i> Sacar Turno
                     </a>
                 {% else %}
-                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}" class="btn" style="width: 100%;">
-                        Sacar Turno
+                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}" class="btn-sacar-turno">
+                        <i class="fas fa-calendar-plus"></i> Sacar Turno
                     </a>
                 {% endif %}
             </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="card" style="text-align: center; padding: 40px;">
-            <p style="color: #999;">No hay profesionales disponibles en este momento.</p>
-            <a href="{% url 'panel_paciente' %}" class="btn" style="margin-top: 15px;">↩ Volver</a>
+        <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <p>No hay profesionales disponibles en este momento.</p>
+            <a href="{% url 'panel_paciente' %}" class="btn-sacar-turno" style="margin-top: 16px;">↩ Volver al Panel</a>
         </div>
     {% endif %}
 </div>
-{% endblock %}  
+{% endblock %}

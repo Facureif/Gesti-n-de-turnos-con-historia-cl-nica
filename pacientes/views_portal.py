@@ -16,7 +16,6 @@ from agendas.models import Agenda, HorarioAtencion
 
 @login_required
 def panel_paciente(request):
-    """Panel principal del paciente."""
     if request.user.rol != 'paciente':
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
@@ -29,7 +28,6 @@ def panel_paciente(request):
     
     hoy = date.today()
     
-    # Obtener cliente SaaS de la sesión para filtrar profesionales
     cliente_slug = request.session.get('cliente_slug')
     cliente = None
     if cliente_slug:
@@ -38,16 +36,22 @@ def panel_paciente(request):
         except ClienteSaaS.DoesNotExist:
             pass
     
-    # Próximos turnos
-    proximos_turnos = TurnoProfesional.objects.filter(
-        paciente=paciente,
+    # Base de turnos del paciente
+    turnos_base = TurnoProfesional.objects.filter(paciente=paciente)
+    
+    # Filtrar por cliente si existe
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            turnos_base = turnos_base.filter(establecimiento=cliente.establecimiento)
+        else:
+            turnos_base = turnos_base.filter(profesional=cliente.profesional)
+    
+    proximos_turnos = turnos_base.filter(
         fecha__gte=hoy,
         estado__in=['pendiente', 'confirmado']
     ).order_by('fecha', 'hora_inicio')[:10]
     
-    # Últimos turnos
-    ultimos_turnos = TurnoProfesional.objects.filter(
-        paciente=paciente,
+    ultimos_turnos = turnos_base.filter(
         estado='completado'
     ).order_by('-fecha', '-hora_inicio')[:5]
     
@@ -55,27 +59,39 @@ def panel_paciente(request):
         'paciente': paciente,
         'proximos_turnos': proximos_turnos,
         'ultimos_turnos': ultimos_turnos,
-        'cliente': cliente,  
+        'cliente': cliente,
     })
 
 
 @login_required
 def mis_turnos(request):
-    """Lista de todos los turnos del paciente."""
     if request.user.rol != 'paciente':
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, usuario=request.user)
     
-    turnos = TurnoProfesional.objects.filter(
-        paciente=paciente
-    ).order_by('-fecha', '-hora_inicio')[:30]
+    cliente_slug = request.session.get('cliente_slug')
+    cliente = None
+    if cliente_slug:
+        try:
+            cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+        except ClienteSaaS.DoesNotExist:
+            pass
+    
+    turnos = TurnoProfesional.objects.filter(paciente=paciente)
+    
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            turnos = turnos.filter(establecimiento=cliente.establecimiento)
+        else:
+            turnos = turnos.filter(profesional=cliente.profesional)
+    
+    turnos = turnos.order_by('-fecha', '-hora_inicio')[:30]
     
     return render(request, 'pacientes/portal/mis_turnos.html', {
         'paciente': paciente,
         'turnos': turnos
     })
-
 
 @login_required
 def cancelar_turno_paciente(request, turno_id):
