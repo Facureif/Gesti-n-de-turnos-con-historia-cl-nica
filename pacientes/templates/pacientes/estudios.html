@@ -1,0 +1,111 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Estudios - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-6">
+    <div>
+        <h1>📁 Estudios Médicos</h1>
+        <p>{{ paciente.nombre_completo }}</p>
+    </div>
+    <div>
+        <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
+            ← Volver a la ficha
+        </a>
+    </div>
+</div>
+
+<!-- Formulario para subir estudio -->
+{% if not es_secretaria %}
+<div class="card" style="margin-bottom: 30px;">
+    <div class="card-header">
+        <h3 class="card-title">📤 Subir Nuevo Estudio</h3>
+    </div>
+    <form method="POST" enctype="multipart/form-data" style="padding: 20px;">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+                <label>Título *</label>
+                <input type="text" name="titulo" class="form-control" required 
+                       placeholder="Ej: Radiografía de tórax">
+            </div>
+            <div class="form-group">
+                <label>Tipo de Estudio</label>
+                <select name="tipo_estudio" class="form-control">
+                    {% for tipo in tipos_estudio %}
+                        <option value="{{ tipo.0 }}">{{ tipo.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Fecha del Estudio</label>
+                <input type="date" name="fecha_estudio" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Archivo *</label>
+                <input type="file" name="archivo" class="form-control" required 
+                       accept=".pdf,.jpg,.jpeg,.png,.dcm">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Descripción / Notas</label>
+                <textarea name="descripcion" class="form-control" rows="2" 
+                          placeholder="Información adicional sobre el estudio..."></textarea>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 16px;">
+            📤 Subir Estudio
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<!-- Listado de estudios -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">📋 Estudios del Paciente</h3>
+    </div>
+    
+    {% if estudios %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha Subida</th>
+                    <th>Título</th>
+                    <th>Tipo</th>
+                    <th>Profesional</th>
+                    <th>Archivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for estudio in estudios %}
+                <tr>
+                    <td>{{ estudio.creado|date:"d/m/Y" }}</td>
+                    <td>
+                        <strong>{{ estudio.titulo }}</strong>
+                        {% if estudio.descripcion %}
+                            <br><small class="text-muted">{{ estudio.descripcion|truncatechars:60 }}</small>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge badge-info">{{ estudio.get_tipo_estudio_display }}</span></td>
+                    <td>{{ estudio.profesional.nombre_completo|default:"—" }}</td>
+                    <td>
+                        <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-primary" target="_blank">
+                            📄 Ver
+                        </a>
+                        <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-secondary" download>
+                            ⬇️ Descargar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No hay estudios cargados todavía.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

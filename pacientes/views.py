@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Paciente
+from .models import EstudioMedico, Paciente
 from usuarios.models import Usuario
 import random, string
 from profesionales.models import Profesional
@@ -347,3 +347,54 @@ def ficha_tecnica(request, paciente_id):
     }
     
     return render(request, template, context)
+
+
+@login_required
+def estudios_paciente(request, paciente_id):
+    """Ver y subir estudios de un paciente (vista profesional)."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    
+    if request.user.rol == 'secretaria':
+        profesional = None
+    elif request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = None
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo')
+        descripcion = request.POST.get('descripcion', '')
+        tipo_estudio = request.POST.get('tipo_estudio', 'otro')
+        fecha_estudio = request.POST.get('fecha_estudio') or None
+        archivo = request.FILES.get('archivo')
+        
+        if not titulo or not archivo:
+            messages.error(request, 'El título y el archivo son obligatorios.')
+            return redirect('estudios_paciente', paciente_id=paciente.id)
+        
+        EstudioMedico.objects.create(
+            paciente=paciente,
+            profesional=profesional,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo_estudio=tipo_estudio,
+            fecha_estudio=fecha_estudio,
+            archivo=archivo
+        )
+        
+        messages.success(request, f'Estudio "{titulo}" subido correctamente.')
+        return redirect('estudios_paciente', paciente_id=paciente.id)
+    
+    estudios = paciente.estudios_medicos.all()
+    
+    return render(request, 'pacientes/estudios.html', {
+        'paciente': paciente,
+        'estudios': estudios,
+        'tipos_estudio': EstudioMedico._meta.get_field('tipo_estudio').choices,
+        'profesional': profesional,
+        'es_secretaria': request.user.rol == 'secretaria'
+    })

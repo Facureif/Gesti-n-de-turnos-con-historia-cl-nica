@@ -148,7 +148,9 @@
                     <option value="">Seleccionar plan...</option>
                 </select>
                 
-                <input type="text" name="numero_afiliado" placeholder="N° de afiliado" class="input-field">
+                <div id="numero-afiliado-container" style="display: none;">
+                    <input type="text" name="numero_afiliado" placeholder="N° de afiliado" class="input-field">
+                </div>
             </div>
             
             <div class="card">
@@ -269,17 +271,24 @@ function marcarHora(label) {
     label.classList.add('seleccionada');
 }
 
-// Obra social - cargar planes
+// Obra social - cargar planes y mostrar/ocultar N° de afiliado
 document.getElementById('obra_social_select').addEventListener('change', function() {
     var planSelect = document.getElementById('plan_select');
     var selectedOption = this.options[this.selectedIndex];
+    var afiliadoContainer = document.getElementById('numero-afiliado-container');
     
     if (this.value === 'particular' || this.value === '') {
         planSelect.style.display = 'none';
         planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        afiliadoContainer.style.display = 'none';
+        afiliadoContainer.querySelector('input').value = '';
         return;
     }
     
+    // Mostrar N° de afiliado
+    afiliadoContainer.style.display = 'block';
+    
+    // Cargar planes
     var planesData = selectedOption.getAttribute('data-planes');
     if (planesData) {
         var planes = JSON.parse(planesData);

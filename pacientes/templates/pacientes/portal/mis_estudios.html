@@ -1,0 +1,66 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Mis Estudios - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1>📁 Mis Estudios Médicos</h1>
+            <p style="color: #666;">Estudios subidos por tu profesional</p>
+        </div>
+        <div>
+            <a href="{% url 'panel_paciente' %}" class="btn btn-secondary">← Volver al Panel</a>
+        </div>
+    </div>
+
+    {% if estudios %}
+    <div class="card">
+        <div style="display: grid; gap: 16px;">
+            {% for estudio in estudios %}
+            <div style="display: flex; align-items: center; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <div style="font-size: 2em; margin-right: 16px;">
+                    {% if estudio.tipo_estudio == 'radiografia' %}🩻
+                    {% elif estudio.tipo_estudio == 'laboratorio' %}🧪
+                    {% elif estudio.tipo_estudio == 'tomografia' %}🖥️
+                    {% elif estudio.tipo_estudio == 'resonancia' %}🧲
+                    {% elif estudio.tipo_estudio == 'ecografia' %}🔊
+                    {% else %}📄{% endif %}
+                </div>
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1em;">{{ estudio.titulo }}</strong>
+                    {% if estudio.descripcion %}
+                        <p style="color: #666; margin: 4px 0;">{{ estudio.descripcion }}</p>
+                    {% endif %}
+                    <small style="color: #999;">
+                        {{ estudio.get_tipo_estudio_display }} • 
+                        Subido el {{ estudio.creado|date:"d/m/Y" }}
+                        {% if estudio.profesional %}
+                            por Dr/a. {{ estudio.profesional.nombre_completo }}
+                        {% endif %}
+                    </small>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ estudio.archivo.url }}" class="btn btn-primary btn-sm" target="_blank">
+                        👁️ Ver
+                    </a>
+                    <a href="{{ estudio.archivo.url }}" class="btn btn-secondary btn-sm" download>
+                        ⬇️ Descargar
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <div style="font-size: 4em; margin-bottom: 16px;">📁</div>
+        <h3>No tenés estudios cargados</h3>
+        <p style="color: #666;">Tu profesional aún no subió estudios a tu perfil.</p>
+        <a href="{% url 'panel_paciente' %}" class="btn btn-primary" style="margin-top: 16px;">
+            Volver al Panel
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

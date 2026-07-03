@@ -127,3 +127,49 @@ class PacienteObraSocial(models.Model):
     def __str__(self):
         plan_str = f" - {self.plan.nombre}" if self.plan else ""
         return f"{self.obra_social.nombre}{plan_str} ({'Activa' if self.activa else 'Inactiva'})"    
+
+class EstudioMedico(models.Model):
+    """Estudios complementarios subidos por el profesional."""
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='estudios_medicos'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='estudios_subidos'
+    )
+    evolucion = models.ForeignKey(
+        'historias_clinicas.Evolucion',  # ← CORREGIDO
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='estudios_complementarios'
+    )
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True)
+    archivo = models.FileField(upload_to='estudios/%Y/%m/')
+    tipo_estudio = models.CharField(
+        max_length=50,
+        choices=[
+            ('radiografia', 'Radiografía'),
+            ('laboratorio', 'Análisis de Laboratorio'),
+            ('tomografia', 'Tomografía'),
+            ('resonancia', 'Resonancia Magnética'),
+            ('ecografia', 'Ecografía'),
+            ('otro', 'Otro'),
+        ],
+        default='otro'
+    )
+    fecha_estudio = models.DateField(null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-creado']
+        verbose_name = 'Estudio Médico'
+        verbose_name_plural = 'Estudios Médicos'
+    
+    def __str__(self):
+        return f"{self.titulo} - {self.paciente.nombre_completo}"

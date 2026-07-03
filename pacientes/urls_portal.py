@@ -8,5 +8,5 @@ urlpatterns = [
     path('sacar-turno/', views_portal.sacar_turno_paciente, name='sacar_turno_paciente'),
     path('sacar-turno/<int:profesional_id>/', views_portal.sacar_turno_paciente, name='sacar_turno_paciente_profesional'),
     path('editar-mi-ficha/', views_portal.editar_mi_ficha, name='editar_mi_ficha'),
-
+    path('mis-estudios/', views_portal.mis_estudios, name='mis_estudios')
 ]

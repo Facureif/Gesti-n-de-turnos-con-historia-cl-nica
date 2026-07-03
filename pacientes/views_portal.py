@@ -420,3 +420,19 @@ def editar_mi_ficha(request):
         'obras_sociales': obras_sociales,
         'obras_sociales_paciente': obras_sociales_paciente,
     })
+
+
+@login_required
+def mis_estudios(request):
+    """El paciente ve sus estudios médicos."""
+    if request.user.rol != 'paciente':
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    estudios = paciente.estudios_medicos.all()
+    
+    return render(request, 'pacientes/portal/mis_estudios.html', {
+        'paciente': paciente,
+        'estudios': estudios,
+    })
