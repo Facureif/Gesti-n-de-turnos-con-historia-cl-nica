@@ -436,3 +436,30 @@ def mis_estudios(request):
         'paciente': paciente,
         'estudios': estudios,
     })
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+
+@login_required
+def cambiar_password(request):
+    if request.user.rol != 'paciente':
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, '✅ Contraseña cambiada correctamente.')
+            return redirect('panel_paciente')
+        else:
+            messages.error(request, '❌ No se pudo cambiar. Verificá los datos.')
+    else:
+        form = PasswordChangeForm(user=request.user)
+    
+    return render(request, 'pacientes/portal/cambiar_password.html', {
+        'form': form,
+        'paciente': paciente,
+    })

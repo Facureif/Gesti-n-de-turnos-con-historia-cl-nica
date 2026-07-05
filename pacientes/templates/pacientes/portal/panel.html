@@ -4,21 +4,23 @@
 
 {% block content %}
 <div style="max-width: 900px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <div>
-            <h1>👋 Hola, {{ paciente.nombre }}</h1>
-            <p style="color: #666;">Panel de Paciente</p>
-        </div>
-        <div>
-            <a href="{% url 'editar_mi_ficha' %}" class="btn" style="background: #17a2b8;">✏️ Mi Ficha</a>
-            <a href="{% url 'mis_estudios' %}" class="btn" style="background: #7c3aed;"> 📁 Mis Estudios</a>
-            <a href="{% url 'sacar_turno_paciente' %}" class="btn btn-success">📅 Sacar Turno</a>
-            <a href="{% url 'mis_turnos' %}" class="btn" style="background: #6c757d;">📋 Mis Turnos</a>
-        </div>
+    
+    <!-- Saludo -->
+    <div style="margin-bottom: 20px;">
+        <h1>👋 Hola, {{ paciente.nombre }}</h1>
+        {% if cliente %}
+            <p style="color: #666;">🏥 {{ cliente.nombre }}</p>
+        {% endif %}
     </div>
-    {% if cliente %}
-        <p style="color: #666;">🏥 {{ cliente.nombre }}</p>
-    {% endif %}
+
+    <!-- Botones de acción -->
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 30px;">
+        <a href="{% url 'editar_mi_ficha' %}" class="btn" style="background: #17a2b8; font-size: 0.9em;">✏️ Mi Ficha</a>
+        <a href="{% url 'mis_estudios' %}" class="btn" style="background: #7c3aed; font-size: 0.9em;">📁 Mis Estudios</a>
+        <a href="{% url 'sacar_turno_paciente' %}" class="btn btn-success" style="font-size: 0.9em;">📅 Sacar Turno</a>
+        <a href="{% url 'mis_turnos' %}" class="btn" style="background: #6c757d; font-size: 0.9em;">📋 Mis Turnos</a>
+        <a href="{% url 'cambiar_password' %}" class="btn" style="background: #dc3545; font-size: 0.9em;">🔒 Cambiar Contraseña</a>
+    </div>
 
     {% if paciente.sesiones_autorizadas %}
     <div class="card" style="margin-bottom: 20px; background: #f0f7ff;">
@@ -37,7 +39,6 @@
         </div>
     </div>
     {% endif %}
-
 
     <div class="card" style="margin-bottom: 15px; background: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 8px;">
         <p style="margin: 0; color: #856404; font-size: 0.9em;">
