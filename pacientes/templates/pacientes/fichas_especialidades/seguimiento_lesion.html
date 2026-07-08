@@ -1,0 +1,189 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Seguimiento - {{ lesion.zona }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h1>📝 Seguimiento de Lesión</h1>
+            <p>{{ paciente.nombre_completo }} · {{ lesion.zona }} · {{ lesion.get_tipo_lesion_display }}</p>
+        </div>
+        <a href="{% url 'ficha_tecnica' paciente.id %}" class="btn btn-secondary btn-sm">← Volver</a>
+    </div>
+
+    <!-- Info de la lesión -->
+    <div class="card" style="margin-bottom: 24px; background: #f8f9fa;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px;">
+            <div>
+                <strong>Fecha:</strong> {{ lesion.fecha_lesion|date:"d/m/Y" }}
+            </div>
+            <div>
+                <strong>Estado:</strong> 
+                {% if lesion.resuelta %}
+                    ✅ Resuelta ({{ lesion.fecha_resolucion|date:"d/m/Y" }})
+                {% else %}
+                    ⚠️ Activa
+                {% endif %}
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <strong>Tratamiento:</strong> {{ lesion.tratamiento|default:"No especificado" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de nuevo seguimiento -->
+    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #007bff;">
+        <div class="card-header flex-between">
+            <h3 class="card-title">➕ Nuevo Registro de Progreso</h3>
+            <button class="btn btn-primary btn-sm" onclick="toggleForm()">Mostrar/Ocultar</button>
+        </div>
+        <div id="form-seguimiento" style="padding: 16px;">
+            <form method="POST" action="{% url 'agregar_seguimiento' lesion.id %}">
+                {% csrf_token %}
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha</label>
+                        <input type="date" name="fecha" required value="{% now 'Y-m-d' %}"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Peso trabajo (kg)</label>
+                        <input type="number" name="peso_trabajo_kg" step="0.5"
+                               placeholder="Ej: 5"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Nivel de dolor (0-10)</label>
+                        <select name="nivel_dolor" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <option value="">—</option>
+                            <option value="0">0 - Sin dolor</option>
+                            <option value="1">1</option><option value="2">2</option>
+                            <option value="3">3</option><option value="4">4</option>
+                            <option value="5">5 - Moderado</option>
+                            <option value="6">6</option><option value="7">7</option>
+                            <option value="8">8</option><option value="9">9</option>
+                            <option value="10">10 - Máximo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Series</label>
+                        <input type="number" name="series" placeholder="Ej: 3"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Repeticiones</label>
+                        <input type="number" name="repeticiones" placeholder="Ej: 10"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Rango de movimiento</label>
+                        <select name="rango_movimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <option value="">—</option>
+                            <option value="muy_limitado">Muy limitado</option>
+                            <option value="limitado">Limitado</option>
+                            <option value="moderado">Moderado</option>
+                            <option value="bueno">Bueno</option>
+                            <option value="completo">Completo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Ejercicios realizados</label>
+                        <textarea name="ejercicios_realizados" rows="2" placeholder="Describí los ejercicios..."
+                                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Observaciones</label>
+                        <textarea name="observaciones" rows="2" placeholder="Notas sobre el progreso..."
+                                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="margin-top: 14px;">💾 Guardar Progreso</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Historial de progreso -->
+    <div class="card">
+        <div class="card-header flex-between">
+            <h3 class="card-title">📈 Historial de Progreso</h3>
+            {% if seguimientos %}
+            <button class="btn btn-danger btn-sm" onclick="if(confirm('¿Limpiar todo el historial de esta lesión?')){window.location.href='{% url 'limpiar_seguimientos' lesion.id %}'}">
+                🧹 Limpiar Historial
+            </button>
+            {% endif %}
+        </div>
+        
+        {% if seguimientos %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Peso (kg)</th>
+                        <th>Series</th>
+                        <th>Rep.</th>
+                        <th>Dolor</th>
+                        <th>Rango</th>
+                        <th>Ejercicios</th>
+                        <th>Obs.</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in seguimientos %}
+                    <tr>
+                        <td><strong>{{ s.fecha|date:"d/m/Y" }}</strong></td>
+                        <td>{{ s.peso_trabajo_kg|default:"—" }}</td>
+                        <td>{{ s.series|default:"—" }}</td>
+                        <td>{{ s.repeticiones|default:"—" }}</td>
+                        <td>
+                            {% if s.nivel_dolor is not None %}
+                                <span style="font-weight: 600; 
+                                    {% if s.nivel_dolor <= 3 %}color: #27ae60;
+                                    {% elif s.nivel_dolor <= 6 %}color: #f39c12;
+                                    {% else %}color: #e74c3c;{% endif %}">
+                                    {{ s.nivel_dolor }}/10
+                                </span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>
+                            {% if s.rango_movimiento %}
+                                <span class="badge badge-info">{{ s.get_rango_movimiento_display }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ s.ejercicios_realizados|truncatechars:30|default:"—" }}</td>
+                        <td>{{ s.observaciones|truncatechars:30|default:"—" }}</td>
+                        <td>
+                            <a href="{% url 'eliminar_seguimiento' s.id %}" 
+                               class="btn btn-danger btn-xs"
+                               onclick="return confirm('¿Eliminar este registro?')"
+                               style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #999;">
+            <p>📭 Sin registros de progreso</p>
+            <small>Comenzá a registrar el avance del tratamiento</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleForm() {
+    var form = document.getElementById('form-seguimiento');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

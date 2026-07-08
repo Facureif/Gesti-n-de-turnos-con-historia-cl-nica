@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from core_app.models import ModeloBase
 
@@ -150,3 +152,94 @@ class FichaTecnica(models.Model):
     def get_dato(self, clave, default=None):
         """Obtener un dato específico del JSON"""
         return self.datos_especificos.get(clave, default)
+
+
+class Lesion(models.Model):
+    """Historial de lesiones del paciente."""
+    TIPOS_LESION = [
+        ('muscular', 'Muscular'),
+        ('articular', 'Articular'),
+        ('tendinosa', 'Tendinosa'),
+        ('ligamentaria', 'Ligamentaria'),
+        ('osea', 'Ósea'),
+        ('postural', 'Postural'),
+        ('otra', 'Otra'),
+    ]
+    
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='lesiones'
+    )
+    fecha_lesion = models.DateField(verbose_name='Fecha de la lesión')
+    tipo_lesion = models.CharField(max_length=20, choices=TIPOS_LESION, default='otra')
+    zona = models.CharField(max_length=100, verbose_name='Zona afectada')
+    descripcion = models.TextField(verbose_name='Descripción')
+    tratamiento = models.TextField(blank=True, verbose_name='Tratamiento realizado')
+    resuelta = models.BooleanField(default=False, verbose_name='¿Resuelta?')
+    fecha_resolucion = models.DateField(null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha_lesion']
+        verbose_name = 'Lesión'
+        verbose_name_plural = 'Lesiones'
+    
+    def __str__(self):
+        estado = '✅' if self.resuelta else '⚠️'
+        return f"{estado} {self.zona} - {self.fecha_lesion.strftime('%d/%m/%Y')}"
+
+class SeguimientoTratamiento(models.Model):
+    """Registro de evolución del tratamiento kinesiológico."""
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='seguimientos'
+    )
+    lesion = models.ForeignKey(
+        'Lesion',
+        on_delete=models.CASCADE,
+        related_name='seguimientos',
+        verbose_name='Lesión relacionada'
+    )
+    fecha = models.DateField(default=date.today, verbose_name='Fecha')
+    
+    # Datos del tratamiento
+    peso_trabajo_kg = models.DecimalField(
+        max_digits=5, decimal_places=1, null=True, blank=True,
+        verbose_name='Peso de trabajo (kg)'
+    )
+    series = models.IntegerField(null=True, blank=True, verbose_name='Series')
+    repeticiones = models.IntegerField(null=True, blank=True, verbose_name='Repeticiones')
+    
+    # Escalas de evaluación
+    nivel_dolor = models.IntegerField(
+        null=True, blank=True,
+        choices=[(i, str(i)) for i in range(0, 11)],
+        verbose_name='Nivel de dolor (0-10)'
+    )
+    rango_movimiento = models.CharField(
+        max_length=20, blank=True,
+        choices=[
+            ('muy_limitado', 'Muy limitado'),
+            ('limitado', 'Limitado'),
+            ('moderado', 'Moderado'),
+            ('bueno', 'Bueno'),
+            ('completo', 'Completo'),
+        ],
+        verbose_name='Rango de movimiento'
+    )
+    
+    # Observaciones
+    observaciones = models.TextField(blank=True, verbose_name='Observaciones')
+    ejercicios_realizados = models.TextField(blank=True, verbose_name='Ejercicios realizados')
+    
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha', '-creado']
+        verbose_name = 'Seguimiento'
+        verbose_name_plural = 'Seguimientos'
+    
+    def __str__(self):
+        return f"Seguimiento {self.fecha.strftime('%d/%m/%Y')} - {self.lesion.zona}"        

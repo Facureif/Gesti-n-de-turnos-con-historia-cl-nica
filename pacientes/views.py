@@ -38,9 +38,6 @@ def registrar_paciente(request):
         obra_social_id = request.POST.get('obra_social', '')
         plan_obra_social_id = request.POST.get('plan_obra_social', '')
         numero_afiliado = request.POST.get('numero_afiliado', '')
-        sesiones_autorizadas = request.POST.get('sesiones_autorizadas', '')
-        sesiones_restantes = request.POST.get('sesiones_restantes', '')
-        fecha_vencimiento = request.POST.get('fecha_vencimiento', '')
         
         if not all([nombre, apellido, dni, fecha_nacimiento, telefono]):
             messages.error(request, 'Completá todos los campos obligatorios.')
@@ -59,9 +56,6 @@ def registrar_paciente(request):
             email=email,
             direccion=direccion,
             numero_afiliado=numero_afiliado,
-            sesiones_autorizadas=int(sesiones_autorizadas) if sesiones_autorizadas else None,
-            sesiones_restantes=int(sesiones_restantes) if sesiones_restantes else None,
-            fecha_vencimiento_sesiones=fecha_vencimiento if fecha_vencimiento else None,
         )
         
         if obra_social_id:
@@ -110,6 +104,28 @@ def registrar_paciente(request):
         'obras_sociales': obras_sociales
     })
 
+@login_required
+def actualizar_sesiones(request, paciente_id):
+    """Actualiza las sesiones de obra social desde la ficha."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés acceso.')
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    
+    if request.method == 'POST':
+        sesiones_autorizadas = request.POST.get('sesiones_autorizadas')
+        sesiones_restantes = request.POST.get('sesiones_restantes')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento')
+        
+        paciente.sesiones_autorizadas = int(sesiones_autorizadas) if sesiones_autorizadas else None
+        paciente.sesiones_restantes = int(sesiones_restantes) if sesiones_restantes else None
+        paciente.fecha_vencimiento_sesiones = fecha_vencimiento if fecha_vencimiento else None
+        paciente.save()
+        
+        messages.success(request, '✅ Sesiones actualizadas correctamente.')
+    
+    return redirect('ficha_paciente', paciente_id=paciente.id)
 
 @login_required
 def buscar_paciente(request):
@@ -299,13 +315,11 @@ def ficha_tecnica(request, paciente_id):
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
     
-    # Obtener el profesional
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
     else:
         profesional = Profesional.objects.first()
     
-    # Obtener o crear la ficha técnica
     ficha_tecnica, created = FichaTecnica.objects.get_or_create(
         paciente=paciente,
         defaults={
@@ -314,7 +328,6 @@ def ficha_tecnica(request, paciente_id):
         }
     )
     
-    # Templates por especialidad
     templates_por_especialidad = {
         'odontologia': 'pacientes/fichas_especialidades/odontologia.html',
         'kinesiologia': 'pacientes/fichas_especialidades/kinesiologia.html',
@@ -327,7 +340,7 @@ def ficha_tecnica(request, paciente_id):
     )
     
     if request.method == 'POST':
-        # Guardar todos los datos del POST en el JSON
+        # Guardar datos en el JSON de la ficha
         datos = {}
         for key, value in request.POST.items():
             if key not in ['csrfmiddlewaretoken', 'notas_generales']:
@@ -337,7 +350,23 @@ def ficha_tecnica(request, paciente_id):
         ficha_tecnica.notas_generales = request.POST.get('notas_generales', '')
         ficha_tecnica.save()
         
-        messages.success(request, 'Ficha técnica guardada correctamente.')
+        # Si hay datos de nueva lesión, guardarla en el historial
+        zona = request.POST.get('nueva_lesion_zona', '').strip()
+        fecha = request.POST.get('nueva_lesion_fecha', '').strip()
+        
+        if zona and fecha:  # Solo si completó zona y fecha
+            Lesion.objects.create(
+                paciente=paciente,
+                fecha_lesion=fecha,
+                tipo_lesion=request.POST.get('nueva_lesion_tipo', 'otra'),
+                zona=zona,
+                descripcion=request.POST.get('nueva_lesion_descripcion', ''),
+                tratamiento=request.POST.get('nueva_lesion_tratamiento', ''),
+            )
+            messages.success(request, 'Ficha guardada y lesión registrada en el historial.')
+        else:
+            messages.success(request, 'Ficha técnica guardada correctamente.')
+        
         return redirect('ficha_tecnica', paciente_id=paciente.id)
     
     context = {
@@ -398,3 +427,152 @@ def estudios_paciente(request, paciente_id):
         'profesional': profesional,
         'es_secretaria': request.user.rol == 'secretaria'
     })
+
+from historias_clinicas.models import Lesion
+from datetime import date
+
+@login_required
+def agregar_lesion(request, paciente_id):
+    """Agrega una lesión al historial del paciente."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    
+    if request.method == 'POST':
+        Lesion.objects.create(
+            paciente=paciente,
+            fecha_lesion=request.POST.get('fecha_lesion', date.today()),
+            tipo_lesion=request.POST.get('tipo_lesion', 'otra'),
+            zona=request.POST.get('zona', ''),
+            descripcion=request.POST.get('descripcion', ''),
+            tratamiento=request.POST.get('tratamiento', ''),
+        )
+        messages.success(request, 'Lesión registrada correctamente.')
+    
+    return redirect('ficha_tecnica', paciente_id=paciente.id)
+
+
+@login_required
+def marcar_lesion_resuelta(request, lesion_id):
+    """Marca una lesión como resuelta."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    lesion.resuelta = True
+    lesion.fecha_resolucion = date.today()
+    lesion.save()
+    
+    messages.success(request, 'Lesión marcada como resuelta.')
+    return redirect('ficha_tecnica', paciente_id=lesion.paciente.id)
+
+
+@login_required
+def eliminar_lesion(request, lesion_id):
+    """Elimina una lesión del historial."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    paciente_id = lesion.paciente.id
+    lesion.delete()
+    
+    messages.success(request, 'Lesión eliminada del historial.')
+    return redirect('ficha_tecnica', paciente_id=paciente_id)
+
+
+from historias_clinicas.models import Lesion
+
+@login_required
+def marcar_lesion_resuelta(request, lesion_id):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    lesion.resuelta = True
+    lesion.fecha_resolucion = date.today()
+    lesion.save()
+    messages.success(request, '✅ Lesión marcada como resuelta.')
+    return redirect('ficha_tecnica', paciente_id=lesion.paciente.id)
+
+
+@login_required
+def eliminar_lesion(request, lesion_id):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    paciente_id = lesion.paciente.id
+    lesion.delete()
+    messages.success(request, '🗑️ Lesión eliminada del historial.')
+    return redirect('ficha_tecnica', paciente_id=paciente_id)   
+
+
+from historias_clinicas.models import Lesion, SeguimientoTratamiento
+
+@login_required
+def seguimiento_lesion(request, lesion_id):
+    """Pantalla de seguimiento de una lesión específica."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    seguimientos = lesion.seguimientos.all()
+    
+    return render(request, 'pacientes/fichas_especialidades/seguimiento_lesion.html', {
+        'lesion': lesion,
+        'paciente': lesion.paciente,
+        'seguimientos': seguimientos,
+    })
+
+
+@login_required
+def agregar_seguimiento(request, lesion_id):
+    """Agrega un registro de progreso a una lesión."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    
+    if request.method == 'POST':
+        SeguimientoTratamiento.objects.create(
+            paciente=lesion.paciente,
+            lesion=lesion,
+            fecha=request.POST.get('fecha'),
+            peso_trabajo_kg=request.POST.get('peso_trabajo_kg') or None,
+            series=request.POST.get('series') or None,
+            repeticiones=request.POST.get('repeticiones') or None,
+            nivel_dolor=request.POST.get('nivel_dolor') or None,
+            rango_movimiento=request.POST.get('rango_movimiento', ''),
+            ejercicios_realizados=request.POST.get('ejercicios_realizados', ''),
+            observaciones=request.POST.get('observaciones', ''),
+        )
+        messages.success(request, '✅ Progreso registrado.')
+    
+    return redirect('seguimiento_lesion', lesion_id=lesion.id)
+
+
+@login_required
+def limpiar_seguimientos(request, lesion_id):
+    """Limpia todo el historial de seguimiento de una lesión."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    lesion = get_object_or_404(Lesion, id=lesion_id)
+    lesion.seguimientos.all().delete()
+    messages.success(request, '🧹 Historial limpiado.')
+    return redirect('seguimiento_lesion', lesion_id=lesion.id)
+
+
+@login_required
+def eliminar_seguimiento(request, seguimiento_id):
+    """Elimina un registro de seguimiento."""
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    seguimiento = get_object_or_404(SeguimientoTratamiento, id=seguimiento_id)
+    lesion_id = seguimiento.lesion.id
+    seguimiento.delete()
+    messages.success(request, '🗑️ Registro eliminado.')
+    return redirect('seguimiento_lesion', lesion_id=lesion_id)
