@@ -18,4 +18,5 @@ urlpatterns = [
     path('lesion/<int:lesion_id>/seguimiento/agregar/', views.agregar_seguimiento, name='agregar_seguimiento'),
     path('lesion/<int:lesion_id>/seguimiento/limpiar/', views.limpiar_seguimientos, name='limpiar_seguimientos'),
     path('seguimiento/<int:seguimiento_id>/eliminar/', views.eliminar_seguimiento, name='eliminar_seguimiento'),
+    path('tratamiento/eliminar/<int:tratamiento_id>/', views.eliminar_tratamiento_odontologico, name='eliminar_tratamiento_odontologico'),
 ]

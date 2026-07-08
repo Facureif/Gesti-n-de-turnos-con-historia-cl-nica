@@ -5,85 +5,201 @@
 {% block ficha_especialidad %}Odontología{% endblock %}
 
 {% block ficha_contenido %}
+
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
     
-    <!-- Antecedentes Dentales -->
+    <!-- Información relevante para el odontólogo -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-tooth text-primary"></i> Antecedentes Dentales
-            </h3>
+            <h3 class="card-title">⚠️ Información Importante</h3>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
             <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
-                    Última consulta odontológica
+                <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+                    Alergias / Reacciones adversas
                 </label>
-                <input type="date" name="ultima_consulta" 
-                       value="{{ ficha_tecnica.datos_especificos.ultima_consulta|default:'' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+                <textarea name="alergias_odontologia" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+                          placeholder="Anestesia, látex, penicilina, AINES...">{{ ficha_tecnica.datos_especificos.alergias_odontologia|default:'' }}</textarea>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
-                    Frecuencia de cepillado
+                <label style="display: block; margin-bottom: 6px; font-weight: 500;">
+                    Medicación actual
                 </label>
-                <select name="frecuencia_cepillado" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
-                    <option value="">Seleccionar...</option>
-                    <option value="1" {% if ficha_tecnica.datos_especificos.frecuencia_cepillado == '1' %}selected{% endif %}>1 vez al día</option>
-                    <option value="2" {% if ficha_tecnica.datos_especificos.frecuencia_cepillado == '2' %}selected{% endif %}>2 veces al día</option>
-                    <option value="3" {% if ficha_tecnica.datos_especificos.frecuencia_cepillado == '3' %}selected{% endif %}>3 o más veces al día</option>
-                </select>
+                <textarea name="medicacion_actual" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+                          placeholder="Anticoagulantes, bifosfonatos...">{{ ficha_tecnica.datos_especificos.medicacion_actual|default:'' }}</textarea>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;">
-                    Usa hilo dental
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                    <input type="checkbox" name="embarazo" value="si" 
+                           {% if ficha_tecnica.datos_especificos.embarazo == 'si' %}checked{% endif %}>
+                    <span>🤰 Embarazo (evitar radiografías)</span>
                 </label>
-                <select name="usa_hilo_dental" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
-                    <option value="">Seleccionar...</option>
-                    <option value="si" {% if ficha_tecnica.datos_especificos.usa_hilo_dental == 'si' %}selected{% endif %}>Sí</option>
-                    <option value="no" {% if ficha_tecnica.datos_especificos.usa_hilo_dental == 'no' %}selected{% endif %}>No</option>
-                    <option value="a_veces" {% if ficha_tecnica.datos_especificos.usa_hilo_dental == 'a_veces' %}selected{% endif %}>A veces</option>
-                </select>
+            </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                    <input type="checkbox" name="diabetes" value="si" 
+                           {% if ficha_tecnica.datos_especificos.diabetes == 'si' %}checked{% endif %}>
+                    <span>🩸 Diabetes</span>
+                </label>
+            </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                    <input type="checkbox" name="cardiopatia" value="si" 
+                           {% if ficha_tecnica.datos_especificos.cardiopatia == 'si' %}checked{% endif %}>
+                    <span>❤️ Cardiopatía / Hipertensión</span>
+                </label>
             </div>
         </div>
     </div>
-    
-    <!-- Hábitos -->
-    <div class="card">
+
+    <!-- Registrar nuevo tratamiento -->
+    <div class="card" style="border-left: 4px solid #007bff;">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-smoking text-danger"></i> Hábitos
-            </h3>
+            <h3 class="card-title">➕ Registrar Tratamiento</h3>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                <input type="checkbox" name="fuma" value="si" 
-                       {% if ficha_tecnica.datos_especificos.fuma == 'si' %}checked{% endif %}>
-                <span>Fuma</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                <input type="checkbox" name="bruxismo" value="si" 
-                       {% if ficha_tecnica.datos_especificos.bruxismo == 'si' %}checked{% endif %}>
-                <span>Bruxismo (rechina los dientes)</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                <input type="checkbox" name="muerde_unias" value="si" 
-                       {% if ficha_tecnica.datos_especificos.muerde_unias == 'si' %}checked{% endif %}>
-                <span>Se muerde las uñas</span>
-            </label>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
+                    <input type="date" name="nuevo_tratamiento_fecha" required
+                           value="{% now 'Y-m-d' %}"
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Pieza dental *</label>
+                    <input type="text" name="nuevo_tratamiento_pieza" required
+                           placeholder="Ej: 14, 36, 47"
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Tipo de tratamiento *</label>
+                <select name="nuevo_tratamiento_tipo" required 
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                    <option value="">Seleccionar...</option>
+                    <optgroup label="Operatoria">
+                        <option value="caries">Caries / Obturación</option>
+                        <option value="sellador">Sellador / Prevención</option>
+                        <option value="blanqueamiento">Blanqueamiento</option>
+                    </optgroup>
+                    <optgroup label="Endodoncia">
+                        <option value="endodoncia">Endodoncia / Conducto</option>
+                    </optgroup>
+                    <optgroup label="Cirugía">
+                        <option value="extraccion">Extracción</option>
+                        <option value="implante">Implante</option>
+                    </optgroup>
+                    <optgroup label="Prótesis">
+                        <option value="corona">Corona / Prótesis fija</option>
+                        <option value="puente">Puente</option>
+                        <option value="protesis_removible">Prótesis removible</option>
+                    </optgroup>
+                    <optgroup label="Otros">
+                        <option value="ortodoncia">Ortodoncia / Brackets</option>
+                        <option value="limpieza">Limpieza / Profilaxis</option>
+                        <option value="tratamiento_encia">Tratamiento de encías</option>
+                        <option value="otro">Otro</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Material / Técnica usada</label>
+                <input type="text" name="nuevo_tratamiento_material"
+                       placeholder="Ej: Composite, Amalgama, Resina, Porcelana..."
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Descripción / Notas</label>
+                <textarea name="nuevo_tratamiento_descripcion" rows="2"
+                          placeholder="Detalles del procedimiento..."
+                          style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+            <!-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Costo ($)</label>
+                    <input type="number" name="nuevo_tratamiento_costo" step="0.01"
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Próximo control</label>
+                    <input type="date" name="nuevo_tratamiento_control"
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+            </div> -->
         </div>
-    </div>
-    
-    <!-- Observaciones -->
-    <div class="card" style="grid-column: 1 / -1;">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-clipboard-list text-primary"></i> Observaciones Odontológicas
-            </h3>
-        </div>
-        <textarea name="observaciones_odontologicas" rows="3"
-                  style="width: 100%; padding: 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit;"
-                  placeholder="Observaciones específicas...">{{ ficha_tecnica.datos_especificos.observaciones_odontologicas|default:'' }}</textarea>
     </div>
 </div>
+
+<!-- Historial de Tratamientos Odontológicos -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header flex-between">
+        <h3 class="card-title">📜 Historial de Tratamientos</h3>
+        {% if paciente.tratamientos_odontologicos.all %}
+        <span style="color: #666; font-size: 0.9em;">
+            {{ paciente.tratamientos_odontologicos.count }} tratamiento{{ paciente.tratamientos_odontologicos.count|pluralize:"s" }}
+        </span>
+        {% endif %}
+    </div>
+
+    {% if paciente.tratamientos_odontologicos.all %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Pieza</th>
+                    <th>Tratamiento</th>
+                    <th>Material</th>
+                    <th>Descripción</th>
+                    <!-- <th>Costo</th>
+                    <th>Próx. control</th> -->
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in paciente.tratamientos_odontologicos.all %}
+                <tr>
+                    <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
+                    <td><span class="badge badge-info">#{{ t.pieza_dental }}</span></td>
+                    <td>{{ t.get_tipo_tratamiento_display }}</td>
+                    <td>{{ t.material_usado|default:"—" }}</td>
+                    <td>{{ t.descripcion|truncatechars:40|default:"—" }}</td>
+                    <!-- <td>
+                        {% if t.costo %}
+                            <span style="font-weight: 600; color: #27ae60;">${{ t.costo }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if t.fecha_proximo_control %}
+                            {% if t.fecha_proximo_control < hoy %}
+                                <span style="color: #e74c3c; font-weight: 600;">
+                                    ⚠️ {{ t.fecha_proximo_control|date:"d/m/Y" }}
+                                </span>
+                            {% else %}
+                                {{ t.fecha_proximo_control|date:"d/m/Y" }}
+                            {% endif %}
+                        {% else %}—{% endif %}
+                    </td> -->
+                    <td>
+                        <a href="{% url 'eliminar_tratamiento_odontologico' t.id %}" 
+                           class="btn btn-danger btn-xs"
+                           title="Eliminar"
+                           onclick="return confirm('¿Eliminar este tratamiento?')"
+                           style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 30px; color: #999;">
+        <p>📭 Sin tratamientos registrados</p>
+        <small>Registrá un nuevo tratamiento y se agregará al historial automáticamente.</small>
+    </div>
+    {% endif %}
+</div>
+
 {% endblock %}

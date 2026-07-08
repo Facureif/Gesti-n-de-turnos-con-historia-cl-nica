@@ -9,7 +9,7 @@ from usuarios.models import Usuario
 import random, string
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
-from historias_clinicas.models import FichaTecnica, HistoriaClinica, Evolucion
+from historias_clinicas.models import FichaTecnica, HistoriaClinica, Evolucion, TratamientoOdontologico
 
 
 
@@ -308,7 +308,6 @@ def editar_paciente(request, paciente_id):
 
 @login_required
 def ficha_tecnica(request, paciente_id):
-    """Ficha técnica específica según la especialidad del profesional."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
@@ -350,29 +349,49 @@ def ficha_tecnica(request, paciente_id):
         ficha_tecnica.notas_generales = request.POST.get('notas_generales', '')
         ficha_tecnica.save()
         
-        # Si hay datos de nueva lesión, guardarla en el historial
-        zona = request.POST.get('nueva_lesion_zona', '').strip()
-        fecha = request.POST.get('nueva_lesion_fecha', '').strip()
+        # --- LÓGICA SEGÚN ESPECIALIDAD ---
         
-        if zona and fecha:  # Solo si completó zona y fecha
-            Lesion.objects.create(
-                paciente=paciente,
-                fecha_lesion=fecha,
-                tipo_lesion=request.POST.get('nueva_lesion_tipo', 'otra'),
-                zona=zona,
-                descripcion=request.POST.get('nueva_lesion_descripcion', ''),
-                tratamiento=request.POST.get('nueva_lesion_tratamiento', ''),
-            )
-            messages.success(request, 'Ficha guardada y lesión registrada en el historial.')
-        else:
-            messages.success(request, 'Ficha técnica guardada correctamente.')
+        # Kinesiología: guardar lesión
+        if especialidad == 'kinesiologia':
+            zona = request.POST.get('nueva_lesion_zona', '').strip()
+            fecha = request.POST.get('nueva_lesion_fecha', '').strip()
+            if zona and fecha:
+                Lesion.objects.create(
+                    paciente=paciente,
+                    fecha_lesion=fecha,
+                    tipo_lesion=request.POST.get('nueva_lesion_tipo', 'otra'),
+                    zona=zona,
+                    descripcion=request.POST.get('nueva_lesion_descripcion', ''),
+                    tratamiento=request.POST.get('nueva_lesion_tratamiento', ''),
+                )
         
+        # Odontología: guardar tratamiento
+        elif especialidad == 'odontologia':
+            pieza = request.POST.get('nuevo_tratamiento_pieza', '').strip()
+            tipo = request.POST.get('nuevo_tratamiento_tipo', '').strip()
+            fecha = request.POST.get('nuevo_tratamiento_fecha', '').strip()
+            if pieza and tipo:
+                from historias_clinicas.models import TratamientoOdontologico
+                TratamientoOdontologico.objects.create(
+                    paciente=paciente,
+                    profesional=profesional,
+                    fecha=fecha or date.today(),
+                    pieza_dental=pieza,
+                    tipo_tratamiento=tipo,
+                    material_usado=request.POST.get('nuevo_tratamiento_material', ''),
+                    descripcion=request.POST.get('nuevo_tratamiento_descripcion', ''),
+                    costo=request.POST.get('nuevo_tratamiento_costo') or None,
+                    fecha_proximo_control=request.POST.get('nuevo_tratamiento_control') or None,
+                )
+        
+        messages.success(request, '✅ Ficha guardada correctamente.')
         return redirect('ficha_tecnica', paciente_id=paciente.id)
     
     context = {
         'paciente': paciente,
         'ficha_tecnica': ficha_tecnica,
         'profesional': profesional,
+        'hoy': date.today(),
     }
     
     return render(request, template, context)
@@ -576,3 +595,16 @@ def eliminar_seguimiento(request, seguimiento_id):
     seguimiento.delete()
     messages.success(request, '🗑️ Registro eliminado.')
     return redirect('seguimiento_lesion', lesion_id=lesion_id)
+
+
+@login_required
+def eliminar_tratamiento_odontologico(request, tratamiento_id):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    tratamiento = get_object_or_404(TratamientoOdontologico, id=tratamiento_id)
+    paciente_id = tratamiento.paciente.id
+    tratamiento.delete()
+    messages.success(request, '🗑️ Tratamiento eliminado.')
+    return redirect('ficha_tecnica', paciente_id=paciente_id)
+

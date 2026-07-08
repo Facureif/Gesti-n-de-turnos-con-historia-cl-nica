@@ -243,3 +243,53 @@ class SeguimientoTratamiento(models.Model):
     
     def __str__(self):
         return f"Seguimiento {self.fecha.strftime('%d/%m/%Y')} - {self.lesion.zona}"        
+    
+
+class TratamientoOdontologico(models.Model):
+    """Registro de tratamientos realizados por pieza dental."""
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='tratamientos_odontologicos'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='tratamientos_realizados'
+    )
+    fecha = models.DateField(default=date.today)
+    pieza_dental = models.CharField(max_length=10, verbose_name='Pieza dental')
+    
+    TIPO_TRATAMIENTO = [
+        ('caries', 'Caries / Obturación'),
+        ('endodoncia', 'Endodoncia / Conducto'),
+        ('extraccion', 'Extracción'),
+        ('corona', 'Corona / Prótesis fija'),
+        ('puente', 'Puente'),
+        ('implante', 'Implante'),
+        ('protesis_removible', 'Prótesis removible'),
+        ('ortodoncia', 'Ortodoncia / Brackets'),
+        ('blanqueamiento', 'Blanqueamiento'),
+        ('sellador', 'Sellador / Prevención'),
+        ('limpieza', 'Limpieza / Profilaxis'),
+        ('tratamiento_encia', 'Tratamiento de encías'),
+        ('otro', 'Otro'),
+    ]
+    tipo_tratamiento = models.CharField(max_length=30, choices=TIPO_TRATAMIENTO)
+    descripcion = models.TextField(blank=True)
+    material_usado = models.CharField(max_length=100, blank=True, verbose_name='Material usado')
+    costo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    requiere_seguimiento = models.BooleanField(default=False)
+    fecha_proximo_control = models.DateField(null=True, blank=True)
+    completado = models.BooleanField(default=True)
+    
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Tratamiento Odontológico'
+        verbose_name_plural = 'Tratamientos Odontológicos'
+    
+    def __str__(self):
+        return f"{self.get_tipo_tratamiento_display()} - Pieza {self.pieza_dental} - {self.fecha.strftime('%d/%m/%Y')}"    
