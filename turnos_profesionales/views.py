@@ -693,17 +693,29 @@ def calendario_semanal(request):
             if not profesional:
                 messages.error(request, 'No hay profesionales en el consultorio.')
                 return redirect('panel_secretaria')
+            
+
 @login_required
 def calendario_semanal(request):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
     
+    # Determinar profesional según el rol
     if request.user.rol == 'secretaria':
-        # ... (código de secretaria, igual que antes) ...
-        pass
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimientos=request.user.establecimiento, activo=True
+            ).first()
+            if not profesional:
+                messages.error(request, 'No hay profesionales en el consultorio.')
+                return redirect('panel_secretaria')
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
     
+    # Fecha base
     fecha_str = request.GET.get('fecha')
     if fecha_str:
         try:
@@ -724,7 +736,9 @@ def calendario_semanal(request):
     
     for i in range(7):
         dia = lunes + timedelta(days=i)
-        turnos_dia = TurnoProfesional.objects.filter(profesional=profesional, fecha=dia).order_by('hora_inicio')
+        turnos_dia = TurnoProfesional.objects.filter(
+            profesional=profesional, fecha=dia
+        ).order_by('hora_inicio')
         
         horarios_por_consultorio = {}
         dia_bloqueado = False
@@ -776,7 +790,6 @@ def calendario_semanal(request):
                                     })
                         hora_actual = hora_fin_slot
         
-        # Ordenar slots dentro de cada consultorio
         for est in horarios_por_consultorio:
             horarios_por_consultorio[est].sort(key=lambda x: x['hora_inicio'])
         

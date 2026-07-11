@@ -30,13 +30,7 @@
                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
                           placeholder="Anticoagulantes, bifosfonatos...">{{ ficha_tecnica.datos_especificos.medicacion_actual|default:'' }}</textarea>
             </div>
-            <div>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                    <input type="checkbox" name="embarazo" value="si" 
-                           {% if ficha_tecnica.datos_especificos.embarazo == 'si' %}checked{% endif %}>
-                    <span>🤰 Embarazo (evitar radiografías)</span>
-                </label>
-            </div>
+            <!-- s -->
             <div>
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
                     <input type="checkbox" name="diabetes" value="si" 

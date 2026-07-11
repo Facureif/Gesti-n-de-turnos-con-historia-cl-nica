@@ -629,7 +629,7 @@
                                 {% if prof.precio_particular %}
                                     <span class="tag">💵 ${{ prof.precio_particular }}</span>
                                 {% endif %}
-                                {% if prof.get_obras_sociales_list %}
+                                {% if prof.obras_sociales.exists %}
                                     <span class="tag tag-os">🏥 Obras Sociales</span>
                                 {% endif %}
                                 {% if prof.get_servicios_list %}
@@ -697,11 +697,11 @@
                                 <p class="precio-destacado">${{ prof.precio_particular }}</p>
                                 {% endif %}
                                 
-                                {% if prof.get_obras_sociales_list %}
+                                {% if prof.obras_sociales.exists %}
                                 <h4 style="margin-top: 12px;">🏥 Obras Sociales</h4>
                                 <div class="obras-sociales-list">
-                                    {% for os in prof.get_obras_sociales_list %}
-                                        <span class="os-badge">{{ os }}</span>
+                                    {% for os in prof.obras_sociales.all %}
+                                        <span class="os-badge">{{ os.nombre }}</span>
                                     {% endfor %}
                                 </div>
                                 {% endif %}

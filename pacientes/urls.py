@@ -19,4 +19,8 @@ urlpatterns = [
     path('lesion/<int:lesion_id>/seguimiento/limpiar/', views.limpiar_seguimientos, name='limpiar_seguimientos'),
     path('seguimiento/<int:seguimiento_id>/eliminar/', views.eliminar_seguimiento, name='eliminar_seguimiento'),
     path('tratamiento/eliminar/<int:tratamiento_id>/', views.eliminar_tratamiento_odontologico, name='eliminar_tratamiento_odontologico'),
+    path('consulta-nutricional/<int:consulta_id>/eliminar/', views.eliminar_consulta_nutricional, name='eliminar_consulta_nutricional'),
+    path('evaluacion-fono/<int:evaluacion_id>/eliminar/', views.eliminar_evaluacion_fono, name='eliminar_evaluacion_fono'),
+    path('nota-clinica/<int:nota_id>/eliminar/', views.eliminar_nota_clinica, name='eliminar_nota_clinica'),
+
 ]

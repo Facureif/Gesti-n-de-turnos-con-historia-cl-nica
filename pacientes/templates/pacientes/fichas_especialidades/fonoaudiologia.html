@@ -1,0 +1,137 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+
+{% block ficha_icon %}🗣️{% endblock %}
+{% block ficha_titulo %}Ficha Fonoaudiológica{% endblock %}
+{% block ficha_especialidad %}Fonoaudiología{% endblock %}
+
+{% block ficha_contenido %}
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    
+    <!-- Registrar Sesión -->
+    <div class="card" style="border-left: 4px solid #e83e8c;">
+        <div class="card-header">
+            <h3 class="card-title">➕ Registrar Sesión</h3>
+        </div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
+                    <input type="date" name="fecha" required value="{% now 'Y-m-d' %}"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Área *</label>
+                    <select name="area" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <option value="">Seleccionar...</option>
+                        <option value="lenguaje">Lenguaje</option>
+                        <option value="habla">Habla</option>
+                        <option value="voz">Voz</option>
+                        <option value="deglucion">Deglución</option>
+                        <option value="audicion">Audición</option>
+                        <option value="aprendizaje">Aprendizaje</option>
+                        <option value="otra">Otra</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Diagnóstico</label>
+                <select name="diagnostico" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <option value="">—</option>
+                    <option value="retraso_lenguaje">Retraso del lenguaje</option>
+                    <option value="trastorno_habla">Trastorno del habla</option>
+                    <option value="disfonia">Disfonía</option>
+                    <option value="disfagia">Disfagia</option>
+                    <option value="tartamudez">Tartamudez</option>
+                    <option value="trastorno_aprendizaje">Trastorno del aprendizaje</option>
+                    <option value="hipoacusia">Hipoacusia</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Evaluación / Observaciones</label>
+                <textarea name="evaluacion" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Objetivos y Ejercicios -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">🎯 Objetivos y Ejercicios</h3>
+        </div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Objetivos del tratamiento</label>
+                <textarea name="objetivos" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Ejercicios / Actividades realizadas</label>
+                <textarea name="ejercicios" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Respuesta del paciente</label>
+                <textarea name="respuesta_paciente" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Recomendaciones para el hogar</label>
+                <textarea name="recomendaciones" rows="2"
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historial -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header flex-between">
+        <h3 class="card-title">📜 Historial de Sesiones</h3>
+        {% if evaluaciones %}
+        <span style="color: #666; font-size: 0.9em;">{{ evaluaciones.count }} sesión{{ evaluaciones.count|pluralize:"es" }}</span>
+        {% endif %}
+    </div>
+
+    {% if evaluaciones %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Área</th>
+                    <th>Diagnóstico</th>
+                    <th>Ejercicios</th>
+                    <th>Respuesta</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in evaluaciones %}
+                <tr>
+                    <td><strong>{{ e.fecha|date:"d/m/Y" }}</strong></td>
+                    <td><span class="badge badge-info">{{ e.get_area_display }}</span></td>
+                    <td>{{ e.get_diagnostico_display|default:"—" }}</td>
+                    <td>{{ e.ejercicios|truncatechars:40|default:"—" }}</td>
+                    <td>{{ e.respuesta_paciente|truncatechars:40|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'eliminar_evaluacion_fono' e.id %}" 
+                           class="btn btn-danger btn-xs"
+                           onclick="return confirm('¿Eliminar esta sesión?')"
+                           style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 30px; color: #999;">
+        <p>📭 Sin sesiones registradas</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

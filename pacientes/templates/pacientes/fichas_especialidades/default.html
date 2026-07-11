@@ -1,18 +1,107 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
 
 {% block ficha_icon %}📋{% endblock %}
-{% block ficha_titulo %}Ficha Técnica{% endblock %}
-{% block ficha_especialidad %}{{ profesional.get_especialidad_display }}{% endblock %}
+{% block ficha_titulo %}Notas Clínicas{% endblock %}
+{% block ficha_especialidad %}General{% endblock %}
 
 {% block ficha_contenido %}
-<div class="card">
+
+<!-- Nueva nota -->
+<div class="card" style="border-left: 4px solid #6c757d;">
     <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-info-circle text-primary"></i> Información General
-        </h3>
+        <h3 class="card-title">➕ Nueva Nota Clínica</h3>
     </div>
-    <textarea name="informacion_general" rows="5"
-              style="width: 100%; padding: 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit;"
-              placeholder="Información relevante del paciente...">{{ ficha_tecnica.datos_especificos.informacion_general|default:'' }}</textarea>
+    <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
+                <input type="date" name="nota_fecha" required value="{% now 'Y-m-d' %}"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Tipo</label>
+                <select name="nota_tipo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <option value="observacion">Observación</option>
+                    <option value="resultado">Resultado de estudio</option>
+                    <option value="interconsulta">Interconsulta</option>
+                    <option value="llamado">Llamado telefónico</option>
+                    <option value="indicacion">Indicación</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Título *</label>
+            <input type="text" name="nota_titulo" required
+                   placeholder="Ej: Resultado de resonancia, Llamado del paciente..."
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Contenido *</label>
+            <textarea name="nota_contenido" rows="5" required
+                      placeholder="Escribí la nota clínica..."
+                      style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block ficha_extra %}
+<!-- Historial de notas -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header flex-between">
+        <h3 class="card-title">📜 Historial de Notas Clínicas</h3>
+        {% if notas %}
+        <span style="color: #666; font-size: 0.9em;">{{ notas.count }} nota{{ notas.count|pluralize:"s" }}</span>
+        {% endif %}
+    </div>
+
+    {% if notas %}
+    <div style="display: flex; flex-direction: column;">
+        {% for nota in notas %}
+        <div style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; align-items: start;">
+            <div>
+                <div style="font-weight: 600; font-size: 0.9rem;">{{ nota.fecha|date:"d/m/Y" }}</div>
+                <span class="badge" style="
+                    {% if nota.tipo == 'observacion' %}background: #e0f2fe; color: #0369a1;
+                    {% elif nota.tipo == 'resultado' %}background: #dcfce7; color: #15803d;
+                    {% elif nota.tipo == 'interconsulta' %}background: #fef3c7; color: #92400e;
+                    {% elif nota.tipo == 'llamado' %}background: #fce7f3; color: #9d174d;
+                    {% elif nota.tipo == 'indicacion' %}background: #ede9fe; color: #5b21b6;
+                    {% else %}background: #f3f4f6; color: #6b7280;{% endif %}
+                    font-size: 0.7rem; margin-top: 4px; display: inline-block;">
+                    {{ nota.get_tipo_display }}
+                </span>
+            </div>
+            <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">{{ nota.titulo }}</div>
+                <div style="color: #555; font-size: 0.9rem; white-space: pre-wrap;">{{ nota.contenido|truncatechars:200 }}</div>
+                {% if nota.profesional %}
+                <small style="color: #999; display: block; margin-top: 6px;">
+                    Registrado por {{ nota.profesional.nombre_completo }} · {{ nota.creado|date:"d/m/Y H:i" }}
+                </small>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                {% if nota.archivo %}
+                <a href="{{ nota.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo" style="text-decoration: none;">📎</a>
+                {% endif %}
+                <a href="{% url 'eliminar_nota_clinica' nota.id %}" 
+                   class="btn btn-danger btn-xs"
+                   title="Eliminar"
+                   onclick="return confirm('¿Eliminar esta nota?')"
+                   style="text-decoration: none;">🗑️</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #94a3b8;">
+        <span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">📝</span>
+        <p>Sin notas clínicas</p>
+        <small>Usá esta sección para registrar observaciones, resultados de estudios, llamados, etc.</small>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

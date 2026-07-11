@@ -1,0 +1,69 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Agregar Obra Social{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h1>➕ Agregar Obra Social</h1>
+    
+    <form method="post" class="card" style="margin-top: 20px;">
+        {% csrf_token %}
+        
+        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Obra Social *</label>
+        <select name="obra_social" id="obra_social_select" required
+                style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px;">
+            <option value="">Seleccionar...</option>
+            {% for os in obras_sociales %}
+            <option value="{{ os.id }}" data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                {{ os.nombre }}
+            </option>
+            {% endfor %}
+        </select>
+        
+        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Plan</label>
+        <select name="plan" id="plan_select"
+                style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; display: none;">
+            <option value="">Seleccionar plan...</option>
+        </select>
+        
+        <label style="display: block; margin-bottom: 5px; font-weight: bold;">N° de Afiliado</label>
+        <input type="text" name="numero_afiliado" placeholder="N° de afiliado"
+               style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px;">
+        
+        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <input type="checkbox" name="activa" checked>
+            <span>¿Está activa?</span>
+        </label>
+        
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-success" style="flex: 1;">✅ Guardar</button>
+            <a href="{% url 'mis_obras_sociales' %}" class="btn" style="flex: 1; background: #6c757d; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('obra_social_select').addEventListener('change', function() {
+    var planSelect = document.getElementById('plan_select');
+    var selectedOption = this.options[this.selectedIndex];
+    
+    if (!this.value) {
+        planSelect.style.display = 'none';
+        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        return;
+    }
+    
+    var planesData = selectedOption.getAttribute('data-planes');
+    if (planesData) {
+        var planes = JSON.parse(planesData);
+        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        planes.forEach(function(plan) {
+            planSelect.innerHTML += '<option value="' + plan.id + '">' + plan.nombre + '</option>';
+        });
+        planSelect.style.display = 'block';
+    } else {
+        planSelect.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

@@ -15,6 +15,7 @@ class Profesional(Persona):
         ('pediatria', 'Pediatría'),
         ('traumatologia', 'Traumatología'),
         ('veterinaria', 'Veterinaria'),
+        ('fonoaudiologia', 'Fonoaudiologia'),
         ('otro', 'Otro'),
     ]
     

@@ -293,3 +293,156 @@ class TratamientoOdontologico(models.Model):
     
     def __str__(self):
         return f"{self.get_tipo_tratamiento_display()} - Pieza {self.pieza_dental} - {self.fecha.strftime('%d/%m/%Y')}"    
+
+class ConsultaNutricional(models.Model):
+    """Registro de consultas nutricionales con datos antropométricos."""
+    OBJETIVOS = [
+        ('bajar_peso', 'Bajar de peso'),
+        ('aumentar_peso', 'Aumentar de peso'),
+        ('mantener', 'Mantener peso'),
+        ('reducir_grasa', 'Reducir % grasa'),
+        ('ganar_musculo', 'Ganar masa muscular'),
+        ('deportivo', 'Rendimiento deportivo'),
+        ('patologia', 'Manejo de patología'),
+        ('otro', 'Otro'),
+    ]
+    
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='consultas_nutricionales'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='consultas_nutricionales_realizadas'
+    )
+    fecha = models.DateField(default=date.today)
+    
+    # Datos antropométricos
+    peso_kg = models.DecimalField(max_digits=5, decimal_places=1, verbose_name='Peso (kg)')
+    altura_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='Altura (cm)')
+    imc = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='IMC')
+    perimetro_cintura_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='Cintura (cm)')
+    porcentaje_grasa = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='% Grasa corporal')
+    porcentaje_musculo = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='% Masa muscular')
+    
+    # Evaluación
+    objetivo = models.CharField(max_length=30, choices=OBJETIVOS, blank=True)
+    plan_nutricional = models.TextField(blank=True, verbose_name='Plan nutricional indicado')
+    observaciones = models.TextField(blank=True)
+    
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Consulta Nutricional'
+        verbose_name_plural = 'Consultas Nutricionales'
+    
+    def __str__(self):
+        return f"Consulta {self.fecha.strftime('%d/%m/%Y')} - {self.paciente.nombre_completo}"
+    
+    def calcular_imc(self):
+        if self.peso_kg and self.altura_cm and self.altura_cm > 0:
+            altura_m = float(self.altura_cm) / 100
+            return round(float(self.peso_kg) / (altura_m ** 2), 1)
+        return None
+    
+    def save(self, *args, **kwargs):
+        if not self.imc:
+            self.imc = self.calcular_imc()
+        super().save(*args, **kwargs)   
+
+class EvaluacionFonoaudiologica(models.Model):
+    """Registro de evaluaciones y tratamientos fonoaudiológicos."""
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='evaluaciones_fonoaudiologicas'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='evaluaciones_fono'
+    )
+    fecha = models.DateField(default=date.today)
+    
+    AREAS = [
+        ('lenguaje', 'Lenguaje'),
+        ('habla', 'Habla'),
+        ('voz', 'Voz'),
+        ('deglucion', 'Deglución'),
+        ('audicion', 'Audición'),
+        ('aprendizaje', 'Aprendizaje'),
+        ('otra', 'Otra'),
+    ]
+    area = models.CharField(max_length=20, choices=AREAS, verbose_name='Área')
+    
+    DIAGNOSTICOS = [
+        ('retraso_lenguaje', 'Retraso del lenguaje'),
+        ('trastorno_habla', 'Trastorno del habla'),
+        ('disfonia', 'Disfonía'),
+        ('disfagia', 'Disfagia'),
+        ('tartamudez', 'Tartamudez'),
+        ('trastorno_aprendizaje', 'Trastorno del aprendizaje'),
+        ('hipoacusia', 'Hipoacusia'),
+        ('otro', 'Otro'),
+    ]
+    diagnostico = models.CharField(max_length=30, choices=DIAGNOSTICOS, blank=True)
+    
+    evaluacion = models.TextField(blank=True, verbose_name='Evaluación / Observaciones')
+    objetivos = models.TextField(blank=True, verbose_name='Objetivos del tratamiento')
+    ejercicios = models.TextField(blank=True, verbose_name='Ejercicios / Actividades realizadas')
+    respuesta_paciente = models.TextField(blank=True, verbose_name='Respuesta del paciente')
+    recomendaciones = models.TextField(blank=True, verbose_name='Recomendaciones para el hogar')
+    
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Evaluación Fonoaudiológica'
+        verbose_name_plural = 'Evaluaciones Fonoaudiológicas'
+    
+    def __str__(self):
+        return f"Eval. {self.get_area_display()} - {self.fecha.strftime('%d/%m/%Y')}"                
+    
+class NotaClinica(models.Model):
+    """Notas clínicas generales no vinculadas a un turno específico."""
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='notas_clinicas'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='notas_clinicas'
+    )
+    fecha = models.DateField(default=date.today)
+    titulo = models.CharField(max_length=200)
+    tipo = models.CharField(
+        max_length=30,
+        choices=[
+            ('observacion', 'Observación'),
+            ('resultado', 'Resultado de estudio'),
+            ('interconsulta', 'Interconsulta'),
+            ('llamado', 'Llamado telefónico'),
+            ('indicacion', 'Indicación'),
+            ('otro', 'Otro'),
+        ],
+        default='observacion'
+    )
+    contenido = models.TextField()
+    archivo = models.FileField(upload_to='notas_clinicas/%Y/%m/', null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha', '-creado']
+        verbose_name = 'Nota Clínica'
+        verbose_name_plural = 'Notas Clínicas'
+    
+    def __str__(self):
+        return f"{self.fecha.strftime('%d/%m/%Y')} - {self.titulo}"    

@@ -570,7 +570,7 @@
     {% endif %}
 
    <!-- ========== SERVICIOS Y COBERTURA ========== -->
-{% if profesional.precio_particular or profesional.get_obras_sociales_list %}
+{% if profesional.precio_particular or profesional.obras_sociales.exists %}
 <section class="section section-alt">
     <div class="container-custom">
         <div class="section-header">
@@ -587,13 +587,13 @@
             </div>
             {% endif %}
             
-            {% if profesional.get_obras_sociales_list %}
+            {% if profesional.obras_sociales.exists %}
             <div class="info-destacada-card">
                 <span class="icono-header">🏥</span>
                 <div class="precio-label">Obras Sociales que acepto</div>
                 <div class="obras-sociales-grid">
-                    {% for os in profesional.get_obras_sociales_list %}
-                        <span class="os-tag">{{ os }}</span>
+                    {% for os in profesional.obras_sociales.all %}
+                        <span class="os-tag">{{ os.nombre }}</span>
                     {% endfor %}
                 </div>
             </div>

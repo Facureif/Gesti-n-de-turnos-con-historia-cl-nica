@@ -1,0 +1,217 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+
+{% block ficha_icon %}🍎{% endblock %}
+{% block ficha_titulo %}Ficha Nutricional{% endblock %}
+{% block ficha_especialidad %}Nutrición{% endblock %}
+
+{% block ficha_contenido %}
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    
+    <!-- Datos Antropométricos -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">📏 Datos Antropométricos</h3>
+        </div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Peso (kg) *</label>
+                    <input type="number" name="peso_kg" id="peso" step="0.1" required
+                           placeholder="Ej: 70.5"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+                           oninput="calcularIMC()">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Altura (cm)</label>
+                    <input type="number" name="altura_cm" id="altura" step="0.1"
+                           placeholder="Ej: 170"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+                           oninput="calcularIMC()">
+                </div>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">IMC</label>
+                <input type="text" name="imc" id="imc" readonly
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f5f5f5;">
+                <small id="imc-clasificacion" style="font-weight: 500;"></small>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Cintura (cm)</label>
+                    <input type="number" name="perimetro_cintura_cm" step="0.1"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">% Grasa</label>
+                    <input type="number" name="porcentaje_grasa" step="0.1"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">% Músculo</label>
+                    <input type="number" name="porcentaje_musculo" step="0.1"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Nutricional -->
+    <div class="card" style="border-left: 4px solid #28a745;">
+        <div class="card-header">
+            <h3 class="card-title">📋 Plan Nutricional</h3>
+        </div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
+                <input type="date" name="fecha" required value="{% now 'Y-m-d' %}"
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Objetivo</label>
+                <select name="objetivo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <option value="">Seleccionar...</option>
+                    <option value="bajar_peso">Bajar de peso</option>
+                    <option value="aumentar_peso">Aumentar de peso</option>
+                    <option value="mantener">Mantener peso</option>
+                    <option value="reducir_grasa">Reducir % grasa</option>
+                    <option value="ganar_musculo">Ganar masa muscular</option>
+                    <option value="deportivo">Rendimiento deportivo</option>
+                    <option value="patologia">Manejo de patología</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Plan nutricional indicado</label>
+                <textarea name="plan_nutricional" rows="3"
+                          placeholder="Dieta, recomendaciones, calorías diarias..."
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Observaciones</label>
+                <textarea name="observaciones_nutricion" rows="2"
+                          placeholder="Notas adicionales..."
+                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historial de Consultas -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header flex-between">
+        <h3 class="card-title">📜 Historial de Consultas Nutricionales</h3>
+        {% if consultas %}
+        <span style="color: #666; font-size: 0.9em;">{{ consultas.count }} consulta{{ consultas.count|pluralize:"s" }}</span>
+        {% endif %}
+    </div>
+
+    {% if consultas %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Peso</th>
+                    <th>IMC</th>
+                    <th>Cintura</th>
+                    <th>% Grasa</th>
+                    <th>% Músculo</th>
+                    <th>Objetivo</th>
+                    <th>Plan</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in consultas %}
+                <tr>
+                    <td><strong>{{ c.fecha|date:"d/m/Y" }}</strong></td>
+                    <td>{{ c.peso_kg }} kg</td>
+                    <td>
+                        {% if c.imc %}
+                            <span style="font-weight: 600; 
+                                {% if c.imc < 18.5 %}color: #e67e22;
+                                {% elif c.imc < 25 %}color: #27ae60;
+                                {% elif c.imc < 30 %}color: #f39c12;
+                                {% else %}color: #e74c3c;{% endif %}">
+                                {{ c.imc }}
+                            </span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ c.perimetro_cintura_cm|default:"—" }}</td>
+                    <td>{{ c.porcentaje_grasa|default:"—" }}</td>
+                    <td>{{ c.porcentaje_musculo|default:"—" }}</td>
+                    <td>{{ c.get_objetivo_display|default:"—" }}</td>
+                    <td>{{ c.plan_nutricional|truncatechars:40|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'eliminar_consulta_nutricional' c.id %}" 
+                           class="btn btn-danger btn-xs"
+                           onclick="return confirm('¿Eliminar esta consulta?')"
+                           style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 30px; color: #999;">
+        <p>📭 Sin consultas registradas</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Gráfico de evolución de peso -->
+{% if consultas and consultas.count >= 2 %}
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+        <h3 class="card-title">📈 Evolución de Peso</h3>
+    </div>
+    <div style="padding: 20px; display: flex; align-items: flex-end; gap: 8px; height: 200px; overflow-x: auto;">
+        {% for c in consultas reversed %}
+        <div style="flex: 1; min-width: 50px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 0.8em; font-weight: 600; margin-bottom: 4px;">{{ c.peso_kg }}</div>
+            <div style="width: 100%; max-width: 60px; 
+                        height: {% widthratio c.peso_kg 150 180 %}px; 
+                        background: {% if forloop.last %}#28a745{% else %}#007bff{% endif %}; 
+                        border-radius: 4px 4px 0 0;"></div>
+            <div style="font-size: 0.7em; color: #666; margin-top: 4px; transform: rotate(-45deg); white-space: nowrap;">
+                {{ c.fecha|date:"d/m" }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<script>
+function calcularIMC() {
+    var peso = parseFloat(document.getElementById('peso').value);
+    var altura = parseFloat(document.getElementById('altura').value);
+    var imcInput = document.getElementById('imc');
+    var clasificacion = document.getElementById('imc-clasificacion');
+    
+    if (peso && altura && altura > 0) {
+        var alturaM = altura / 100;
+        var imc = (peso / (alturaM * alturaM)).toFixed(1);
+        imcInput.value = imc;
+        
+        var texto = '';
+        var color = '';
+        if (imc < 18.5) { texto = 'Bajo peso'; color = '#e67e22'; }
+        else if (imc < 25) { texto = '✅ Peso normal'; color = '#27ae60'; }
+        else if (imc < 30) { texto = '⚠️ Sobrepeso'; color = '#f39c12'; }
+        else if (imc < 35) { texto = '⚠️ Obesidad I'; color = '#e74c3c'; }
+        else if (imc < 40) { texto = '🔴 Obesidad II'; color = '#c0392b'; }
+        else { texto = '🔴 Obesidad III'; color = '#922b21'; }
+        
+        clasificacion.innerHTML = texto;
+        clasificacion.style.color = color;
+    } else {
+        imcInput.value = '';
+        clasificacion.innerHTML = '';
+    }
+}
+</script>
+
+{% endblock %}

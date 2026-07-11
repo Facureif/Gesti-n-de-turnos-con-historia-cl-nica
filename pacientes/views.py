@@ -9,7 +9,7 @@ from usuarios.models import Usuario
 import random, string
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
-from historias_clinicas.models import FichaTecnica, HistoriaClinica, Evolucion, TratamientoOdontologico
+from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, TratamientoOdontologico
 
 
 
@@ -328,8 +328,10 @@ def ficha_tecnica(request, paciente_id):
     )
     
     templates_por_especialidad = {
-        'odontologia': 'pacientes/fichas_especialidades/odontologia.html',
-        'kinesiologia': 'pacientes/fichas_especialidades/kinesiologia.html',
+    'odontologia': 'pacientes/fichas_especialidades/odontologia.html',
+    'kinesiologia': 'pacientes/fichas_especialidades/kinesiologia.html',
+    'nutricion': 'pacientes/fichas_especialidades/nutricion.html',    
+    'fonoaudiologia': 'pacientes/fichas_especialidades/fonoaudiologia.html',  
     }
     
     especialidad = profesional.especialidad if profesional else 'general'
@@ -365,6 +367,56 @@ def ficha_tecnica(request, paciente_id):
                     tratamiento=request.POST.get('nueva_lesion_tratamiento', ''),
                 )
         
+        # Nutrición
+        elif especialidad == 'nutricion':
+            peso = request.POST.get('peso_kg', '').strip()
+            if peso:
+                from historias_clinicas.models import ConsultaNutricional
+                ConsultaNutricional.objects.create(
+                    paciente=paciente,
+                    profesional=profesional,
+                    fecha=request.POST.get('fecha', date.today()),
+                    peso_kg=peso,
+                    altura_cm=request.POST.get('altura_cm') or None,
+                    imc=request.POST.get('imc') or None,
+                    perimetro_cintura_cm=request.POST.get('perimetro_cintura_cm') or None,
+                    porcentaje_grasa=request.POST.get('porcentaje_grasa') or None,
+                    porcentaje_musculo=request.POST.get('porcentaje_musculo') or None,
+                    objetivo=request.POST.get('objetivo', ''),
+                    plan_nutricional=request.POST.get('plan_nutricional', ''),
+                    observaciones=request.POST.get('observaciones_nutricion', ''),
+                )
+        # Nota clínica (para todas las especialidades, especialmente útil en "general")
+        titulo_nota = request.POST.get('nota_titulo', '').strip()
+        contenido_nota = request.POST.get('nota_contenido', '').strip()
+        if titulo_nota and contenido_nota:
+            from historias_clinicas.models import NotaClinica
+            NotaClinica.objects.create(
+                paciente=paciente,
+                profesional=profesional,
+                fecha=request.POST.get('nota_fecha', date.today()),
+                tipo=request.POST.get('nota_tipo', 'observacion'),
+                titulo=titulo_nota,
+                contenido=contenido_nota,
+            )
+        # Fonoaudiología
+        elif especialidad == 'fonoaudiologia':
+            area = request.POST.get('area', '').strip()
+            if area:
+                from historias_clinicas.models import EvaluacionFonoaudiologica
+                EvaluacionFonoaudiologica.objects.create(
+                    paciente=paciente,
+                    profesional=profesional,
+                    fecha=request.POST.get('fecha', date.today()),
+                    area=area,
+                    diagnostico=request.POST.get('diagnostico', ''),
+                    evaluacion=request.POST.get('evaluacion', ''),
+                    objetivos=request.POST.get('objetivos', ''),
+                    ejercicios=request.POST.get('ejercicios', ''),
+                    respuesta_paciente=request.POST.get('respuesta_paciente', ''),
+                    recomendaciones=request.POST.get('recomendaciones', ''),
+                )
+
         # Odontología: guardar tratamiento
         elif especialidad == 'odontologia':
             pieza = request.POST.get('nuevo_tratamiento_pieza', '').strip()
@@ -392,6 +444,9 @@ def ficha_tecnica(request, paciente_id):
         'ficha_tecnica': ficha_tecnica,
         'profesional': profesional,
         'hoy': date.today(),
+        'notas': paciente.notas_clinicas.all(),
+        'consultas': paciente.consultas_nutricionales.all() if especialidad == 'nutricion' else None,
+        'evaluaciones': paciente.evaluaciones_fonoaudiologicas.all() if especialidad == 'fonoaudiologia' else None,
     }
     
     return render(request, template, context)
@@ -608,3 +663,32 @@ def eliminar_tratamiento_odontologico(request, tratamiento_id):
     messages.success(request, '🗑️ Tratamiento eliminado.')
     return redirect('ficha_tecnica', paciente_id=paciente_id)
 
+@login_required
+def eliminar_consulta_nutricional(request, consulta_id):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    consulta = get_object_or_404(ConsultaNutricional, id=consulta_id)
+    paciente_id = consulta.paciente.id
+    consulta.delete()
+    messages.success(request, '🗑️ Consulta eliminada.')
+    return redirect('ficha_tecnica', paciente_id=paciente_id)
+
+@login_required
+def eliminar_evaluacion_fono(request, evaluacion_id):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    evaluacion = get_object_or_404(EvaluacionFonoaudiologica, id=evaluacion_id)
+    paciente_id = evaluacion.paciente.id
+    evaluacion.delete()
+    messages.success(request, '🗑️ Evaluación eliminada.')
+    return redirect('ficha_tecnica', paciente_id=paciente_id)
+
+@login_required
+def eliminar_nota_clinica(request, nota_id):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    nota = get_object_or_404(NotaClinica, id=nota_id)
+    paciente_id = nota.paciente.id
+    nota.delete()
+    messages.success(request, '🗑️ Nota eliminada.')
+    return redirect('ficha_tecnica', paciente_id=paciente_id)
