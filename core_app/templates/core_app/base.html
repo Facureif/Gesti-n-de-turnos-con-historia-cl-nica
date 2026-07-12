@@ -528,7 +528,7 @@
                     </span>
                 </li>
                 
-                <li><a href="{% url 'admin:index' %}" class="nav-link">Admin</a></li>
+
                 
                 <li>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
@@ -540,7 +540,7 @@
                 </li>
             {% else %}
                 <li><a href="{% url 'login' %}" class="btn btn-sm">Ingresar</a></li>
-                <li><a href="{% url 'registro' %}" class="btn btn-success btn-sm">Registrarse</a></li>
+                <!-- <li><a href="{% url 'registro' %}" class="btn btn-success btn-sm">Registrarse</a></li> -->
             {% endif %}
         </ul>
     </nav>
