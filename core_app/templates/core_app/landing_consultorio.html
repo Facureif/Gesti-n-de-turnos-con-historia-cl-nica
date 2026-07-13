@@ -1,5 +1,5 @@
 {% extends 'core_app/base.html' %}
-
+{% load static %}
 {% block title %}{{ cliente.nombre }} | Turnos Online{% endblock %}
 
 {% block extra_css %}
@@ -40,27 +40,16 @@
         box-sizing: border-box;
     }
 
-    /* ========== HERO ========== */
-    .hero {
+    /* ========== HERO CONSULTORIO CON IMAGEN ========== */
+    .hero-consultorio {
         width: 100%;
-        /* Gradiente más cálido y "saludable" (Teal/Azul) */
-        background: linear-gradient(135deg, #0b3550 0%, #145c7e 40%, #2b8c7c 100%);
-        padding: 80px 0;
+        padding: 100px 0 80px 0;
         text-align: center;
         color: white;
         position: relative;
-        overflow: hidden;
     }
 
-    .hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
-                          radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.1) 0%, transparent 50%);
-    }
-
-    .hero-content {
+    .hero-consultorio-content {
         position: relative;
         z-index: 1;
         max-width: 750px;
@@ -68,7 +57,7 @@
         padding: 0 20px;
     }
 
-    .hero-badge {
+    .hero-consultorio .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -82,40 +71,42 @@
         margin-bottom: 16px;
     }
 
-    .hero h1 {
+    .hero-consultorio h1 {
         font-size: clamp(2rem, 4vw, 3rem);
         font-weight: 700;
         margin: 0 0 8px 0;
         letter-spacing: -0.02em;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
-    .hero p {
+    .hero-consultorio p {
         font-size: 1.05rem;
         color: #cbd5e1;
         margin: 0 0 28px 0;
         max-width: 500px;
         margin-left: auto;
         margin-right: auto;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    .btn-hero {
+    .btn-hero-consultorio {
         display: inline-flex;
         align-items: center;
         gap: 8px;
         background: white;
         color: #0f172a;
-        padding: 12px 32px;
+        padding: 14px 36px;
         border-radius: 9999px;
         font-weight: 600;
         font-size: 1rem;
         text-decoration: none;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
     }
 
-    .btn-hero:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+    .btn-hero-consultorio:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.5);
         color: var(--primary);
     }
 
@@ -363,7 +354,6 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Grid interno: 2 columnas, pero flexibles */
     .detalle-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -371,25 +361,12 @@
         padding-top: 24px;
     }
 
-    /* En móviles, una sola columna */
-    @media (max-width: 768px) {
-        .detalle-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-        .profesional-detalle {
-            padding: 0 16px 20px;
-        }
-    }
-
-    /* Estilo de cada bloque de información */
     .detalle-section {
         display: flex;
         flex-direction: column;
         gap: 4px;
     }
 
-    /* El título de la sección (ej: "Horarios de Atención") */
     .detalle-section h4 {
         font-size: 0.7rem;
         font-weight: 700;
@@ -408,7 +385,6 @@
         line-height: 1.5;
     }
 
-    /* Precio grande y destacado */
     .precio-destacado {
         font-size: 1.4rem;
         font-weight: 700;
@@ -416,7 +392,6 @@
         margin-top: 4px !important;
     }
 
-    /* Lista de Obras Sociales */
     .obras-sociales-list {
         display: flex;
         flex-wrap: wrap;
@@ -433,12 +408,10 @@
         font-weight: 500;
     }
 
-    /* Para las secciones que ocupan todo el ancho (ej: Sobre el Dr) */
     .detalle-section.full-width {
         grid-column: 1 / -1;
     }
 
-    /* Texto de contacto con iconos alineados */
     .contacto-linea {
         display: flex;
         align-items: center;
@@ -450,7 +423,37 @@
         color: #9ca3af;
     }
 
-    /* Mensaje sin resultados */
+    /* ========== BOTÓN FLOTANTE DE ACCIÓN (CTA) - A LA IZQUIERDA ========== */
+    .btn-flotante-turno {
+        position: fixed;
+        left: 20px;
+        bottom: 20px;
+        /* Protección contra la barra inferior de móviles (iPhone) */
+        bottom: calc(20px + env(safe-area-inset-bottom));
+        
+        background: var(--success);
+        color: white;
+        padding: 16px 28px;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4);
+        text-decoration: none;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-flotante-turno:hover {
+        background: #047857;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5);
+        color: white;
+    }
+
+    /* ========== MENSAJE SIN RESULTADOS ========== */
     .sin-resultados {
         text-align: center;
         padding: 40px 20px;
@@ -511,7 +514,7 @@
         width: 100%;
         background: #0f172a;
         color: #94a3b8;
-        padding: 20px 0;
+        padding: 20px 0 40px 0; /* Padding inferior extra para no chocar con los botones */
         font-size: 0.85rem;
     }
 
@@ -533,39 +536,24 @@
         color: #93c5fd;
     }
 
-    /* ========== MEDIA QUERIES GENERALES ========== */
+    /* ========== MEDIA QUERIES ========== */
     @media (max-width: 768px) {
-        .hero { 
-            padding: 50px 0; 
-        }
+        .hero-consultorio { padding: 60px 0 50px 0; }
+        .section { padding: 40px 0; }
+        .filtro-pildora { font-size: 0.78rem; padding: 6px 14px; }
+        .profesional-header { flex-wrap: wrap; padding: 16px; }
+        .profesional-actions { width: 100%; justify-content: flex-end; padding-top: 8px; }
+        .detalle-grid { grid-template-columns: 1fr; gap: 16px; }
+        .profesional-detalle { padding: 0 16px 20px; }
+        .info-grid { grid-template-columns: 1fr; }
+        .footer-content { flex-direction: column; text-align: center; }
         
-        .section { 
-            padding: 40px 0; 
-        }
-        
-        .filtro-pildora {
-            font-size: 0.78rem;
-            padding: 6px 14px;
-        }
-        
-        .profesional-header {
-            flex-wrap: wrap;
-            padding: 16px;
-        }
-        
-        .profesional-actions {
-            width: 100%;
-            justify-content: flex-end;
-            padding-top: 8px;
-        }
-                
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .footer-content {
-            flex-direction: column;
-            text-align: center;
+        .btn-flotante-turno {
+            width: auto;
+            padding: 14px 20px;
+            font-size: 0.9rem;
+            left: 15px;
+            bottom: calc(15px + env(safe-area-inset-bottom));
         }
     }
 </style>
@@ -574,15 +562,15 @@
 {% block content %}
 <div class="landing">
 
-    <!-- ========== HERO ========== -->
-    <section class="hero">
-        <div class="hero-content">
+    <!-- ========== HERO ========== -->   
+    <section class="hero-consultorio" style="background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{% static 'img/consultorio.jpg' %}'); background-size: cover; background-position: center;">
+        <div class="hero-consultorio-content">
             <div class="hero-badge">
                 <i class="fas fa-calendar-check"></i> Turnos Online 24/7
             </div>
             <h1>{{ cliente.nombre }}</h1>
             <p>Atención profesional de calidad. Reservá tu turno en segundos, sin llamadas ni esperas.</p>
-            <a href="#profesionales" class="btn-hero">
+            <a href="#profesionales" class="btn-hero-consultorio">
                 <i class="fas fa-calendar-plus"></i> Ver Profesionales y Sacar Turno
             </a>
         </div>
@@ -662,7 +650,6 @@
                     <div class="profesional-detalle" id="ficha-{{ prof.id }}">
                         <div class="detalle-grid">
                             
-                            <!-- Bloque 1: Bio (ocupa todo el ancho si existe) -->
                             {% if prof.descripcion %}
                             <div class="detalle-section full-width">
                                 <h4>Sobre {{ prof.nombre }}</h4>
@@ -670,7 +657,6 @@
                             </div>
                             {% endif %}
 
-                            <!-- Bloque 2: Horarios (Columna Izq) -->
                             <div class="detalle-section">
                                 <h4>⏰ Horarios de Atención</h4>
                                 {% with agenda=prof.agenda_set.first %}
@@ -684,7 +670,6 @@
                                 {% endwith %}
                             </div>
 
-                            <!-- Bloque 3: Costos y Obras (Columna Der) -->
                             <div class="detalle-section">
                                 {% if prof.precio_particular %}
                                 <h4>💵 Consulta Particular</h4>
@@ -701,18 +686,13 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Bloque 4: Contacto Directo (Abajo o 2da fila) -->
                             <div class="detalle-section" style="{% if not prof.descripcion %}grid-column: 1 / -1;{% endif %}">
                                 <h4>📞 Contacto Directo</h4>
                                 {% if prof.telefono %}
-                                    <!-- IMPORTANTE: Asegurate de que el número esté guardado sin espacios ni +, solo el código de área y número -->
                                     <a href="https://wa.me/54{{ prof.telefono|cut:' '|cut:'-' }}" target="_blank" class="contacto-linea" style="text-decoration: none; color: var(--text-secondary);">
                                         <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> Chatear por WhatsApp
                                     </a>
                                 {% endif %}
-                                <!-- {% if prof.email %}
-                                    <div class="contacto-linea"><i class="fas fa-envelope"></i> {{ prof.email }}</div>
-                                {% endif %} -->
                             </div>
 
                         </div>
@@ -723,7 +703,7 @@
         </div>
     </section>
 
-    <!-- ========== INFORMACIÓN DEL CONSULTORIO ========== -->
+        <!-- ========== INFORMACIÓN DEL CONSULTORIO ========== -->
     {% if cliente.establecimiento %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -734,25 +714,31 @@
             
             <div class="info-grid">
                 {% if cliente.establecimiento.direccion %}
-                <div class="info-card">
-                    <div class="icono">📍</div>
-                    <h4>Dirección</h4>
-                    <p>{{ cliente.establecimiento.direccion }}</p>
-                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.establecimiento.direccion|urlencode }}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="info-card" style="cursor: pointer;">
+                        <div class="icono">📍</div>
+                        <h4>Dirección</h4>
+                        <p>{{ cliente.establecimiento.direccion }}</p>
+                    </div>
+                </a>
                 {% endif %}
                 {% if cliente.establecimiento.telefono %}
-                <div class="info-card">
-                    <div class="icono">📞</div>
-                    <h4>Teléfono</h4>
-                    <p>{{ cliente.establecimiento.telefono }}</p>
-                </div>
+                <a href="tel:{{ cliente.establecimiento.telefono }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="info-card" style="cursor: pointer;">
+                        <div class="icono">📞</div>
+                        <h4>Teléfono</h4>
+                        <p>{{ cliente.establecimiento.telefono }}</p>
+                    </div>
+                </a>
                 {% endif %}
                 {% if cliente.establecimiento.email %}
-                <div class="info-card">
-                    <div class="icono">✉️</div>
-                    <h4>Email</h4>
-                    <p>{{ cliente.establecimiento.email }}</p>
-                </div>
+                <a href="mailto:{{ cliente.establecimiento.email }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="info-card" style="cursor: pointer;">
+                        <div class="icono">✉️</div>
+                        <h4>Email</h4>
+                        <p>{{ cliente.establecimiento.email }}</p>
+                    </div>
+                </a>
                 {% endif %}
             </div>
         </div>
@@ -760,42 +746,43 @@
     {% endif %}
 
     <!-- ========== FOOTER MEJORADO ========== -->
-<footer class="footer">
-    <div class="container-custom" style="display: flex; flex-direction: column; gap: 20px;">
-        
-        <!-- Primera fila: Datos generales -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+    <footer class="footer">
+        <div class="container-custom" style="display: flex; flex-direction: column; gap: 20px;">
             
-            <div>
-                <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Atención al Paciente</h4>
-                <p style="margin: 0; font-size: 0.85rem;">Lun a Vie: 7:30 a 20:00 hs</p>
-                <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 a 12:00 hs</p>
+            <!-- Primera fila: Datos generales -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                
+                <div>
+                    <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Atención al Paciente</h4>
+                    <p style="margin: 0; font-size: 0.85rem;">Lun a Vie: 7:30 a 20:00 hs</p>
+                    <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 a 12:00 hs</p>
+                </div>
+                
+                <div>
+                    <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Laboratorio</h4>
+                    <p style="margin: 0; font-size: 0.85rem;">Extracción: Lun a Vie 7:30 - 10:30 hs</p>
+                    <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 - 10:30 hs</p>
+                </div>
+                
+                <div>
+                    <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Contacto</h4>
+                    <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-phone"></i> 387 5 125 955</p>
+                    <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-envelope"></i> info@consultoriosalta.com</p>
+                </div>
+                
             </div>
-            
-            <div>
-                <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Laboratorio</h4>
-                <p style="margin: 0; font-size: 0.85rem;">Extracción: Lun a Vie 7:30 - 10:30 hs</p>
-                <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 - 10:30 hs</p>
-            </div>
-            
-            <div>
-                <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Contacto</h4>
-                <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-phone"></i> 387 5 125 955</p>
-                <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-envelope"></i> info@consultoriosalta.com</p>
-            </div>
-            
-        </div>
 
-        <!-- Segunda fila: Copyright y Links (El footer que ya tenías) -->
-        <div class="footer-content">
-            <span>© {% now "Y" %} {{ cliente.nombre }}</span>
-            
-            <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+            <!-- Segunda fila: Copyright y Links -->
+            <div class="footer-content">
+                <span>© {% now "Y" %} {{ cliente.nombre }}</span>
+                <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
 </div>
+
+
 
 <script>
 // Filtro por especialidad
@@ -806,9 +793,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     filtros.forEach(filtro => {
         filtro.addEventListener('click', function() {
-            // Quitar active de todos
             filtros.forEach(f => f.classList.remove('active'));
-            // Activar este
             this.classList.add('active');
             
             const especialidadSeleccionada = this.dataset.especialidad;
@@ -823,43 +808,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Mostrar/ocultar mensaje sin resultados
             if (visibleCount === 0) {
                 sinResultados.classList.add('visible');
             } else {
                 sinResultados.classList.remove('visible');
             }
             
-            // Cerrar todas las fichas expandidas al cambiar el filtro
             document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
         });
     });
 });
 
-// Toggle ficha (con scroll suave mejorado)
+// Toggle ficha
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);
     const flecha = document.getElementById('flecha-' + id.split('-')[1]);
     const isOpen = ficha.classList.contains('active');
     
-    // Cerrar todos primero (cierre suave)
-    document.querySelectorAll('.profesional-detalle').forEach(f => {
-        f.classList.remove('active');
-    });
-    document.querySelectorAll('.btn-expand').forEach(f => {
-        f.classList.remove('open');
-    });
+    document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
+    document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
     
     if (!isOpen) {
-        // Abrir el seleccionado
         ficha.classList.add('active');
         flecha.classList.add('open');
-        
-        // Scroll suave hacia la tarjeta abierta para que no se pierda
         setTimeout(() => {
             const cardRect = header.closest('.profesional-card').getBoundingClientRect();
-            // Si la tarjeta está muy abajo o arriba, hacer scroll centrado
             if (cardRect.top < 0 || cardRect.bottom > window.innerHeight) {
                 header.closest('.profesional-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }

@@ -1,4 +1,5 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}{{ profesional.nombre_completo }} - {{ profesional.get_especialidad_display }} | Turnos Online{% endblock %}
 
@@ -42,7 +43,6 @@
     /* ========== HERO ========== */
     .hero {
         width: 100%;
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d3b2e 100%);
         padding: 80px 0 70px 0;
         text-align: center;
         color: white;
@@ -382,8 +382,8 @@
     /* ========== BOTÓN FLOTANTE DE ACCIÓN (CTA) - A LA IZQUIERDA ========== */
     .btn-flotante-turno {
         position: fixed;
-        bottom: 20px;
-        left: 20px; /* CAMBIADO A LA IZQUIERDA */
+        bottom: 30px; /* SUBIDO 10px PARA NO CHOCAR EN MÓVILES */
+        left: 20px; 
         background: var(--success);
         color: white;
         padding: 16px 28px;
@@ -397,6 +397,8 @@
         align-items: center;
         gap: 8px;
         transition: all 0.3s;
+        /* Seguro para móviles con barra inferior (iPhone) */
+        bottom: calc(20px + env(safe-area-inset-bottom)); 
     }
 
     .btn-flotante-turno:hover {
@@ -411,13 +413,13 @@
         width: 100%;
         background: #0f172a;
         color: #94a3b8;
-        padding: 20px 0;
+        padding: 25px 0 40px 0; /* Aumenté el padding inferior para dar espacio a los botones */
         font-size: 0.85rem;
     }
 
     .footer-content {
         display: flex;
-        justify-content: space-between;
+        justify-content:space-around;
         align-items: center;
         flex-wrap: wrap;
         gap: 8px;
@@ -441,8 +443,9 @@
             width: auto;
             padding: 14px 20px;
             font-size: 0.9rem;
-            bottom: 15px;
-            left: 15px; /* Asegurar que se mantenga a la izquierda en móviles */
+            /* Ajuste calculado en móviles (subido) */
+            bottom: calc(15px + env(safe-area-inset-bottom));
+            left: 15px;
         }
     }
 </style>
@@ -452,7 +455,9 @@
 <div class="landing">
 
     <!-- ========== HERO ========== -->
-    <section class="hero">
+    
+    
+    <section class="hero" style="background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{% static 'img/centro-de-rehabilitacion-scaled.webp' %}'); background-size: cover; background-position: center;">
         <div class="hero-content">
             {% if profesional.foto %}
                 <img src="{{ profesional.foto.url }}" alt="{{ profesional.nombre_completo }}" class="hero-avatar">
@@ -465,10 +470,6 @@
             
             <h1>{{ profesional.nombre_completo }}</h1>
             <p class="especialidad-hero">{{ profesional.get_especialidad_display }}</p>
-            
-            {% if profesional.frase_destacada %}
-                <p class="frase-destacada">"{{ profesional.frase_destacada }}"</p>
-            {% endif %}
             
             <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-hero">
                 <i class="fas fa-calendar-plus"></i> Sacar Turno Ahora
@@ -513,13 +514,12 @@
                         </ul>
                     </div>
                     {% endif %}
-                
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ========== DONDE ATIENDO ========== -->
+        <!-- ========== DONDE ATIENDO ========== -->
     {% if consultorios %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -536,15 +536,19 @@
                     
                     {% if est.direccion %}
                     <div class="dato">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ est.direccion }}</span>
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: flex-start; gap: 10px; width: 100%;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary); width: 18px; margin-top: 3px;"></i>
+                            <span>{{ est.direccion }}</span>
+                        </a>
                     </div>
                     {% endif %}
                     
                     {% if est.telefono %}
                     <div class="dato">
-                        <i class="fas fa-phone"></i>
-                        <span>{{ est.telefono }}</span>
+                        <a href="tel:{{ est.telefono }}" style="text-decoration: none; color: inherit; display: flex; align-items: flex-start; gap: 10px; width: 100%;">
+                            <i class="fas fa-phone" style="color: var(--primary); width: 18px; margin-top: 3px;"></i>
+                            <span>{{ est.telefono }}</span>
+                        </a>
                     </div>
                     {% endif %}
                     
@@ -565,7 +569,7 @@
         </div>
     </section>
     {% endif %}
-
+    
    <!-- ========== SERVICIOS Y COBERTURA ========== -->
     {% if profesional.precio_particular or profesional.obras_sociales.exists %}
     <section class="section section-alt">
@@ -631,8 +635,8 @@
     <!-- ========== FOOTER ========== -->
     <footer class="footer">
         <div class="container-custom footer-content">
-            <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
             <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+            <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
         </div>
     </footer>
 
@@ -643,4 +647,4 @@
     <i class="fas fa-calendar-plus"></i> Sacar Turno
 </a>
 
-{% endblock %}
+{% endblock %}  
