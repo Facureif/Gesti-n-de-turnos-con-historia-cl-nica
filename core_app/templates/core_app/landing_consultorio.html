@@ -26,9 +26,9 @@
         --bg: #ffffff;
         --bg-alt: #f8fafc;
         --border: #e5e7eb;
-        --radius: 12px;
-        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --radius: 16px;
+        --shadow: 0 4px 10px -4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02);
+        --shadow-lg: 0 8px 25px -8px rgba(0,0,0,0.12), 0 0 0 1px rgba(37, 99, 235, 0.1);
     }
 
     /* --- CONTENEDOR INTERNO --- */
@@ -43,8 +43,9 @@
     /* ========== HERO ========== */
     .hero {
         width: 100%;
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d3b2e 100%);
-        padding: 60px 0;
+        /* Gradiente más cálido y "saludable" (Teal/Azul) */
+        background: linear-gradient(135deg, #0b3550 0%, #145c7e 40%, #2b8c7c 100%);
+        padding: 80px 0;
         text-align: center;
         color: white;
         position: relative;
@@ -109,12 +110,12 @@
         font-size: 1rem;
         text-decoration: none;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
 
     .btn-hero:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.3);
         color: var(--primary);
     }
 
@@ -206,10 +207,14 @@
     .profesional-card {
         background: white;
         border-radius: var(--radius);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
         overflow: hidden;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
+    }
+
+    .profesional-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
     }
 
     .profesional-card.oculto {
@@ -219,10 +224,10 @@
     .profesional-header {
         display: flex;
         align-items: center;
-        padding: 20px 24px;
+        padding: 24px;
         cursor: pointer;
         transition: background 0.2s ease;
-        gap: 16px;
+        gap: 20px;
     }
 
     .profesional-header:hover {
@@ -230,17 +235,17 @@
     }
 
     .profesional-avatar {
-        width: 70px;
-        height: 70px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
         object-fit: cover;
-        border: 2px solid #dbeafe;
+        border: 3px solid #eff6ff;
         flex-shrink: 0;
     }
 
     .profesional-avatar-placeholder {
-        width: 70px;
-        height: 70px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
         background: linear-gradient(135deg, #dbeafe, #bfdbfe);
         display: flex;
@@ -249,6 +254,7 @@
         font-size: 1.8rem;
         color: var(--primary);
         flex-shrink: 0;
+        border: 3px solid #eff6ff;
     }
 
     .profesional-info {
@@ -257,17 +263,17 @@
     }
 
     .profesional-info h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: 1.15rem;
+        font-weight: 600;
         color: var(--text);
         margin: 0 0 2px 0;
     }
 
     .profesional-info .especialidad {
         color: var(--primary);
-        font-weight: 600;
+        font-weight: 500;
         font-size: 0.85rem;
-        margin: 0 0 6px 0;
+        margin: 0 0 8px 0;
     }
 
     .profesional-tags {
@@ -304,10 +310,10 @@
         gap: 6px;
         background: var(--success);
         color: white;
-        padding: 8px 20px;
+        padding: 10px 24px;
         border-radius: 9999px;
-        font-weight: 600;
-        font-size: 0.85rem;
+        font-weight: 500;
+        font-size: 0.9rem;
         text-decoration: none;
         transition: all 0.2s ease;
         white-space: nowrap;
@@ -338,59 +344,110 @@
         color: var(--primary);
     }
 
+    /* ========== MEJORA DEL ACORDEÓN DESPLEGADO ========== */
     .profesional-detalle {
         display: none;
         padding: 0 24px 24px;
         border-top: 1px solid var(--border);
+        background: #fafbfc;
+        border-radius: 0 0 var(--radius) var(--radius);
     }
 
     .profesional-detalle.active {
         display: block;
+        animation: fadeIn 0.3s ease;
     }
 
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid interno: 2 columnas, pero flexibles */
     .detalle-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        padding-top: 20px;
+        gap: 24px 40px;
+        padding-top: 24px;
     }
 
+    /* En móviles, una sola columna */
+    @media (max-width: 768px) {
+        .detalle-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .profesional-detalle {
+            padding: 0 16px 20px;
+        }
+    }
+
+    /* Estilo de cada bloque de información */
+    .detalle-section {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    /* El título de la sección (ej: "Horarios de Atención") */
     .detalle-section h4 {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-muted);
-        margin: 0 0 8px 0;
+        letter-spacing: 0.08em;
+        color: #6b7280;
+        margin: 0 0 4px 0;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 4px;
     }
 
     .detalle-section p {
         color: var(--text-secondary);
-        font-size: 0.85rem;
-        margin: 3px 0;
-        line-height: 1.6;
+        font-size: 0.875rem;
+        margin: 0;
+        line-height: 1.5;
     }
 
+    /* Precio grande y destacado */
     .precio-destacado {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         font-weight: 700;
         color: var(--success);
+        margin-top: 4px !important;
     }
 
+    /* Lista de Obras Sociales */
     .obras-sociales-list {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
-        margin-top: 6px;
+        margin-top: 4px;
     }
 
     .os-badge {
-        font-size: 0.72rem;
-        padding: 3px 10px;
+        font-size: 0.7rem;
+        padding: 4px 12px;
         border-radius: 9999px;
         background: #ede9fe;
         color: #5b21b6;
         font-weight: 500;
+    }
+
+    /* Para las secciones que ocupan todo el ancho (ej: Sobre el Dr) */
+    .detalle-section.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* Texto de contacto con iconos alineados */
+    .contacto-linea {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 2px;
+    }
+    .contacto-linea i {
+        width: 16px;
+        color: #9ca3af;
     }
 
     /* Mensaje sin resultados */
@@ -449,44 +506,6 @@
         margin: 0;
     }
 
-    /* ========== BENEFICIOS ========== */
-    .beneficios-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 20px;
-    }
-
-    .beneficio-item {
-        text-align: center;
-        padding: 20px 12px;
-        border-radius: var(--radius);
-        background: white;
-        border: 1px solid var(--border);
-    }
-
-    .beneficio-icono {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin: 0 auto 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-    }
-
-    .beneficio-item h4 {
-        font-weight: 700;
-        font-size: 1rem;
-        margin: 0 0 4px 0;
-    }
-
-    .beneficio-item p {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        margin: 0;
-    }
-
     /* ========== FOOTER ========== */
     .footer {
         width: 100%;
@@ -514,10 +533,10 @@
         color: #93c5fd;
     }
 
-    /* ========== MEDIA QUERIES ========== */
+    /* ========== MEDIA QUERIES GENERALES ========== */
     @media (max-width: 768px) {
         .hero { 
-            padding: 40px 0; 
+            padding: 50px 0; 
         }
         
         .section { 
@@ -539,20 +558,8 @@
             justify-content: flex-end;
             padding-top: 8px;
         }
-        
-        .detalle-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .profesional-detalle {
-            padding: 0 16px 20px;
-        }
-        
+                
         .info-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .beneficios-grid {
             grid-template-columns: 1fr;
         }
         
@@ -651,33 +658,19 @@
                         </div>
                     </div>
                     
+                    <!-- ========== ACORDEÓN MEJORADO ========== -->
                     <div class="profesional-detalle" id="ficha-{{ prof.id }}">
                         <div class="detalle-grid">
+                            
+                            <!-- Bloque 1: Bio (ocupa todo el ancho si existe) -->
                             {% if prof.descripcion %}
-                            <div class="detalle-section" style="grid-column: 1 / -1;">
+                            <div class="detalle-section full-width">
                                 <h4>Sobre {{ prof.nombre }}</h4>
                                 <p>{{ prof.descripcion }}</p>
                             </div>
                             {% endif %}
-                            
-                            {% if prof.get_especializaciones_list %}
-                            <div class="detalle-section">
-                                <h4>🎯 Especializaciones</h4>
-                                {% for esp in prof.get_especializaciones_list %}
-                                    <p>• {{ esp }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            
-                            {% if prof.get_servicios_list %}
-                            <div class="detalle-section">
-                                <h4>⭐ Servicios</h4>
-                                {% for servicio in prof.get_servicios_list %}
-                                    <p>• {{ servicio }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            
+
+                            <!-- Bloque 2: Horarios (Columna Izq) -->
                             <div class="detalle-section">
                                 <h4>⏰ Horarios de Atención</h4>
                                 {% with agenda=prof.agenda_set.first %}
@@ -686,11 +679,12 @@
                                             <p><strong>{{ h.get_dia_display }}:</strong> {{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</p>
                                         {% endfor %}
                                     {% else %}
-                                        <p style="color: var(--text-muted);">Consultar horarios disponibles</p>
+                                        <p style="color: var(--text-muted); font-style: italic;">Consultar horarios disponibles</p>
                                     {% endif %}
                                 {% endwith %}
                             </div>
-                            
+
+                            <!-- Bloque 3: Costos y Obras (Columna Der) -->
                             <div class="detalle-section">
                                 {% if prof.precio_particular %}
                                 <h4>💵 Consulta Particular</h4>
@@ -706,62 +700,25 @@
                                 </div>
                                 {% endif %}
                             </div>
-                            
-                            <div class="detalle-section">
+
+                            <!-- Bloque 4: Contacto Directo (Abajo o 2da fila) -->
+                            <div class="detalle-section" style="{% if not prof.descripcion %}grid-column: 1 / -1;{% endif %}">
                                 <h4>📞 Contacto Directo</h4>
                                 {% if prof.telefono %}
-                                    <p><i class="fas fa-phone"></i> {{ prof.telefono }}</p>
+                                    <!-- IMPORTANTE: Asegurate de que el número esté guardado sin espacios ni +, solo el código de área y número -->
+                                    <a href="https://wa.me/54{{ prof.telefono|cut:' '|cut:'-' }}" target="_blank" class="contacto-linea" style="text-decoration: none; color: var(--text-secondary);">
+                                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> Chatear por WhatsApp
+                                    </a>
                                 {% endif %}
-                                {% if prof.email %}
-                                    <p><i class="fas fa-envelope"></i> {{ prof.email }}</p>
-                                {% endif %}
+                                <!-- {% if prof.email %}
+                                    <div class="contacto-linea"><i class="fas fa-envelope"></i> {{ prof.email }}</div>
+                                {% endif %} -->
                             </div>
+
                         </div>
                     </div>
                 </div>
                 {% endfor %}
-            </div>
-        </div>
-    </section>
-
-    <!-- ========== BENEFICIOS ========== -->
-    <section class="section">
-        <div class="container-custom">
-            <div class="section-header">
-                <span class="section-label">Ventajas</span>
-                <h2 class="section-title">¿Por qué sacar turno online?</h2>
-                <p class="section-subtitle">Nuestro sistema está pensado para vos.</p>
-            </div>
-            
-            <div class="beneficios-grid">
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #dbeafe; color: #2563eb;">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h4>Rápido</h4>
-                    <p>Sacá tu turno en segundos, sin llamadas ni esperas.</p>
-                </div>
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #d1fae5; color: #059669;">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h4>Cómodo</h4>
-                    <p>Desde tu celular, computadora o tablet. 24 horas, 7 días.</p>
-                </div>
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #fef3c7; color: #d97706;">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <h4>Recordatorios</h4>
-                    <p>Te avisamos antes de tu turno para que no te olvides.</p>
-                </div>
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #ede9fe; color: #7c3aed;">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h4>Seguro</h4>
-                    <p>Tus datos están protegidos y son confidenciales.</p>
-                </div>
             </div>
         </div>
     </section>
@@ -802,13 +759,41 @@
     </section>
     {% endif %}
 
-    <!-- ========== FOOTER ========== -->
-    <footer class="footer">
-        <div class="container-custom footer-content">
+    <!-- ========== FOOTER MEJORADO ========== -->
+<footer class="footer">
+    <div class="container-custom" style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Primera fila: Datos generales -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+            
+            <div>
+                <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Atención al Paciente</h4>
+                <p style="margin: 0; font-size: 0.85rem;">Lun a Vie: 7:30 a 20:00 hs</p>
+                <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 a 12:00 hs</p>
+            </div>
+            
+            <div>
+                <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Laboratorio</h4>
+                <p style="margin: 0; font-size: 0.85rem;">Extracción: Lun a Vie 7:30 - 10:30 hs</p>
+                <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 - 10:30 hs</p>
+            </div>
+            
+            <div>
+                <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Contacto</h4>
+                <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-phone"></i> 387 5 125 955</p>
+                <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-envelope"></i> info@consultoriosalta.com</p>
+            </div>
+            
+        </div>
+
+        <!-- Segunda fila: Copyright y Links (El footer que ya tenías) -->
+        <div class="footer-content">
             <span>© {% now "Y" %} {{ cliente.nombre }}</span>
+            
             <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
         </div>
-    </footer>
+    </div>
+</footer>
 
 </div>
 
@@ -845,28 +830,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 sinResultados.classList.remove('visible');
             }
             
-            // Cerrar todas las fichas expandidas
+            // Cerrar todas las fichas expandidas al cambiar el filtro
             document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
         });
     });
 });
 
-// Toggle ficha
+// Toggle ficha (con scroll suave mejorado)
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);
     const flecha = document.getElementById('flecha-' + id.split('-')[1]);
     const isOpen = ficha.classList.contains('active');
     
-    document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
-    document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
+    // Cerrar todos primero (cierre suave)
+    document.querySelectorAll('.profesional-detalle').forEach(f => {
+        f.classList.remove('active');
+    });
+    document.querySelectorAll('.btn-expand').forEach(f => {
+        f.classList.remove('open');
+    });
     
     if (!isOpen) {
+        // Abrir el seleccionado
         ficha.classList.add('active');
         flecha.classList.add('open');
+        
+        // Scroll suave hacia la tarjeta abierta para que no se pierda
         setTimeout(() => {
-            ficha.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 150);
+            const cardRect = header.closest('.profesional-card').getBoundingClientRect();
+            // Si la tarjeta está muy abajo o arriba, hacer scroll centrado
+            if (cardRect.top < 0 || cardRect.bottom > window.innerHeight) {
+                header.closest('.profesional-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
     }
 }
 </script>

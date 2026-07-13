@@ -5,13 +5,11 @@
 {% block extra_css %}
 <style>
     /* --- CORRECCIÓN PARA ANULAR EL BASE.HTML --- */
-    /* Esto hace que el contenedor del base.html ocupe el 100% del ancho en esta página */
     .container {
         max-width: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
     }
-    /* Aseguramos que el body o el wrapper no tengan padding extra */
     .landing {
         width: 100%;
     }
@@ -35,17 +33,17 @@
     /* --- CONTENEDOR INTERNO --- */
     .container-custom {
         width: 100%;
-        max-width: 1140px; /* Ancho controlado para el contenido */
+        max-width: 1140px;
         margin: 0 auto;
         padding: 0 20px;
         box-sizing: border-box;
     }
 
-    /* ========== HERO (Ancho completo) ========== */
+    /* ========== HERO ========== */
     .hero {
         width: 100%;
         background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d3b2e 100%);
-        padding: 60px 0;
+        padding: 80px 0 70px 0;
         text-align: center;
         color: white;
         position: relative;
@@ -61,12 +59,28 @@
     }
 
     .hero-avatar {
-        width: 120px;
-        height: 120px;
+        width: 130px;
+        height: 130px;
         border-radius: 50%;
         object-fit: cover;
         border: 4px solid rgba(255,255,255,0.2);
         background: #e2e8f0;
+        margin-bottom: 16px;
+    }
+
+    /* Placeholder con iniciales */
+    .hero-avatar-placeholder {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: #334155;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        font-weight: 600;
+        color: white;
+        border: 4px solid rgba(255,255,255,0.2);
         margin-bottom: 16px;
     }
 
@@ -99,27 +113,10 @@
     }
 
     .hero .frase-destacada {
-        font-size: 1rem;
+        font-size: 1.05rem;
         color: #cbd5e1;
         font-style: italic;
-        margin: 0 0 20px 0;
-    }
-
-    .hero-tags {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 24px;
-    }
-
-    .hero-tag {
-        font-size: 0.8rem;
-        padding: 4px 14px;
-        border-radius: 9999px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        color: #e2e8f0;
+        margin: 0 0 25px 0;
     }
 
     .btn-hero {
@@ -128,7 +125,7 @@
         gap: 8px;
         background: white;
         color: #0f172a;
-        padding: 12px 32px;
+        padding: 14px 36px;
         border-radius: 9999px;
         font-weight: 600;
         font-size: 1rem;
@@ -189,36 +186,44 @@
 
     .sobre-mi-content .descripcion {
         color: var(--text-secondary);
-        font-size: 1rem;
+        font-size: 1.05rem;
         line-height: 1.7;
-        margin-bottom: 24px;
+        margin-bottom: 32px;
     }
 
-    .especialidades-grid {
+    .info-cajas-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 16px;
+        margin-top: 24px;
     }
 
-    .especialidad-card {
+    .info-caja {
         background: white;
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        padding: 20px 16px;
+        padding: 20px;
         text-align: center;
         box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    .especialidad-card .icono {
+    .info-caja .icono-grande {
         font-size: 1.8rem;
-        display: block;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
 
-    .especialidad-card h4 {
-        font-weight: 600;
+    .info-caja h4 {
+        font-weight: 700;
+        margin-bottom: 8px;
         color: var(--text);
-        font-size: 0.95rem;
+    }
+
+    .info-caja ul {
+        list-style: none;
+        padding: 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.8;
         margin: 0;
     }
 
@@ -339,44 +344,6 @@
     .os-tag { background: #ede9fe; color: #5b21b6; }
     .servicio-tag { background: #dbeafe; color: #1e40af; }
 
-    /* ========== BENEFICIOS ========== */
-    .beneficios-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 20px;
-    }
-
-    .beneficio-item {
-        text-align: center;
-        padding: 20px 12px;
-        border-radius: var(--radius);
-        background: white;
-        border: 1px solid var(--border);
-    }
-
-    .beneficio-icono {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin: 0 auto 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-    }
-
-    .beneficio-item h4 {
-        font-weight: 700;
-        font-size: 1rem;
-        margin: 0 0 4px 0;
-    }
-
-    .beneficio-item p {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        margin: 0;
-    }
-
     /* ========== CONTACTO ========== */
     .contacto-grid {
         display: flex;
@@ -401,14 +368,43 @@
         flex: 1 1 auto;
         min-width: 180px;
         justify-content: center;
+        transition: all 0.2s;
     }
 
     .contacto-item:hover {
         border-color: var(--primary);
         color: var(--text);
+        transform: translateY(-2px);
     }
 
     .contacto-item i { color: var(--primary); }
+
+    /* ========== BOTÓN FLOTANTE DE ACCIÓN (CTA) - A LA IZQUIERDA ========== */
+    .btn-flotante-turno {
+        position: fixed;
+        bottom: 20px;
+        left: 20px; /* CAMBIADO A LA IZQUIERDA */
+        background: var(--success);
+        color: white;
+        padding: 16px 28px;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4);
+        text-decoration: none;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-flotante-turno:hover {
+        background: #047857;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5);
+        color: white;
+    }
 
     /* ========== FOOTER ========== */
     .footer {
@@ -435,11 +431,19 @@
 
     /* ========== MEDIA QUERIES ========== */
     @media (max-width: 768px) {
-        .hero { padding: 40px 0; }
+        .hero { padding: 50px 0 60px 0; }
         .section { padding: 40px 0; }
         .consultorios-grid { grid-template-columns: 1fr; }
         .info-destacada-grid { grid-template-columns: 1fr; }
         .footer-content { flex-direction: column; text-align: center; }
+        
+        .btn-flotante-turno {
+            width: auto;
+            padding: 14px 20px;
+            font-size: 0.9rem;
+            bottom: 15px;
+            left: 15px; /* Asegurar que se mantenga a la izquierda en móviles */
+        }
     }
 </style>
 {% endblock %}
@@ -453,8 +457,9 @@
             {% if profesional.foto %}
                 <img src="{{ profesional.foto.url }}" alt="{{ profesional.nombre_completo }}" class="hero-avatar">
             {% else %}
-                <div class="hero-avatar-placeholder" style="width:120px;height:120px;border-radius:50%;background:#334155;display:inline-flex;align-items:center;justify-content:center;font-size:3rem;color:white;margin-bottom:16px;">
-                    👨‍⚕️
+                <!-- Placeholder inteligente con las iniciales -->
+                <div class="hero-avatar-placeholder">
+                    {{ profesional.nombre_completo|slice:":1" }}{{ profesional.apellido|slice:":1" }}
                 </div>
             {% endif %}
             
@@ -470,57 +475,49 @@
             </a>
         </div>
     </section>
-<!-- ========== SOBRE MÍ ========== -->
-<section class="section">
-    <div class="container-custom">
-        <div class="section-header">
-            <span class="section-label">Profesional</span>
-            <h2 class="section-title">Sobre Mí</h2>
-        </div>
-        
-        <div class="sobre-mi-content">
-            {% if profesional.descripcion %}
-                <p class="descripcion">{{ profesional.descripcion }}</p>
-            {% endif %}
+
+    <!-- ========== SOBRE MÍ ========== -->
+    <section class="section">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">Profesional</span>
+                <h2 class="section-title">Sobre Mí</h2>
+            </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
-                {% if profesional.get_especializaciones_list %}
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 1.8rem; margin-bottom: 8px;">🎯</div>
-                    <h4 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Especializaciones</h4>
-                    <ul style="list-style: none; padding: 0; color: #4b5563; font-size: 0.9rem; line-height: 1.8;">
-                        {% for esp in profesional.get_especializaciones_list %}
-                            <li>✓ {{ esp }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+            <div class="sobre-mi-content">
+                {% if profesional.descripcion %}
+                    <p class="descripcion">{{ profesional.descripcion }}</p>
                 {% endif %}
                 
-                {% if profesional.get_servicios_list %}
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 1.8rem; margin-bottom: 8px;">⭐</div>
-                    <h4 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Servicios</h4>
-                    <ul style="list-style: none; padding: 0; color: #4b5563; font-size: 0.9rem; line-height: 1.8;">
-                        {% for servicio in profesional.get_servicios_list %}
-                            <li>✓ {{ servicio }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
+                <div class="info-cajas-grid">
+                    {% if profesional.get_especializaciones_list %}
+                    <div class="info-caja">
+                        <div class="icono-grande">🎯</div>
+                        <h4>Especializaciones</h4>
+                        <ul>
+                            {% for esp in profesional.get_especializaciones_list %}
+                                <li>✓ {{ esp }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profesional.get_servicios_list %}
+                    <div class="info-caja">
+                        <div class="icono-grande">⭐</div>
+                        <h4>Servicios</h4>
+                        <ul>
+                            {% for servicio in profesional.get_servicios_list %}
+                                <li>✓ {{ servicio }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center;">
-                    <div style="font-size: 1.8rem; margin-bottom: 8px;">📅</div>
-                    <h4 style="font-weight: 700; margin-bottom: 8px; color: #1f2937;">Disponibilidad</h4>
-                    <ul style="list-style: none; padding: 0; color: #4b5563; font-size: 0.9rem; line-height: 1.8;">
-                        <li>✓ Turnos online 24/7</li>
-                        <li>✓ Recordatorios automáticos</li>
-                        <li>✓ Cancelación sin cargo</li>
-                    </ul>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
     <!-- ========== DONDE ATIENDO ========== -->
     {% if consultorios %}
@@ -570,79 +567,38 @@
     {% endif %}
 
    <!-- ========== SERVICIOS Y COBERTURA ========== -->
-{% if profesional.precio_particular or profesional.obras_sociales.exists %}
-<section class="section section-alt">
-    <div class="container-custom">
-        <div class="section-header">
-            <span class="section-label">Cobertura</span>
-            <h2 class="section-title">Precios y Obras Sociales</h2>
-        </div>
-        
-        <div class="info-destacada-grid">
-            {% if profesional.precio_particular %}
-            <div class="info-destacada-card">
-                <span class="icono-header">💵</span>
-                <div class="precio-label">Consulta Particular</div>
-                <div class="precio-valor">${{ profesional.precio_particular }}</div>
-            </div>
-            {% endif %}
-            
-            {% if profesional.obras_sociales.exists %}
-            <div class="info-destacada-card">
-                <span class="icono-header">🏥</span>
-                <div class="precio-label">Obras Sociales que acepto</div>
-                <div class="obras-sociales-grid">
-                    {% for os in profesional.obras_sociales.all %}
-                        <span class="os-tag">{{ os.nombre }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-    <!-- ========== BENEFICIOS ========== -->
+    {% if profesional.precio_particular or profesional.obras_sociales.exists %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Ventajas</span>
-                <h2 class="section-title">¿Por qué sacar turno online?</h2>
+                <span class="section-label">Cobertura</span>
+                <h2 class="section-title">Precios y Obras Sociales</h2>
             </div>
             
-            <div class="beneficios-grid">
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #dbeafe; color: #2563eb;">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h4>Rápido</h4>
-                    <p>Reservá en segundos.</p>
+            <div class="info-destacada-grid">
+                {% if profesional.precio_particular %}
+                <div class="info-destacada-card">
+                    <span class="icono-header">💵</span>
+                    <div class="precio-label">Consulta Particular</div>
+                    <div class="precio-valor">${{ profesional.precio_particular }}</div>
                 </div>
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #d1fae5; color: #059669;">
-                        <i class="fas fa-mobile-alt"></i>
+                {% endif %}
+                
+                {% if profesional.obras_sociales.exists %}
+                <div class="info-destacada-card">
+                    <span class="icono-header">🏥</span>
+                    <div class="precio-label">Obras Sociales que acepto</div>
+                    <div class="obras-sociales-grid">
+                        {% for os in profesional.obras_sociales.all %}
+                            <span class="os-tag">{{ os.nombre }}</span>
+                        {% endfor %}
                     </div>
-                    <h4>Cómodo</h4>
-                    <p>Desde cualquier dispositivo.</p>
                 </div>
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #fef3c7; color: #d97706;">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <h4>Recordatorios</h4>
-                    <p>Nunca más un turno perdido.</p>
-                </div>
-                <div class="beneficio-item">
-                    <div class="beneficio-icono" style="background: #ede9fe; color: #7c3aed;">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h4>24/7</h4>
-                    <p>Disponible todo el día.</p>
-                </div>
+                {% endif %}
             </div>
         </div>
     </section>
+    {% endif %}
 
     <!-- ========== CONTACTO ========== -->
     {% if profesional.telefono or profesional.email %}
@@ -655,9 +611,10 @@
             
             <div class="contacto-grid">
                 {% if profesional.telefono %}
-                <a href="tel:{{ profesional.telefono }}" class="contacto-item">
-                    <i class="fas fa-phone-alt"></i>
-                    <span>{{ profesional.telefono }}</span>
+                <!-- Enlace directo a WhatsApp -->
+                <a href="https://wa.me/54{{ profesional.telefono|cut:' '|cut:'-'|cut:'+' }}" target="_blank" class="contacto-item">
+                    <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i>
+                    <span>Chatear por WhatsApp</span>
                 </a>
                 {% endif %}
                 {% if profesional.email %}
@@ -680,4 +637,10 @@
     </footer>
 
 </div>
+
+<!-- ========== BOTÓN FLOTANTE PARA SACAR TURNO (IZQUIERDA) ========== -->
+<a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-flotante-turno">
+    <i class="fas fa-calendar-plus"></i> Sacar Turno
+</a>
+
 {% endblock %}
