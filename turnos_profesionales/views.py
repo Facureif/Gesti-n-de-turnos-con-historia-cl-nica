@@ -171,6 +171,20 @@ def confirmar_turno(request, turno_id):
 
 
 @login_required
+def pasar_a_sala(request, turno_id):
+    turno = get_object_or_404(TurnoProfesional, id=turno_id)
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    turno.estado = 'en_sala'
+    turno.save()
+    messages.info(request, f'{turno.paciente.nombre_completo} ahora está en sala de espera.')
+    
+    if request.user.rol == 'secretaria':
+        return redirect('panel_secretaria')
+    return redirect('panel_profesional')
+
+@login_required
 def cancelar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
     if request.user.rol not in ['profesional', 'secretaria']:
@@ -694,7 +708,6 @@ def calendario_semanal(request):
                 messages.error(request, 'No hay profesionales en el consultorio.')
                 return redirect('panel_secretaria')
             
-
 @login_required
 def calendario_semanal(request):
     if request.user.rol not in ['profesional', 'secretaria']:
@@ -707,10 +720,12 @@ def calendario_semanal(request):
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
             profesional = Profesional.objects.filter(
-                establecimientos=request.user.establecimiento, activo=True
+                establecimientos=request.user.establecimiento, 
+                activo=True,
+                atiende_por_orden=False  # ← Solo los que usan turnos
             ).first()
             if not profesional:
-                messages.error(request, 'No hay profesionales en el consultorio.')
+                messages.error(request, 'No hay profesionales con turnos programados.')
                 return redirect('panel_secretaria')
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
@@ -809,7 +824,9 @@ def calendario_semanal(request):
     profesionales_consultorio = None
     if request.user.rol == 'secretaria':
         profesionales_consultorio = Profesional.objects.filter(
-            establecimientos=request.user.establecimiento, activo=True
+            establecimientos=request.user.establecimiento, 
+            activo=True,
+            atiende_por_orden=False  # ← Solo los que sacan turno
         )
     
     return render(request, 'turnos_profesionales/calendario.html', {
@@ -822,7 +839,6 @@ def calendario_semanal(request):
         'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
     })
-
 
 # ============ ASIGNAR TURNO DESDE CALENDARIO ============
 
@@ -1034,9 +1050,16 @@ def panel_secretaria(request):
     pendientes = turnos_hoy.filter(estado='pendiente').count()
     confirmados = turnos_hoy.filter(estado='confirmado').count()
     en_sala = turnos_hoy.filter(estado='en_sala').count()
+
+    profesionales_orden_llegada = Profesional.objects.filter(
+    establecimientos=establecimiento,
+    activo=True,
+    atiende_por_orden=True
+)
     
     return render(request, 'turnos_profesionales/panel_secretaria.html', {
         'profesionales': profesionales, 'profesional_seleccionado': profesional_seleccionado,
+        'profesionales_orden_llegada': profesionales_orden_llegada,
         'turnos_hoy': turnos_hoy, 'hoy': hoy, 'total_hoy': total_hoy,
         'pendientes': pendientes, 'confirmados': confirmados, 'en_sala': en_sala,
         'establecimiento': establecimiento,

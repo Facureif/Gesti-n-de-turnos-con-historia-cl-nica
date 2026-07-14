@@ -636,10 +636,16 @@
                         </div>
                         
                         <div class="profesional-actions">
-                            <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=prof.id %}" 
-                               class="btn-sacar-turno" onclick="event.stopPropagation();">
-                                <i class="fas fa-calendar-plus"></i> Sacar Turno
-                            </a>
+                            {% if prof.atiende_por_orden %}
+                                <span >
+                                    Orden de Llegada
+                                </span>
+                            {% else %}
+                                <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=prof.id %}" 
+                                class="btn-sacar-turno" onclick="event.stopPropagation();">
+                                    <i class="fas fa-calendar-plus"></i> Sacar Turno
+                                </a>
+                            {% endif %}
                             <span class="btn-expand" id="flecha-{{ prof.id }}">
                                 <i class="fas fa-chevron-down"></i>
                             </span>

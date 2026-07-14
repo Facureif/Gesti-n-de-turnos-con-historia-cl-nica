@@ -66,7 +66,10 @@ class Profesional(Persona):
     servicios_texto = models.TextField(blank=True, verbose_name='Servicios / Especializaciones')
     servicios_destacados = models.TextField(blank=True, verbose_name='Servicios destacados')
     especializaciones = models.TextField(blank=True, verbose_name='Especializaciones')
-
+    atiende_por_orden = models.BooleanField(
+    default=False,
+    verbose_name='Atiende por orden de llegada'
+)
     obras_sociales = models.ManyToManyField(
         'obras_sociales.ObraSocial',
         blank=True,
