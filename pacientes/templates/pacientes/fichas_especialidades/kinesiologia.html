@@ -121,8 +121,20 @@
                 <tr>
                     <td><strong>{{ lesion.fecha_lesion|date:"d/m/Y" }}</strong></td>
                     <td><span class="badge badge-info">{{ lesion.get_tipo_lesion_display }}</span></td>
-                    <td>{{ lesion.zona }}</td>
-                    <td>{{ lesion.descripcion|truncatechars:50|default:"—" }}</td>
+                    <td>
+                        <span class="tooltip-cell" data-tooltip="{{ lesion.zona }}">
+                            {{ lesion.zona|truncatechars:30 }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if lesion.descripcion %}
+                        <span class="tooltip-cell" data-tooltip="{{ lesion.descripcion|escapejs }}">
+                            {{ lesion.descripcion|truncatechars:50 }}
+                        </span>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
                     <td>
                         {% if lesion.resuelta %}
                             <span class="badge badge-success">✅ Resuelta</span>
@@ -162,6 +174,66 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+/* Estilos para los tooltips */
+.tooltip-cell {
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px dotted #666;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.tooltip-cell:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 350px;
+    min-width: 200px;
+    z-index: 1000;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    line-height: 1.4;
+    text-align: left;
+}
+
+.tooltip-cell:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    z-index: 1001;
+    margin-bottom: 2px;
+}
+
+/* Asegurar que la celda tenga posición relativa para el tooltip */
+td {
+    position: relative;
+    overflow: visible;
+}
+
+/* Hacer que la tabla no corte los tooltips */
+.table-container {
+    overflow: visible;
+}
+
+table {
+    overflow: visible;
+}
+</style>
 
 <script>
 function calcularIMC() {

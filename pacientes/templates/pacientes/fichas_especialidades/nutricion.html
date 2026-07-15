@@ -10,14 +10,16 @@
     
     <!-- Datos Antropométricos -->
     <div class="card">
-        <div class="card-header">
+        <div class="card-header flex-between">
             <h3 class="card-title">📏 Datos Antropométricos</h3>
+            <button type="button" class="btn btn-primary btn-sm" onclick="calcularIMC()">🔢 Calcular IMC</button>
         </div>
         <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
                     <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Peso (kg) *</label>
                     <input type="number" name="peso_kg" id="peso" step="0.1" required
+                           value="{{ ficha_tecnica.datos_especificos.peso_kg|default:'' }}"
                            placeholder="Ej: 70.5"
                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
                            oninput="calcularIMC()">
@@ -25,6 +27,7 @@
                 <div>
                     <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Altura (cm)</label>
                     <input type="number" name="altura_cm" id="altura" step="0.1"
+                           value="{{ ficha_tecnica.datos_especificos.altura_cm|default:'' }}"
                            placeholder="Ej: 170"
                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
                            oninput="calcularIMC()">
@@ -33,23 +36,30 @@
             <div>
                 <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">IMC</label>
                 <input type="text" name="imc" id="imc" readonly
+                       value="{{ ficha_tecnica.datos_especificos.imc|default:'' }}"
                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f5f5f5;">
-                <small id="imc-clasificacion" style="font-weight: 500;"></small>
+                <small id="imc-clasificacion" style="font-weight: 500; display: block; margin-top: 4px;"></small>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <div>
                     <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Cintura (cm)</label>
                     <input type="number" name="perimetro_cintura_cm" step="0.1"
+                           value="{{ ficha_tecnica.datos_especificos.perimetro_cintura_cm|default:'' }}"
+                           placeholder="Ej: 80"
                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">% Grasa</label>
                     <input type="number" name="porcentaje_grasa" step="0.1"
+                           value="{{ ficha_tecnica.datos_especificos.porcentaje_grasa|default:'' }}"
+                           placeholder="Ej: 25"
                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">% Músculo</label>
                     <input type="number" name="porcentaje_musculo" step="0.1"
+                           value="{{ ficha_tecnica.datos_especificos.porcentaje_musculo|default:'' }}"
+                           placeholder="Ej: 35"
                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
                 </div>
             </div>
@@ -71,14 +81,14 @@
                 <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Objetivo</label>
                 <select name="objetivo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
                     <option value="">Seleccionar...</option>
-                    <option value="bajar_peso">Bajar de peso</option>
-                    <option value="aumentar_peso">Aumentar de peso</option>
-                    <option value="mantener">Mantener peso</option>
-                    <option value="reducir_grasa">Reducir % grasa</option>
-                    <option value="ganar_musculo">Ganar masa muscular</option>
-                    <option value="deportivo">Rendimiento deportivo</option>
-                    <option value="patologia">Manejo de patología</option>
-                    <option value="otro">Otro</option>
+                    <option value="bajar_peso">⬇️ Bajar de peso</option>
+                    <option value="aumentar_peso">⬆️ Aumentar de peso</option>
+                    <option value="mantener">➡️ Mantener peso</option>
+                    <option value="reducir_grasa">🔥 Reducir % grasa</option>
+                    <option value="ganar_musculo">💪 Ganar masa muscular</option>
+                    <option value="deportivo">🏃 Rendimiento deportivo</option>
+                    <option value="patologia">🏥 Manejo de patología</option>
+                    <option value="otro">📋 Otro</option>
                 </select>
             </div>
             <div>
@@ -119,6 +129,7 @@
                     <th>% Músculo</th>
                     <th>Objetivo</th>
                     <th>Plan</th>
+                    <th>Obs.</th>
                     <th></th>
                 </tr>
             </thead>
@@ -142,7 +153,20 @@
                     <td>{{ c.porcentaje_grasa|default:"—" }}</td>
                     <td>{{ c.porcentaje_musculo|default:"—" }}</td>
                     <td>{{ c.get_objetivo_display|default:"—" }}</td>
-                    <td>{{ c.plan_nutricional|truncatechars:40|default:"—" }}</td>
+                    <td>
+                        {% if c.plan_nutricional %}
+                        <span class="tooltip-cell" data-tooltip="{{ c.plan_nutricional|escapejs }}">
+                            {{ c.plan_nutricional|truncatechars:30 }}
+                        </span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if c.observaciones %}
+                        <span class="tooltip-cell" data-tooltip="{{ c.observaciones|escapejs }}">
+                            {{ c.observaciones|truncatechars:20 }}
+                        </span>
+                        {% else %}—{% endif %}
+                    </td>
                     <td>
                         <a href="{% url 'eliminar_consulta_nutricional' c.id %}" 
                            class="btn btn-danger btn-xs"
@@ -167,22 +191,103 @@
     <div class="card-header">
         <h3 class="card-title">📈 Evolución de Peso</h3>
     </div>
-    <div style="padding: 20px; display: flex; align-items: flex-end; gap: 8px; height: 200px; overflow-x: auto;">
-        {% for c in consultas reversed %}
-        <div style="flex: 1; min-width: 50px; text-align: center; display: flex; flex-direction: column; align-items: center;">
-            <div style="font-size: 0.8em; font-weight: 600; margin-bottom: 4px;">{{ c.peso_kg }}</div>
-            <div style="width: 100%; max-width: 60px; 
-                        height: {% widthratio c.peso_kg 150 180 %}px; 
-                        background: {% if forloop.last %}#28a745{% else %}#007bff{% endif %}; 
-                        border-radius: 4px 4px 0 0;"></div>
-            <div style="font-size: 0.7em; color: #666; margin-top: 4px; transform: rotate(-45deg); white-space: nowrap;">
-                {{ c.fecha|date:"d/m" }}
+    <div style="padding: 20px; overflow-x: auto;">
+        <div style="display: flex; align-items: flex-end; gap: 12px; min-height: 200px; min-width: fit-content;">
+            {% for c in consultas reversed %}
+            <div style="flex: 0 0 auto; min-width: 60px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div style="font-size: 0.85em; font-weight: 600; margin-bottom: 4px; 
+                            {% if forloop.last %}color: #28a745;{% endif %}">
+                    {{ c.peso_kg }}
+                </div>
+                <div style="width: 50px; 
+                            height: {% widthratio c.peso_kg 150 180 %}px; 
+                            min-height: 20px;
+                            background: {% if forloop.last %}#28a745{% else %}#007bff{% endif %}; 
+                            border-radius: 6px 6px 0 0;
+                            transition: all 0.3s ease;
+                            position: relative;">
+                </div>
+                <div style="font-size: 0.75em; color: #666; margin-top: 6px; white-space: nowrap;">
+                    {{ c.fecha|date:"d/m/Y" }}
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        <!-- Línea de tendencia -->
+        <div style="margin-top: 8px; text-align: center; font-size: 0.8em; color: #666;">
+            {% with first=consultas.last last=consultas.first %}
+                {% if first.peso_kg and last.peso_kg %}
+                    {% if last.peso_kg < first.peso_kg %}
+                        ⬇️ Tendencia: <strong style="color: #27ae60;">-{{ first.peso_kg|add:last.peso_kg|floatformat:1 }} kg</strong>
+                    {% elif last.peso_kg > first.peso_kg %}
+                        ⬆️ Tendencia: <strong style="color: #e74c3c;">+{{ last.peso_kg|add:first.peso_kg|floatformat:1 }} kg</strong>
+                    {% else %}
+                        ➡️ Peso estable
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+        </div>
     </div>
 </div>
 {% endif %}
+
+<style>
+/* Estilos para los tooltips */
+.tooltip-cell {
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px dotted #666;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.tooltip-cell:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 350px;
+    min-width: 200px;
+    z-index: 1000;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    line-height: 1.4;
+    text-align: left;
+}
+
+.tooltip-cell:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    z-index: 1001;
+    margin-bottom: 2px;
+}
+
+td {
+    position: relative;
+    overflow: visible;
+}
+
+.table-container {
+    overflow: visible;
+}
+
+table {
+    overflow: visible;
+}
+</style>
 
 <script>
 function calcularIMC() {
@@ -212,6 +317,11 @@ function calcularIMC() {
         clasificacion.innerHTML = '';
     }
 }
+
+// Calcular IMC al cargar si ya hay datos
+window.onload = function() {
+    calcularIMC();
+};
 </script>
 
 {% endblock %}

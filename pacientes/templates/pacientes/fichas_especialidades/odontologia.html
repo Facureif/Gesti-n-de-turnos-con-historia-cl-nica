@@ -30,20 +30,49 @@
                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
                           placeholder="Anticoagulantes, bifosfonatos...">{{ ficha_tecnica.datos_especificos.medicacion_actual|default:'' }}</textarea>
             </div>
-            <!-- s -->
-            <div>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                    <input type="checkbox" name="diabetes" value="si" 
-                           {% if ficha_tecnica.datos_especificos.diabetes == 'si' %}checked{% endif %}>
-                    <span>🩸 Diabetes</span>
-                </label>
-            </div>
-            <div>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                    <input type="checkbox" name="cardiopatia" value="si" 
-                           {% if ficha_tecnica.datos_especificos.cardiopatia == 'si' %}checked{% endif %}>
-                    <span>❤️ Cardiopatía / Hipertensión</span>
-                </label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                        <input type="checkbox" name="diabetes" value="si" 
+                               {% if ficha_tecnica.datos_especificos.diabetes == 'si' %}checked{% endif %}>
+                        <span>🩸 Diabetes</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                        <input type="checkbox" name="cardiopatia" value="si" 
+                               {% if ficha_tecnica.datos_especificos.cardiopatia == 'si' %}checked{% endif %}>
+                        <span>❤️ Cardiopatía / HTA</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                        <input type="checkbox" name="embarazo" value="si" 
+                               {% if ficha_tecnica.datos_especificos.embarazo == 'si' %}checked{% endif %}>
+                        <span>🤰 Embarazo</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                        <input type="checkbox" name="marcapasos" value="si" 
+                               {% if ficha_tecnica.datos_especificos.marcapasos == 'si' %}checked{% endif %}>
+                        <span>💓 Marcapasos</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                        <input type="checkbox" name="protesis_valvular" value="si" 
+                               {% if ficha_tecnica.datos_especificos.protesis_valvular == 'si' %}checked{% endif %}>
+                        <span>🫀 Prótesis valvular</span>
+                    </label>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
+                        <input type="checkbox" name="trastorno_coagulacion" value="si" 
+                               {% if ficha_tecnica.datos_especificos.trastorno_coagulacion == 'si' %}checked{% endif %}>
+                        <span>🩹 Trast. coagulación</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -110,18 +139,6 @@
                           placeholder="Detalles del procedimiento..."
                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
             </div>
-            <!-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Costo ($)</label>
-                    <input type="number" name="nuevo_tratamiento_costo" step="0.01"
-                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Próximo control</label>
-                    <input type="date" name="nuevo_tratamiento_control"
-                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                </div>
-            </div> -->
         </div>
     </div>
 </div>
@@ -147,8 +164,6 @@
                     <th>Tratamiento</th>
                     <th>Material</th>
                     <th>Descripción</th>
-                    <!-- <th>Costo</th>
-                    <th>Próx. control</th> -->
                     <th></th>
                 </tr>
             </thead>
@@ -159,23 +174,13 @@
                     <td><span class="badge badge-info">#{{ t.pieza_dental }}</span></td>
                     <td>{{ t.get_tipo_tratamiento_display }}</td>
                     <td>{{ t.material_usado|default:"—" }}</td>
-                    <td>{{ t.descripcion|truncatechars:40|default:"—" }}</td>
-                    <!-- <td>
-                        {% if t.costo %}
-                            <span style="font-weight: 600; color: #27ae60;">${{ t.costo }}</span>
+                    <td>
+                        {% if t.descripcion %}
+                        <span class="tooltip-cell" data-tooltip="{{ t.descripcion|escapejs }}">
+                            {{ t.descripcion|truncatechars:40 }}
+                        </span>
                         {% else %}—{% endif %}
                     </td>
-                    <td>
-                        {% if t.fecha_proximo_control %}
-                            {% if t.fecha_proximo_control < hoy %}
-                                <span style="color: #e74c3c; font-weight: 600;">
-                                    ⚠️ {{ t.fecha_proximo_control|date:"d/m/Y" }}
-                                </span>
-                            {% else %}
-                                {{ t.fecha_proximo_control|date:"d/m/Y" }}
-                            {% endif %}
-                        {% else %}—{% endif %}
-                    </td> -->
                     <td>
                         <a href="{% url 'eliminar_tratamiento_odontologico' t.id %}" 
                            class="btn btn-danger btn-xs"
@@ -195,5 +200,71 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+/* Estilos para los tooltips */
+.tooltip-cell {
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px dotted #666;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.tooltip-cell:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 350px;
+    min-width: 200px;
+    z-index: 1000;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    line-height: 1.4;
+    text-align: left;
+}
+
+.tooltip-cell:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    z-index: 1001;
+    margin-bottom: 2px;
+}
+
+td {
+    position: relative;
+    overflow: visible;
+}
+
+.table-container {
+    overflow: visible;
+}
+
+table {
+    overflow: visible;
+}
+
+/* Mejora visual para los checkboxes */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #007bff;
+}
+</style>
 
 {% endblock %}

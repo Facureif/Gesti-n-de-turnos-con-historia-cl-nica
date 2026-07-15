@@ -121,8 +121,8 @@
         </div>
         
         {% if seguimientos %}
-        <div class="table-container">
-            <table>
+        <div class="table-container" style="overflow: visible;">
+            <table style="overflow: visible;">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -158,8 +158,20 @@
                                 <span class="badge badge-info">{{ s.get_rango_movimiento_display }}</span>
                             {% else %}—{% endif %}
                         </td>
-                        <td>{{ s.ejercicios_realizados|truncatechars:30|default:"—" }}</td>
-                        <td>{{ s.observaciones|truncatechars:30|default:"—" }}</td>
+                        <td style="position: relative; overflow: visible;">
+                            {% if s.ejercicios_realizados %}
+                            <span class="tooltip-cell" data-tooltip="{{ s.ejercicios_realizados|escapejs }}">
+                                {{ s.ejercicios_realizados|truncatechars:30 }}
+                            </span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td style="position: relative; overflow: visible;">
+                            {% if s.observaciones %}
+                            <span class="tooltip-cell" data-tooltip="{{ s.observaciones|escapejs }}">
+                                {{ s.observaciones|truncatechars:30 }}
+                            </span>
+                            {% else %}—{% endif %}
+                        </td>
                         <td>
                             <a href="{% url 'eliminar_seguimiento' s.id %}" 
                                class="btn btn-danger btn-xs"
@@ -179,6 +191,72 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+/* Estilos para los tooltips */
+.tooltip-cell {
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px dotted #666;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.tooltip-cell:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 400px;
+    min-width: 250px;
+    z-index: 9999;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    line-height: 1.5;
+    text-align: left;
+    pointer-events: none;
+}
+
+.tooltip-cell:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #333;
+    z-index: 9999;
+    margin-bottom: -6px;
+    pointer-events: none;
+}
+
+/* Asegurar que la celda tenga posición relativa para el tooltip */
+td {
+    position: relative;
+}
+
+/* Hacer que la tabla no corte los tooltips */
+.table-container {
+    overflow: visible !important;
+}
+
+table {
+    overflow: visible !important;
+}
+
+/* Asegurar que el card también permita overflow visible */
+.card {
+    overflow: visible;
+}
+</style>
 
 <script>
 function toggleForm() {
