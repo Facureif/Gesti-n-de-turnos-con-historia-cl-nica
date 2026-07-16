@@ -20,7 +20,7 @@
                 </h3>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
                 <div>
                     <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
                         Nombre <span style="color: var(--danger);">*</span>
@@ -70,106 +70,6 @@
                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
                 </div>
             </div>
-            
-            <div style="margin-top: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Dirección
-                </label>
-                <input type="text" name="direccion" value="{{ paciente.direccion }}" 
-                       style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                       onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-            </div>
-        </div>
-        
-        <!-- Obra Social -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-shield-alt text-primary"></i> Obra Social
-                </h3>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Obra Social
-                    </label>
-                    <select name="obra_social" id="select-obra-social" onchange="cargarPlanes(this.value)"
-                            style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; background: white; transition: border-color 0.2s;"
-                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-                        <option value="">Particular</option>
-                        {% for os in obras_sociales %}
-                            <option value="{{ os.id }}" {% if paciente.obra_social.id == os.id %}selected{% endif %}>
-                                {{ os.nombre }} ({{ os.sigla }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Plan
-                    </label>
-                    <select name="plan_obra_social" id="select-plan"
-                            style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; background: white; transition: border-color 0.2s;"
-                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-                        <option value="">Sin plan</option>
-                        {% if paciente.obra_social %}
-                            {% for plan in paciente.obra_social.planes.all %}
-                                <option value="{{ plan.id }}" {% if paciente.plan_obra_social.id == plan.id %}selected{% endif %}>
-                                    {{ plan.nombre }}
-                                </option>
-                            {% endfor %}
-                        {% endif %}
-                    </select>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        N° Afiliado
-                    </label>
-                    <input type="text" name="numero_afiliado" value="{{ paciente.numero_afiliado }}" 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-                </div>
-            </div>
-            
-            <!-- Sesiones -->
-            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--gray-200);">
-                <h4 style="margin-bottom: 16px; color: var(--gray-700); font-size: 0.95rem;">
-                    <i class="fas fa-chart-bar text-primary"></i> Sesiones de Obra Social
-                </h4>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                            Sesiones Autorizadas
-                        </label>
-                        <input type="number" name="sesiones_autorizadas" min="0" 
-                               value="{{ paciente.sesiones_autorizadas|default:'' }}"
-                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                               placeholder="Ej: 20"
-                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                            Sesiones Restantes
-                        </label>
-                        <input type="number" name="sesiones_restantes" min="0" 
-                               value="{{ paciente.sesiones_restantes|default:'' }}"
-                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                               placeholder="Ej: 15"
-                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                            Vencimiento
-                        </label>
-                        <input type="date" name="fecha_vencimiento" 
-                               value="{{ paciente.fecha_vencimiento_sesiones|date:'Y-m-d'|default:'' }}"
-                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                               onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
-                    </div>
-                </div>
-            </div>
         </div>
         
         <!-- Historia Clínica -->
@@ -182,7 +82,7 @@
                 <span class="badge badge-info">N° {{ historia.numero_historia }}</span>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
                 <div>
                     <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
                         Antecedentes Personales
@@ -229,44 +129,10 @@
                 <i class="fas fa-times"></i> Cancelar
             </a>
         </div>
+        
+        <div style="text-align: center; margin-top: 16px; color: var(--gray-500); font-size: 0.85rem;">
+            💡 Para gestionar obras sociales y sesiones, usá el botón "Gestionar" en la ficha del paciente
+        </div>
     </form>
 </div>
-
-<script>
-const planesPorOS = {};
-{% for os in obras_sociales %}
-    planesPorOS[{{ os.id }}] = [
-        {% for plan in os.planes.all %}
-            {id: {{ plan.id }}, nombre: "{{ plan.nombre|escapejs }}"},
-        {% endfor %}
-    ];
-{% endfor %}
-
-function cargarPlanes(obraSocialId) {
-    const selectPlan = document.getElementById('select-plan');
-    selectPlan.innerHTML = '<option value="">Sin plan</option>';
-    
-    if (obraSocialId && planesPorOS[obraSocialId]) {
-        planesPorOS[obraSocialId].forEach(function(plan) {
-            const option = document.createElement('option');
-            option.value = plan.id;
-            option.textContent = plan.nombre;
-            selectPlan.appendChild(option);
-        });
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const selectOS = document.getElementById('select-obra-social');
-    if (selectOS && selectOS.value) {
-        cargarPlanes(selectOS.value);
-        {% if paciente and paciente.plan_obra_social %}
-            const selectPlan = document.getElementById('select-plan');
-            if (selectPlan) {
-                selectPlan.value = "{{ paciente.plan_obra_social.id }}";
-            }
-        {% endif %}
-    }
-});
-</script>
 {% endblock %}

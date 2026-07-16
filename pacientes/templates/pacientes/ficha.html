@@ -6,42 +6,41 @@
 <div class="flex-between mb-6">
     <div class="page-header mb-0">
         <h1>📋 Ficha del Paciente</h1>
-        <p>{{ paciente.nombre_completo }}</p>
     </div>
     <div class="flex gap-2 flex-wrap">
         {% if not es_secretaria %}
             <a href="{% url 'ficha_tecnica' paciente.id %}" class="btn btn-sm" style="background: #7c3aed;">
-                
                 {% if profesional.especialidad == 'odontologia' %}
                     🦷 Ficha Odontológica
                 {% elif profesional.especialidad == 'kinesiologia' %}
                     💪 Ficha Kinesiológica
                 {% elif profesional.especialidad == 'fonoaudiologia' %}
-                    🦻​ Ficha Fonoaudiológica
+                    🗣️ Ficha Fonoaudiológica
                 {% elif profesional.especialidad == 'nutricion' %}
-                    🥗 Ficha Nutricionologica       
+                    🍎 Ficha Nutricional
                 {% else %}
                     📋 Ficha Técnica
                 {% endif %}
             </a>
         {% endif %}
         <a href="{% url 'estudios_paciente' paciente.id %}" class="btn btn-sm" style="background: #3ab4ed;">
-    📁 Estudios
-</a>
+            📁 Estudios
+        </a>
         {% if not es_secretaria %}
             <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">
-                <i class="fas fa-pen"></i> Editar
+                ✏️ Editar
             </a>
         {% endif %}
         <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm">
-            <i class="fas fa-calendar-plus"></i> Asignar Turno
+            📅 Asignar Turno
+        </a>
         {% if request.user.rol == 'secretaria' %}
             <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Volver
+                ← Volver
             </a>
         {% else %}
             <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Volver
+                ← Volver
             </a>
         {% endif %}
     </div>
@@ -52,170 +51,133 @@
     <!-- Datos Personales -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-user text-primary"></i> Datos Personales
-            </h3>
+            <h3 class="card-title">👤 Datos Personales</h3>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                <span class="text-muted">DNI:</span>
-                <span style="font-weight: 500;">{{ paciente.dni }}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                <span class="text-muted">Fecha Nac.:</span>
-                <span style="font-weight: 500;">{{ paciente.fecha_nacimiento|date:"d/m/Y" }}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                <span class="text-muted">Teléfono:</span>
-                <span style="font-weight: 500;">{{ paciente.telefono }}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                <span class="text-muted">Email:</span>
-                <span style="font-weight: 500;">{{ paciente.email|default:"—" }}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                <span class="text-muted">Dirección:</span>
-                <span style="font-weight: 500;">{{ paciente.direccion|default:"—" }}</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Obra Social -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-shield-alt text-primary"></i> Obra Social
-            </h3>
-        </div>
-        {% if paciente.obra_social %}
+        <div style="padding: 16px;">
+            <h2 style="margin: 0 0 16px 0; font-size: 1.3em;">{{ paciente.nombre_completo }}</h2>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                    <span class="text-muted">Obra Social:</span>
-                    <span style="font-weight: 500;">{{ paciente.obra_social.nombre }}</span>
+                    <span class="text-muted">DNI:</span>
+                    <span style="font-weight: 500;">{{ paciente.dni }}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                    <span class="text-muted">Sigla:</span>
-                    <span class="badge badge-info">{{ paciente.obra_social.sigla }}</span>
+                    <span class="text-muted">Fecha Nac.:</span>
+                    <span style="font-weight: 500;">{{ paciente.fecha_nacimiento|date:"d/m/Y" }} ({{ paciente.fecha_nacimiento|timesince }})</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                    <span class="text-muted">N° Afiliado:</span>
-                    <span style="font-weight: 500;">{{ paciente.numero_afiliado|default:"—" }}</span>
+                    <span class="text-muted">Teléfono:</span>
+                    <span style="font-weight: 500;">
+                        <a href="tel:{{ paciente.telefono }}">{{ paciente.telefono }}</a>
+                        {% if paciente.telefono %}
+                            <a href="https://wa.me/{{ paciente.telefono|cut:'+'|cut:' '|cut:'-' }}" 
+                               target="_blank" style="margin-left: 8px; color: #25D366;" title="WhatsApp"></a>
+                        {% endif %}
+                    </span>
                 </div>
-                {% if paciente.plan_obra_social %}
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                        <span class="text-muted">Plan:</span>
-                        <span style="font-weight: 500;">{{ paciente.plan_obra_social.nombre }}</span>
-                    </div>
-                {% endif %}
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                    <span class="text-muted">Email:</span>
+                    <span style="font-weight: 500;">
+                        {% if paciente.email %}
+                            <a href="mailto:{{ paciente.email }}">{{ paciente.email }}</a>
+                        {% else %}—{% endif %}
+                    </span>
+                </div>
             </div>
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-user"></i>
-                <p>Paciente particular</p>
-            </div>
-        {% endif %}
+        </div>
     </div>
     
-    <!-- Sesiones -->
-        <div class="card" style="grid-column: 1 / -1;">
-            <div class="card-header flex-between">
-                <h3 class="card-title">
-                    <i class="fas fa-chart-bar text-primary"></i> Sesiones de Obra Social
-                </h3>
-                {% if not es_secretaria %}
-                <button class="btn btn-warning btn-sm" onclick="toggleEditarSesiones()">
-                    ✏️ Editar Sesiones
-                </button>
-                {% endif %}
-            </div>
-            
-            {% if paciente.sesiones_autorizadas %}
-            <!-- Vista normal -->
-            <div id="sesiones-vista">
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: center; padding: 20px;">
-                    <div>
-                        <div class="text-muted" style="font-size: 0.9rem; margin-bottom: 8px;">AUTORIZADAS</div>
-                        <div class="stat-value text-primary" style="font-size: 2.5rem;">{{ paciente.sesiones_autorizadas }}</div>
-                    </div>
-                    <div>
-                        <div class="text-muted" style="font-size: 0.9rem; margin-bottom: 8px;">RESTANTES</div>
-                        <div class="stat-value" style="font-size: 2.5rem; 
-                                    {% if paciente.sesiones_restantes <= 3 %}color: var(--danger);
-                                    {% elif paciente.sesiones_restantes <= 7 %}color: var(--warning);
-                                    {% else %}color: var(--success);{% endif %}">
-                            {{ paciente.sesiones_restantes|default:"—" }}
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-muted" style="font-size: 0.9rem; margin-bottom: 8px;">USADAS</div>
-                        <div class="stat-value" style="font-size: 2.5rem; color: var(--gray-600);">
-                            {{ paciente.sesiones_autorizadas|add:"-"|add:paciente.sesiones_restantes }}
-                        </div>
-                    </div>
-                </div>
-                {% if paciente.fecha_vencimiento_sesiones %}
-                <div style="text-align: center; padding-bottom: 20px;">
-                    <span class="text-muted"><i class="fas fa-calendar-times"></i> Vencimiento:</span>
-                    <strong>{{ paciente.fecha_vencimiento_sesiones|date:"d/m/Y" }}</strong>
-                </div>
-                {% endif %}
-            </div>
-            {% else %}
-            <!-- Sin sesiones cargadas -->
-            <div id="sesiones-vista" style="text-align: center; padding: 20px; color: #999;">
-                <p>📋 No hay sesiones de obra social cargadas</p>
-                <small>Hacé clic en "Editar Sesiones" para cargarlas</small>
-            </div>
-            {% endif %}
-            
-            <!-- Formulario de edición (oculto por defecto) -->
+    <!-- Obra Social + Sesiones (UNIFICADOS) -->
+    <div class="card">
+        <div class="card-header flex-between">
+            <h3 class="card-title">🏥 Obra Social y Sesiones</h3>
             {% if not es_secretaria %}
-            <div id="sesiones-edit" style="display: none; padding: 20px; background: #f8f9fa; border-top: 1px solid #ddd;">
-                <form method="POST" action="{% url 'actualizar_sesiones' paciente.id %}">
-                    {% csrf_token %}
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">
-                                Sesiones Autorizadas
-                            </label>
-                            <input type="number" name="sesiones_autorizadas" 
-                                value="{{ paciente.sesiones_autorizadas|default:'' }}"
-                                placeholder="Ej: 20"
-                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">
-                                Sesiones Restantes
-                            </label>
-                            <input type="number" name="sesiones_restantes" 
-                                value="{{ paciente.sesiones_restantes|default:'' }}"
-                                placeholder="Ej: 20"
-                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">
-                                Fecha de Vencimiento
-                            </label>
-                            <input type="date" name="fecha_vencimiento" 
-                                value="{{ paciente.fecha_vencimiento_sesiones|date:'Y-m-d'|default:'' }}"
-                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                    </div>
-                    <div style="margin-top: 16px; display: flex; gap: 8px;">
-                        <button type="submit" class="btn btn-success btn-sm">💾 Guardar Sesiones</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditarSesiones()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
+                <a href="{% url 'gestionar_obras_sociales' paciente.id %}" class="btn btn-xs btn-warning">
+                    ✏️ Gestionar
+                </a>
             {% endif %}
         </div>
+        
+        <!-- Obras Sociales -->
+        {% if paciente.mis_obras_sociales.all %}
+        <div style="padding: 16px 16px 0 16px; display: flex; flex-direction: column; gap: 8px;">
+            {% for os_paciente in paciente.mis_obras_sociales.all %}
+            <div style="padding: 10px 14px; background: {% if os_paciente.activa %}#f0fdf4{% else %}#f9fafb{% endif %}; 
+                        border-radius: 8px; border: 1px solid {% if os_paciente.activa %}#bbf7d0{% else %}#e5e7eb{% endif %};
+                        display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <strong>{{ os_paciente.obra_social.sigla }}</strong>
+                    <span style="font-size: 0.85em; color: #666;">{{ os_paciente.obra_social.nombre }}</span>
+                    {% if os_paciente.activa %}
+                        <span class="badge badge-success" style="font-size: 0.7em;">Activa</span>
+                    {% endif %}
+                </div>
+                <div style="font-size: 0.85em; color: #666;">
+                    {% if os_paciente.numero_afiliado %}
+                        N° {{ os_paciente.numero_afiliado }}
+                        {% if os_paciente.plan %}· {{ os_paciente.plan.nombre }}{% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% elif paciente.obra_social %}
+        <div style="padding: 12px 16px 0 16px;">
+            <div style="padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0;
+                        display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="badge badge-info">{{ paciente.obra_social.sigla }}</span>
+                    <strong>{{ paciente.obra_social.nombre }}</strong>
+                </div>
+                <div style="font-size: 0.85em; color: #666;">
+                    {% if paciente.numero_afiliado %}N° {{ paciente.numero_afiliado }}{% endif %}
+                    {% if paciente.plan_obra_social %}· {{ paciente.plan_obra_social.nombre }}{% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="padding: 12px 16px 0 16px; text-align: center; color: #999; font-size: 0.9em;">
+            👤 Paciente particular
+        </div>
+        {% endif %}
+        
+        <!-- Sesiones (compacto, dentro de la misma tarjeta) -->
+        {% if paciente.sesiones_autorizadas %}
+        <div style="margin: 16px; padding: 16px; background: #f9fafb; border-radius: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-weight: 600; font-size: 0.9em;">📊 Sesiones</span>
+                <span style="font-size: 0.75em; color: #666;">
+                    {% if paciente.fecha_vencimiento_sesiones %}
+                        Vence: {{ paciente.fecha_vencimiento_sesiones|date:"d/m/Y" }}
+                        {% if paciente.fecha_vencimiento_sesiones < hoy %}⚠️{% endif %}
+                    {% endif %}
+                </span>
+            </div>
+            
+            <!-- Barra de progreso -->
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.7em; color: #666;">
+                    <span>Usadas: <strong>{{ paciente.sesiones_autorizadas|add:"-"|add:paciente.sesiones_restantes }}</strong></span>
+                    <span>Restantes: <strong style="{% if paciente.sesiones_restantes <= 3 %}color: #ef4444;
+                                {% elif paciente.sesiones_restantes <= 7 %}color: #f59e0b;
+                                {% else %}color: #10b981;{% endif %}">{{ paciente.sesiones_restantes }}</strong></span>
+                    <span>Total: <strong>{{ paciente.sesiones_autorizadas }}</strong></span>
+                </div>
+                <div style="background: #e5e7eb; border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="width: {% widthratio paciente.sesiones_autorizadas|add:'-'|add:paciente.sesiones_restantes paciente.sesiones_autorizadas 100 %}%; 
+                                height: 100%; 
+                                background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%); 
+                                border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
     <!-- Próximos Turnos -->
     <div class="card" style="grid-column: 1 / -1;">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-calendar-alt" style="color: var(--warning);"></i> Próximos Turnos
-            </h3>
+            <h3 class="card-title">📅 Próximos Turnos</h3>
         </div>
         
         {% if proximos_turnos %}
@@ -242,23 +204,19 @@
                         <td>{{ t.tipo_consulta|default:"—" }}</td>
                         <td>
                             {% if t.estado == 'confirmado' %}
-                                <span class="badge badge-success">Confirmado</span>
+                                <span class="badge badge-success">✅ Confirmado</span>
                             {% elif t.estado == 'pendiente' %}
-                                <span class="badge badge-warning">Pendiente</span>
+                                <span class="badge badge-warning">⏳ Pendiente</span>
                             {% elif t.estado == 'completado' %}
-                                <span class="badge badge-gray">Completado</span>
+                                <span class="badge badge-gray">✔️ Completado</span>
                             {% elif t.estado == 'cancelado' %}
-                                <span class="badge badge-danger">Cancelado</span>
+                                <span class="badge badge-danger">❌ Cancelado</span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="flex gap-2">
-                                <a href="{% url 'editar_turno_pro' t.id %}" class="btn btn-secondary btn-xs" title="Editar">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                                <a href="{% url 'reprogramar_turno' t.id %}" class="btn btn-warning btn-xs" title="Reprogramar">
-                                    <i class="fas fa-exchange-alt"></i>
-                                </a>
+                                <a href="{% url 'editar_turno_pro' t.id %}" class="btn btn-secondary btn-xs" title="Editar">✏️</a>
+                                <a href="{% url 'reprogramar_turno' t.id %}" class="btn btn-warning btn-xs" title="Reprogramar">🔄</a>
                             </div>
                         </td>
                     </tr>
@@ -267,19 +225,16 @@
             </table>
         </div>
         {% else %}
-        <div class="empty-state">
-            <i class="far fa-calendar"></i>
-            <p>No hay turnos próximos</p>
+        <div style="text-align: center; padding: 30px; color: #999;">
+            <p>📭 No hay turnos próximos</p>
         </div>
         {% endif %}
     </div>
 
-    <!-- Historial de Atenciones (UNIFICADO) -->
+    <!-- Historial de Atenciones -->
     <div class="card" style="grid-column: 1 / -1;">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-history text-primary"></i> Historial de Atenciones
-            </h3>
+            <h3 class="card-title">🕒 Historial de Atenciones</h3>
         </div>
         
         {% if turnos %}
@@ -313,7 +268,7 @@
                                 </div>
                                 {% if t.evolucion.diagnostico %}
                                     <small class="text-muted">
-                                        <i class="fas fa-stethoscope"></i> {{ t.evolucion.diagnostico|truncatechars:60 }}
+                                        🩺 {{ t.evolucion.diagnostico|truncatechars:60 }}
                                     </small>
                                 {% endif %}
                             {% else %}
@@ -325,9 +280,9 @@
                                 <div>{{ t.evolucion.medicacion_recetada|truncatechars:40 }}</div>
                                 <a href="{% url 'generar_receta' t.evolucion.id %}" 
                                    class="btn btn-xs" 
-                                   style="background: var(--info); margin-top: 4px;" 
+                                   style="background: #3b82f6; color: white; margin-top: 4px;" 
                                    target="_blank">
-                                    <i class="fas fa-file-prescription"></i> Receta
+                                    📄 Receta
                                 </a>
                             {% else %}
                                 <span class="text-muted">—</span>
@@ -335,22 +290,20 @@
                         </td>
                         <td>
                             {% if t.monto_total %}
-                                <span style="font-weight: 600; color: var(--success);">${{ t.monto_total }}</span>
+                                <span style="font-weight: 600; color: #10b981;">${{ t.monto_total }}</span>
                             {% else %}
                                 <span class="text-muted">—</span>
                             {% endif %}
                         </td>
                         <td>
-                            {% if t.estado == 'confirmado' %}
-                                <span class="badge badge-success">Confirmado</span>
-                            {% elif t.estado == 'pendiente' %}
-                                <span class="badge badge-warning">Pendiente</span>
-                            {% elif t.estado == 'completado' %}
-                                <span class="badge badge-gray">Completado</span>
+                            {% if t.estado == 'completado' %}
+                                <span class="badge badge-gray">✔️ Completado</span>
                             {% elif t.estado == 'cancelado' %}
-                                <span class="badge badge-danger">Cancelado</span>
+                                <span class="badge badge-danger">❌ Cancelado</span>
                             {% elif t.estado == 'no_asistio' %}
-                                <span class="badge badge-danger">No Asistió</span>
+                                <span class="badge badge-danger">🚫 No Asistió</span>
+                            {% else %}
+                                <span class="badge badge-info">{{ t.get_estado_display }}</span>
                             {% endif %}
                         </td>
                         <td>
@@ -359,7 +312,7 @@
                                     {% for archivo in t.evolucion.archivos.all %}
                                     <a href="{{ archivo.archivo.url }}" target="_blank">
                                         <img src="{{ archivo.archivo.url }}" 
-                                             style="width: 40px; height: 40px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+                                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">
                                     </a>
                                     {% endfor %}
                                 </div>
@@ -373,45 +326,34 @@
             </table>
         </div>
         {% else %}
-        <div class="empty-state">
-            <i class="far fa-calendar"></i>
-            <p>No hay atenciones registradas</p>
+        <div style="text-align: center; padding: 30px; color: #999;">
+            <p>📭 No hay atenciones registradas</p>
         </div>
         {% endif %}
     </div>
 
-    <!-- Antecedentes de Historia Clínica (solo profesionales) -->
+    <!-- Antecedentes de Historia Clínica -->
     {% if not es_secretaria and historia %}
     <div class="card" style="grid-column: 1 / -1;">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-notes-medical text-primary"></i> Antecedentes Clínicos
-            </h3>
+            <h3 class="card-title">📋 Antecedentes Clínicos</h3>
         </div>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div style="padding: 16px; background: var(--gray-50); border-radius: var(--radius);">
-                <div style="font-weight: 600; margin-bottom: 8px; color: var(--gray-700);">
-                    <i class="fas fa-user-md text-primary"></i> Antecedentes Personales
-                </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 16px;">
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                <div style="font-weight: 600; margin-bottom: 8px;">👤 Antecedentes Personales</div>
                 <p class="text-muted" style="margin: 0;">{{ historia.antecedentes_personales|default:"Sin datos" }}</p>
             </div>
-            <div style="padding: 16px; background: var(--gray-50); border-radius: var(--radius);">
-                <div style="font-weight: 600; margin-bottom: 8px; color: var(--gray-700);">
-                    <i class="fas fa-users text-primary"></i> Antecedentes Familiares
-                </div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+                <div style="font-weight: 600; margin-bottom: 8px;">👨‍👩‍👧‍👦 Antecedentes Familiares</div>
                 <p class="text-muted" style="margin: 0;">{{ historia.antecedentes_familiares|default:"Sin datos" }}</p>
             </div>
-            <div style="padding: 16px; background: var(--gray-50); border-radius: var(--radius);">
-                <div style="font-weight: 600; margin-bottom: 8px; color: var(--gray-700);">
-                    <i class="fas fa-allergies text-danger"></i> Alergias
-                </div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #ef4444;">
+                <div style="font-weight: 600; margin-bottom: 8px;">🚨 Alergias</div>
                 <p class="text-muted" style="margin: 0;">{{ historia.alergias|default:"Sin datos" }}</p>
             </div>
-            <div style="padding: 16px; background: var(--gray-50); border-radius: var(--radius);">
-                <div style="font-weight: 600; margin-bottom: 8px; color: var(--gray-700);">
-                    <i class="fas fa-pills text-primary"></i> Medicación Habitual
-                </div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 600; margin-bottom: 8px;">💊 Medicación Habitual</div>
                 <p class="text-muted" style="margin: 0;">{{ historia.medicacion_habitual|default:"Sin datos" }}</p>
             </div>
         </div>
@@ -419,18 +361,4 @@
     {% endif %}
     
 </div>
-<script>
-function toggleEditarSesiones() {
-    var vista = document.getElementById('sesiones-vista');
-    var edit = document.getElementById('sesiones-edit');
-    if (edit.style.display === 'none') {
-        vista.style.display = 'none';
-        edit.style.display = 'block';
-    } else {
-        vista.style.display = 'block';
-        edit.style.display = 'none';
-    }
-}
-</script>
-
 {% endblock %}
