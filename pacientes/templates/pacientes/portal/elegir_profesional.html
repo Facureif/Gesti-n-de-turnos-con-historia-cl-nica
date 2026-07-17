@@ -67,7 +67,11 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-                {% if prof.establecimientos.count == 1 %}
+                {% if prof.atiende_por_orden %}
+                    <span class="btn-sacar-turno" style="background: #6c757d; cursor: default;">
+                        Orden de Llegada
+                    </span>
+                {% elif prof.establecimientos.count == 1 %}
                     <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn-sacar-turno">
                         <i class="fas fa-calendar-plus"></i> Sacar Turno
                     </a>

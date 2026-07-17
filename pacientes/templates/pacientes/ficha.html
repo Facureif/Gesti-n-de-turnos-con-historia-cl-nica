@@ -10,38 +10,22 @@
     <div class="flex gap-2 flex-wrap">
         {% if not es_secretaria %}
             <a href="{% url 'ficha_tecnica' paciente.id %}" class="btn btn-sm" style="background: #7c3aed;">
-                {% if profesional.especialidad == 'odontologia' %}
-                    🦷 Ficha Odontológica
-                {% elif profesional.especialidad == 'kinesiologia' %}
-                    💪 Ficha Kinesiológica
-                {% elif profesional.especialidad == 'fonoaudiologia' %}
-                    🗣️ Ficha Fonoaudiológica
-                {% elif profesional.especialidad == 'nutricion' %}
-                    🍎 Ficha Nutricional
-                {% else %}
-                    📋 Ficha Técnica
-                {% endif %}
+                {% if profesional.especialidad == 'odontologia' %}🦷 Ficha Odontológica
+                {% elif profesional.especialidad == 'kinesiologia' %}💪 Ficha Kinesiológica
+                {% elif profesional.especialidad == 'fonoaudiologia' %}🗣️ Ficha Fonoaudiológica
+                {% elif profesional.especialidad == 'nutricion' %}🍎 Ficha Nutricional
+                {% else %}📋 Ficha Técnica{% endif %}
             </a>
         {% endif %}
-        <a href="{% url 'estudios_paciente' paciente.id %}" class="btn btn-sm" style="background: #3ab4ed;">
-            📁 Estudios
-        </a>
+        <a href="{% url 'estudios_paciente' paciente.id %}" class="btn btn-sm" style="background: #3ab4ed;">📁 Estudios</a>
         {% if not es_secretaria %}
-            <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">
-                ✏️ Editar
-            </a>
+            <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
         {% endif %}
-        <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm">
-            📅 Asignar Turno
-        </a>
+        <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm">📅 Asignar Turno</a>
         {% if request.user.rol == 'secretaria' %}
-            <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm">
-                ← Volver
-            </a>
+            <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm">← Volver</a>
         {% else %}
-            <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-sm">
-                ← Volver
-            </a>
+            <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-sm">← Volver</a>
         {% endif %}
     </div>
 </div>
@@ -50,312 +34,160 @@
     
     <!-- Datos Personales -->
     <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">👤 Datos Personales</h3>
-        </div>
+        <div class="card-header"><h3 class="card-title">👤 Datos Personales</h3></div>
         <div style="padding: 16px;">
             <h2 style="margin: 0 0 16px 0; font-size: 1.3em;">{{ paciente.nombre_completo }}</h2>
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
-                    <span class="text-muted">DNI:</span>
-                    <span style="font-weight: 500;">{{ paciente.dni }}</span>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                    <span class="text-muted">DNI:</span><span style="font-weight: 500;">{{ paciente.dni }}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
                     <span class="text-muted">Fecha Nac.:</span>
                     <span style="font-weight: 500;">{{ paciente.fecha_nacimiento|date:"d/m/Y" }} ({{ paciente.fecha_nacimiento|timesince }})</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100);">
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
                     <span class="text-muted">Teléfono:</span>
-                    <span style="font-weight: 500;">
-                        <a href="tel:{{ paciente.telefono }}">{{ paciente.telefono }}</a>
-                        {% if paciente.telefono %}
-                            <a href="https://wa.me/{{ paciente.telefono|cut:'+'|cut:' '|cut:'-' }}" 
-                               target="_blank" style="margin-left: 8px; color: #25D366;" title="WhatsApp"></a>
-                        {% endif %}
-                    </span>
+                    <span style="font-weight: 500;"><a href="tel:{{ paciente.telefono }}">{{ paciente.telefono }}</a></span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 8px 0;">
                     <span class="text-muted">Email:</span>
-                    <span style="font-weight: 500;">
-                        {% if paciente.email %}
-                            <a href="mailto:{{ paciente.email }}">{{ paciente.email }}</a>
-                        {% else %}—{% endif %}
-                    </span>
+                    <span style="font-weight: 500;">{% if paciente.email %}<a href="mailto:{{ paciente.email }}">{{ paciente.email }}</a>{% else %}—{% endif %}</span>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Obra Social + Sesiones (UNIFICADOS) -->
+    <!-- Obra Social (con sesiones integradas) -->
     <div class="card">
         <div class="card-header flex-between">
-            <h3 class="card-title">🏥 Obra Social y Sesiones</h3>
+            <h3 class="card-title">🏥 Obra Social</h3>
             {% if not es_secretaria %}
-                <a href="{% url 'gestionar_obras_sociales' paciente.id %}" class="btn btn-xs btn-warning">
-                    ✏️ Gestionar
-                </a>
+                <a href="{% url 'gestionar_obras_sociales' paciente.id %}" class="btn btn-xs btn-warning">✏️ Gestionar</a>
             {% endif %}
         </div>
         
-        <!-- Obras Sociales -->
-        {% if paciente.mis_obras_sociales.all %}
-        <div style="padding: 16px 16px 0 16px; display: flex; flex-direction: column; gap: 8px;">
-            {% for os_paciente in paciente.mis_obras_sociales.all %}
-            <div style="padding: 10px 14px; background: {% if os_paciente.activa %}#f0fdf4{% else %}#f9fafb{% endif %}; 
-                        border-radius: 8px; border: 1px solid {% if os_paciente.activa %}#bbf7d0{% else %}#e5e7eb{% endif %};
-                        display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <strong>{{ os_paciente.obra_social.sigla }}</strong>
-                    <span style="font-size: 0.85em; color: #666;">{{ os_paciente.obra_social.nombre }}</span>
-                    {% if os_paciente.activa %}
-                        <span class="badge badge-success" style="font-size: 0.7em;">Activa</span>
-                    {% endif %}
+        {% if obras_sociales_paciente %}
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            {% for os_paciente in obras_sociales_paciente %}
+            <div style="padding: 12px; background: {% if os_paciente.activa %}#f0fdf4{% else %}#f9fafb{% endif %}; 
+                        border-radius: 8px; border: 1px solid {% if os_paciente.activa %}#bbf7d0{% else %}#e5e7eb{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div>
+                        <strong>{{ os_paciente.obra_social.nombre }}</strong>
+                        <span class="badge badge-info" style="margin-left: 8px;">{{ os_paciente.obra_social.sigla }}</span>
+                    </div>
+                    {% if os_paciente.activa %}<span class="badge badge-success">✅ Activa</span>{% else %}<span class="badge badge-gray">📦 Inactiva</span>{% endif %}
                 </div>
-                <div style="font-size: 0.85em; color: #666;">
-                    {% if os_paciente.numero_afiliado %}
-                        N° {{ os_paciente.numero_afiliado }}
-                        {% if os_paciente.plan %}· {{ os_paciente.plan.nombre }}{% endif %}
-                    {% endif %}
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85em; margin-bottom: 6px;">
+                    <div><span class="text-muted">N° Afiliado:</span> <strong>{{ os_paciente.numero_afiliado|default:"—" }}</strong></div>
+                    <div><span class="text-muted">Plan:</span> <strong>{{ os_paciente.plan.nombre|default:"—" }}</strong></div>
                 </div>
+                
+                <!-- Sesiones (compacto) -->
+                {% if os_paciente.activa and os_paciente.sesiones_autorizadas %}
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #d1d5db;">
+                    <div style="display: flex; gap: 12px; font-size: 0.85em; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span class="text-muted">📊 Sesiones:</span>
+                            <strong style="color: #3b82f6;">{{ os_paciente.sesiones_autorizadas }}</strong>
+                        </div>
+                        <span style="color: #d1d5db;">|</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span class="text-muted">Restantes:</span>
+                            <strong style="{% if os_paciente.sesiones_restantes <= 3 %}color: #ef4444;{% elif os_paciente.sesiones_restantes <= 7 %}color: #f59e0b;{% else %}color: #10b981;{% endif %}">
+                                {{ os_paciente.sesiones_restantes|default:"—" }}
+                            </strong>
+                        </div>
+                        <span style="color: #d1d5db;">|</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span class="text-muted">Vence:</span>
+                            <strong style="{% if os_paciente.fecha_vencimiento and os_paciente.fecha_vencimiento < hoy %}color: #ef4444;{% else %}color: #6b7280;{% endif %}">
+                                {{ os_paciente.fecha_vencimiento|date:"d/m/Y"|default:"—" }}
+                            </strong>
+                        </div>
+                    </div>
+                    <!-- Mini barra de progreso -->
+                    <!-- <div style="margin-top: 6px; background: #e5e7eb; border-radius: 4px; height: 4px; overflow: hidden;">
+                        <div style="width: {% widthratio os_paciente.sesiones_autorizadas|add:'-'|add:os_paciente.sesiones_restantes os_paciente.sesiones_autorizadas 100 %}%; 
+                                    height: 100%; background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444); border-radius: 4px;"></div>
+                    </div> -->
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
         {% elif paciente.obra_social %}
-        <div style="padding: 12px 16px 0 16px;">
-            <div style="padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0;
-                        display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span class="badge badge-info">{{ paciente.obra_social.sigla }}</span>
-                    <strong>{{ paciente.obra_social.nombre }}</strong>
-                </div>
-                <div style="font-size: 0.85em; color: #666;">
-                    {% if paciente.numero_afiliado %}N° {{ paciente.numero_afiliado }}{% endif %}
-                    {% if paciente.plan_obra_social %}· {{ paciente.plan_obra_social.nombre }}{% endif %}
-                </div>
+        <div style="padding: 16px;">
+            <div style="padding: 12px; background: #f0fdf4; border-radius: 8px;">
+                <span class="badge badge-info">{{ paciente.obra_social.sigla }}</span>
+                <strong>{{ paciente.obra_social.nombre }}</strong>
+                {% if paciente.numero_afiliado %}· N° {{ paciente.numero_afiliado }}{% endif %}
             </div>
         </div>
         {% else %}
-        <div style="padding: 12px 16px 0 16px; text-align: center; color: #999; font-size: 0.9em;">
-            👤 Paciente particular
-        </div>
-        {% endif %}
-        
-        <!-- Sesiones (compacto, dentro de la misma tarjeta) -->
-        {% if paciente.sesiones_autorizadas %}
-        <div style="margin: 16px; padding: 16px; background: #f9fafb; border-radius: 10px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                <span style="font-weight: 600; font-size: 0.9em;">📊 Sesiones</span>
-                <span style="font-size: 0.75em; color: #666;">
-                    {% if paciente.fecha_vencimiento_sesiones %}
-                        Vence: {{ paciente.fecha_vencimiento_sesiones|date:"d/m/Y" }}
-                        {% if paciente.fecha_vencimiento_sesiones < hoy %}⚠️{% endif %}
-                    {% endif %}
-                </span>
-            </div>
-            
-            <!-- Barra de progreso -->
-            <div style="margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.7em; color: #666;">
-                    <span>Usadas: <strong>{{ paciente.sesiones_autorizadas|add:"-"|add:paciente.sesiones_restantes }}</strong></span>
-                    <span>Restantes: <strong style="{% if paciente.sesiones_restantes <= 3 %}color: #ef4444;
-                                {% elif paciente.sesiones_restantes <= 7 %}color: #f59e0b;
-                                {% else %}color: #10b981;{% endif %}">{{ paciente.sesiones_restantes }}</strong></span>
-                    <span>Total: <strong>{{ paciente.sesiones_autorizadas }}</strong></span>
-                </div>
-                <div style="background: #e5e7eb; border-radius: 8px; height: 8px; overflow: hidden;">
-                    <div style="width: {% widthratio paciente.sesiones_autorizadas|add:'-'|add:paciente.sesiones_restantes paciente.sesiones_autorizadas 100 %}%; 
-                                height: 100%; 
-                                background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%); 
-                                border-radius: 8px;">
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div style="text-align: center; padding: 30px; color: #999;">👤 Paciente particular</div>
         {% endif %}
     </div>
 
     <!-- Próximos Turnos -->
     <div class="card" style="grid-column: 1 / -1;">
-        <div class="card-header">
-            <h3 class="card-title">📅 Próximos Turnos</h3>
-        </div>
-        
+        <div class="card-header"><h3 class="card-title">📅 Próximos Turnos</h3></div>
         {% if proximos_turnos %}
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Consultorio</th>
-                        <th>Profesional</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in proximos_turnos %}
-                    <tr>
-                        <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
-                        <td>{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
-                        <td class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</td>
-                        <td>{{ t.profesional.nombre_completo }}</td>
-                        <td>{{ t.tipo_consulta|default:"—" }}</td>
-                        <td>
-                            {% if t.estado == 'confirmado' %}
-                                <span class="badge badge-success">✅ Confirmado</span>
-                            {% elif t.estado == 'pendiente' %}
-                                <span class="badge badge-warning">⏳ Pendiente</span>
-                            {% elif t.estado == 'completado' %}
-                                <span class="badge badge-gray">✔️ Completado</span>
-                            {% elif t.estado == 'cancelado' %}
-                                <span class="badge badge-danger">❌ Cancelado</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="flex gap-2">
-                                <a href="{% url 'editar_turno_pro' t.id %}" class="btn btn-secondary btn-xs" title="Editar">✏️</a>
-                                <a href="{% url 'reprogramar_turno' t.id %}" class="btn btn-warning btn-xs" title="Reprogramar">🔄</a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 30px; color: #999;">
-            <p>📭 No hay turnos próximos</p>
-        </div>
-        {% endif %}
+        <div class="table-container"><table>
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Consultorio</th><th>Profesional</th><th>Tipo</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+                {% for t in proximos_turnos %}
+                <tr>
+                    <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
+                    <td>{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
+                    <td class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</td>
+                    <td>{{ t.profesional.nombre_completo }}</td>
+                    <td>{{ t.tipo_consulta|default:"—" }}</td>
+                    <td>{% if t.estado == 'confirmado' %}<span class="badge badge-success">✅ Confirmado</span>{% elif t.estado == 'pendiente' %}<span class="badge badge-warning">⏳ Pendiente</span>{% endif %}</td>
+                    <td><div class="flex gap-2">
+                        <a href="{% url 'editar_turno_pro' t.id %}" class="btn btn-secondary btn-xs">✏️</a>
+                        <a href="{% url 'reprogramar_turno' t.id %}" class="btn btn-warning btn-xs">🔄</a>
+                    </div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+        {% else %}<div style="text-align: center; padding: 30px; color: #999;">📭 No hay turnos próximos</div>{% endif %}
     </div>
 
     <!-- Historial de Atenciones -->
     <div class="card" style="grid-column: 1 / -1;">
-        <div class="card-header">
-            <h3 class="card-title">🕒 Historial de Atenciones</h3>
-        </div>
-        
+        <div class="card-header"><h3 class="card-title">🕒 Historial de Atenciones</h3></div>
         {% if turnos %}
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Profesional</th>
-                        <th>Motivo / Diagnóstico</th>
-                        <th>Medicación</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Archivos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in turnos %}
-                    <tr>
-                        <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
-                        <td>{{ t.hora_inicio|time:"H:i" }}</td>
-                        <td>
-                            <div style="font-weight: 500;">{{ t.profesional.nombre_completo }}</div>
-                            <small class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</small>
-                        </td>
-                        <td>
-                            {% if t.evolucion %}
-                                <div style="font-weight: 500; margin-bottom: 2px;">
-                                    {{ t.evolucion.motivo_consulta|truncatechars:50 }}
-                                </div>
-                                {% if t.evolucion.diagnostico %}
-                                    <small class="text-muted">
-                                        🩺 {{ t.evolucion.diagnostico|truncatechars:60 }}
-                                    </small>
-                                {% endif %}
-                            {% else %}
-                                <span class="text-muted">Sin evolución registrada</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if t.evolucion and t.evolucion.medicacion_recetada %}
-                                <div>{{ t.evolucion.medicacion_recetada|truncatechars:40 }}</div>
-                                <a href="{% url 'generar_receta' t.evolucion.id %}" 
-                                   class="btn btn-xs" 
-                                   style="background: #3b82f6; color: white; margin-top: 4px;" 
-                                   target="_blank">
-                                    📄 Receta
-                                </a>
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if t.monto_total %}
-                                <span style="font-weight: 600; color: #10b981;">${{ t.monto_total }}</span>
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if t.estado == 'completado' %}
-                                <span class="badge badge-gray">✔️ Completado</span>
-                            {% elif t.estado == 'cancelado' %}
-                                <span class="badge badge-danger">❌ Cancelado</span>
-                            {% elif t.estado == 'no_asistio' %}
-                                <span class="badge badge-danger">🚫 No Asistió</span>
-                            {% else %}
-                                <span class="badge badge-info">{{ t.get_estado_display }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if t.evolucion and t.evolucion.archivos.all %}
-                                <div class="flex gap-2 flex-wrap">
-                                    {% for archivo in t.evolucion.archivos.all %}
-                                    <a href="{{ archivo.archivo.url }}" target="_blank">
-                                        <img src="{{ archivo.archivo.url }}" 
-                                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 30px; color: #999;">
-            <p>📭 No hay atenciones registradas</p>
-        </div>
-        {% endif %}
+        <div class="table-container"><table>
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Profesional</th><th>Motivo / Diagnóstico</th><th>Medicación</th><th>Monto</th><th>Estado</th><th>Archivos</th></tr></thead>
+            <tbody>
+                {% for t in turnos %}
+                <tr>
+                    <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
+                    <td>{{ t.hora_inicio|time:"H:i" }}</td>
+                    <td><div style="font-weight: 500;">{{ t.profesional.nombre_completo }}</div><small class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</small></td>
+                    <td>{% if t.evolucion %}<div style="font-weight: 500;">{{ t.evolucion.motivo_consulta|truncatechars:50 }}</div>{% if t.evolucion.diagnostico %}<small class="text-muted">🩺 {{ t.evolucion.diagnostico|truncatechars:60 }}</small>{% endif %}{% else %}<span class="text-muted">Sin evolución</span>{% endif %}</td>
+                    <td>{% if t.evolucion and t.evolucion.medicacion_recetada %}{{ t.evolucion.medicacion_recetada|truncatechars:40 }}<br><a href="{% url 'generar_receta' t.evolucion.id %}" class="btn btn-xs" style="background: #3b82f6; color: white;">📄 Receta</a>{% else %}—{% endif %}</td>
+                    <td>{% if t.monto_total %}<span style="font-weight: 600; color: #10b981;">${{ t.monto_total }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if t.estado == 'completado' %}<span class="badge badge-gray">✔️ Completado</span>{% elif t.estado == 'cancelado' %}<span class="badge badge-danger">❌ Cancelado</span>{% elif t.estado == 'no_asistio' %}<span class="badge badge-danger">🚫 No Asistió</span>{% else %}<span class="badge badge-info">{{ t.get_estado_display }}</span>{% endif %}</td>
+                    <td>{% if t.evolucion and t.evolucion.archivos.all %}<div class="flex gap-2">{% for a in t.evolucion.archivos.all %}<a href="{{ a.archivo.url }}" target="_blank"><img src="{{ a.archivo.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;"></a>{% endfor %}</div>{% else %}—{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+        {% else %}<div style="text-align: center; padding: 30px; color: #999;">📭 No hay atenciones registradas</div>{% endif %}
     </div>
 
-    <!-- Antecedentes de Historia Clínica -->
+    <!-- Antecedentes -->
     {% if not es_secretaria and historia %}
     <div class="card" style="grid-column: 1 / -1;">
-        <div class="card-header">
-            <h3 class="card-title">📋 Antecedentes Clínicos</h3>
-        </div>
-        
+        <div class="card-header"><h3 class="card-title">📋 Antecedentes Clínicos</h3></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 16px;">
-            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <div style="font-weight: 600; margin-bottom: 8px;">👤 Antecedentes Personales</div>
-                <p class="text-muted" style="margin: 0;">{{ historia.antecedentes_personales|default:"Sin datos" }}</p>
-            </div>
-            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #8b5cf6;">
-                <div style="font-weight: 600; margin-bottom: 8px;">👨‍👩‍👧‍👦 Antecedentes Familiares</div>
-                <p class="text-muted" style="margin: 0;">{{ historia.antecedentes_familiares|default:"Sin datos" }}</p>
-            </div>
-            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #ef4444;">
-                <div style="font-weight: 600; margin-bottom: 8px;">🚨 Alergias</div>
-                <p class="text-muted" style="margin: 0;">{{ historia.alergias|default:"Sin datos" }}</p>
-            </div>
-            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #10b981;">
-                <div style="font-weight: 600; margin-bottom: 8px;">💊 Medicación Habitual</div>
-                <p class="text-muted" style="margin: 0;">{{ historia.medicacion_habitual|default:"Sin datos" }}</p>
-            </div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;"><div style="font-weight: 600; margin-bottom: 8px;">👤 Antecedentes Personales</div><p class="text-muted" style="margin: 0;">{{ historia.antecedentes_personales|default:"Sin datos" }}</p></div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #8b5cf6;"><div style="font-weight: 600; margin-bottom: 8px;">👨‍👩‍👧‍👦 Antecedentes Familiares</div><p class="text-muted" style="margin: 0;">{{ historia.antecedentes_familiares|default:"Sin datos" }}</p></div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #ef4444;"><div style="font-weight: 600; margin-bottom: 8px;">🚨 Alergias</div><p class="text-muted" style="margin: 0;">{{ historia.alergias|default:"Sin datos" }}</p></div>
+            <div style="padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #10b981;"><div style="font-weight: 600; margin-bottom: 8px;">💊 Medicación Habitual</div><p class="text-muted" style="margin: 0;">{{ historia.medicacion_habitual|default:"Sin datos" }}</p></div>
         </div>
     </div>
     {% endif %}

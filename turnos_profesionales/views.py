@@ -15,7 +15,7 @@ from openpyxl import Workbook
 from establecimientos.models import Establecimiento
 from .models import TurnoProfesional, ArchivoTurno
 from profesionales.models import Profesional
-from pacientes.models import Paciente
+from pacientes.models import Paciente, PacienteObraSocial
 from agendas.models import Agenda, HorarioAtencion, BloqueoAgenda
 from historias_clinicas.models import HistoriaClinica, Evolucion, ArchivoClinico
 from .google_calendar import GoogleCalendarManager
@@ -39,7 +39,7 @@ DNI: {turno.paciente.dni}
 Teléfono: {turno.paciente.telefono}
 Tipo: {turno.tipo_consulta or '—'}
 Consultorio: {turno.establecimiento.nombre if turno.establecimiento else '—'}
-Sesiones restantes: {turno.paciente.sesiones_restantes or '—'}
+Sesiones restantes: {'Consultar en ficha'}
         """
         location = turno.establecimiento.direccion if turno.establecimiento else ''
         
@@ -136,6 +136,14 @@ def panel_profesional(request):
         fecha__range=[manana + timedelta(days=1), proxima_semana],
         estado__in=['pendiente', 'confirmado']
     ).order_by('fecha', 'hora_inicio')
+
+    sesiones_por_turno = {}
+    for turno in turnos_hoy:
+        os_paciente = turno.paciente.mis_obras_sociales.filter(
+            profesional=turno.profesional,
+            activa=True
+        ).first()
+        sesiones_por_turno[turno.id] = os_paciente
     
     contexto = {
         'profesional': profesional,
@@ -144,6 +152,7 @@ def panel_profesional(request):
         'turnos_manana': turnos_manana,
         'proximos_turnos': proximos_turnos,
         'total_hoy': turnos_hoy.count(),
+        'sesiones_por_turno': sesiones_por_turno,
         'confirmados_hoy': turnos_hoy.filter(estado='confirmado').count(),
         'pendientes_hoy': turnos_hoy.filter(estado='pendiente').count(),
         'completados_hoy': turnos_hoy.filter(estado='completado').count(),
@@ -217,9 +226,16 @@ def completar_turno(request, turno_id):
     turno.estado = 'completado'
     paciente = turno.paciente
     
-    if paciente.sesiones_restantes is not None and paciente.sesiones_restantes > 0:
-        paciente.sesiones_restantes -= 1
-        paciente.save()
+    # Descontar sesión de la OS activa del paciente
+    os_paciente = PacienteObraSocial.objects.filter(
+        paciente=paciente,
+        activa=True,
+        profesional=turno.profesional
+    ).first()
+
+    if os_paciente and os_paciente.sesiones_restantes is not None and os_paciente.sesiones_restantes > 0:
+        os_paciente.sesiones_restantes -= 1
+        os_paciente.save()
     
     if paciente.plan_obra_social:
         plan = paciente.plan_obra_social
@@ -690,23 +706,6 @@ def editar_turno(request, turno_id):
 
 
 # ============ CALENDARIO SEMANAL ============
-
-@login_required
-def calendario_semanal(request):
-    if request.user.rol not in ['profesional', 'secretaria']:
-        return redirect('home')
-    
-    if request.user.rol == 'secretaria':
-        profesional_id = request.GET.get('profesional')
-        if profesional_id:
-            profesional = get_object_or_404(Profesional, id=profesional_id)
-        else:
-            profesional = Profesional.objects.filter(
-                establecimientos=request.user.establecimiento, activo=True
-            ).first()
-            if not profesional:
-                messages.error(request, 'No hay profesionales en el consultorio.')
-                return redirect('panel_secretaria')
             
 @login_required
 def calendario_semanal(request):
@@ -1056,11 +1055,19 @@ def panel_secretaria(request):
     activo=True,
     atiende_por_orden=True
 )
+    sesiones_por_turno = {}
+    for turno in turnos_hoy:
+        os_paciente = turno.paciente.mis_obras_sociales.filter(
+            profesional=turno.profesional,
+            activa=True
+        ).first()
+        sesiones_por_turno[turno.id] = os_paciente
     
     return render(request, 'turnos_profesionales/panel_secretaria.html', {
         'profesionales': profesionales, 'profesional_seleccionado': profesional_seleccionado,
         'profesionales_orden_llegada': profesionales_orden_llegada,
         'turnos_hoy': turnos_hoy, 'hoy': hoy, 'total_hoy': total_hoy,
+        'sesiones_por_turno': sesiones_por_turno,
         'pendientes': pendientes, 'confirmados': confirmados, 'en_sala': en_sala,
         'establecimiento': establecimiento,
     })

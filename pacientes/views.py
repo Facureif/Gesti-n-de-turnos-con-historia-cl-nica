@@ -10,7 +10,51 @@ import random, string
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
 from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, TratamientoOdontologico
+import unicodedata
+import re
+import random
+import string
 
+
+
+def generar_username(nombre, apellido, dni):
+    """
+    Genera un username limpio sin acentos, espacios ni caracteres especiales.
+    Conserva la 'ñ'.
+    Prioriza: inicial del nombre + apellido, o DNI como respaldo.
+    """
+    def limpiar_texto(texto):
+        """Limpia acentos pero conserva la ñ."""
+        texto = texto.lower().strip()
+        # Reemplazar caracteres con acento por su versión sin acento
+        reemplazos = {
+            'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
+            'à': 'a', 'è': 'e', 'ì': 'i', 'ò': 'o', 'ù': 'u',
+            'â': 'a', 'ê': 'e', 'î': 'i', 'ô': 'o', 'û': 'u',
+            'ä': 'a', 'ë': 'e', 'ï': 'i', 'ö': 'o', 'ü': 'u',
+            'ã': 'a', 'õ': 'o',
+        }
+        for acento, sin_acento in reemplazos.items():
+            texto = texto.replace(acento, sin_acento)
+        # Eliminar todo lo que no sea letra (a-z) o ñ
+        # Conservamos: a-z y ñ
+        texto = re.sub(r'[^a-zñ]', '', texto)
+        return texto
+    
+    nombre_limpio = limpiar_texto(nombre)
+    apellido_limpio = limpiar_texto(apellido)
+    
+    # Opción 1: inicial del nombre + apellido completo
+    if nombre_limpio and apellido_limpio:
+        username = f"{nombre_limpio[0]}{apellido_limpio}"
+    elif apellido_limpio:
+        username = apellido_limpio
+    elif nombre_limpio:
+        username = f"{nombre_limpio}{dni[-4:]}"
+    else:
+        username = f"paciente{dni}"
+    
+    return username
 
 
 @login_required
@@ -28,14 +72,14 @@ def registrar_paciente(request):
         profesional = None
     
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        apellido = request.POST.get('apellido')
-        dni = request.POST.get('dni')
+        nombre = request.POST.get('nombre', '').strip()
+        apellido = request.POST.get('apellido', '').strip()
+        dni = request.POST.get('dni', '').strip()
         fecha_nacimiento = request.POST.get('fecha_nacimiento')
-        telefono = request.POST.get('telefono')
-        email = request.POST.get('email', '')
-        direccion = request.POST.get('direccion', '')
-        numero_afiliado = request.POST.get('numero_afiliado', '')
+        telefono = request.POST.get('telefono', '').strip()
+        email = request.POST.get('email', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        numero_afiliado = request.POST.get('numero_afiliado', '').strip()
         
         if not all([nombre, apellido, dni, fecha_nacimiento, telefono]):
             messages.error(request, 'Completá todos los campos obligatorios.')
@@ -56,15 +100,22 @@ def registrar_paciente(request):
             numero_afiliado=numero_afiliado,
         )
 
-
-        # Generar username único
-        base_username = f"{nombre.lower()}.{apellido.lower()}".replace(" ", "")
+        # Generar username limpio (sin acentos, conserva ñ)
+        base_username = generar_username(nombre, apellido, dni)
         username = base_username
+        
+        # Si ya existe, agregar últimos 4 dígitos del DNI
         if Usuario.objects.filter(username=username).exists():
-            username = f"{base_username}{random.randint(1,999)}"
+            username = f"{base_username}{dni[-4:]}"
+        
+        # Si todavía existe (muy raro), agregar número incremental
+        contador = 1
+        while Usuario.objects.filter(username=username).exists():
+            username = f"{base_username}{dni[-4:]}{contador}"
+            contador += 1
 
-        # Generar contraseña: DNI si existe, si no una aleatoria
-        password = dni if dni else ''.join(random.choices(string.digits, k=6))
+        # Contraseña: DNI sin puntos ni espacios
+        password = dni.replace('.', '').replace(' ', '')
 
         usuario = Usuario.objects.create_user(
             username=username,
@@ -79,8 +130,9 @@ def registrar_paciente(request):
         paciente.save()
 
         messages.success(request, 
-            f'Paciente {paciente.nombre_completo} registrado correctamente.\n'
-            f'🔑 Usuario: {username} | Contraseña: {password}'
+            f'✅ Paciente {paciente.nombre_completo} registrado correctamente.\n'
+            f'🔑 Usuario: {username} | Contraseña: {password}\n'
+            f'📋 Historia Clínica: HC-{paciente.id:06d}'
         )    
             
         # Crear historia clínica
@@ -105,16 +157,18 @@ def actualizar_sesiones(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     
     if request.method == 'POST':
+        os_id = request.POST.get('os_id')
         sesiones_autorizadas = request.POST.get('sesiones_autorizadas')
         sesiones_restantes = request.POST.get('sesiones_restantes')
         fecha_vencimiento = request.POST.get('fecha_vencimiento')
         
-        paciente.sesiones_autorizadas = int(sesiones_autorizadas) if sesiones_autorizadas else None
-        paciente.sesiones_restantes = int(sesiones_restantes) if sesiones_restantes else None
-        paciente.fecha_vencimiento_sesiones = fecha_vencimiento if fecha_vencimiento else None
-        paciente.save()
-        
-        messages.success(request, '✅ Sesiones actualizadas correctamente.')
+        if os_id:
+            os_paciente = get_object_or_404(PacienteObraSocial, id=os_id, paciente=paciente)
+            os_paciente.sesiones_autorizadas = int(sesiones_autorizadas) if sesiones_autorizadas else None
+            os_paciente.sesiones_restantes = int(sesiones_restantes) if sesiones_restantes else None
+            os_paciente.fecha_vencimiento = fecha_vencimiento if fecha_vencimiento else None
+            os_paciente.save()
+            messages.success(request, '✅ Sesiones actualizadas correctamente.')
     
     return redirect('ficha_paciente', paciente_id=paciente.id)
 
@@ -127,22 +181,34 @@ def buscar_paciente(request):
     
     if request.user.rol == 'secretaria':
         profesional = None
+        establecimiento = request.user.establecimiento
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
+        # Agarrar el primer establecimiento donde atiende
+        establecimiento = profesional.establecimientos.first()
     else:
-        profesional = None  
-
+        profesional = None
+        establecimiento = None
 
     pacientes = []
     busqueda = ''
     
     if request.GET.get('q'):
         busqueda = request.GET.get('q')
+        
         pacientes = Paciente.objects.filter(
             Q(nombre__icontains=busqueda) |
             Q(apellido__icontains=busqueda) |
             Q(dni__icontains=busqueda)
-        )[:20]
+        )
+        
+        # Ambos (secretaria y profesional) filtran por el mismo consultorio
+        if establecimiento:
+            pacientes = pacientes.filter(
+                turnoprofesional__establecimiento=establecimiento
+            ).distinct()
+        
+        pacientes = pacientes[:20]
     
     return render(request, 'pacientes/buscar.html', {
         'profesional': profesional,
@@ -211,6 +277,16 @@ def ficha_paciente(request, paciente_id):
     else:
         turnos_pasados = []
     
+    # Filtrar OS: solo las del profesional logueado (o todas si es secretaria)
+    if request.user.rol == 'profesional' and profesional:
+        obras_sociales_paciente = paciente.mis_obras_sociales.filter(
+            profesional=profesional
+        )
+    elif request.user.rol == 'secretaria':
+        obras_sociales_paciente = paciente.mis_obras_sociales.all()
+    else:
+        obras_sociales_paciente = paciente.mis_obras_sociales.none()
+
     return render(request, 'pacientes/ficha.html', {
         'profesional': profesional,
         'paciente': paciente,
@@ -218,6 +294,7 @@ def ficha_paciente(request, paciente_id):
         'evoluciones': evoluciones,
         'proximos_turnos': proximos_turnos,
         'turnos': turnos_pasados,
+        'obras_sociales_paciente': obras_sociales_paciente,
         'hoy': hoy,
         'es_secretaria': request.user.rol == 'secretaria'
     })
@@ -248,16 +325,7 @@ def editar_paciente(request, paciente_id):
         paciente.email = request.POST.get('email', paciente.email)
         paciente.direccion = request.POST.get('direccion', paciente.direccion)
         paciente.numero_afiliado = request.POST.get('numero_afiliado', paciente.numero_afiliado)
-        paciente.sesiones_autorizadas = request.POST.get('sesiones_autorizadas') or None
-        if paciente.sesiones_autorizadas:
-            paciente.sesiones_autorizadas = int(paciente.sesiones_autorizadas)
 
-        paciente.sesiones_restantes = request.POST.get('sesiones_restantes') or None
-        if paciente.sesiones_restantes:
-            paciente.sesiones_restantes = int(paciente.sesiones_restantes)
-
-        paciente.fecha_vencimiento_sesiones = request.POST.get('fecha_vencimiento') or None
-            
         paciente.save()
         
         # Actualizar historia clínica si existe
@@ -672,7 +740,6 @@ def eliminar_nota_clinica(request, nota_id):
     messages.success(request, '🗑️ Nota eliminada.')
     return redirect('ficha_tecnica', paciente_id=paciente_id)
 
-
 @login_required
 def gestionar_obras_sociales(request, paciente_id):
     """Pantalla para gestionar obras sociales y sesiones del paciente."""
@@ -681,53 +748,97 @@ def gestionar_obras_sociales(request, paciente_id):
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    obras_sociales_disponibles = ObraSocial.objects.filter(activo=True)
     
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
     else:
         profesional = None
     
+    # Filtrar OS disponibles: solo las que acepta el profesional
+    if profesional:
+        obras_sociales_disponibles = profesional.obras_sociales.filter(activo=True)
+    else:
+        obras_sociales_disponibles = ObraSocial.objects.filter(activo=True)
+    
+    # Filtrar OS del paciente por profesional
+    if profesional:
+        obras_sociales_paciente = paciente.mis_obras_sociales.filter(profesional=profesional)
+    else:
+        obras_sociales_paciente = paciente.mis_obras_sociales.all()
+    
     if request.method == 'POST':
         accion = request.POST.get('accion', '')
         
         # Guardar sesiones
         if accion == 'guardar_sesiones':
+            os_id = request.POST.get('os_id')
             sesiones_autorizadas = request.POST.get('sesiones_autorizadas')
             sesiones_restantes = request.POST.get('sesiones_restantes')
             fecha_vencimiento = request.POST.get('fecha_vencimiento')
             
-            paciente.sesiones_autorizadas = int(sesiones_autorizadas) if sesiones_autorizadas else None
-            paciente.sesiones_restantes = int(sesiones_restantes) if sesiones_restantes else None
-            paciente.fecha_vencimiento_sesiones = fecha_vencimiento if fecha_vencimiento else None
-            paciente.save()
-            messages.success(request, '✅ Sesiones actualizadas correctamente.')
+            if os_id:
+                os_paciente = get_object_or_404(PacienteObraSocial, id=os_id, paciente=paciente)
+                os_paciente.sesiones_autorizadas = int(sesiones_autorizadas) if sesiones_autorizadas else None
+                os_paciente.sesiones_restantes = int(sesiones_restantes) if sesiones_restantes else None
+                os_paciente.fecha_vencimiento = fecha_vencimiento if fecha_vencimiento else None
+                os_paciente.save()
+                messages.success(request, '✅ Sesiones actualizadas.')
         
-        # Agregar nueva obra social
         elif accion == 'agregar_obra_social':
             obra_social_id = request.POST.get('obra_social')
             plan_id = request.POST.get('plan')
             numero_afiliado = request.POST.get('numero_afiliado', '')
             
             if obra_social_id:
-                # Desactivar otras obras sociales si se marca como principal
-                if request.POST.get('es_principal') == 'si':
-                    PacienteObraSocial.objects.filter(paciente=paciente, activa=True).update(activa=False)
+                obra_social = ObraSocial.objects.get(id=obra_social_id)
                 
-                PacienteObraSocial.objects.create(
+                # Buscar si ya existe esta OS para el paciente (heredar datos)
+                os_existente = PacienteObraSocial.objects.filter(
                     paciente=paciente,
-                    obra_social_id=obra_social_id,
-                    plan_id=plan_id if plan_id else None,
-                    numero_afiliado=numero_afiliado,
-                    activa=True
+                    obra_social_id=obra_social_id
+                ).first()
+                
+                # Heredar nº afiliado y plan si no se especificaron
+                numero_afiliado_final = numero_afiliado or (os_existente.numero_afiliado if os_existente else '')
+                plan_final_id = plan_id or (os_existente.plan_id if os_existente else None)
+                plan_final = Plan.objects.get(id=plan_final_id) if plan_final_id else None
+                
+                # Crear la OS para el profesional actual
+                PacienteObraSocial.objects.get_or_create(
+                    paciente=paciente,
+                    obra_social=obra_social,
+                    profesional=profesional,
+                    defaults={
+                        'plan': plan_final,
+                        'numero_afiliado': numero_afiliado_final,
+                        'activa': True,
+                    }
                 )
                 
-                # Actualizar también el campo legacy de obra_social principal
-                obra_social = ObraSocial.objects.get(id=obra_social_id)
+                # Crear automáticamente para otros profesionales que aceptan esta OS
+                otros_profesionales = Profesional.objects.filter(
+                    obras_sociales=obra_social,
+                    establecimientos__in=profesional.establecimientos.all()
+                ).exclude(id=profesional.id).distinct()
+                
+                for otro_prof in otros_profesionales:
+                    PacienteObraSocial.objects.get_or_create(
+                        paciente=paciente,
+                        obra_social=obra_social,
+                        profesional=otro_prof,
+                        defaults={
+                            'plan': plan_final,
+                            'numero_afiliado': numero_afiliado_final,
+                            'activa': True,
+                        }
+                    )
+                    print(f"  ✅ OS creada para {otro_prof.nombre_completo}")
+                
+                # Actualizar campo legacy
                 paciente.obra_social = obra_social
-                paciente.numero_afiliado = numero_afiliado
-                if plan_id:
-                    paciente.plan_obra_social_id = plan_id
+                paciente.numero_afiliado = numero_afiliado_final
+                if plan_final_id:
+                    paciente.plan_obra_social_id = plan_final_id
                 paciente.save()
                 
                 messages.success(request, '✅ Obra social agregada correctamente.')
@@ -738,7 +849,6 @@ def gestionar_obras_sociales(request, paciente_id):
             obra_social_paciente = get_object_or_404(PacienteObraSocial, id=os_id, paciente=paciente)
             obra_social_paciente.activa = not obra_social_paciente.activa
             obra_social_paciente.save()
-            
             estado = "activada" if obra_social_paciente.activa else "desactivada"
             messages.success(request, f'✅ Obra social {estado}.')
         
@@ -749,24 +859,6 @@ def gestionar_obras_sociales(request, paciente_id):
             obra_social_paciente.delete()
             messages.success(request, '🗑️ Obra social eliminada.')
         
-        # Establecer como principal
-        elif accion == 'establecer_principal':
-            os_id = request.POST.get('os_id')
-            # Desactivar todas
-            PacienteObraSocial.objects.filter(paciente=paciente).update(activa=False)
-            # Activar la seleccionada
-            obra_social_paciente = get_object_or_404(PacienteObraSocial, id=os_id, paciente=paciente)
-            obra_social_paciente.activa = True
-            obra_social_paciente.save()
-            
-            # Actualizar campo legacy
-            paciente.obra_social = obra_social_paciente.obra_social
-            paciente.numero_afiliado = obra_social_paciente.numero_afiliado
-            paciente.plan_obra_social = obra_social_paciente.plan
-            paciente.save()
-            
-            messages.success(request, '⭐ Obra social principal actualizada.')
-        
         return redirect('gestionar_obras_sociales', paciente_id=paciente.id)
     
     context = {
@@ -775,6 +867,7 @@ def gestionar_obras_sociales(request, paciente_id):
         'obras_sociales_disponibles': obras_sociales_disponibles,
         'hoy': date.today(),
         'es_secretaria': request.user.rol == 'secretaria',
+        'obras_sociales_paciente': obras_sociales_paciente,
     }
     
     return render(request, 'pacientes/gestionar_obras_sociales.html', context)

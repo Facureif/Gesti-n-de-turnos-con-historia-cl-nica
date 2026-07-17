@@ -22,21 +22,23 @@
         <a href="{% url 'cambiar_password' %}" class="btn" style="background: #dc3545; font-size: 0.9em;">🔒 Cambiar Contraseña</a>
     </div>
 
-    {% if paciente.sesiones_autorizadas %}
+    {% if paciente.mis_obras_sociales.exists %}
     <div class="card" style="margin-bottom: 20px; background: #f0f7ff;">
         <h3 style="margin-bottom: 10px;">🎫 Tus Sesiones</h3>
-        <div style="display: flex; gap: 30px; align-items: center;">
-            <div style="text-align: center;">
-                <div style="font-size: 2.5em; font-weight: bold; color: #4A90D9;">{{ paciente.sesiones_restantes }}</div>
-                <div style="color: #666;">Restantes</div>
+        {% for os in paciente.mis_obras_sociales.all %}
+            {% if os.activa and os.sesiones_restantes is not None %}
+            <div style="display: flex; gap: 30px; align-items: center; margin-bottom: 10px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2.5em; font-weight: bold; color: #4A90D9;">{{ os.sesiones_restantes }}</div>
+                    <div style="color: #666;">Restantes</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2em; color: #666;">de {{ os.sesiones_autorizadas }} autorizadas</div>
+                    <div style="color: #4A90D9;">{{ os.obra_social.nombre }}</div>
+                </div>
             </div>
-            <div style="text-align: center;">
-                <div style="font-size: 1.2em; color: #666;">de {{ paciente.sesiones_autorizadas }} autorizadas</div>
-                {% if paciente.obra_social %}
-                    <div style="color: #4A90D9;">{{ paciente.obra_social.nombre }}</div>
-                {% endif %}
-            </div>
-        </div>
+            {% endif %}
+        {% endfor %}
     </div>
     {% endif %}
 
@@ -56,6 +58,7 @@
                         <th style="padding: 10px;">Fecha</th>
                         <th style="padding: 10px;">Hora</th>
                         <th style="padding: 10px;">Profesional</th>
+                        <th style="padding: 10px;">Especialidad</th>
                         <th style="padding: 10px;">Consultorio</th>
                         <th style="padding: 10px;">Estado</th>
                         <th style="padding: 10px;"></th>
@@ -67,6 +70,7 @@
                         <td style="padding: 10px;">{{ turno.fecha|date:"d/m/Y" }}</td>
                         <td style="padding: 10px;">{{ turno.hora_inicio|time:"H:i" }}</td>
                         <td style="padding: 10px;">{{ turno.profesional.nombre_completo }}</td>
+                        <td style="padding: 10px;">{{ turno.profesional.especialidad }}</td>
                         <td style="padding: 10px;">{{ turno.establecimiento.nombre|default:"—" }}</td>
                         <td style="padding: 10px;">
                             <span style="padding: 3px 10px; border-radius: 15px; font-size: 0.85em;
@@ -96,7 +100,7 @@
             {% for turno in ultimos_turnos %}
             <li style="padding: 10px; border-bottom: 1px solid #eee;">
                 {{ turno.fecha|date:"d/m/Y" }} - {{ turno.profesional.nombre_completo }} 
-                <span style="color: #666;">({{ turno.establecimiento.nombre|default:"—" }})</span>
+                <span style="color: #666;">({{ turno.profesional.especialidad }}-{{ turno.establecimiento.nombre|default:"—" }})</span>
             </li>
             {% endfor %}
         </ul>
