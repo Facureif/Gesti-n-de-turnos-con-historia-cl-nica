@@ -254,8 +254,6 @@ def completar_turno(request, turno_id):
 
     return redirect('cargar_evolucion', turno_id=turno.id)
     
-
-
 @login_required
 def cobrar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
@@ -265,6 +263,11 @@ def cobrar_turno(request, turno_id):
     
     paciente = turno.paciente
     plan = paciente.plan_obra_social
+    
+    if request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    else:
+        profesional = None
     
     if request.method == 'POST':
         monto_total = request.POST.get('monto_total', '')
@@ -280,25 +283,20 @@ def cobrar_turno(request, turno_id):
         
         turno.save()
         
+        # Calcular coseguro automático
         if turno.monto_total and turno.monto_os and not turno.monto_coseguro:
             turno.monto_coseguro = turno.monto_total - turno.monto_os
             turno.save()
         
-        coseguro_msg = ''
-        if turno.monto_coseguro and turno.monto_coseguro > 0:
-            coseguro_msg = f' | 💰 Cobrar al paciente: ${turno.monto_coseguro}'
-        
-        messages.success(request, f'Cobro registrado.{coseguro_msg}')
+        messages.success(request, '✅ Cobro registrado correctamente.')
         return redirect('panel_profesional')
     
-        if request.user.rol == 'secretaria':
-            return redirect('panel_secretaria')
-        return redirect('cargar_evolucion', turno_id=turno.id)
-    
     return render(request, 'turnos_profesionales/cobrar_turno.html', {
-        'turno': turno, 'paciente': paciente, 'plan': plan
+        'turno': turno,
+        'paciente': paciente,
+        'plan': plan,
+        'profesional': profesional,
     })
-
 
 @login_required
 def no_asistio_turno(request, turno_id):
@@ -444,8 +442,8 @@ def cargar_evolucion(request, turno_id):
             except:
                 pass
         
-        messages.success(request, 'Evolución cargada correctamente.')
-        return redirect('cobrar_turno', turno_id=turno.id) 
+        messages.success(request, '✅ Evolución guardada. Completá la ficha del paciente.')
+        return redirect(f'/pacientes/{turno.paciente.id}/?turno_id={turno.id}')
     
     return render(request, 'turnos_profesionales/cargar_evolucion.html', {
         'profesional': profesional, 'turno': turno, 'historia': historia
@@ -1601,3 +1599,63 @@ def exportar_excel(request):
     response['Content-Disposition'] = f'attachment; filename=turnos_{inicio.strftime("%Y%m%d")}_{fin.strftime("%Y%m%d")}.xlsx'
     wb.save(response)
     return response
+
+
+@login_required
+def cobranza_os(request):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    if request.user.rol == 'secretaria':
+        establecimiento = request.user.establecimiento
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(establecimientos=establecimiento, activo=True).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    
+    # Mes seleccionado
+    hoy = date.today()
+    mes_str = request.GET.get('mes', hoy.strftime('%Y-%m'))
+    try:
+        inicio = datetime.strptime(mes_str + '-01', '%Y-%m-%d').date()
+    except:
+        inicio = hoy.replace(day=1)
+    
+    fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    
+    turnos = TurnoProfesional.objects.filter(
+        profesional=profesional,
+        fecha__range=[inicio, fin],
+        estado='completado',
+        monto_os__gt=0  # Solo los que tienen monto de OS
+    ).order_by('-fecha')
+    
+    total_facturado = turnos.aggregate(Sum('monto_os'))['monto_os__sum'] or 0
+    total_cobrado = turnos.filter(os_cobrado=True).aggregate(Sum('monto_os'))['monto_os__sum'] or 0
+    total_pendiente = total_facturado - total_cobrado
+    
+    mes_anterior = (inicio - timedelta(days=1)).strftime('%Y-%m')
+    mes_siguiente = (inicio + timedelta(days=32)).strftime('%Y-%m')
+    
+    return render(request, 'turnos_profesionales/cobranza_os.html', {
+        'turnos': turnos,
+        'inicio': inicio, 'fin': fin,
+        'total_facturado': total_facturado,
+        'total_cobrado': total_cobrado,
+        'total_pendiente': total_pendiente,
+        'mes_anterior': mes_anterior,
+        'mes_siguiente': mes_siguiente,
+    })
+
+
+@login_required
+def marcar_cobrado_os(request, turno_id):
+    turno = get_object_or_404(TurnoProfesional, id=turno_id)
+    turno.os_cobrado = True
+    turno.fecha_cobro_os = date.today()
+    turno.save()
+    messages.success(request, '✅ Cobro de OS registrado.')
+    return redirect('cobranza_os')

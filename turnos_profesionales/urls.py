@@ -23,5 +23,7 @@ urlpatterns = [
     path('receta/<int:evolucion_id>/', views.generar_receta, name='generar_receta'),
     path('cobrar/<int:turno_id>/', views.cobrar_turno, name='cobrar_turno'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('cobranza-os/', views.cobranza_os, name='cobranza_os'),
+    path('turno/<int:turno_id>/cobrado-os/', views.marcar_cobrado_os, name='marcar_cobrado_os'),  
     path('exportar-excel/', views.exportar_excel, name='exportar_excel'),
 ]

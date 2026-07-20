@@ -13,6 +13,16 @@
     </div>
 </div>
 
+<!-- 🔥 NUEVO: Acceso rápido a Cobranza OS -->
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'cobranza_os' %}" class="btn btn-sm" style="background: #f59e0b; color: white;">
+        🏥 Cobranza a Obras Sociales
+    </a>
+    <a href="{% url 'exportar_excel' %}?periodo={{ periodo }}" class="btn btn-sm btn-success" style="margin-left: 8px;">
+        📥 Exportar a Excel
+    </a>
+</div>
+
 <p style="color: #666;">{{ inicio|date:"d/m/Y" }} - {{ fin|date:"d/m/Y" }}</p>
 
 <!-- Métricas principales -->

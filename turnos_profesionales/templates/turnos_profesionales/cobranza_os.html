@@ -1,0 +1,104 @@
+{% extends 'core_app/base.html' %}
+
+{% block title %}Cobranza Obras Sociales{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>🏥 Cobranza a Obras Sociales</h1>
+    <div style="display: flex; gap: 10px;">
+        <a href="?mes={{ mes_anterior }}" class="btn btn-secondary btn-sm">← Mes Anterior</a>
+        <a href="?mes={{ mes_siguiente }}" class="btn btn-secondary btn-sm">Mes Siguiente →</a>
+    </div>
+</div>
+
+<p style="color: #666; margin-bottom: 20px;">{{ inicio|date:"F Y" }}</p>
+
+<!-- Resumen del mes -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+    <div class="card" style="text-align: center; background: #fef3c7;">
+        <div style="font-size: 0.8em; color: #92400e;">TOTAL FACTURADO A OS</div>
+        <div style="font-size: 1.8em; font-weight: 700; color: #92400e;">${{ total_facturado|floatformat:0 }}</div>
+    </div>
+    <div class="card" style="text-align: center; background: #dcfce7;">
+        <div style="font-size: 0.8em; color: #15803d;">COBRADO A OS</div>
+        <div style="font-size: 1.8em; font-weight: 700; color: #15803d;">${{ total_cobrado|floatformat:0 }}</div>
+    </div>
+    <div class="card" style="text-align: center; background: #fee2e2;">
+        <div style="font-size: 0.8em; color: #991b1b;">PENDIENTE DE COBRO</div>
+        <div style="font-size: 1.8em; font-weight: 700; color: #991b1b;">${{ total_pendiente|floatformat:0 }}</div>
+    </div>
+</div>
+
+<!-- Tabla de turnos con OS -->
+<div class="card">
+    <div class="card-header flex-between">
+        <h3 class="card-title">📋 Turnos con Obra Social</h3>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">← Volver al Dashboard</a>
+    </div>
+    
+    {% if turnos %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Paciente</th>
+                    <th>Obra Social</th>
+                    <th>Total</th>
+                    <th>Cubre OS</th>
+                    <th>Coseguro</th>
+                    <th>¿Cobrado a OS?</th>
+                    <th>Fecha Cobro</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in turnos %}
+                <tr>
+                    <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
+                    <td>
+                        <a href="{% url 'ficha_paciente' t.paciente.id %}" style="color: #2563eb; text-decoration: none;">
+                            {{ t.paciente.nombre_completo }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if t.paciente.obra_social %}
+                            <span class="badge badge-info">{{ t.paciente.obra_social.sigla }}</span>
+                            {{ t.paciente.obra_social.nombre }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>${{ t.monto_total|floatformat:0|default:"—" }}</td>
+                    <td style="color: #3b82f6;">${{ t.monto_os|floatformat:0|default:"—" }}</td>
+                    <td style="color: #ef4444;">${{ t.monto_coseguro|floatformat:0|default:"—" }}</td>
+                    <td>
+                        {% if t.os_cobrado %}
+                            <span class="badge badge-success">✅ Cobrado</span>
+                        {% else %}
+                            <span class="badge badge-warning">⏳ Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.fecha_cobro_os %}
+                            {{ t.fecha_cobro_os|date:"d/m/Y" }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        {% if not t.os_cobrado and t.monto_os %}
+                        <form method="post" action="{% url 'marcar_cobrado_os' t.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-xs">💰 Marcar Cobrado</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 30px; color: #999;">
+        <p>No hay turnos con obra social este mes.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

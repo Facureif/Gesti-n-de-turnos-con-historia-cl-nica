@@ -84,7 +84,9 @@ class TurnoProfesional(ModeloBase):
         blank=True,
         verbose_name='Coseguro cobrado'
     )
-
+    os_cobrado = models.BooleanField(default=False, verbose_name='¿Cobrado a la OS?')
+    fecha_cobro_os = models.DateField(null=True, blank=True, verbose_name='Fecha de cobro a OS')
+    
     google_event_id = models.CharField(max_length=200, blank=True, null=True, verbose_name='ID Evento Google')
 
     class Meta:

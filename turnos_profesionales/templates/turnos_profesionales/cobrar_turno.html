@@ -5,60 +5,113 @@
 {% block content %}
 <div style="max-width: 500px; margin: 0 auto;">
     <h1>💰 Registrar Cobro</h1>
-    <p style="color: #666; margin-bottom: 20px;">
-        Paciente: <strong>{{ paciente.nombre_completo }}</strong><br>
-        Fecha: {{ turno.fecha|date:"d/m/Y" }} | {{ turno.hora_inicio|time:"H:i" }}
-    </p>
     
-    {% if plan %}
-    <div class="card" style="background: #f0f7ff; margin-bottom: 20px;">
-        <p style="margin: 0;"><strong>{{ plan.obra_social.nombre }} - {{ plan.nombre }}</strong></p>
-        {% if plan.coseguro_fijo %}
-            <p style="margin: 5px 0 0 0;">Coseguro fijo: <strong>${{ plan.coseguro_fijo }}</strong></p>
-        {% elif plan.coseguro_porcentaje %}
-            <p style="margin: 5px 0 0 0;">Coseguro: <strong>{{ plan.coseguro_porcentaje }}%</strong></p>
-        {% endif %}
+    <!-- Info del paciente -->
+    <div class="card" style="margin-bottom: 20px; background: #f0f7ff;">
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                <strong>{{ paciente.nombre_completo }}</strong>
+                <div style="color: #666; font-size: 0.9em;">
+                    {{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                {% if plan %}
+                    <span class="badge badge-info">{{ plan.obra_social.sigla }}</span>
+                    <div style="font-size: 0.8em; color: #666;">{{ plan.nombre }}</div>
+                {% else %}
+                    <span class="badge badge-gray">Particular</span>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% endif %}
     
     <div class="card">
-        <form method="post">
+        <form method="post" id="form-cobro">
             {% csrf_token %}
             
-            <div style="margin-bottom: 15px;">
-                <label><strong>Monto Total de la Consulta</strong></label>
-                <input type="number" name="monto_total" step="0.01" min="0"
-                       value="{{ turno.monto_total|default:'' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                       placeholder="Ej: 5000.00">
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label><strong>Cubre la Obra Social</strong></label>
-                <input type="number" name="monto_os" step="0.01" min="0"
-                       value="{{ turno.monto_os|default:'' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                       placeholder="Ej: 4000.00">
-            </div>
-            
+            <!-- Monto total -->
             <div style="margin-bottom: 20px;">
-                <label><strong>Coseguro a cargo del paciente</strong></label>
-                <input type="number" name="monto_coseguro" step="0.01" min="0"
-                       value="{{ turno.monto_coseguro|default:'' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                       placeholder="Se calcula automáticamente si dejás vacío">
-                <small style="color: #666;">Dejalo vacío y se calcula: Monto Total - Cubre OS</small>
+                <label style="display: block; font-weight: 600; margin-bottom: 6px;">
+                    💵 Monto total de la consulta
+                </label>
+                <input type="number" name="monto_total" id="monto_total" step="0.01" min="0"
+                       value="{{ profesional.precio_particular|default:'' }}"
+                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1em;"
+                       placeholder="Ej: 15000"
+                       oninput="calcularCoseguro()">
+            </div>
+            
+            {% if plan %}
+            <!-- Si tiene OS -->
+            <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 6px;">
+                        🏥 Cubre {{ plan.obra_social.nombre }}
+                    </label>
+                    <input type="number" name="monto_os" id="monto_os" step="0.01" min="0"
+                           style="width: 100%; padding: 12px; border: 1px solid #22c55e; border-radius: 8px; font-size: 1.1em;"
+                           placeholder="Monto que cubre la OS"
+                           oninput="calcularCoseguro()">
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Coseguro (calculado automáticamente) -->
+            <div style="background: {% if plan %}#fef2f2{% else %}#fef3c7{% endif %}; 
+                        padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;
+                        border: 2px solid {% if plan %}#ef4444{% else %}#f59e0b{% endif %};">
+                
+                {% if plan %}
+                <div style="font-size: 0.9em; color: #991b1b; margin-bottom: 4px;">
+                    💰 COBRAR AL PACIENTE AHORA
+                </div>
+                {% else %}
+                <div style="font-size: 0.9em; color: #92400e; margin-bottom: 4px;">
+                    👤 PACIENTE PARTICULAR · COBRAR TOTAL
+                </div>
+                {% endif %}
+                
+                <div style="font-size: 2.5em; font-weight: 800; color: {% if plan %}#ef4444{% else %}#f59e0b{% endif %};" id="coseguro-mostrado">
+                    $0.00
+                </div>
+                <input type="hidden" name="monto_coseguro" id="monto_coseguro" value="">
+                
+                <div style="font-size: 0.8em; color: #666; margin-top: 4px;" id="detalle-calculo"></div>
             </div>
             
             <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px;">
-                    💾 Guardar y continuar
+                <button type="submit" class="btn btn-success" style="flex: 1; padding: 14px; font-size: 1.1em;">
+                    💾 Registrar Cobro
                 </button>
-                <a href="{% url 'panel_profesional' %}" class="btn" style="padding: 12px 20px; background: #6c757d;">
+                <a href="{% url 'panel_profesional' %}" class="btn btn-secondary" style="padding: 14px 20px;">
                     Saltar
                 </a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+function calcularCoseguro() {
+    var total = parseFloat(document.getElementById('monto_total').value) || 0;
+    var os = parseFloat(document.getElementById('monto_os').value) || 0;
+    
+    {% if plan %}
+        var coseguro = total - os;
+        document.getElementById('monto_coseguro').value = coseguro > 0 ? coseguro.toFixed(2) : '0.00';
+        document.getElementById('coseguro-mostrado').textContent = '$' + (coseguro > 0 ? coseguro.toLocaleString('es-AR', {minimumFractionDigits: 2}) : '0,00');
+        document.getElementById('detalle-calculo').textContent = 'Total: $' + total.toLocaleString('es-AR') + ' - OS: $' + os.toLocaleString('es-AR');
+    {% else %}
+        document.getElementById('monto_coseguro').value = total.toFixed(2);
+        document.getElementById('coseguro-mostrado').textContent = '$' + total.toLocaleString('es-AR', {minimumFractionDigits: 2});
+        document.getElementById('detalle-calculo').textContent = 'El paciente paga el total de la consulta';
+    {% endif %}
+}
+
+// Calcular al cargar si ya hay valores
+window.onload = function() {
+    calcularCoseguro();
+};
+</script>
 {% endblock %}

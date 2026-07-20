@@ -287,7 +287,16 @@ def ficha_paciente(request, paciente_id):
     else:
         obras_sociales_paciente = paciente.mis_obras_sociales.none()
 
-    return render(request, 'pacientes/ficha.html', {
+    # Detectar si viene de cargar evolución (para mostrar botón de pago)
+    turno_para_pagar = None
+    turno_id = request.GET.get('turno_id')
+    if turno_id:
+        try:
+            turno_para_pagar = TurnoProfesional.objects.get(id=turno_id)
+        except TurnoProfesional.DoesNotExist:
+            pass
+    
+    return render(request, 'pacientes/ficha.html', {    
         'profesional': profesional,
         'paciente': paciente,
         'historia': historia,
@@ -296,7 +305,8 @@ def ficha_paciente(request, paciente_id):
         'turnos': turnos_pasados,
         'obras_sociales_paciente': obras_sociales_paciente,
         'hoy': hoy,
-        'es_secretaria': request.user.rol == 'secretaria'
+        'es_secretaria': request.user.rol == 'secretaria',
+        'turno_para_pagar': turno_para_pagar,
     })
 
 

@@ -22,6 +22,14 @@
             <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
         {% endif %}
         <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm">📅 Asignar Turno</a>
+        
+        <!-- 🔥 NUEVO: Botón Pagar si viene de una evolución -->
+        {% if turno_para_pagar %}
+            <a href="{% url 'cobrar_turno' turno_para_pagar.id %}" class="btn btn-sm" style="background: #14c51d; color: white;">
+                💰 Pagar Consulta
+            </a>
+        {% endif %}
+        
         {% if request.user.rol == 'secretaria' %}
             <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm">← Volver</a>
         {% else %}
@@ -133,34 +141,69 @@
     <div class="card" style="grid-column: 1 / -1;">
         <div class="card-header"><h3 class="card-title">📅 Próximos Turnos</h3></div>
         {% if proximos_turnos %}
-        <div class="table-container"><table>
-            <thead><tr><th>Fecha</th><th>Hora</th><th>Consultorio</th><th>Profesional</th><th>Tipo</th><th>Estado</th><th></th></tr></thead>
-            <tbody>
-                {% for t in proximos_turnos %}
-                <tr>
-                    <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
-                    <td>{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
-                    <td class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</td>
-                    <td>{{ t.profesional.nombre_completo }}</td>
-                    <td>{{ t.tipo_consulta|default:"—" }}</td>
-                    <td>{% if t.estado == 'confirmado' %}<span class="badge badge-success">✅ Confirmado</span>{% elif t.estado == 'pendiente' %}<span class="badge badge-warning">⏳ Pendiente</span>{% endif %}</td>
-                    <td><div class="flex gap-2">
-                        <a href="{% url 'editar_turno_pro' t.id %}" class="btn btn-secondary btn-xs">✏️</a>
-                        <a href="{% url 'reprogramar_turno' t.id %}" class="btn btn-warning btn-xs">🔄</a>
-                    </div></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table></div>
-        {% else %}<div style="text-align: center; padding: 30px; color: #999;">📭 No hay turnos próximos</div>{% endif %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Consultorio</th>
+                        <th>Profesional</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in proximos_turnos %}
+                    <tr>
+                        <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
+                        <td>{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
+                        <td class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</td>
+                        <td>{{ t.profesional.nombre_completo }}</td>
+                        <td>{{ t.tipo_consulta|default:"—" }}</td>
+                        <td>
+                            {% if t.estado == 'confirmado' %}
+                                <span class="badge badge-success">✅ Confirmado</span>
+                            {% elif t.estado == 'pendiente' %}
+                                <span class="badge badge-warning">⏳ Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <a href="{% url 'editar_turno_pro' t.id %}" class="btn btn-secondary btn-xs">✏️</a>
+                                <a href="{% url 'reprogramar_turno' t.id %}" class="btn btn-warning btn-xs">🔄</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #999;">📭 No hay turnos próximos</div>
+        {% endif %}
     </div>
+
 
     <!-- Historial de Atenciones -->
     <div class="card" style="grid-column: 1 / -1;">
         <div class="card-header"><h3 class="card-title">🕒 Historial de Atenciones</h3></div>
         {% if turnos %}
         <div class="table-container"><table>
-            <thead><tr><th>Fecha</th><th>Hora</th><th>Profesional</th><th>Motivo / Diagnóstico</th><th>Medicación</th><th>Monto</th><th>Estado</th><th>Archivos</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Profesional</th>
+                    <th>Motivo / Diagnóstico</th>
+                    <th>Medicación</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                    <th>OS</th>
+                    <th>Archivos</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for t in turnos %}
                 <tr>
@@ -169,8 +212,24 @@
                     <td><div style="font-weight: 500;">{{ t.profesional.nombre_completo }}</div><small class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</small></td>
                     <td>{% if t.evolucion %}<div style="font-weight: 500;">{{ t.evolucion.motivo_consulta|truncatechars:50 }}</div>{% if t.evolucion.diagnostico %}<small class="text-muted">🩺 {{ t.evolucion.diagnostico|truncatechars:60 }}</small>{% endif %}{% else %}<span class="text-muted">Sin evolución</span>{% endif %}</td>
                     <td>{% if t.evolucion and t.evolucion.medicacion_recetada %}{{ t.evolucion.medicacion_recetada|truncatechars:40 }}<br><a href="{% url 'generar_receta' t.evolucion.id %}" class="btn btn-xs" style="background: #3b82f6; color: white;">📄 Receta</a>{% else %}—{% endif %}</td>
-                    <td>{% if t.monto_total %}<span style="font-weight: 600; color: #10b981;">${{ t.monto_total }}</span>{% else %}—{% endif %}</td>
+                    <td>
+                        {% if t.monto_total %}
+                            <div style="font-weight: 700; color: #10b981;">${{ t.monto_total|floatformat:0 }}</div>
+                            {% if t.monto_os %}<div style="font-size: 0.7em; color: #3b82f6;">🏥 OS: ${{ t.monto_os|floatformat:0 }}</div>{% endif %}
+                            {% if t.monto_coseguro %}<div style="font-size: 0.7em; color: #ef4444;">💰 Coseguro: ${{ t.monto_coseguro|floatformat:0 }}</div>{% endif %}
+                        {% else %}<span class="text-muted">—</span>{% endif %}
+                    </td>
                     <td>{% if t.estado == 'completado' %}<span class="badge badge-gray">✔️ Completado</span>{% elif t.estado == 'cancelado' %}<span class="badge badge-danger">❌ Cancelado</span>{% elif t.estado == 'no_asistio' %}<span class="badge badge-danger">🚫 No Asistió</span>{% else %}<span class="badge badge-info">{{ t.get_estado_display }}</span>{% endif %}</td>
+                    <td>
+                        {% if t.monto_os %}
+                            {% if t.os_cobrado %}
+                                <span class="badge badge-success" style="font-size: 0.7em;">✅ Cobrado</span>
+                                {% if t.fecha_cobro_os %}<div style="font-size: 0.65em; color: #666;">{{ t.fecha_cobro_os|date:"d/m/Y" }}</div>{% endif %}
+                            {% else %}
+                                <span class="badge badge-warning" style="font-size: 0.7em;">⏳ Pendiente</span>
+                            {% endif %}
+                        {% else %}<span class="text-muted">—</span>{% endif %}
+                    </td>
                     <td>{% if t.evolucion and t.evolucion.archivos.all %}<div class="flex gap-2">{% for a in t.evolucion.archivos.all %}<a href="{{ a.archivo.url }}" target="_blank"><img src="{{ a.archivo.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;"></a>{% endfor %}</div>{% else %}—{% endif %}</td>
                 </tr>
                 {% endfor %}
