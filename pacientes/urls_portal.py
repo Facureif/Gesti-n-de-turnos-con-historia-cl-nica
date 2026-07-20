@@ -10,4 +10,5 @@ urlpatterns = [
     path('editar-mi-ficha/', views_portal.editar_mi_ficha, name='editar_mi_ficha'),
     path('mis-estudios/', views_portal.mis_estudios, name='mis_estudios'),
     path('cambiar-password/', views_portal.cambiar_password, name='cambiar_password'),
+    path('receta/<int:evolucion_id>/', views_portal.ver_receta_paciente, name='generar_receta_paciente'),
 ]

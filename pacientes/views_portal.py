@@ -6,6 +6,7 @@ from datetime import date, timedelta, datetime
 
 from establecimientos.models import Establecimiento
 from core_app.models import ClienteSaaS, ConfiguracionSistema
+from historias_clinicas.models import Evolucion
 from obras_sociales.models import ObraSocial, Plan
 
 from .models import Paciente, PacienteObraSocial
@@ -59,6 +60,7 @@ def panel_paciente(request):
         'paciente': paciente,
         'proximos_turnos': proximos_turnos,
         'ultimos_turnos': ultimos_turnos,
+        'hoy': hoy,
         'cliente': cliente,
     })
 
@@ -463,3 +465,17 @@ def cambiar_password(request):
         'form': form,
         'paciente': paciente,
     })
+
+@login_required
+def ver_receta_paciente(request, evolucion_id):
+    evolucion = get_object_or_404(Evolucion, id=evolucion_id)
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    
+    # Verificar que la evolución sea de este paciente
+    if evolucion.historia_clinica.paciente != paciente:
+        messages.error(request, 'No tenés acceso.')
+        return redirect('panel_paciente')
+    
+    # Reutilizar la misma lógica de generar_receta pero devolviendo el PDF
+    from turnos_profesionales.views import generar_receta
+    return generar_receta(request, evolucion_id)
