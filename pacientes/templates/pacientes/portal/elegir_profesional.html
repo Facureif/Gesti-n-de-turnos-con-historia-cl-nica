@@ -27,11 +27,28 @@
     .consultorio-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: 16px; }
     .consultorio-tag { padding: 3px 10px; background: #f1f5f9; border-radius: 20px; font-size: 0.7rem; color: #64748b; }
     
-    .btn-sacar-turno { display: inline-flex; align-items: center; gap: 6px; background: #059669; color: white; padding: 10px 20px; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.2s ease; justify-content: center; }
+    .btn-sacar-turno { display: inline-flex; align-items: center; gap: 6px; background: #059669; color: white; padding: 10px 20px; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.2s ease; justify-content: center; cursor: pointer; border: none; }
     .btn-sacar-turno:hover { background: #047857; transform: translateY(-1px); }
+    
+    .btn-orden-llegada { display: inline-flex; align-items: center; gap: 6px; background: #6c757d; color: white; padding: 10px 20px; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.2s ease; }
+    .btn-orden-llegada:hover { background: #5a6268; }
     
     .empty-state { text-align: center; padding: 48px 20px; color: #9ca3af; }
     .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+    
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 16px; padding: 30px; max-width: 450px; width: 90%; text-align: center; position: relative; }
+    .modal h2 { margin: 0 0 8px 0; font-size: 1.3rem; }
+    .modal .especialidad { color: #2563eb; font-weight: 600; margin-bottom: 20px; }
+    .modal .horarios-tabla { width: 100%; margin-bottom: 20px; }
+    .modal .horarios-tabla td { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .modal .horarios-tabla td:first-child { font-weight: 600; color: #475569; }
+    .modal .horarios-tabla td:last-child { color: #64748b; }
+    .modal .aviso { background: #fef3c7; padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #92400e; margin-bottom: 20px; }
+    .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
+    .modal-close:hover { color: #333; }
 </style>
 {% endblock %}
 
@@ -67,10 +84,11 @@
                         {% endfor %}
                     {% endif %}
                 </div>
+                
                 {% if prof.atiende_por_orden %}
-                    <span class="btn-sacar-turno" style="background: #6c757d; cursor: default;">
+                    <button class="btn-orden-llegada" onclick="abrirModal('{{ prof.nombre_completo }}', '{{ prof.get_especialidad_display }}', {{ prof.id }})">
                         Orden de Llegada
-                    </span>
+                    </button>
                 {% elif prof.establecimientos.count == 1 %}
                     <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn-sacar-turno">
                         <i class="fas fa-calendar-plus"></i> Sacar Turno
@@ -91,4 +109,73 @@
         </div>
     {% endif %}
 </div>
+
+<!-- Modal horarios -->
+<div class="modal-overlay" id="modal-horarios">
+    <div class="modal">
+        <button class="modal-close" onclick="cerrarModal()">✕</button>
+        <h2 id="modal-nombre"></h2>
+        <p class="especialidad" id="modal-especialidad"></p>
+        
+        <div class="aviso">
+            Este profesional atiende por <strong>orden de llegada</strong>, sin turno previo.
+        </div>
+        
+        <table class="horarios-tabla" id="modal-horarios-tabla">
+        </table>
+        
+        <button class="btn-sacar-turno" onclick="cerrarModal()" style="width: 100%;">Entendido</button>
+    </div>
+</div>
+
+<script>
+var horariosData = {};
+
+// Cargar horarios de los profesionales
+document.addEventListener('DOMContentLoaded', function() {
+    {% for prof in profesionales %}
+        {% if prof.atiende_por_orden %}
+            horariosData[{{ prof.id }}] = [];
+            {% for agenda in prof.agenda_set.all %}
+                {% for h in agenda.horarios.all %}
+                    horariosData[{{ prof.id }}].push({
+                        dia: "{{ h.get_dia_display }}",
+                        inicio: "{{ h.hora_inicio|time:'H:i' }}",
+                        fin: "{{ h.hora_fin|time:'H:i' }}"
+                    });
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+});
+
+function abrirModal(nombre, especialidad, profId) {
+    document.getElementById('modal-nombre').textContent = nombre;
+    document.getElementById('modal-especialidad').textContent = especialidad;
+    
+    var tabla = document.getElementById('modal-horarios-tabla');
+    var horarios = horariosData[profId] || [];
+    
+    if (horarios.length > 0) {
+        var html = '<tr><th style="text-align:left;padding:8px;color:#475569;">Día</th><th style="text-align:right;padding:8px;color:#475569;">Horario</th></tr>';
+        horarios.forEach(function(h) {
+            html += '<tr><td style="padding:8px;">' + h.dia + '</td><td style="text-align:right;padding:8px;">' + h.inicio + ' - ' + h.fin + '</td></tr>';
+        });
+        tabla.innerHTML = html;
+    } else {
+        tabla.innerHTML = '<tr><td colspan="2" style="padding:16px;color:#999;">Consultar horarios con el profesional</td></tr>';
+    }
+    
+    document.getElementById('modal-horarios').classList.add('active');
+}
+
+function cerrarModal() {
+    document.getElementById('modal-horarios').classList.remove('active');
+}
+
+// Cerrar al hacer clic fuera del modal
+document.getElementById('modal-horarios').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+});
+</script>
 {% endblock %}

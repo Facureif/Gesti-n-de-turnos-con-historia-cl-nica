@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'historias_clinicas',
     'recordatorios',
     'reportes',
-    'turnos_rapidos',   
     'turnos_profesionales',  
 ]
 

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q , Count  
 from datetime import date, timedelta, datetime
 
 from establecimientos.models import Establecimiento
@@ -12,7 +12,7 @@ from obras_sociales.models import ObraSocial, Plan
 from .models import Paciente, PacienteObraSocial
 from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
-from agendas.models import Agenda, HorarioAtencion
+from agendas.models import Agenda, BloqueoAgenda, HorarioAtencion
 
 
 @login_required
@@ -308,44 +308,54 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
     if agenda:
         max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
         establecimiento_agenda = agenda.establecimiento
+        bloqueos = BloqueoAgenda.objects.filter(agenda=agenda, activo=True)
         
         for i in range(30):
             fecha = hoy + timedelta(days=i)
             dia_semana = fecha.weekday()
             
-            horario = HorarioAtencion.objects.filter(
-                agenda=agenda,
-                dia=dia_semana
-            ).first()
+            horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
             
             if horario:
-                hora_actual = horario.hora_inicio
-                slots = []
+                dia_bloqueado = bloqueos.filter(
+                    fecha=fecha, hora_inicio__isnull=True, hora_fin__isnull=True
+                ).exists()
                 
-                while hora_actual < horario.hora_fin:
-                    hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
+                if not dia_bloqueado:
+                    hora_actual = horario.hora_inicio
+                    slots = []
                     
-                    if hora_fin_slot <= horario.hora_fin:
-                        ocupados = TurnoProfesional.objects.filter(
-                            profesional=profesional,
-                            establecimiento=establecimiento_agenda,
-                            fecha=fecha,
-                            hora_inicio=hora_actual,
-                            estado__in=['pendiente', 'confirmado']
-                        ).count()
+                    while hora_actual < horario.hora_fin:
+                        hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
                         
-                        if ocupados < max_simultaneos:
-                            slots.append(hora_actual.strftime('%H:%M'))
+                        if hora_fin_slot <= horario.hora_fin:
+                            slot_bloqueado = bloqueos.filter(
+                                fecha=fecha,
+                                hora_inicio__lte=hora_actual,
+                                hora_fin__gte=hora_fin_slot
+                            ).exists()
+                            
+                            if not slot_bloqueado:
+                                ocupados = TurnoProfesional.objects.filter(
+                                    profesional=profesional,
+                                    establecimiento=establecimiento_agenda,
+                                    fecha=fecha,
+                                    hora_inicio=hora_actual,
+                                    estado__in=['pendiente', 'confirmado']
+                                ).count()
+                                
+                                if ocupados < max_simultaneos:
+                                    slots.append(hora_actual.strftime('%H:%M'))
+                        
+                        hora_actual = hora_fin_slot
                     
-                    hora_actual = hora_fin_slot
-                
-                if slots:
-                    dias_disponibles.append({
-                        'fecha': fecha,
-                        'fecha_str': fecha.strftime('%Y-%m-%d'),
-                        'nombre_dia': fecha.strftime('%A'),
-                        'slots': slots
-                    })
+                    if slots:
+                        dias_disponibles.append({
+                            'fecha': fecha,
+                            'fecha_str': fecha.strftime('%Y-%m-%d'),
+                            'nombre_dia': fecha.strftime('%A'),
+                            'slots': slots
+                        })
     
     return render(request, 'pacientes/portal/sacar_turno.html', {
         'paciente': paciente,
@@ -415,7 +425,15 @@ def editar_mi_ficha(request):
     
     # GET
     obras_sociales = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
-    obras_sociales_paciente = paciente.mis_obras_sociales.all()
+    # En editar_mi_ficha, reemplazá la línea de obras_sociales_paciente
+    todas = paciente.mis_obras_sociales.select_related('obra_social', 'plan').order_by('obra_social__nombre')
+    obras_sociales_paciente = []
+    vistos = set()
+    for os in todas:
+        clave = (os.obra_social_id, os.plan_id, os.numero_afiliado)
+        if clave not in vistos:
+            vistos.add(clave)
+            obras_sociales_paciente.append(os)
     
     return render(request, 'pacientes/portal/editar_ficha.html', {
         'paciente': paciente,

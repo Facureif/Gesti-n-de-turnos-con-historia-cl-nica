@@ -26,4 +26,5 @@ urlpatterns = [
     path('cobranza-os/', views.cobranza_os, name='cobranza_os'),
     path('turno/<int:turno_id>/cobrado-os/', views.marcar_cobrado_os, name='marcar_cobrado_os'),  
     path('exportar-excel/', views.exportar_excel, name='exportar_excel'),
+    path('reserva-multiple/', views.reserva_multiple, name='reserva_multiple'),
 ]

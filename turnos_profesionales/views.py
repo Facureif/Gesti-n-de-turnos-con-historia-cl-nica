@@ -1572,6 +1572,9 @@ def dashboard(request):
             total=Count('id'), completados=Count('id', filter=Q(estado='completado')),
             cancelados=Count('id', filter=Q(estado='cancelado'))
         ).order_by('-total')
+
+    total_os = turnos_periodo.filter(monto_os__isnull=False).aggregate(total=Sum('monto_os'))['total'] or 0
+    total_facturado = total_coseguros + total_os    
     
     return render(request, 'turnos_profesionales/dashboard.html', {
         'total_turnos': total_turnos, 'completados': completados,
@@ -1583,6 +1586,8 @@ def dashboard(request):
         'comparativa_profesional': comparativa_profesional, 'periodo': periodo,
         'inicio': inicio, 'fin': fin, 'profesionales': profesionales,
         'profesional_seleccionado': profesional_seleccionado,
+        'total_os': total_os,
+        'total_facturado': total_facturado,
     })
 
 
@@ -1702,3 +1707,101 @@ def marcar_cobrado_os(request, turno_id):
     turno.save()
     messages.success(request, '✅ Cobro de OS registrado.')
     return redirect('cobranza_os')
+
+
+@login_required
+def reserva_multiple(request):
+    if request.user.rol not in ['profesional', 'secretaria']:
+        return redirect('home')
+    
+    if request.user.rol == 'secretaria':
+        profesional_id = request.GET.get('profesional')
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+        else:
+            profesional = Profesional.objects.filter(
+                establecimientos=request.user.establecimiento, activo=True
+            ).first()
+    else:
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+    
+    paciente_seleccionado = None
+    paciente_id = request.GET.get('paciente_id')
+    if paciente_id:
+        paciente_seleccionado = get_object_or_404(Paciente, id=paciente_id)
+    
+    dias_semana = [
+        (0, 'Lunes'), (1, 'Martes'), (2, 'Miércoles'),
+        (3, 'Jueves'), (4, 'Viernes')
+    ]
+    
+    if request.method == 'POST':
+        paciente_id = request.POST.get('paciente_id')
+        dias = request.POST.getlist('dias')
+        semanas = int(request.POST.get('semanas', 4))
+        
+        paciente = get_object_or_404(Paciente, id=paciente_id)
+        establecimiento = profesional.establecimientos.first()
+        hoy = date.today()
+        
+        turnos_creados = 0
+        
+        for semana in range(semanas):
+            for dia_str in dias:
+                dia = int(dia_str)
+                hora_str = request.POST.get(f'hora_{dia}')
+                hora = datetime.strptime(hora_str, '%H:%M').time()
+                
+                # Calcular la fecha del próximo día de la semana
+                fecha = hoy + timedelta(weeks=semana)
+                dias_hasta = (dia - fecha.weekday()) % 7
+                fecha += timedelta(days=dias_hasta)
+                
+                if fecha < hoy:
+                    continue
+                
+                # Verificar duración
+                agenda = Agenda.objects.filter(
+                    profesional=profesional, activo=True,
+                    fecha_inicio__lte=fecha
+                ).first()
+                
+                duracion = 30
+                if agenda:
+                    horario = HorarioAtencion.objects.filter(
+                        agenda=agenda, dia=fecha.weekday()
+                    ).first()
+                    if horario:
+                        duracion = horario.duracion_turno
+                
+                hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
+                
+                # Verificar disponibilidad
+                ocupado = TurnoProfesional.objects.filter(
+                    profesional=profesional,
+                    fecha=fecha,
+                    hora_inicio=hora,
+                    estado__in=['pendiente', 'confirmado']
+                ).exists()
+                
+                if not ocupado:
+                    TurnoProfesional.objects.create(
+                        profesional=profesional,
+                        establecimiento=establecimiento,
+                        paciente=paciente,
+                        fecha=fecha,
+                        hora_inicio=hora,
+                        hora_fin=hora_fin,
+                        estado='pendiente',
+                        tipo_consulta='Reserva múltiple',
+                    )
+                    turnos_creados += 1
+        
+        messages.success(request, f'✅ {turnos_creados} turnos creados para {paciente.nombre_completo}.')
+        return redirect('panel_profesional')
+    
+    return render(request, 'turnos_profesionales/reserva_multiple.html', {
+        'profesional': profesional,
+        'paciente_seleccionado': paciente_seleccionado,
+        'dias_semana': dias_semana,
+    })    

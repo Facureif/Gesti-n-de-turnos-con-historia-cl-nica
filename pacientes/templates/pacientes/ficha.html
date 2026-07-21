@@ -22,6 +22,9 @@
             <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
         {% endif %}
         <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm">📅 Asignar Turno</a>
+        <a href="{% url 'reserva_multiple' %}?paciente_id={{ paciente.id }}" class="btn btn-sm" style="background: #8b5cf6;">
+            📅 Reserva Múltiple
+        </a>
         
         <!-- 🔥 NUEVO: Botón Pagar si viene de una evolución -->
         {% if turno_para_pagar %}
