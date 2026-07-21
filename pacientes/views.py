@@ -398,7 +398,6 @@ def ficha_tecnica(request, paciente_id):
     )
     
     if request.method == 'POST':
-        # Guardar datos en el JSON de la ficha
         datos = {}
         for key, value in request.POST.items():
             if key not in ['csrfmiddlewaretoken', 'notas_generales']:
@@ -408,30 +407,30 @@ def ficha_tecnica(request, paciente_id):
         ficha_tecnica.notas_generales = request.POST.get('notas_generales', '')
         ficha_tecnica.save()
         
-        # --- LÓGICA SEGÚN ESPECIALIDAD ---
-        
-        # Kinesiología: guardar lesión
+        # Kinesiología
         if especialidad == 'kinesiologia':
             zona = request.POST.get('nueva_lesion_zona', '').strip()
-            fecha = request.POST.get('nueva_lesion_fecha', '').strip()
-            if zona and fecha:
-                Lesion.objects.create(
+            fecha_lesion = request.POST.get('nueva_lesion_fecha', '').strip()
+            if zona and fecha_lesion:
+                lesion = Lesion.objects.create(
                     paciente=paciente,
-                    fecha_lesion=fecha,
+                    fecha_lesion=fecha_lesion,
                     tipo_lesion=request.POST.get('nueva_lesion_tipo', 'otra'),
                     zona=zona,
                     descripcion=request.POST.get('nueva_lesion_descripcion', ''),
                     tratamiento=request.POST.get('nueva_lesion_tratamiento', ''),
                 )
+                archivo = request.FILES.get('nota_archivo')
+                if archivo:
+                    lesion.archivo = archivo
+                    lesion.save()
         
         # Nutrición
         elif especialidad == 'nutricion':
             peso = request.POST.get('peso_kg', '').strip()
             if peso:
-                from historias_clinicas.models import ConsultaNutricional
-                ConsultaNutricional.objects.create(
-                    paciente=paciente,
-                    profesional=profesional,
+                consulta = ConsultaNutricional.objects.create(
+                    paciente=paciente, profesional=profesional,
                     fecha=request.POST.get('fecha', date.today()),
                     peso_kg=peso,
                     altura_cm=request.POST.get('altura_cm') or None,
@@ -443,27 +442,17 @@ def ficha_tecnica(request, paciente_id):
                     plan_nutricional=request.POST.get('plan_nutricional', ''),
                     observaciones=request.POST.get('observaciones_nutricion', ''),
                 )
-        # Nota clínica (para todas las especialidades, especialmente útil en "general")
-        titulo_nota = request.POST.get('nota_titulo', '').strip()
-        contenido_nota = request.POST.get('nota_contenido', '').strip()
-        if titulo_nota and contenido_nota:
-            from historias_clinicas.models import NotaClinica
-            NotaClinica.objects.create(
-                paciente=paciente,
-                profesional=profesional,
-                fecha=request.POST.get('nota_fecha', date.today()),
-                tipo=request.POST.get('nota_tipo', 'observacion'),
-                titulo=titulo_nota,
-                contenido=contenido_nota,
-            )
+                archivo = request.FILES.get('nota_archivo')
+                if archivo:
+                    consulta.archivo = archivo
+                    consulta.save()
+        
         # Fonoaudiología
         elif especialidad == 'fonoaudiologia':
             area = request.POST.get('area', '').strip()
             if area:
-                from historias_clinicas.models import EvaluacionFonoaudiologica
-                EvaluacionFonoaudiologica.objects.create(
-                    paciente=paciente,
-                    profesional=profesional,
+                evaluacion = EvaluacionFonoaudiologica.objects.create(
+                    paciente=paciente, profesional=profesional,
                     fecha=request.POST.get('fecha', date.today()),
                     area=area,
                     diagnostico=request.POST.get('diagnostico', ''),
@@ -473,29 +462,49 @@ def ficha_tecnica(request, paciente_id):
                     respuesta_paciente=request.POST.get('respuesta_paciente', ''),
                     recomendaciones=request.POST.get('recomendaciones', ''),
                 )
-
-        # Odontología: guardar tratamiento
+                archivo = request.FILES.get('nota_archivo')
+                if archivo:
+                    evaluacion.archivo = archivo
+                    evaluacion.save()
+        
+        # Odontología
         elif especialidad == 'odontologia':
             pieza = request.POST.get('nuevo_tratamiento_pieza', '').strip()
             tipo = request.POST.get('nuevo_tratamiento_tipo', '').strip()
-            fecha = request.POST.get('nuevo_tratamiento_fecha', '').strip()
+            fecha_trat = request.POST.get('nuevo_tratamiento_fecha', '').strip()
             if pieza and tipo:
-                from historias_clinicas.models import TratamientoOdontologico
-                TratamientoOdontologico.objects.create(
-                    paciente=paciente,
-                    profesional=profesional,
-                    fecha=fecha or date.today(),
-                    pieza_dental=pieza,
-                    tipo_tratamiento=tipo,
+                tratamiento = TratamientoOdontologico.objects.create(
+                    paciente=paciente, profesional=profesional,
+                    fecha=fecha_trat or date.today(),
+                    pieza_dental=pieza, tipo_tratamiento=tipo,
                     material_usado=request.POST.get('nuevo_tratamiento_material', ''),
                     descripcion=request.POST.get('nuevo_tratamiento_descripcion', ''),
                     costo=request.POST.get('nuevo_tratamiento_costo') or None,
                     fecha_proximo_control=request.POST.get('nuevo_tratamiento_control') or None,
                 )
+                archivo = request.FILES.get('nota_archivo')
+                if archivo:
+                    tratamiento.archivo = archivo
+                    tratamiento.save()
+        
+        # Nota clínica (todas las especialidades)
+        titulo_nota = request.POST.get('nota_titulo', '').strip()
+        contenido_nota = request.POST.get('nota_contenido', '').strip()
+        if titulo_nota and contenido_nota:
+            nota = NotaClinica.objects.create(
+                paciente=paciente, profesional=profesional,
+                fecha=request.POST.get('nota_fecha', date.today()),
+                tipo=request.POST.get('nota_tipo', 'observacion'),
+                titulo=titulo_nota, contenido=contenido_nota,
+            )
+            archivo = request.FILES.get('nota_archivo_nota')
+            if archivo:
+                nota.archivo = archivo
+                nota.save()
         
         messages.success(request, '✅ Ficha guardada correctamente.')
         return redirect('ficha_tecnica', paciente_id=paciente.id)
-    
+         
     context = {
         'paciente': paciente,
         'ficha_tecnica': ficha_tecnica,

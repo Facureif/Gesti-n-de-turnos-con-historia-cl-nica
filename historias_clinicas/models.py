@@ -179,7 +179,8 @@ class Lesion(models.Model):
     resuelta = models.BooleanField(default=False, verbose_name='¿Resuelta?')
     fecha_resolucion = models.DateField(null=True, blank=True)
     creado = models.DateTimeField(auto_now_add=True)
-    
+    archivo = models.FileField(upload_to='tratamientos_odontologicos/%Y/%m/', null=True, blank=True)
+
     class Meta:
         ordering = ['-fecha_lesion']
         verbose_name = 'Lesión'
@@ -260,7 +261,8 @@ class TratamientoOdontologico(models.Model):
     )
     fecha = models.DateField(default=date.today)
     pieza_dental = models.CharField(max_length=10, verbose_name='Pieza dental')
-    
+    archivo = models.FileField(upload_to='tratamientos_odontologicos/%Y/%m/', null=True, blank=True)
+
     TIPO_TRATAMIENTO = [
         ('caries', 'Caries / Obturación'),
         ('endodoncia', 'Endodoncia / Conducto'),
@@ -332,7 +334,7 @@ class ConsultaNutricional(models.Model):
     objetivo = models.CharField(max_length=30, choices=OBJETIVOS, blank=True)
     plan_nutricional = models.TextField(blank=True, verbose_name='Plan nutricional indicado')
     observaciones = models.TextField(blank=True)
-    
+    archivo = models.FileField(upload_to='tratamientos_odontologicos/%Y/%m/', null=True, blank=True)
     creado = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -368,6 +370,7 @@ class EvaluacionFonoaudiologica(models.Model):
         related_name='evaluaciones_fono'
     )
     fecha = models.DateField(default=date.today)
+    archivo = models.FileField(upload_to='tratamientos_odontologicos/%Y/%m/', null=True, blank=True)
     
     AREAS = [
         ('lenguaje', 'Lenguaje'),
@@ -409,32 +412,19 @@ class EvaluacionFonoaudiologica(models.Model):
         return f"Eval. {self.get_area_display()} - {self.fecha.strftime('%d/%m/%Y')}"                
     
 class NotaClinica(models.Model):
-    """Notas clínicas generales no vinculadas a un turno específico."""
     paciente = models.ForeignKey(
-        'pacientes.Paciente',
-        on_delete=models.CASCADE,
-        related_name='notas_clinicas'
+        'pacientes.Paciente', on_delete=models.CASCADE, related_name='notas_clinicas'
     )
     profesional = models.ForeignKey(
-        'profesionales.Profesional',
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='notas_clinicas'
+        'profesionales.Profesional', on_delete=models.SET_NULL, null=True, related_name='notas_clinicas'
     )
     fecha = models.DateField(default=date.today)
     titulo = models.CharField(max_length=200)
-    tipo = models.CharField(
-        max_length=30,
-        choices=[
-            ('observacion', 'Observación'),
-            ('resultado', 'Resultado de estudio'),
-            ('interconsulta', 'Interconsulta'),
-            ('llamado', 'Llamado telefónico'),
-            ('indicacion', 'Indicación'),
-            ('otro', 'Otro'),
-        ],
-        default='observacion'
-    )
+    tipo = models.CharField(max_length=30, choices=[
+        ('observacion', 'Observación'), ('resultado', 'Resultado de estudio'),
+        ('interconsulta', 'Interconsulta'), ('llamado', 'Llamado telefónico'),
+        ('indicacion', 'Indicación'), ('otro', 'Otro'),
+    ], default='observacion')
     contenido = models.TextField()
     archivo = models.FileField(upload_to='notas_clinicas/%Y/%m/', null=True, blank=True)
     creado = models.DateTimeField(auto_now_add=True)

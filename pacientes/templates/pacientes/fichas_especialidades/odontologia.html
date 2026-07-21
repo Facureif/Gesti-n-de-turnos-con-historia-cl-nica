@@ -139,6 +139,8 @@
                           placeholder="Detalles del procedimiento..."
                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
             </div>
+             <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
     </div>
 </div>
@@ -182,11 +184,14 @@
                         {% else %}—{% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'eliminar_tratamiento_odontologico' t.id %}" 
-                           class="btn btn-danger btn-xs"
-                           title="Eliminar"
-                           onclick="return confirm('¿Eliminar este tratamiento?')"
-                           style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            {% if t.archivo %}
+                            <a href="{{ t.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo">📎</a>
+                            {% endif %}
+                            <a href="{% url 'eliminar_tratamiento_odontologico' t.id %}" 
+                            class="btn btn-danger btn-xs"
+                            onclick="return confirm('¿Eliminar este tratamiento?')">🗑️</a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -199,6 +204,7 @@
         <small>Registrá un nuevo tratamiento y se agregará al historial automáticamente.</small>
     </div>
     {% endif %}
+    
 </div>
 
 <style>

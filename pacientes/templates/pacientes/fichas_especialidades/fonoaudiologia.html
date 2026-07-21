@@ -82,6 +82,8 @@
                 <textarea name="recomendaciones" rows="2"
                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
             </div>
+            <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
+            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
     </div>
 </div>
@@ -153,6 +155,9 @@
                         {% else %}—{% endif %}
                     </td>
                     <td>
+                        {% if e.archivo %}
+                            <a href="{{ e.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo">📎</a>
+                        {% endif %}
                         <a href="{% url 'eliminar_evaluacion_fono' e.id %}" 
                            class="btn btn-danger btn-xs"
                            onclick="return confirm('¿Eliminar esta sesión?')"

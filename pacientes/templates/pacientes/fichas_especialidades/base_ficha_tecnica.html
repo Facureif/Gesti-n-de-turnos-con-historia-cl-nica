@@ -30,7 +30,7 @@
     </div>
 
     <!-- Contenido principal -->
-    <form id="ficha-tecnica-form" method="post">
+    <form id="ficha-tecnica-form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
         {% block ficha_contenido %}{% endblock %}

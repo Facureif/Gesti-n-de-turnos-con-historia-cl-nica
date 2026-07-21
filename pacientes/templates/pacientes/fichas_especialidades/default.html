@@ -1,7 +1,7 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
 
 {% block ficha_icon %}📋{% endblock %}
-{% block ficha_titulo %}Notas Clínicas{% endblock %}
+{% block ficha_titulo %}Nuevo Registro{% endblock %}
 {% block ficha_especialidad %}General{% endblock %}
 
 {% block ficha_contenido %}
@@ -24,7 +24,6 @@
                     <option value="observacion">Observación</option>
                     <option value="resultado">Resultado de estudio</option>
                     <option value="interconsulta">Interconsulta</option>
-                    <option value="llamado">Llamado telefónico</option>
                     <option value="indicacion">Indicación</option>
                     <option value="otro">Otro</option>
                 </select>
@@ -33,7 +32,7 @@
         <div>
             <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Título *</label>
             <input type="text" name="nota_titulo" required
-                   placeholder="Ej: Resultado de resonancia, Llamado del paciente..."
+                   placeholder="Ej: Resultado de resonancia, observaciones ..."
                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
         <div>
@@ -41,6 +40,14 @@
             <textarea name="nota_contenido" rows="5" required
                       placeholder="Escribí la nota clínica..."
                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">
+                📎 Adjuntar archivo (PDF, imagen)
+            </label>
+            <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+            <small style="color: #666;">Opcional. Podés subir estudios, resultados, etc.</small>
         </div>
     </div>
 </div>
@@ -67,7 +74,6 @@
                     {% if nota.tipo == 'observacion' %}background: #e0f2fe; color: #0369a1;
                     {% elif nota.tipo == 'resultado' %}background: #dcfce7; color: #15803d;
                     {% elif nota.tipo == 'interconsulta' %}background: #fef3c7; color: #92400e;
-                    {% elif nota.tipo == 'llamado' %}background: #fce7f3; color: #9d174d;
                     {% elif nota.tipo == 'indicacion' %}background: #ede9fe; color: #5b21b6;
                     {% else %}background: #f3f4f6; color: #6b7280;{% endif %}
                     font-size: 0.7rem; margin-top: 4px; display: inline-block;">
@@ -88,10 +94,10 @@
                 <a href="{{ nota.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo" style="text-decoration: none;">📎</a>
                 {% endif %}
                 <a href="{% url 'eliminar_nota_clinica' nota.id %}" 
-                   class="btn btn-danger btn-xs"
-                   title="Eliminar"
-                   onclick="return confirm('¿Eliminar esta nota?')"
-                   style="text-decoration: none;">🗑️</a>
+                class="btn btn-danger btn-xs"
+                title="Eliminar"
+                onclick="return confirm('¿Eliminar esta nota?')"
+                style="text-decoration: none;">🗑️</a>
             </div>
         </div>
         {% endfor %}
@@ -100,7 +106,7 @@
     <div style="text-align: center; padding: 40px; color: #94a3b8;">
         <span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">📝</span>
         <p>Sin notas clínicas</p>
-        <small>Usá esta sección para registrar observaciones, resultados de estudios, llamados, etc.</small>
+        <small>Usá esta sección para registrar observaciones, resultados de estudios, etc.</small>
     </div>
     {% endif %}
 </div>
