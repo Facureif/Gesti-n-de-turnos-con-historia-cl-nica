@@ -1,69 +1,26 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Sacar Turno - Elegir Profesional{% endblock %}
 
 {% block extra_css %}
-<style>
-    .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-    
-    .page-container { max-width: 900px; margin: 0 auto; padding: 0 20px 40px; }
-    
-    .page-header { text-align: center; padding: 32px 0 24px; }
-    .page-header h1 { font-size: 1.6rem; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; }
-    .page-header p { color: #64748b; font-size: 0.95rem; }
-    
-    .profesionales-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-    
-    .profesional-card { background: white; border-radius: 16px; padding: 28px 20px; text-align: center; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: all 0.25s ease; display: flex; flex-direction: column; }
-    .profesional-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
-    
-    .profesional-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #dbeafe, #bfdbfe); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #2563eb; margin: 0 auto 14px; }
-    .profesional-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    
-    .profesional-card h3 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 4px 0; }
-    .profesional-card .especialidad { color: #2563eb; font-weight: 600; font-size: 0.85rem; margin-bottom: 10px; }
-    .profesional-card .descripcion { color: #64748b; font-size: 0.85rem; margin-bottom: 14px; line-height: 1.5; flex: 1; }
-    
-    .consultorio-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: 16px; }
-    .consultorio-tag { padding: 3px 10px; background: #f1f5f9; border-radius: 20px; font-size: 0.7rem; color: #64748b; }
-    
-    .btn-sacar-turno { display: inline-flex; align-items: center; gap: 6px; background: #059669; color: white; padding: 10px 20px; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.2s ease; justify-content: center; cursor: pointer; border: none; }
-    .btn-sacar-turno:hover { background: #047857; transform: translateY(-1px); }
-    
-    .btn-orden-llegada { display: inline-flex; align-items: center; gap: 6px; background: #6c757d; color: white; padding: 10px 20px; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.2s ease; }
-    .btn-orden-llegada:hover { background: #5a6268; }
-    
-    .empty-state { text-align: center; padding: 48px 20px; color: #9ca3af; }
-    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; }
-    
-    /* Modal */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-overlay.active { display: flex; }
-    .modal { background: white; border-radius: 16px; padding: 30px; max-width: 450px; width: 90%; text-align: center; position: relative; }
-    .modal h2 { margin: 0 0 8px 0; font-size: 1.3rem; }
-    .modal .especialidad { color: #2563eb; font-weight: 600; margin-bottom: 20px; }
-    .modal .horarios-tabla { width: 100%; margin-bottom: 20px; }
-    .modal .horarios-tabla td { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    .modal .horarios-tabla td:first-child { font-weight: 600; color: #475569; }
-    .modal .horarios-tabla td:last-child { color: #64748b; }
-    .modal .aviso { background: #fef3c7; padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #92400e; margin-bottom: 20px; }
-    .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
-    .modal-close:hover { color: #333; }
-</style>
+    <link rel="stylesheet" href="{% static 'css/pages/portal_paciente.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-header">
-        <h1>📅 Sacar Turno</h1>
-        <p>Elegí al profesional con quien querés atenderte</p>
+<div class="portal-paciente-page">
+<div class="portal-paciente-container">
+
+    <div style="text-align: center; padding: 24px 0 20px;">
+        <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text); margin: 0 0 4px 0;">📅 Sacar Turno</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Elegí al profesional con quien querés atenderte</p>
     </div>
 
     {% if profesionales %}
-        <div class="profesionales-grid">
+        <div class="profesionales-grid-portal">
             {% for prof in profesionales %}
-            <div class="profesional-card">
-                <div class="profesional-avatar">
+            <div class="profesional-card-portal">
+                <div class="profesional-avatar-portal">
                     {% if prof.foto %}
                         <img src="{{ prof.foto.url }}" alt="{{ prof.nombre_completo }}">
                     {% else %}
@@ -86,15 +43,15 @@
                 </div>
                 
                 {% if prof.atiende_por_orden %}
-                    <button class="btn-orden-llegada" onclick="abrirModal('{{ prof.nombre_completo }}', '{{ prof.get_especialidad_display }}', {{ prof.id }})">
+                    <button class="btn-orden-llegada-portal" onclick="abrirModal('{{ prof.nombre_completo|escapejs }}', '{{ prof.get_especialidad_display|escapejs }}', {{ prof.id }})">
                         Orden de Llegada
                     </button>
                 {% elif prof.establecimientos.count == 1 %}
-                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn-sacar-turno">
+                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}?establecimiento={{ prof.establecimientos.first.id }}" class="btn-sacar-turno-portal">
                         <i class="fas fa-calendar-plus"></i> Sacar Turno
                     </a>
                 {% else %}
-                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}" class="btn-sacar-turno">
+                    <a href="{% url 'sacar_turno_paciente_profesional' prof.id %}" class="btn-sacar-turno-portal">
                         <i class="fas fa-calendar-plus"></i> Sacar Turno
                     </a>
                 {% endif %}
@@ -102,17 +59,21 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-state">
-            <i class="fas fa-user-slash"></i>
-            <p>No hay profesionales disponibles en este momento.</p>
-            <a href="{% url 'panel_paciente' %}" class="btn-sacar-turno" style="margin-top: 16px;">↩ Volver al Panel</a>
+        <div class="portal-card">
+            <div class="portal-empty">
+                <span class="icono">👨‍⚕️</span>
+                <p>No hay profesionales disponibles en este momento.</p>
+                <a href="{% url 'panel_paciente' %}" class="btn btn-primary">↩ Volver al Panel</a>
+            </div>
         </div>
     {% endif %}
+
+</div>
 </div>
 
 <!-- Modal horarios -->
 <div class="modal-overlay" id="modal-horarios">
-    <div class="modal">
+    <div class="modal-dialog">
         <button class="modal-close" onclick="cerrarModal()">✕</button>
         <h2 id="modal-nombre"></h2>
         <p class="especialidad" id="modal-especialidad"></p>
@@ -121,17 +82,15 @@
             Este profesional atiende por <strong>orden de llegada</strong>, sin turno previo.
         </div>
         
-        <table class="horarios-tabla" id="modal-horarios-tabla">
-        </table>
+        <table class="modal-horarios-tabla" id="modal-horarios-tabla"></table>
         
-        <button class="btn-sacar-turno" onclick="cerrarModal()" style="width: 100%;">Entendido</button>
+        <button class="btn-sacar-turno-portal" onclick="cerrarModal()" style="width: 100%;">Entendido</button>
     </div>
 </div>
 
 <script>
 var horariosData = {};
 
-// Cargar horarios de los profesionales
 document.addEventListener('DOMContentLoaded', function() {
     {% for prof in profesionales %}
         {% if prof.atiende_por_orden %}
@@ -157,25 +116,28 @@ function abrirModal(nombre, especialidad, profId) {
     var horarios = horariosData[profId] || [];
     
     if (horarios.length > 0) {
-        var html = '<tr><th style="text-align:left;padding:8px;color:#475569;">Día</th><th style="text-align:right;padding:8px;color:#475569;">Horario</th></tr>';
+        var html = '<tr><th style="text-align:left;padding:8px;color:var(--text-muted);">Día</th><th style="text-align:right;padding:8px;color:var(--text-muted);">Horario</th></tr>';
         horarios.forEach(function(h) {
             html += '<tr><td style="padding:8px;">' + h.dia + '</td><td style="text-align:right;padding:8px;">' + h.inicio + ' - ' + h.fin + '</td></tr>';
         });
         tabla.innerHTML = html;
     } else {
-        tabla.innerHTML = '<tr><td colspan="2" style="padding:16px;color:#999;">Consultar horarios con el profesional</td></tr>';
+        tabla.innerHTML = '<tr><td colspan="2" style="padding:16px;color:var(--text-muted);">Consultar horarios con el profesional</td></tr>';
     }
     
-    document.getElementById('modal-horarios').classList.add('active');
+    document.getElementById('modal-horarios').classList.add('activo');
 }
 
 function cerrarModal() {
-    document.getElementById('modal-horarios').classList.remove('active');
+    document.getElementById('modal-horarios').classList.remove('activo');
 }
 
-// Cerrar al hacer clic fuera del modal
 document.getElementById('modal-horarios').addEventListener('click', function(e) {
     if (e.target === this) cerrarModal();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarModal();
 });
 </script>
 {% endblock %}

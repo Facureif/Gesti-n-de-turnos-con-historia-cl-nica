@@ -1,4 +1,5 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
 
 {% block ficha_icon %}📋{% endblock %}
 {% block ficha_titulo %}Nuevo Registro{% endblock %}
@@ -7,47 +8,43 @@
 {% block ficha_contenido %}
 
 <!-- Nueva nota -->
-<div class="card" style="border-left: 4px solid #6c757d;">
-    <div class="card-header">
-        <h3 class="card-title">➕ Nueva Nota Clínica</h3>
+<div class="ficha-card ficha-card borde-gray">
+    <div class="ficha-card-header">
+        <h3>➕ Nueva Nota Clínica</h3>
     </div>
-    <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
-                <input type="date" name="nota_fecha" required value="{% now 'Y-m-d' %}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+    <div class="ficha-card-body">
+        <div class="ficha-form-group">
+            <div class="ficha-form-row">
+                <div>
+                    <label class="ficha-label">Fecha <span class="required">*</span></label>
+                    <input type="date" name="nota_fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
+                </div>
+                <div>
+                    <label class="ficha-label">Tipo</label>
+                    <select name="nota_tipo" class="ficha-select">
+                        <option value="observacion">Observación</option>
+                        <option value="resultado">Resultado de estudio</option>
+                        <option value="interconsulta">Interconsulta</option>
+                        <option value="indicacion">Indicación</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Tipo</label>
-                <select name="nota_tipo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="observacion">Observación</option>
-                    <option value="resultado">Resultado de estudio</option>
-                    <option value="interconsulta">Interconsulta</option>
-                    <option value="indicacion">Indicación</option>
-                    <option value="otro">Otro</option>
-                </select>
+                <label class="ficha-label">Título <span class="required">*</span></label>
+                <input type="text" name="nota_titulo" required class="ficha-input"
+                       placeholder="Ej: Resultado de resonancia, observaciones ...">
             </div>
-        </div>
-        <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Título *</label>
-            <input type="text" name="nota_titulo" required
-                   placeholder="Ej: Resultado de resonancia, observaciones ..."
-                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-        </div>
-        <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Contenido *</label>
-            <textarea name="nota_contenido" rows="5" required
-                      placeholder="Escribí la nota clínica..."
-                      style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-        </div>
-        <div>
-            <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">
-                📎 Adjuntar archivo (PDF, imagen)
-            </label>
-            <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
-                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-            <small style="color: #666;">Opcional. Podés subir estudios, resultados, etc.</small>
+            <div>
+                <label class="ficha-label">Contenido <span class="required">*</span></label>
+                <textarea name="nota_contenido" rows="5" required class="ficha-textarea"
+                          placeholder="Escribí la nota clínica..."></textarea>
+            </div>
+            <div>
+                <label class="ficha-label">📎 Adjuntar archivo (PDF, imagen)</label>
+                <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
+                <small style="color: var(--text-muted); display: block; margin-top: 4px;">Opcional. Podés subir estudios, resultados, etc.</small>
+            </div>
         </div>
     </div>
 </div>
@@ -56,55 +53,46 @@
 
 {% block ficha_extra %}
 <!-- Historial de notas -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header flex-between">
-        <h3 class="card-title">📜 Historial de Notas Clínicas</h3>
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Notas Clínicas</h3>
         {% if notas %}
-        <span style="color: #666; font-size: 0.9em;">{{ notas.count }} nota{{ notas.count|pluralize:"s" }}</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ notas.count }} nota{{ notas.count|pluralize:"s" }}</span>
         {% endif %}
     </div>
 
     {% if notas %}
-    <div style="display: flex; flex-direction: column;">
+    <div>
         {% for nota in notas %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; align-items: start;">
+        <div class="ficha-nota-item">
             <div>
-                <div style="font-weight: 600; font-size: 0.9rem;">{{ nota.fecha|date:"d/m/Y" }}</div>
-                <span class="badge" style="
-                    {% if nota.tipo == 'observacion' %}background: #e0f2fe; color: #0369a1;
-                    {% elif nota.tipo == 'resultado' %}background: #dcfce7; color: #15803d;
-                    {% elif nota.tipo == 'interconsulta' %}background: #fef3c7; color: #92400e;
-                    {% elif nota.tipo == 'indicacion' %}background: #ede9fe; color: #5b21b6;
-                    {% else %}background: #f3f4f6; color: #6b7280;{% endif %}
-                    font-size: 0.7rem; margin-top: 4px; display: inline-block;">
-                    {{ nota.get_tipo_display }}
-                </span>
+                <div class="ficha-nota-fecha">{{ nota.fecha|date:"d/m/Y" }}</div>
+                <span class="ficha-badge-tipo {{ nota.tipo }}">{{ nota.get_tipo_display }}</span>
             </div>
             <div>
-                <div style="font-weight: 600; margin-bottom: 4px;">{{ nota.titulo }}</div>
-                <div style="color: #555; font-size: 0.9rem; white-space: pre-wrap;">{{ nota.contenido|truncatechars:200 }}</div>
+                <div class="ficha-nota-titulo">{{ nota.titulo }}</div>
+                <div class="ficha-nota-contenido">{{ nota.contenido|truncatechars:200 }}</div>
                 {% if nota.profesional %}
-                <small style="color: #999; display: block; margin-top: 6px;">
+                <span class="ficha-nota-meta">
                     Registrado por {{ nota.profesional.nombre_completo }} · {{ nota.creado|date:"d/m/Y H:i" }}
-                </small>
+                </span>
                 {% endif %}
             </div>
-            <div style="display: flex; gap: 4px; flex-shrink: 0;">
+            <div class="ficha-nota-acciones">
                 {% if nota.archivo %}
-                <a href="{{ nota.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo" style="text-decoration: none;">📎</a>
+                <a href="{{ nota.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
                 {% endif %}
                 <a href="{% url 'eliminar_nota_clinica' nota.id %}" 
-                class="btn btn-danger btn-xs"
-                title="Eliminar"
-                onclick="return confirm('¿Eliminar esta nota?')"
-                style="text-decoration: none;">🗑️</a>
+                   class="btn btn-danger ficha-btn-xs"
+                   title="Eliminar"
+                   onclick="return confirm('¿Eliminar esta nota?')">🗑️</a>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div style="text-align: center; padding: 40px; color: #94a3b8;">
-        <span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">📝</span>
+    <div class="ficha-empty">
+        <span class="icono">📝</span>
         <p>Sin notas clínicas</p>
         <small>Usá esta sección para registrar observaciones, resultados de estudios, etc.</small>
     </div>

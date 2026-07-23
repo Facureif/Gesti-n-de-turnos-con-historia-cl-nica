@@ -1,25 +1,30 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Mis Estudios - {{ paciente.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/portal_paciente.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+<div class="portal-paciente-page">
+<div class="portal-paciente-container">
+
+    <div class="portal-header">
         <div>
             <h1>📁 Mis Estudios Médicos</h1>
-            <p style="color: #666;">Estudios subidos por tu profesional</p>
+            <p style="color: var(--text-muted); margin-top: 4px;">Estudios subidos por tu profesional</p>
         </div>
-        <div>
-            <a href="{% url 'panel_paciente' %}" class="btn btn-secondary">← Volver al Panel</a>
-        </div>
+        <a href="{% url 'panel_paciente' %}" class="btn btn-secondary btn-sm">← Volver al Panel</a>
     </div>
 
     {% if estudios %}
-    <div class="card">
-        <div style="display: grid; gap: 16px;">
+    <div class="portal-card">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
             {% for estudio in estudios %}
-            <div style="display: flex; align-items: center; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px;">
-                <div style="font-size: 2em; margin-right: 16px;">
+            <div class="estudio-item">
+                <div class="estudio-icono">
                     {% if estudio.tipo_estudio == 'radiografia' %}🩻
                     {% elif estudio.tipo_estudio == 'laboratorio' %}🧪
                     {% elif estudio.tipo_estudio == 'tomografia' %}🖥️
@@ -27,40 +32,38 @@
                     {% elif estudio.tipo_estudio == 'ecografia' %}🔊
                     {% else %}📄{% endif %}
                 </div>
-                <div style="flex: 1;">
-                    <strong style="font-size: 1.1em;">{{ estudio.titulo }}</strong>
+                <div class="estudio-info">
+                    <div class="titulo">{{ estudio.titulo }}</div>
                     {% if estudio.descripcion %}
-                        <p style="color: #666; margin: 4px 0;">{{ estudio.descripcion }}</p>
+                        <div class="descripcion">{{ estudio.descripcion }}</div>
                     {% endif %}
-                    <small style="color: #999;">
+                    <div class="meta">
                         {{ estudio.get_tipo_estudio_display }} • 
                         Subido el {{ estudio.creado|date:"d/m/Y" }}
                         {% if estudio.profesional %}
                             por Dr/a. {{ estudio.profesional.nombre_completo }}
                         {% endif %}
-                    </small>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <a href="{{ estudio.archivo.url }}" class="btn btn-primary btn-sm" target="_blank">
-                        👁️ Ver
-                    </a>
-                    <a href="{{ estudio.archivo.url }}" class="btn btn-secondary btn-sm" download>
-                        ⬇️ Descargar
-                    </a>
+                <div class="estudio-acciones">
+                    <a href="{{ estudio.archivo.url }}" class="btn btn-primary btn-sm" target="_blank">👁️ Ver</a>
+                    <a href="{{ estudio.archivo.url }}" class="btn btn-secondary btn-sm" download>⬇️ Descargar</a>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
     {% else %}
-    <div class="card" style="text-align: center; padding: 40px;">
-        <div style="font-size: 4em; margin-bottom: 16px;">📁</div>
-        <h3>No tenés estudios cargados</h3>
-        <p style="color: #666;">Tu profesional aún no subió estudios a tu perfil.</p>
-        <a href="{% url 'panel_paciente' %}" class="btn btn-primary" style="margin-top: 16px;">
-            Volver al Panel
-        </a>
+    <div class="portal-card">
+        <div class="portal-empty">
+            <span class="icono">📁</span>
+            <h3>No tenés estudios cargados</h3>
+            <p>Tu profesional aún no subió estudios a tu perfil.</p>
+            <a href="{% url 'panel_paciente' %}" class="btn btn-primary">Volver al Panel</a>
+        </div>
     </div>
     {% endif %}
+
+</div>
 </div>
 {% endblock %}

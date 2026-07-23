@@ -492,12 +492,14 @@ def ficha_tecnica(request, paciente_id):
         contenido_nota = request.POST.get('nota_contenido', '').strip()
         if titulo_nota and contenido_nota:
             nota = NotaClinica.objects.create(
-                paciente=paciente, profesional=profesional,
+                paciente=paciente, 
+                profesional=profesional,
                 fecha=request.POST.get('nota_fecha', date.today()),
                 tipo=request.POST.get('nota_tipo', 'observacion'),
-                titulo=titulo_nota, contenido=contenido_nota,
+                titulo=titulo_nota,
+                contenido=contenido_nota,                
             )
-            archivo = request.FILES.get('nota_archivo_nota')
+            archivo = request.FILES.get('nota_archivo')
             if archivo:
                 nota.archivo = archivo
                 nota.save()

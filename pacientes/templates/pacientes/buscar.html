@@ -1,11 +1,18 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Buscar Paciente{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/pacientes_shared.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
+<div class="pacientes-container">
+    
+    <!-- Encabezado -->
     <div class="flex-between mb-6">
-        <div class="page-header mb-0">
+        <div class="pacientes-header" style="margin-bottom: 0;">
             <h1><i class="fas fa-search text-primary"></i> Buscar Paciente</h1>
             <p>Encontrá pacientes por nombre, apellido o DNI</p>
         </div>
@@ -23,18 +30,17 @@
     </div>
     
     <!-- Barra de búsqueda -->
-    <div class="card" style="margin-bottom: 24px;">
+    <div class="card busqueda-container">
         <form method="get">
             <div class="flex gap-2">
-                <div style="flex: 1; position: relative;">
-                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400);"></i>
+                <div class="busqueda-input-wrapper">
+                    <i class="fas fa-search"></i>
                     <input type="text" name="q" value="{{ busqueda }}" 
                            placeholder="Buscar por nombre, apellido o DNI..."
-                           style="width: 100%; padding: 14px 16px 14px 44px; border: 1px solid var(--gray-300); border-radius: var(--radius-lg); font-family: inherit; font-size: 1rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
+                           class="busqueda-input"
                            autofocus>
                 </div>
-                <button type="submit" class="btn" style="padding: 14px 28px; font-size: 1rem;">
+                <button type="submit" class="btn busqueda-boton">
                     <i class="fas fa-search"></i> Buscar
                 </button>
             </div>
@@ -48,7 +54,7 @@
                     <i class="fas fa-users text-primary"></i> 
                     Resultados encontrados
                 </h3>
-                <span class="badge badge-info">{{ pacientes.count }} paciente(s)</span>
+                <span class="badge badge-info resultados-contador">{{ pacientes.count }} paciente(s)</span>
             </div>
             
             <div class="table-container">
@@ -66,7 +72,8 @@
                         {% for p in pacientes %}
                         <tr>
                             <td>
-                                <a href="{% url 'ficha_paciente' p.id %}" style="color: var(--gray-900); text-decoration: none; font-weight: 500;">
+                                <a href="{% url 'ficha_paciente' p.id %}" 
+                                   style="color: var(--text); text-decoration: none; font-weight: 500;">
                                     {{ p.nombre_completo }}
                                 </a>
                             </td>
@@ -74,7 +81,7 @@
                             <td>{{ p.telefono }}</td>
                             <td>
                                 {% if p.obra_social %}
-                                    <span class="badge badge-info">{{ p.obra_social.sigla }}</span>
+                                    <span class="sigla-badge">{{ p.obra_social.sigla }}</span>
                                 {% else %}
                                     <span class="text-muted">Particular</span>
                                 {% endif %}
@@ -95,24 +102,29 @@
                 </table>
             </div>
         </div>
+        
     {% elif busqueda %}
         <div class="card">
             <div class="empty-state">
-                <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-300);"></i>
-                <p style="font-size: 1.1rem; font-weight: 500; color: var(--gray-600);">No se encontraron resultados</p>
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted);"></i>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--text-secondary);">
+                    No se encontraron resultados
+                </p>
                 <p class="text-muted">No hay pacientes que coincidan con "<strong>{{ busqueda }}</strong>"</p>
                 <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 20px;">
                     <i class="fas fa-user-plus"></i> Registrar Nuevo Paciente
                 </a>
             </div>
         </div>
+        
     {% else %}
         <div class="card">
             <div class="empty-state">
-                <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--gray-300);"></i>
-                <p style="color: var(--gray-500);">Ingresá un nombre, apellido o DNI para buscar pacientes</p>
+                <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--text-muted);"></i>
+                <p class="text-muted">Ingresá un nombre, apellido o DNI para buscar pacientes</p>
             </div>
         </div>
     {% endif %}
+    
 </div>
 {% endblock %}

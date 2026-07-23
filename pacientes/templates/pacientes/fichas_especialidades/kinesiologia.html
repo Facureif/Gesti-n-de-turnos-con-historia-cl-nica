@@ -1,4 +1,5 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
 
 {% block ficha_icon %}💪{% endblock %}
 {% block ficha_titulo %}Ficha Kinesiológica{% endblock %}
@@ -6,108 +7,106 @@
 
 {% block ficha_contenido %}
 
-<!-- Datos Físicos y Registrar Lesión -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+<div class="ficha-grid-2">
     
     <!-- Datos Físicos -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">📏 Datos Físicos</h3>
+    <div class="ficha-card">
+        <div class="ficha-card-header">
+            <h3>📏 Datos Físicos</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500;">Peso (kg)</label>
-                    <input type="number" name="peso" id="peso" step="0.1" 
-                           value="{{ ficha_tecnica.datos_especificos.peso|default:'' }}"
-                           placeholder="Ej: 70.5"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
-                           oninput="calcularIMC()">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div class="ficha-form-row">
+                    <div>
+                        <label class="ficha-label">Peso (kg)</label>
+                        <input type="number" name="peso" id="peso" step="0.1" 
+                               value="{{ ficha_tecnica.datos_especificos.peso|default:'' }}"
+                               placeholder="Ej: 70.5" class="ficha-input"
+                               oninput="calcularIMC()">
+                    </div>
+                    <div>
+                        <label class="ficha-label">Altura (m)</label>
+                        <input type="number" name="altura" id="altura" step="0.01"
+                               value="{{ ficha_tecnica.datos_especificos.altura|default:'' }}"
+                               placeholder="Ej: 1.70" class="ficha-input"
+                               oninput="calcularIMC()">
+                    </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500;">Altura (m)</label>
-                    <input type="number" name="altura" id="altura" step="0.01"
-                           value="{{ ficha_tecnica.datos_especificos.altura|default:'' }}"
-                           placeholder="Ej: 1.70"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
-                           oninput="calcularIMC()">
+                    <label class="ficha-label">IMC</label>
+                    <div class="ficha-imc-row">
+                        <input type="text" name="imc" id="imc" 
+                               value="{{ ficha_tecnica.datos_especificos.imc|default:'' }}" 
+                               readonly class="ficha-input" style="background: var(--bg-alt);">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="calcularIMC()" style="white-space: nowrap;">
+                            🔢 Calcular
+                        </button>
+                    </div>
+                    <small id="imc-resultado" class="ficha-imc-resultado"></small>
                 </div>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500;">IMC</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" name="imc" id="imc" 
-                           value="{{ ficha_tecnica.datos_especificos.imc|default:'' }}" 
-                           readonly
-                           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f5f5f5;">
-                    <button type="button" class="btn btn-primary btn-sm" onclick="calcularIMC()" style="white-space: nowrap;">
-                        🔢 Calcular
-                    </button>
-                </div>
-                <small id="imc-resultado" style="display: block; margin-top: 4px; font-weight: 500;"></small>
             </div>
         </div>
     </div>
 
     <!-- Registrar Nueva Lesión -->
-    <div class="card" style="border-left: 4px solid #dc3545;">
-        <div class="card-header">
-            <h3 class="card-title">🩹 Registrar Nueva Lesión</h3>
+    <div class="ficha-card borde-danger">
+        <div class="ficha-card-header">
+            <h3>🩹 Registrar Nueva Lesión</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
-                <input type="date" name="nueva_lesion_fecha" required
-                       value="{{ ficha_tecnica.datos_especificos.nueva_lesion_fecha|default:'' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div>
+                    <label class="ficha-label">Fecha <span class="required">*</span></label>
+                    <input type="date" name="nueva_lesion_fecha" required class="ficha-input"
+                           value="{{ ficha_tecnica.datos_especificos.nueva_lesion_fecha|default:'' }}">
+                </div>
+                <div>
+                    <label class="ficha-label">Zona afectada <span class="required">*</span></label>
+                    <input type="text" name="nueva_lesion_zona" required class="ficha-input"
+                           value="{{ ficha_tecnica.datos_especificos.nueva_lesion_zona|default:'' }}"
+                           placeholder="Ej: Rodilla derecha">
+                </div>
+                <div>
+                    <label class="ficha-label">Tipo</label>
+                    <select name="nueva_lesion_tipo" class="ficha-select">
+                        <option value="">Seleccionar...</option>
+                        <option value="muscular" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'muscular' %}selected{% endif %}>Muscular</option>
+                        <option value="articular" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'articular' %}selected{% endif %}>Articular</option>
+                        <option value="tendinosa" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'tendinosa' %}selected{% endif %}>Tendinosa</option>
+                        <option value="ligamentaria" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'ligamentaria' %}selected{% endif %}>Ligamentaria</option>
+                        <option value="osea" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'osea' %}selected{% endif %}>Ósea</option>
+                        <option value="postural" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'postural' %}selected{% endif %}>Postural</option>
+                        <option value="otra" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'otra' %}selected{% endif %}>Otra</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="ficha-label">Descripción</label>
+                    <textarea name="nueva_lesion_descripcion" rows="2" class="ficha-textarea">{{ ficha_tecnica.datos_especificos.nueva_lesion_descripcion|default:'' }}</textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Tratamiento</label>
+                    <input type="text" name="nueva_lesion_tratamiento" class="ficha-input"
+                           value="{{ ficha_tecnica.datos_especificos.nueva_lesion_tratamiento|default:'' }}"
+                           placeholder="Ej: magneto">
+                </div>
+                <div>
+                    <label class="ficha-label">📎 Adjuntar archivo</label>
+                    <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
+                </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Zona afectada *</label>
-                <input type="text" name="nueva_lesion_zona" required
-                       value="{{ ficha_tecnica.datos_especificos.nueva_lesion_zona|default:'' }}"
-                       placeholder="Ej: Rodilla derecha"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Tipo</label>
-                <select name="nueva_lesion_tipo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="">Seleccionar...</option>
-                    <option value="muscular" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'muscular' %}selected{% endif %}>Muscular</option>
-                    <option value="articular" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'articular' %}selected{% endif %}>Articular</option>
-                    <option value="tendinosa" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'tendinosa' %}selected{% endif %}>Tendinosa</option>
-                    <option value="ligamentaria" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'ligamentaria' %}selected{% endif %}>Ligamentaria</option>
-                    <option value="osea" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'osea' %}selected{% endif %}>Ósea</option>
-                    <option value="postural" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'postural' %}selected{% endif %}>Postural</option>
-                    <option value="otra" {% if ficha_tecnica.datos_especificos.nueva_lesion_tipo == 'otra' %}selected{% endif %}>Otra</option>
-                </select>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Descripción</label>
-                <textarea name="nueva_lesion_descripcion" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">{{ ficha_tecnica.datos_especificos.nueva_lesion_descripcion|default:'' }}</textarea>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Tratamiento</label>
-                <input type="text" name="nueva_lesion_tratamiento" 
-                       value="{{ ficha_tecnica.datos_especificos.nueva_lesion_tratamiento|default:'' }}"
-                       placeholder="Ej: magneto"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-            </div>
-             <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
-               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
     </div>
 </div>
 
 <!-- Historial de Lesiones -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header flex-between">
-        <h3 class="card-title">📜 Historial de Lesiones</h3>
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Lesiones</h3>
     </div>
 
     {% if paciente.lesiones.all %}
-    <div class="table-container">
-        <table>
+    <div class="ficha-tabla-container">
+        <table class="ficha-tabla">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -121,50 +120,29 @@
             <tbody>
                 {% for lesion in paciente.lesiones.all %}
                 <tr>
-                    <td><strong>{{ lesion.fecha_lesion|date:"d/m/Y" }}</strong></td>
-                    <td><span class="badge badge-info">{{ lesion.get_tipo_lesion_display }}</span></td>
-                    <td>
-                        <span class="tooltip-cell" data-tooltip="{{ lesion.zona }}">
-                            {{ lesion.zona|truncatechars:30 }}
-                        </span>
-                    </td>
-                    <td>
-                        {% if lesion.descripcion %}
-                        <span class="tooltip-cell" data-tooltip="{{ lesion.descripcion|escapejs }}">
-                            {{ lesion.descripcion|truncatechars:50 }}
-                        </span>
-                        {% else %}
-                        —
-                        {% endif %}
-                    </td>
+                    <td class="fecha-col">{{ lesion.fecha_lesion|date:"d/m/Y" }}</td>
+                    <td><span class="ficha-badge ficha-badge-info">{{ lesion.get_tipo_lesion_display }}</span></td>
+                    <td><span class="ficha-tooltip" data-tooltip="{{ lesion.zona }}">{{ lesion.zona|truncatechars:30 }}</span></td>
+                    <td>{% if lesion.descripcion %}<span class="ficha-tooltip" data-tooltip="{{ lesion.descripcion|escapejs }}">{{ lesion.descripcion|truncatechars:50 }}</span>{% else %}—{% endif %}</td>
                     <td>
                         {% if lesion.resuelta %}
-                            <span class="badge badge-success">✅ Resuelta</span>
+                            <span class="ficha-badge ficha-badge-success">✅ Resuelta</span>
                         {% else %}
-                            <span class="badge badge-warning">⚠️ Activa</span>
+                            <span class="ficha-badge ficha-badge-warning">⚠️ Activa</span>
                         {% endif %}
                     </td>
                     <td>
                         <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                            <a href="{% url 'seguimiento_lesion' lesion.id %}" 
-                               class="btn btn-warning btn-xs" 
-                               title="Seguimiento"
-                               style="padding: 2px 6px; font-size: 0.8em;">📝</a>
+                            <a href="{% url 'seguimiento_lesion' lesion.id %}" class="btn btn-warning ficha-btn-xs" title="Seguimiento">📝</a>
                             {% if not lesion.resuelta %}
-                            <a href="{% url 'marcar_lesion_resuelta' lesion.id %}" 
-                               class="btn btn-success btn-xs" 
-                               title="Marcar como resuelta"
-                               onclick="return confirm('¿Marcar como resuelta?')"
-                               style="padding: 2px 6px; font-size: 0.8em;">✅</a>
+                            <a href="{% url 'marcar_lesion_resuelta' lesion.id %}" class="btn btn-success ficha-btn-xs" title="Marcar como resuelta"
+                               onclick="return confirm('¿Marcar como resuelta?')">✅</a>
                             {% endif %}
                             {% if lesion.archivo %}
-                            <a href="{{ lesion.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo">📎</a>
+                            <a href="{{ lesion.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
                             {% endif %}
-                            <a href="{% url 'eliminar_lesion' lesion.id %}" 
-                               class="btn btn-danger btn-xs"
-                               title="Eliminar"
-                               onclick="return confirm('¿Eliminar esta lesión?')"
-                               style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                            <a href="{% url 'eliminar_lesion' lesion.id %}" class="btn btn-danger ficha-btn-xs" title="Eliminar"
+                               onclick="return confirm('¿Eliminar esta lesión?')">🗑️</a>
                         </div>
                     </td>
                 </tr>
@@ -173,72 +151,12 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 30px; color: #999;">
+    <div class="ficha-empty">
         <p>📭 Sin lesiones registradas</p>
         <small>Al guardar una nueva lesión, se agregará automáticamente al historial.</small>
     </div>
     {% endif %}
 </div>
-
-<style>
-/* Estilos para los tooltips */
-.tooltip-cell {
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px dotted #666;
-    display: inline-block;
-    max-width: 100%;
-}
-
-.tooltip-cell:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85em;
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 350px;
-    min-width: 200px;
-    z-index: 1000;
-    margin-bottom: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    line-height: 1.4;
-    text-align: left;
-}
-
-.tooltip-cell:hover::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #333;
-    z-index: 1001;
-    margin-bottom: 2px;
-}
-
-/* Asegurar que la celda tenga posición relativa para el tooltip */
-td {
-    position: relative;
-    overflow: visible;
-}
-
-/* Hacer que la tabla no corte los tooltips */
-.table-container {
-    overflow: visible;
-}
-
-table {
-    overflow: visible;
-}
-</style>
 
 <script>
 function calcularIMC() {
@@ -254,25 +172,12 @@ function calcularIMC() {
         var clasificacion = '';
         var color = '';
         
-        if (imc < 18.5) {
-            clasificacion = 'Bajo peso';
-            color = '#e67e22';
-        } else if (imc < 25) {
-            clasificacion = '✅ Peso normal';
-            color = '#27ae60';
-        } else if (imc < 30) {
-            clasificacion = '⚠️ Sobrepeso';
-            color = '#f39c12';
-        } else if (imc < 35) {
-            clasificacion = '⚠️ Obesidad grado I';
-            color = '#e74c3c';
-        } else if (imc < 40) {
-            clasificacion = '🔴 Obesidad grado II';
-            color = '#c0392b';
-        } else {
-            clasificacion = '🔴 Obesidad grado III';
-            color = '#922b21';
-        }
+        if (imc < 18.5) { clasificacion = 'Bajo peso'; color = '#e67e22'; }
+        else if (imc < 25) { clasificacion = '✅ Peso normal'; color = '#27ae60'; }
+        else if (imc < 30) { clasificacion = '⚠️ Sobrepeso'; color = '#f39c12'; }
+        else if (imc < 35) { clasificacion = '⚠️ Obesidad grado I'; color = '#e74c3c'; }
+        else if (imc < 40) { clasificacion = '🔴 Obesidad grado II'; color = '#c0392b'; }
+        else { clasificacion = '🔴 Obesidad grado III'; color = '#922b21'; }
         
         resultado.innerHTML = clasificacion;
         resultado.style.color = color;
@@ -282,9 +187,7 @@ function calcularIMC() {
     }
 }
 
-window.onload = function() {
-    calcularIMC();
-};
+window.onload = function() { calcularIMC(); };
 </script>
 
 {% endblock %}

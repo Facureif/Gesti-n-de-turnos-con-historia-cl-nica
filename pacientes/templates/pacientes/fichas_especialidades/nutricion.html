@@ -1,4 +1,5 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
 
 {% block ficha_icon %}🍎{% endblock %}
 {% block ficha_titulo %}Ficha Nutricional{% endblock %}
@@ -6,121 +7,119 @@
 
 {% block ficha_contenido %}
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+<div class="ficha-grid-2">
     
     <!-- Datos Antropométricos -->
-    <div class="card">
-        <div class="card-header flex-between">
-            <h3 class="card-title">📏 Datos Antropométricos</h3>
+    <div class="ficha-card">
+        <div class="ficha-card-header">
+            <h3>📏 Datos Antropométricos</h3>
             <button type="button" class="btn btn-primary btn-sm" onclick="calcularIMC()">🔢 Calcular IMC</button>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Peso (kg) *</label>
-                    <input type="number" name="peso_kg" id="peso" step="0.1" required
-                           value="{{ ficha_tecnica.datos_especificos.peso_kg|default:'' }}"
-                           placeholder="Ej: 70.5"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
-                           oninput="calcularIMC()">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div class="ficha-form-row">
+                    <div>
+                        <label class="ficha-label">Peso (kg) <span class="required">*</span></label>
+                        <input type="number" name="peso_kg" id="peso" step="0.1" required
+                               value="{{ ficha_tecnica.datos_especificos.peso_kg|default:'' }}"
+                               placeholder="Ej: 70.5" class="ficha-input"
+                               oninput="calcularIMC()">
+                    </div>
+                    <div>
+                        <label class="ficha-label">Altura (cm)</label>
+                        <input type="number" name="altura_cm" id="altura" step="0.1"
+                               value="{{ ficha_tecnica.datos_especificos.altura_cm|default:'' }}"
+                               placeholder="Ej: 170" class="ficha-input"
+                               oninput="calcularIMC()">
+                    </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Altura (cm)</label>
-                    <input type="number" name="altura_cm" id="altura" step="0.1"
-                           value="{{ ficha_tecnica.datos_especificos.altura_cm|default:'' }}"
-                           placeholder="Ej: 170"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
-                           oninput="calcularIMC()">
+                    <label class="ficha-label">IMC</label>
+                    <input type="text" name="imc" id="imc" readonly
+                           value="{{ ficha_tecnica.datos_especificos.imc|default:'' }}"
+                           class="ficha-input" style="background: var(--bg-alt);">
+                    <small id="imc-clasificacion" class="ficha-imc-resultado"></small>
                 </div>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">IMC</label>
-                <input type="text" name="imc" id="imc" readonly
-                       value="{{ ficha_tecnica.datos_especificos.imc|default:'' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f5f5f5;">
-                <small id="imc-clasificacion" style="font-weight: 500; display: block; margin-top: 4px;"></small>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Cintura (cm)</label>
-                    <input type="number" name="perimetro_cintura_cm" step="0.1"
-                           value="{{ ficha_tecnica.datos_especificos.perimetro_cintura_cm|default:'' }}"
-                           placeholder="Ej: 80"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">% Grasa</label>
-                    <input type="number" name="porcentaje_grasa" step="0.1"
-                           value="{{ ficha_tecnica.datos_especificos.porcentaje_grasa|default:'' }}"
-                           placeholder="Ej: 25"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">% Músculo</label>
-                    <input type="number" name="porcentaje_musculo" step="0.1"
-                           value="{{ ficha_tecnica.datos_especificos.porcentaje_musculo|default:'' }}"
-                           placeholder="Ej: 35"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                <div class="ficha-form-row-3">
+                    <div>
+                        <label class="ficha-label">Cintura (cm)</label>
+                        <input type="number" name="perimetro_cintura_cm" step="0.1"
+                               value="{{ ficha_tecnica.datos_especificos.perimetro_cintura_cm|default:'' }}"
+                               placeholder="Ej: 80" class="ficha-input">
+                    </div>
+                    <div>
+                        <label class="ficha-label">% Grasa</label>
+                        <input type="number" name="porcentaje_grasa" step="0.1"
+                               value="{{ ficha_tecnica.datos_especificos.porcentaje_grasa|default:'' }}"
+                               placeholder="Ej: 25" class="ficha-input">
+                    </div>
+                    <div>
+                        <label class="ficha-label">% Músculo</label>
+                        <input type="number" name="porcentaje_musculo" step="0.1"
+                               value="{{ ficha_tecnica.datos_especificos.porcentaje_musculo|default:'' }}"
+                               placeholder="Ej: 35" class="ficha-input">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Plan Nutricional -->
-    <div class="card" style="border-left: 4px solid #28a745;">
-        <div class="card-header">
-            <h3 class="card-title">📋 Plan Nutricional</h3>
+    <div class="ficha-card borde-success">
+        <div class="ficha-card-header">
+            <h3>📋 Plan Nutricional</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
-                <input type="date" name="fecha" required value="{% now 'Y-m-d' %}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div>
+                    <label class="ficha-label">Fecha <span class="required">*</span></label>
+                    <input type="date" name="fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
+                </div>
+                <div>
+                    <label class="ficha-label">Objetivo</label>
+                    <select name="objetivo" class="ficha-select">
+                        <option value="">Seleccionar...</option>
+                        <option value="bajar_peso">⬇️ Bajar de peso</option>
+                        <option value="aumentar_peso">⬆️ Aumentar de peso</option>
+                        <option value="mantener">➡️ Mantener peso</option>
+                        <option value="reducir_grasa">🔥 Reducir % grasa</option>
+                        <option value="ganar_musculo">💪 Ganar masa muscular</option>
+                        <option value="deportivo">🏃 Rendimiento deportivo</option>
+                        <option value="patologia">🏥 Manejo de patología</option>
+                        <option value="otro">📋 Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="ficha-label">Plan nutricional indicado</label>
+                    <textarea name="plan_nutricional" rows="3" class="ficha-textarea"
+                              placeholder="Dieta, recomendaciones, calorías diarias..."></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Observaciones</label>
+                    <textarea name="observaciones_nutricion" rows="2" class="ficha-textarea"
+                              placeholder="Notas adicionales..."></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">📎 Adjuntar archivo</label>
+                    <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
+                </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Objetivo</label>
-                <select name="objetivo" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="">Seleccionar...</option>
-                    <option value="bajar_peso">⬇️ Bajar de peso</option>
-                    <option value="aumentar_peso">⬆️ Aumentar de peso</option>
-                    <option value="mantener">➡️ Mantener peso</option>
-                    <option value="reducir_grasa">🔥 Reducir % grasa</option>
-                    <option value="ganar_musculo">💪 Ganar masa muscular</option>
-                    <option value="deportivo">🏃 Rendimiento deportivo</option>
-                    <option value="patologia">🏥 Manejo de patología</option>
-                    <option value="otro">📋 Otro</option>
-                </select>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Plan nutricional indicado</label>
-                <textarea name="plan_nutricional" rows="3"
-                          placeholder="Dieta, recomendaciones, calorías diarias..."
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Observaciones</label>
-                <textarea name="observaciones_nutricion" rows="2"
-                          placeholder="Notas adicionales..."
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-            </div>
-            <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
-               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
     </div>
 </div>
 
 <!-- Historial de Consultas -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header flex-between">
-        <h3 class="card-title">📜 Historial de Consultas Nutricionales</h3>
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Consultas Nutricionales</h3>
         {% if consultas %}
-        <span style="color: #666; font-size: 0.9em;">{{ consultas.count }} consulta{{ consultas.count|pluralize:"s" }}</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ consultas.count }} consulta{{ consultas.count|pluralize:"s" }}</span>
         {% endif %}
     </div>
 
     {% if consultas %}
-    <div class="table-container">
-        <table>
+    <div class="ficha-tabla-container">
+        <table class="ficha-tabla">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -138,7 +137,7 @@
             <tbody>
                 {% for c in consultas %}
                 <tr>
-                    <td><strong>{{ c.fecha|date:"d/m/Y" }}</strong></td>
+                    <td class="fecha-col">{{ c.fecha|date:"d/m/Y" }}</td>
                     <td>{{ c.peso_kg }} kg</td>
                     <td>
                         {% if c.imc %}
@@ -155,28 +154,16 @@
                     <td>{{ c.porcentaje_grasa|default:"—" }}</td>
                     <td>{{ c.porcentaje_musculo|default:"—" }}</td>
                     <td>{{ c.get_objetivo_display|default:"—" }}</td>
+                    <td>{% if c.plan_nutricional %}<span class="ficha-tooltip" data-tooltip="{{ c.plan_nutricional|escapejs }}">{{ c.plan_nutricional|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if c.observaciones %}<span class="ficha-tooltip" data-tooltip="{{ c.observaciones|escapejs }}">{{ c.observaciones|truncatechars:20 }}</span>{% else %}—{% endif %}</td>
                     <td>
-                        {% if c.plan_nutricional %}
-                        <span class="tooltip-cell" data-tooltip="{{ c.plan_nutricional|escapejs }}">
-                            {{ c.plan_nutricional|truncatechars:30 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if c.observaciones %}
-                        <span class="tooltip-cell" data-tooltip="{{ c.observaciones|escapejs }}">
-                            {{ c.observaciones|truncatechars:20 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if c.archivo %}
-                        <a href="{{ c.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo">📎</a>
-                        {% endif %}
-                        <a href="{% url 'eliminar_consulta_nutricional' c.id %}" 
-                           class="btn btn-danger btn-xs"
-                           onclick="return confirm('¿Eliminar esta consulta?')"
-                           style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                        <div style="display: flex; gap: 4px;">
+                            {% if c.archivo %}
+                            <a href="{{ c.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
+                            {% endif %}
+                            <a href="{% url 'eliminar_consulta_nutricional' c.id %}" class="btn btn-danger ficha-btn-xs"
+                               onclick="return confirm('¿Eliminar esta consulta?')">🗑️</a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -184,115 +171,45 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 30px; color: #999;">
+    <div class="ficha-empty">
         <p>📭 Sin consultas registradas</p>
     </div>
     {% endif %}
 </div>
 
-<!-- Gráfico de evolución de peso -->
+<!-- Gráfico de evolución -->
 {% if consultas and consultas.count >= 2 %}
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header">
-        <h3 class="card-title">📈 Evolución de Peso</h3>
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📈 Evolución de Peso</h3>
     </div>
-    <div style="padding: 20px; overflow-x: auto;">
-        <div style="display: flex; align-items: flex-end; gap: 12px; min-height: 200px; min-width: fit-content;">
+    <div class="ficha-grafico-container">
+        <div class="ficha-grafico-barras">
             {% for c in consultas reversed %}
-            <div style="flex: 0 0 auto; min-width: 60px; text-align: center; display: flex; flex-direction: column; align-items: center;">
-                <div style="font-size: 0.85em; font-weight: 600; margin-bottom: 4px; 
-                            {% if forloop.last %}color: #28a745;{% endif %}">
-                    {{ c.peso_kg }}
-                </div>
-                <div style="width: 50px; 
-                            height: {% widthratio c.peso_kg 150 180 %}px; 
-                            min-height: 20px;
-                            background: {% if forloop.last %}#28a745{% else %}#007bff{% endif %}; 
-                            border-radius: 6px 6px 0 0;
-                            transition: all 0.3s ease;
-                            position: relative;">
-                </div>
-                <div style="font-size: 0.75em; color: #666; margin-top: 6px; white-space: nowrap;">
-                    {{ c.fecha|date:"d/m/Y" }}
-                </div>
+            <div class="ficha-grafico-item">
+                <div class="ficha-grafico-valor {% if forloop.last %}actual{% endif %}">{{ c.peso_kg }}</div>
+                <div class="ficha-grafico-barra {% if forloop.last %}actual{% endif %}" 
+                     style="height: {% widthratio c.peso_kg 150 180 %}px;"></div>
+                <div class="ficha-grafico-fecha">{{ c.fecha|date:"d/m/Y" }}</div>
             </div>
             {% endfor %}
         </div>
-        <!-- Línea de tendencia -->
-        <div style="margin-top: 8px; text-align: center; font-size: 0.8em; color: #666;">
-            {% with first=consultas.last last=consultas.first %}
-                {% if first.peso_kg and last.peso_kg %}
-                    {% if last.peso_kg < first.peso_kg %}
-                        ⬇️ Tendencia: <strong style="color: #27ae60;">-{{ first.peso_kg|add:last.peso_kg|floatformat:1 }} kg</strong>
-                    {% elif last.peso_kg > first.peso_kg %}
-                        ⬆️ Tendencia: <strong style="color: #e74c3c;">+{{ last.peso_kg|add:first.peso_kg|floatformat:1 }} kg</strong>
-                    {% else %}
-                        ➡️ Peso estable
-                    {% endif %}
-                {% endif %}
-            {% endwith %}
+        {% with first=consultas.last last=consultas.first %}
+        {% if first.peso_kg and last.peso_kg %}
+        <div class="ficha-grafico-tendencia">
+            {% if last.peso_kg < first.peso_kg %}
+                ⬇️ Tendencia: <strong style="color: #27ae60;">-{{ first.peso_kg|add:last.peso_kg|floatformat:1 }} kg</strong>
+            {% elif last.peso_kg > first.peso_kg %}
+                ⬆️ Tendencia: <strong style="color: #e74c3c;">+{{ last.peso_kg|add:first.peso_kg|floatformat:1 }} kg</strong>
+            {% else %}
+                ➡️ Peso estable
+            {% endif %}
         </div>
+        {% endif %}
+        {% endwith %}
     </div>
 </div>
 {% endif %}
-
-<style>
-/* Estilos para los tooltips */
-.tooltip-cell {
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px dotted #666;
-    display: inline-block;
-    max-width: 100%;
-}
-
-.tooltip-cell:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85em;
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 350px;
-    min-width: 200px;
-    z-index: 1000;
-    margin-bottom: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    line-height: 1.4;
-    text-align: left;
-}
-
-.tooltip-cell:hover::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #333;
-    z-index: 1001;
-    margin-bottom: 2px;
-}
-
-td {
-    position: relative;
-    overflow: visible;
-}
-
-.table-container {
-    overflow: visible;
-}
-
-table {
-    overflow: visible;
-}
-</style>
 
 <script>
 function calcularIMC() {
@@ -306,8 +223,7 @@ function calcularIMC() {
         var imc = (peso / (alturaM * alturaM)).toFixed(1);
         imcInput.value = imc;
         
-        var texto = '';
-        var color = '';
+        var texto = '', color = '';
         if (imc < 18.5) { texto = 'Bajo peso'; color = '#e67e22'; }
         else if (imc < 25) { texto = '✅ Peso normal'; color = '#27ae60'; }
         else if (imc < 30) { texto = '⚠️ Sobrepeso'; color = '#f39c12'; }
@@ -322,11 +238,7 @@ function calcularIMC() {
         clasificacion.innerHTML = '';
     }
 }
-
-// Calcular IMC al cargar si ya hay datos
-window.onload = function() {
-    calcularIMC();
-};
+window.onload = function() { calcularIMC(); };
 </script>
 
 {% endblock %}

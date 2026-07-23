@@ -1,4 +1,5 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
 
 {% block ficha_icon %}🗣️{% endblock %}
 {% block ficha_titulo %}Ficha Fonoaudiológica{% endblock %}
@@ -6,100 +7,100 @@
 
 {% block ficha_contenido %}
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+<div class="ficha-grid-2">
     
     <!-- Registrar Sesión -->
-    <div class="card" style="border-left: 4px solid #e83e8c;">
-        <div class="card-header">
-            <h3 class="card-title">➕ Registrar Sesión</h3>
+    <div class="ficha-card borde-rosa">
+        <div class="ficha-card-header">
+            <h3>➕ Registrar Sesión</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
-                    <input type="date" name="fecha" required value="{% now 'Y-m-d' %}"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div class="ficha-form-row">
+                    <div>
+                        <label class="ficha-label">Fecha <span class="required">*</span></label>
+                        <input type="date" name="fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
+                    </div>
+                    <div>
+                        <label class="ficha-label">Área <span class="required">*</span></label>
+                        <select name="area" required class="ficha-select">
+                            <option value="">Seleccionar...</option>
+                            <option value="lenguaje">Lenguaje</option>
+                            <option value="habla">Habla</option>
+                            <option value="voz">Voz</option>
+                            <option value="deglucion">Deglución</option>
+                            <option value="audicion">Audición</option>
+                            <option value="aprendizaje">Aprendizaje</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                    </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Área *</label>
-                    <select name="area" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                        <option value="">Seleccionar...</option>
-                        <option value="lenguaje">Lenguaje</option>
-                        <option value="habla">Habla</option>
-                        <option value="voz">Voz</option>
-                        <option value="deglucion">Deglución</option>
-                        <option value="audicion">Audición</option>
-                        <option value="aprendizaje">Aprendizaje</option>
-                        <option value="otra">Otra</option>
+                    <label class="ficha-label">Diagnóstico</label>
+                    <select name="diagnostico" class="ficha-select">
+                        <option value="">—</option>
+                        <option value="retraso_lenguaje">Retraso del lenguaje</option>
+                        <option value="trastorno_habla">Trastorno del habla</option>
+                        <option value="disfonia">Disfonía</option>
+                        <option value="disfagia">Disfagia</option>
+                        <option value="tartamudez">Tartamudez</option>
+                        <option value="trastorno_aprendizaje">Trastorno del aprendizaje</option>
+                        <option value="hipoacusia">Hipoacusia</option>
+                        <option value="otro">Otro</option>
                     </select>
                 </div>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Diagnóstico</label>
-                <select name="diagnostico" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="">—</option>
-                    <option value="retraso_lenguaje">Retraso del lenguaje</option>
-                    <option value="trastorno_habla">Trastorno del habla</option>
-                    <option value="disfonia">Disfonía</option>
-                    <option value="disfagia">Disfagia</option>
-                    <option value="tartamudez">Tartamudez</option>
-                    <option value="trastorno_aprendizaje">Trastorno del aprendizaje</option>
-                    <option value="hipoacusia">Hipoacusia</option>
-                    <option value="otro">Otro</option>
-                </select>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Evaluación / Observaciones</label>
-                <textarea name="evaluacion" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                <div>
+                    <label class="ficha-label">Evaluación / Observaciones</label>
+                    <textarea name="evaluacion" rows="2" class="ficha-textarea"></textarea>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Objetivos y Ejercicios -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">🎯 Objetivos y Ejercicios</h3>
+    <div class="ficha-card">
+        <div class="ficha-card-header">
+            <h3>🎯 Objetivos y Ejercicios</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Objetivos del tratamiento</label>
-                <textarea name="objetivos" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div>
+                    <label class="ficha-label">Objetivos del tratamiento</label>
+                    <textarea name="objetivos" rows="2" class="ficha-textarea"></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Ejercicios / Actividades realizadas</label>
+                    <textarea name="ejercicios" rows="2" class="ficha-textarea"></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Respuesta del paciente</label>
+                    <textarea name="respuesta_paciente" rows="2" class="ficha-textarea"></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Recomendaciones para el hogar</label>
+                    <textarea name="recomendaciones" rows="2" class="ficha-textarea"></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">📎 Adjuntar archivo</label>
+                    <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
+                </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Ejercicios / Actividades realizadas</label>
-                <textarea name="ejercicios" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Respuesta del paciente</label>
-                <textarea name="respuesta_paciente" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Recomendaciones para el hogar</label>
-                <textarea name="recomendaciones" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-            </div>
-            <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
-            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
     </div>
 </div>
 
 <!-- Historial -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header flex-between">
-        <h3 class="card-title">📜 Historial de Sesiones</h3>
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Sesiones</h3>
         {% if evaluaciones %}
-        <span style="color: #666; font-size: 0.9em;">{{ evaluaciones.count }} sesión{{ evaluaciones.count|pluralize:"es" }}</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ evaluaciones.count }} sesión{{ evaluaciones.count|pluralize:"es" }}</span>
         {% endif %}
     </div>
 
     {% if evaluaciones %}
-    <div class="table-container">
-        <table>
+    <div class="ficha-tabla-container">
+        <table class="ficha-tabla">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -116,52 +117,22 @@
             <tbody>
                 {% for e in evaluaciones %}
                 <tr>
-                    <td><strong>{{ e.fecha|date:"d/m/Y" }}</strong></td>
-                    <td><span class="badge badge-info">{{ e.get_area_display }}</span></td>
+                    <td class="fecha-col">{{ e.fecha|date:"d/m/Y" }}</td>
+                    <td><span class="ficha-badge ficha-badge-info">{{ e.get_area_display }}</span></td>
                     <td>{{ e.get_diagnostico_display|default:"—" }}</td>
+                    <td>{% if e.evaluacion %}<span class="ficha-tooltip" data-tooltip="{{ e.evaluacion|escapejs }}">{{ e.evaluacion|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if e.objetivos %}<span class="ficha-tooltip" data-tooltip="{{ e.objetivos|escapejs }}">{{ e.objetivos|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if e.ejercicios %}<span class="ficha-tooltip" data-tooltip="{{ e.ejercicios|escapejs }}">{{ e.ejercicios|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if e.respuesta_paciente %}<span class="ficha-tooltip" data-tooltip="{{ e.respuesta_paciente|escapejs }}">{{ e.respuesta_paciente|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if e.recomendaciones %}<span class="ficha-tooltip" data-tooltip="{{ e.recomendaciones|escapejs }}">{{ e.recomendaciones|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
                     <td>
-                        {% if e.evaluacion %}
-                        <span class="tooltip-cell" data-tooltip="{{ e.evaluacion|escapejs }}">
-                            {{ e.evaluacion|truncatechars:30 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if e.objetivos %}
-                        <span class="tooltip-cell" data-tooltip="{{ e.objetivos|escapejs }}">
-                            {{ e.objetivos|truncatechars:30 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if e.ejercicios %}
-                        <span class="tooltip-cell" data-tooltip="{{ e.ejercicios|escapejs }}">
-                            {{ e.ejercicios|truncatechars:30 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if e.respuesta_paciente %}
-                        <span class="tooltip-cell" data-tooltip="{{ e.respuesta_paciente|escapejs }}">
-                            {{ e.respuesta_paciente|truncatechars:30 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if e.recomendaciones %}
-                        <span class="tooltip-cell" data-tooltip="{{ e.recomendaciones|escapejs }}">
-                            {{ e.recomendaciones|truncatechars:30 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        {% if e.archivo %}
-                            <a href="{{ e.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo">📎</a>
-                        {% endif %}
-                        <a href="{% url 'eliminar_evaluacion_fono' e.id %}" 
-                           class="btn btn-danger btn-xs"
-                           onclick="return confirm('¿Eliminar esta sesión?')"
-                           style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                        <div style="display: flex; gap: 4px;">
+                            {% if e.archivo %}
+                            <a href="{{ e.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
+                            {% endif %}
+                            <a href="{% url 'eliminar_evaluacion_fono' e.id %}" class="btn btn-danger ficha-btn-xs"
+                               onclick="return confirm('¿Eliminar esta sesión?')">🗑️</a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -169,68 +140,10 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 30px; color: #999;">
+    <div class="ficha-empty">
         <p>📭 Sin sesiones registradas</p>
     </div>
     {% endif %}
 </div>
-
-<style>
-/* Estilos para los tooltips */
-.tooltip-cell {
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px dotted #666;
-    display: inline-block;
-    max-width: 100%;
-}
-
-.tooltip-cell:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85em;
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 350px;
-    min-width: 200px;
-    z-index: 1000;
-    margin-bottom: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    line-height: 1.4;
-    text-align: left;
-}
-
-.tooltip-cell:hover::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #333;
-    z-index: 1001;
-    margin-bottom: 2px;
-}
-
-td {
-    position: relative;
-    overflow: visible;
-}
-
-.table-container {
-    overflow: visible;
-}
-
-table {
-    overflow: visible;
-}
-</style>
 
 {% endblock %}

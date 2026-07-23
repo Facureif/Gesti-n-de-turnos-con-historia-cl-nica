@@ -1,0 +1,199 @@
+/* =============================================
+   LAYOUT.CSS - Estructura principal
+   ============================================= */
+
+/* =============================================
+   CONTENEDOR PRINCIPAL (PANEL ADMIN)
+   ============================================= */
+
+
+/* =============================================
+   CONTENEDOR PRINCIPAL (PANEL ADMIN Y PÁGINAS INTERNAS)
+   ============================================= */
+/* Este padding solo se aplica si el body NO tiene la clase .landing */
+body:not(.landing) .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 15px 0px 32px; /* Aire de 15px arriba solo para el Admin */
+    box-sizing: border-box;
+}
+
+/* =============================================
+   ANULACIÓN PARA LANDING PAGES
+   ============================================= */
+.landing .container {
+    max-width: 100% !important;
+    padding: 0 !important;      
+    margin: 0 !important;
+}
+
+.landing {
+    width: 100%;
+}
+
+/* Contenedor personalizado para las landing pages */
+.container-custom {
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Cuando estamos en una landing, anulamos el container del base */
+.landing .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* La landing ocupa todo el ancho */
+.landing {
+    width: 100%;
+}
+
+/* =============================================
+   NAVBAR
+   ============================================= */
+.navbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    text-decoration: none;
+}
+
+.navbar-brand i {
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--gray-600);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background: var(--gray-100);
+    color: var(--gray-900);
+}
+
+.nav-link.active {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.nav-user i {
+    color: var(--primary);
+}
+
+/* Encabezado de página */
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+}
+
+.page-header p {
+    color: var(--gray-500);
+    font-size: 0.95rem;
+}
+
+/* Estados vacíos */
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--gray-400);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+}
+
+/* =============================================
+   BLINDAJE NAVBAR - Nunca transparente
+   ============================================= */
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 16px;
+        flex-wrap: wrap;
+        height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+    
+    .navbar-nav {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .container {
+        padding: 16px 16px 32px;
+    }
+    
+    .flex-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}

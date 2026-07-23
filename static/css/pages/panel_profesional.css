@@ -1,0 +1,382 @@
+/* =============================================
+   CONTENEDOR PRINCIPAL DEL PANEL
+   ============================================= */
+.contenido-panel {
+    max-width: 1280px; /* Ancho máximo para no estirarse en pantallas 4K */
+    margin: 0 auto;    /* Centrado horizontal */
+    padding: 55px; /* 30px arriba/abajo, 40px a los costados (le da el aire que falta) */
+    box-sizing: border-box;
+}
+
+
+/* =============================================
+   PANEL PROFESIONAL - Dashboard del profesional
+   ============================================= */
+
+
+/* Encabezado del panel */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.panel-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.panel-header .bienvenida {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+.panel-header .especialidad-badge {
+    background: var(--primary);
+    color: white;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* =============================================
+   ESTADÍSTICAS
+   ============================================= */
+.stats-grid-panel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.stat-card-panel {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.stat-card-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card-panel .stat-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-card-panel .stat-etiqueta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Colores por tipo de estadística */
+.stat-card-panel.stat-hoy .stat-numero { color: var(--primary); }
+.stat-card-panel.stat-confirmados .stat-numero { color: var(--success); }
+.stat-card-panel.stat-pendientes .stat-numero { color: #d97706; }
+.stat-card-panel.stat-completados .stat-numero { color: var(--text-muted); }
+
+/* =============================================
+   SECCIÓN DE TURNOS DEL DÍA
+   ============================================= */
+.panel-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.panel-card-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.panel-card-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.panel-card-header.manana {
+    border-bottom-color: #d97706;
+}
+
+/* Tabla de turnos */
+.panel-tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.panel-tabla thead tr {
+    background: var(--bg-alt);
+}
+
+.panel-tabla th {
+    padding: 10px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border);
+}
+
+.panel-tabla td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    vertical-align: middle;
+}
+
+.panel-tabla tbody tr:hover {
+    background: var(--bg-alt);
+}
+
+.panel-tabla .hora-col {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.panel-tabla .paciente-col {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.panel-tabla .telefono-col {
+    color: var(--text-secondary);
+}
+
+/* Estados de turno (badges) */
+.estado-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.estado-confirmado {
+    background: var(--success-light);
+    color: #065f46;
+}
+
+.estado-pendiente {
+    background: var(--warning-light);
+    color: #92400e;
+}
+
+.estado-completado {
+    background: var(--gray-200);
+    color: var(--gray-600);
+}
+
+.estado-cancelado {
+    background: var(--danger-light);
+    color: #991b1b;
+}
+
+.estado-no-asistio {
+    background: var(--gray-100);
+    color: var(--gray-500);
+}
+
+/* Acciones */
+.acciones-col {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-accion-sm {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin: 0 2px;
+    transition: all 0.15s ease;
+}
+
+.btn-confirmar-turno {
+    background: var(--success);
+    color: white;
+}
+
+.btn-confirmar-turno:hover {
+    background: #047857;
+}
+
+.btn-cancelar-turno {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-cancelar-turno:hover {
+    background: #b91c1c;
+}
+
+.btn-completar-turno {
+    background: var(--success);
+    color: white;
+}
+
+.btn-completar-turno:hover {
+    background: #047857;
+}
+
+.btn-no-asistio {
+    background: var(--gray-500);
+    color: white;
+}
+
+.btn-no-asistio:hover {
+    background: var(--gray-600);
+}
+
+.estado-final {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.estado-final.completado { color: var(--success); }
+.estado-final.cancelado { color: var(--danger); }
+.estado-final.no-asistio { color: var(--text-muted); }
+.estado-final.libre { color: var(--text-muted); }
+
+/* =============================================
+   LISTA DE PRÓXIMOS TURNOS
+   ============================================= */
+.proximos-turnos-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.proximo-turno-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.proximo-turno-item:last-child {
+    border-bottom: none;
+}
+
+.proximo-turno-fecha {
+    font-weight: 600;
+    color: var(--text);
+    min-width: 80px;
+}
+
+.proximo-turno-paciente {
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+/* =============================================
+   ESTADO VACÍO
+   ============================================= */
+.panel-vacio {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-muted);
+}
+
+.panel-vacio p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .stats-grid-panel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .panel-tabla {
+        font-size: 0.8rem;
+    }
+    
+    .panel-tabla th:nth-child(3),
+    .panel-tabla td:nth-child(3) {
+        display: none;
+    }
+    
+    .proximo-turno-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .acciones-col {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-accion-sm {
+        display: block;
+        text-align: center;
+    }
+}
+
+
+/* =============================================
+   RESPONSIVE - PARA CELULARES Y TABLETS
+   ============================================= */
+@media (max-width: 992px) {
+    .contenido-panel {
+        padding: 20px 24px; /* Reduce un poco el aire en pantallas medianas */
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido-panel {
+        padding: 16px 16px; /* Aire más pequeño en celulares */
+    }
+    
+    /* Mantén tus media queries existentes para la tabla y las estadísticas */
+    .stats-grid-panel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .panel-tabla th:nth-child(3),
+    .panel-tabla td:nth-child(3) {
+        display: none;
+    }
+}

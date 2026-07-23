@@ -1,29 +1,32 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Ficha - {{ paciente.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/fichas_tecnicas.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 1100px; margin: 0 auto;">
+<div class="ficha-tecnica-page">
 
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-        <div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
-                <span style="font-size: 2.5rem;">{% block ficha_icon %}📋{% endblock %}</span>
-                <div>
-                    <h1 style="margin: 0; font-size: 1.8rem;">{% block ficha_titulo %}Ficha Técnica{% endblock %}</h1>
-                    <p style="margin: 0; color: #666;">
-                        {{ paciente.nombre_completo }} · 
-                        <span style="color: #7c3aed; font-weight: 500;">{% block ficha_especialidad %}{% endblock %}</span>
-                    </p>
-                </div>
+    <div class="ficha-header">
+        <div class="ficha-header-info">
+            <span class="ficha-header-icono">{% block ficha_icon %}📋{% endblock %}</span>
+            <div class="ficha-header-texto">
+                <h1>{% block ficha_titulo %}Ficha Técnica{% endblock %}</h1>
+                <p>
+                    {{ paciente.nombre_completo }} · 
+                    <span class="especialidad-badge">{% block ficha_especialidad %}{% endblock %}</span>
+                </p>
             </div>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm" style="white-space: nowrap;">
+        <div class="ficha-header-acciones">
+            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
                 ← Volver a la Ficha
             </a>
-            <button type="submit" form="ficha-tecnica-form" class="btn btn-success btn-sm" style="white-space: nowrap;">
+            <button type="submit" form="ficha-tecnica-form" class="btn btn-success btn-sm">
                 💾 Guardar Cambios
             </button>
         </div>
@@ -36,16 +39,17 @@
         {% block ficha_contenido %}{% endblock %}
         
         <!-- Notas generales -->
-        <div class="card" style="margin-top: 24px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="card-title" style="margin: 0;">
-                    📝 Notas Generales
-                </h3>
-                <small style="color: #999;">Visible solo para profesionales</small>
+        <div class="ficha-card" style="margin-top: 24px;">
+            <div class="ficha-card-header">
+                <h3>📝 Notas Generales</h3>
+                <small style="color: var(--text-muted);">Visible solo para profesionales</small>
             </div>
-            <textarea name="notas_generales" rows="3" 
-                      style="width: 100%; padding: 14px; border: none; font-family: inherit; font-size: 0.95rem; resize: vertical; min-height: 80px;"
-                      placeholder="Observaciones generales del paciente...">{{ ficha_tecnica.notas_generales|default:'' }}</textarea>
+            <div class="ficha-card-body">
+                <textarea name="notas_generales" rows="3" 
+                          class="ficha-textarea"
+                          style="min-height: 80px;"
+                          placeholder="Observaciones generales del paciente...">{{ ficha_tecnica.notas_generales|default:'' }}</textarea>
+            </div>
         </div>
     </form>
 
@@ -53,92 +57,4 @@
     {% block ficha_extra %}{% endblock %}
 
 </div>
-
-<style>
-    input, select, textarea {
-        font-family: inherit;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: #7c3aed !important;
-        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
-    }
-    .card {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        margin-bottom: 20px;
-    }
-    .card-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid #f0f0f0;
-        background: #fafbfc;
-        border-radius: 10px 10px 0 0;
-    }
-    .card-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #2d3748;
-        margin: 0;
-    }
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.8em;
-        font-weight: 500;
-    }
-    .badge-info { background: #e0f2fe; color: #0369a1; }
-    .badge-success { background: #dcfce7; color: #15803d; }
-    .badge-warning { background: #fef3c7; color: #92400e; }
-    .badge-danger { background: #fee2e2; color: #991b1b; }
-    .badge-gray { background: #f3f4f6; color: #6b7280; }
-    .table-container {
-        overflow-x: auto;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-    }
-    table th {
-        background: #f8fafc;
-        padding: 12px 14px;
-        text-align: left;
-        font-weight: 600;
-        color: #475569;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #e2e8f0;
-        white-space: nowrap;
-    }
-    table td {
-        padding: 12px 14px;
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
-    }
-    table tbody tr:hover {
-        background: #f8fafc;
-    }
-    .btn-xs {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-        border-radius: 4px;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-    }
-    .empty-state {
-        text-align: center;
-        padding: 40px;
-        color: #94a3b8;
-    }
-    .empty-state span {
-        font-size: 2.5rem;
-        display: block;
-        margin-bottom: 8px;
-    }
-</style>
 {% endblock %}

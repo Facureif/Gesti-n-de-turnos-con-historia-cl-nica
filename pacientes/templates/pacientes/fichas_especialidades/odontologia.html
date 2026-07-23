@@ -1,4 +1,5 @@
 {% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
 
 {% block ficha_icon %}🦷{% endblock %}
 {% block ficha_titulo %}Ficha Odontológica{% endblock %}
@@ -6,159 +7,135 @@
 
 {% block ficha_contenido %}
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+<div class="ficha-grid-2">
     
-    <!-- Información relevante para el odontólogo -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">⚠️ Información Importante</h3>
+    <!-- Información Importante -->
+    <div class="ficha-card">
+        <div class="ficha-card-header">
+            <h3>⚠️ Información Importante</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-            <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                    Alergias / Reacciones adversas
-                </label>
-                <textarea name="alergias_odontologia" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
-                          placeholder="Anestesia, látex, penicilina, AINES...">{{ ficha_tecnica.datos_especificos.alergias_odontologia|default:'' }}</textarea>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                    Medicación actual
-                </label>
-                <textarea name="medicacion_actual" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
-                          placeholder="Anticoagulantes, bifosfonatos...">{{ ficha_tecnica.datos_especificos.medicacion_actual|default:'' }}</textarea>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
                 <div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                        <input type="checkbox" name="diabetes" value="si" 
-                               {% if ficha_tecnica.datos_especificos.diabetes == 'si' %}checked{% endif %}>
-                        <span>🩸 Diabetes</span>
-                    </label>
+                    <label class="ficha-label">Alergias / Reacciones adversas</label>
+                    <textarea name="alergias_odontologia" rows="2" class="ficha-textarea"
+                              placeholder="Anestesia, látex, penicilina, AINES...">{{ ficha_tecnica.datos_especificos.alergias_odontologia|default:'' }}</textarea>
                 </div>
                 <div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                        <input type="checkbox" name="cardiopatia" value="si" 
-                               {% if ficha_tecnica.datos_especificos.cardiopatia == 'si' %}checked{% endif %}>
-                        <span>❤️ Cardiopatía / HTA</span>
-                    </label>
+                    <label class="ficha-label">Medicación actual</label>
+                    <textarea name="medicacion_actual" rows="2" class="ficha-textarea"
+                              placeholder="Anticoagulantes, bifosfonatos...">{{ ficha_tecnica.datos_especificos.medicacion_actual|default:'' }}</textarea>
                 </div>
-                <div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                        <input type="checkbox" name="embarazo" value="si" 
-                               {% if ficha_tecnica.datos_especificos.embarazo == 'si' %}checked{% endif %}>
-                        <span>🤰 Embarazo</span>
+                <div class="ficha-checkboxes-grid">
+                    <label class="ficha-checkbox-label">
+                        <input type="checkbox" name="diabetes" value="si" {% if ficha_tecnica.datos_especificos.diabetes == 'si' %}checked{% endif %}>
+                        🩸 Diabetes
                     </label>
-                </div>
-                <div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                        <input type="checkbox" name="marcapasos" value="si" 
-                               {% if ficha_tecnica.datos_especificos.marcapasos == 'si' %}checked{% endif %}>
-                        <span>💓 Marcapasos</span>
+                    <label class="ficha-checkbox-label">
+                        <input type="checkbox" name="cardiopatia" value="si" {% if ficha_tecnica.datos_especificos.cardiopatia == 'si' %}checked{% endif %}>
+                        ❤️ Cardiopatía / HTA
                     </label>
-                </div>
-                <div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                        <input type="checkbox" name="protesis_valvular" value="si" 
-                               {% if ficha_tecnica.datos_especificos.protesis_valvular == 'si' %}checked{% endif %}>
-                        <span>🫀 Prótesis valvular</span>
+                    <label class="ficha-checkbox-label">
+                        <input type="checkbox" name="embarazo" value="si" {% if ficha_tecnica.datos_especificos.embarazo == 'si' %}checked{% endif %}>
+                        🤰 Embarazo
                     </label>
-                </div>
-                <div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 0;">
-                        <input type="checkbox" name="trastorno_coagulacion" value="si" 
-                               {% if ficha_tecnica.datos_especificos.trastorno_coagulacion == 'si' %}checked{% endif %}>
-                        <span>🩹 Trast. coagulación</span>
+                    <label class="ficha-checkbox-label">
+                        <input type="checkbox" name="marcapasos" value="si" {% if ficha_tecnica.datos_especificos.marcapasos == 'si' %}checked{% endif %}>
+                        💓 Marcapasos
+                    </label>
+                    <label class="ficha-checkbox-label">
+                        <input type="checkbox" name="protesis_valvular" value="si" {% if ficha_tecnica.datos_especificos.protesis_valvular == 'si' %}checked{% endif %}>
+                        🫀 Prótesis valvular
+                    </label>
+                    <label class="ficha-checkbox-label">
+                        <input type="checkbox" name="trastorno_coagulacion" value="si" {% if ficha_tecnica.datos_especificos.trastorno_coagulacion == 'si' %}checked{% endif %}>
+                        🩹 Trast. coagulación
                     </label>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Registrar nuevo tratamiento -->
-    <div class="card" style="border-left: 4px solid #007bff;">
-        <div class="card-header">
-            <h3 class="card-title">➕ Registrar Tratamiento</h3>
+    <!-- Registrar Tratamiento -->
+    <div class="ficha-card borde-primario">
+        <div class="ficha-card-header">
+            <h3>➕ Registrar Tratamiento</h3>
         </div>
-        <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha *</label>
-                    <input type="date" name="nuevo_tratamiento_fecha" required
-                           value="{% now 'Y-m-d' %}"
-                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div class="ficha-form-row">
+                    <div>
+                        <label class="ficha-label">Fecha <span class="required">*</span></label>
+                        <input type="date" name="nuevo_tratamiento_fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
+                    </div>
+                    <div>
+                        <label class="ficha-label">Pieza dental <span class="required">*</span></label>
+                        <input type="text" name="nuevo_tratamiento_pieza" required class="ficha-input"
+                               placeholder="Ej: 14, 36, 47">
+                    </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Pieza dental *</label>
-                    <input type="text" name="nuevo_tratamiento_pieza" required
-                           placeholder="Ej: 14, 36, 47"
-                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                    <label class="ficha-label">Tipo de tratamiento <span class="required">*</span></label>
+                    <select name="nuevo_tratamiento_tipo" required class="ficha-select">
+                        <option value="">Seleccionar...</option>
+                        <optgroup label="Operatoria">
+                            <option value="caries">Caries / Obturación</option>
+                            <option value="sellador">Sellador / Prevención</option>
+                            <option value="blanqueamiento">Blanqueamiento</option>
+                        </optgroup>
+                        <optgroup label="Endodoncia">
+                            <option value="endodoncia">Endodoncia / Conducto</option>
+                        </optgroup>
+                        <optgroup label="Cirugía">
+                            <option value="extraccion">Extracción</option>
+                            <option value="implante">Implante</option>
+                        </optgroup>
+                        <optgroup label="Prótesis">
+                            <option value="corona">Corona / Prótesis fija</option>
+                            <option value="puente">Puente</option>
+                            <option value="protesis_removible">Prótesis removible</option>
+                        </optgroup>
+                        <optgroup label="Otros">
+                            <option value="ortodoncia">Ortodoncia / Brackets</option>
+                            <option value="limpieza">Limpieza / Profilaxis</option>
+                            <option value="tratamiento_encia">Tratamiento de encías</option>
+                            <option value="otro">Otro</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div>
+                    <label class="ficha-label">Material / Técnica usada</label>
+                    <input type="text" name="nuevo_tratamiento_material" class="ficha-input"
+                           placeholder="Ej: Composite, Amalgama, Resina, Porcelana...">
+                </div>
+                <div>
+                    <label class="ficha-label">Descripción / Notas</label>
+                    <textarea name="nuevo_tratamiento_descripcion" rows="2" class="ficha-textarea"
+                              placeholder="Detalles del procedimiento..."></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">📎 Adjuntar archivo</label>
+                    <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
                 </div>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Tipo de tratamiento *</label>
-                <select name="nuevo_tratamiento_tipo" required 
-                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="">Seleccionar...</option>
-                    <optgroup label="Operatoria">
-                        <option value="caries">Caries / Obturación</option>
-                        <option value="sellador">Sellador / Prevención</option>
-                        <option value="blanqueamiento">Blanqueamiento</option>
-                    </optgroup>
-                    <optgroup label="Endodoncia">
-                        <option value="endodoncia">Endodoncia / Conducto</option>
-                    </optgroup>
-                    <optgroup label="Cirugía">
-                        <option value="extraccion">Extracción</option>
-                        <option value="implante">Implante</option>
-                    </optgroup>
-                    <optgroup label="Prótesis">
-                        <option value="corona">Corona / Prótesis fija</option>
-                        <option value="puente">Puente</option>
-                        <option value="protesis_removible">Prótesis removible</option>
-                    </optgroup>
-                    <optgroup label="Otros">
-                        <option value="ortodoncia">Ortodoncia / Brackets</option>
-                        <option value="limpieza">Limpieza / Profilaxis</option>
-                        <option value="tratamiento_encia">Tratamiento de encías</option>
-                        <option value="otro">Otro</option>
-                    </optgroup>
-                </select>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Material / Técnica usada</label>
-                <input type="text" name="nuevo_tratamiento_material"
-                       placeholder="Ej: Composite, Amalgama, Resina, Porcelana..."
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Descripción / Notas</label>
-                <textarea name="nuevo_tratamiento_descripcion" rows="2"
-                          placeholder="Detalles del procedimiento..."
-                          style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-            </div>
-             <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp"
-               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
         </div>
     </div>
 </div>
 
-<!-- Historial de Tratamientos Odontológicos -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header flex-between">
-        <h3 class="card-title">📜 Historial de Tratamientos</h3>
+<!-- Historial -->
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Tratamientos</h3>
         {% if paciente.tratamientos_odontologicos.all %}
-        <span style="color: #666; font-size: 0.9em;">
+        <span style="color: var(--text-muted); font-size: 0.9rem;">
             {{ paciente.tratamientos_odontologicos.count }} tratamiento{{ paciente.tratamientos_odontologicos.count|pluralize:"s" }}
         </span>
         {% endif %}
     </div>
 
     {% if paciente.tratamientos_odontologicos.all %}
-    <div class="table-container">
-        <table>
+    <div class="ficha-tabla-container">
+        <table class="ficha-tabla">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -172,25 +149,18 @@
             <tbody>
                 {% for t in paciente.tratamientos_odontologicos.all %}
                 <tr>
-                    <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
-                    <td><span class="badge badge-info">#{{ t.pieza_dental }}</span></td>
+                    <td class="fecha-col">{{ t.fecha|date:"d/m/Y" }}</td>
+                    <td><span class="ficha-badge ficha-badge-info">#{{ t.pieza_dental }}</span></td>
                     <td>{{ t.get_tipo_tratamiento_display }}</td>
                     <td>{{ t.material_usado|default:"—" }}</td>
+                    <td>{% if t.descripcion %}<span class="ficha-tooltip" data-tooltip="{{ t.descripcion|escapejs }}">{{ t.descripcion|truncatechars:40 }}</span>{% else %}—{% endif %}</td>
                     <td>
-                        {% if t.descripcion %}
-                        <span class="tooltip-cell" data-tooltip="{{ t.descripcion|escapejs }}">
-                            {{ t.descripcion|truncatechars:40 }}
-                        </span>
-                        {% else %}—{% endif %}
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: 4px; align-items: center;">
+                        <div style="display: flex; gap: 4px;">
                             {% if t.archivo %}
-                            <a href="{{ t.archivo.url }}" class="btn btn-info btn-xs" target="_blank" title="Ver archivo">📎</a>
+                            <a href="{{ t.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
                             {% endif %}
-                            <a href="{% url 'eliminar_tratamiento_odontologico' t.id %}" 
-                            class="btn btn-danger btn-xs"
-                            onclick="return confirm('¿Eliminar este tratamiento?')">🗑️</a>
+                            <a href="{% url 'eliminar_tratamiento_odontologico' t.id %}" class="btn btn-danger ficha-btn-xs"
+                               onclick="return confirm('¿Eliminar este tratamiento?')">🗑️</a>
                         </div>
                     </td>
                 </tr>
@@ -199,78 +169,11 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 30px; color: #999;">
+    <div class="ficha-empty">
         <p>📭 Sin tratamientos registrados</p>
         <small>Registrá un nuevo tratamiento y se agregará al historial automáticamente.</small>
     </div>
     {% endif %}
-    
 </div>
-
-<style>
-/* Estilos para los tooltips */
-.tooltip-cell {
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px dotted #666;
-    display: inline-block;
-    max-width: 100%;
-}
-
-.tooltip-cell:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85em;
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 350px;
-    min-width: 200px;
-    z-index: 1000;
-    margin-bottom: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    line-height: 1.4;
-    text-align: left;
-}
-
-.tooltip-cell:hover::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #333;
-    z-index: 1001;
-    margin-bottom: 2px;
-}
-
-td {
-    position: relative;
-    overflow: visible;
-}
-
-.table-container {
-    overflow: visible;
-}
-
-table {
-    overflow: visible;
-}
-
-/* Mejora visual para los checkboxes */
-input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #007bff;
-}
-</style>
 
 {% endblock %}

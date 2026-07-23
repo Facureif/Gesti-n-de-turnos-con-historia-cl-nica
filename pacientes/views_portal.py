@@ -14,7 +14,6 @@ from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
 from agendas.models import Agenda, BloqueoAgenda, HorarioAtencion
 
-
 @login_required
 def panel_paciente(request):
     if request.user.rol != 'paciente':
@@ -56,12 +55,34 @@ def panel_paciente(request):
         estado='completado'
     ).order_by('-fecha', '-hora_inicio')[:5]
     
+    # Filtrar sesiones según el cliente
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            obras_sociales_paciente = paciente.mis_obras_sociales.filter(
+                profesional__establecimientos=cliente.establecimiento
+            )
+            estudios = paciente.estudios_medicos.filter(
+                profesional__establecimientos=cliente.establecimiento
+            )
+        else:
+            obras_sociales_paciente = paciente.mis_obras_sociales.filter(
+                profesional=cliente.profesional
+            )
+            estudios = paciente.estudios_medicos.filter(
+                profesional=cliente.profesional
+            )
+    else:
+        obras_sociales_paciente = paciente.mis_obras_sociales.all()
+        estudios = paciente.estudios_medicos.all()
+    
     return render(request, 'pacientes/portal/panel.html', {
         'paciente': paciente,
         'proximos_turnos': proximos_turnos,
         'ultimos_turnos': ultimos_turnos,
         'hoy': hoy,
         'cliente': cliente,
+        'obras_sociales_paciente': obras_sociales_paciente,
+        'estudios_paciente': estudios,
     })
 
 
@@ -450,7 +471,23 @@ def mis_estudios(request):
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, usuario=request.user)
+    
+    cliente_slug = request.session.get('cliente_slug')
+    cliente = None
+    if cliente_slug:
+        try:
+            cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+        except ClienteSaaS.DoesNotExist:
+            pass
+    
     estudios = paciente.estudios_medicos.all()
+    
+    # Filtrar según cliente
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            estudios = estudios.filter(profesional__establecimientos=cliente.establecimiento)
+        else:
+            estudios = estudios.filter(profesional=cliente.profesional)
     
     return render(request, 'pacientes/portal/mis_estudios.html', {
         'paciente': paciente,

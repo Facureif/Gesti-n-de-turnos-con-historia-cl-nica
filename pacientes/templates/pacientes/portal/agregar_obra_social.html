@@ -1,17 +1,23 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Agregar Obra Social{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/portal_paciente.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-    <h1>➕ Agregar Obra Social</h1>
+<div class="portal-paciente-page">
+<div class="portal-paciente-container-sm">
+
+    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px;">➕ Agregar Obra Social</h1>
     
-    <form method="post" class="card" style="margin-top: 20px;">
+    <form method="post" class="portal-card">
         {% csrf_token %}
         
-        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Obra Social *</label>
-        <select name="obra_social" id="obra_social_select" required
-                style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px;">
+        <label class="portal-form-label">Obra Social *</label>
+        <select name="obra_social" id="obra_social_select" required class="portal-form-select">
             <option value="">Seleccionar...</option>
             {% for os in obras_sociales %}
             <option value="{{ os.id }}" data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
@@ -20,26 +26,26 @@
             {% endfor %}
         </select>
         
-        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Plan</label>
-        <select name="plan" id="plan_select"
-                style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; display: none;">
+        <label class="portal-form-label">Plan</label>
+        <select name="plan" id="plan_select" class="portal-form-select" style="display: none;">
             <option value="">Seleccionar plan...</option>
         </select>
         
-        <label style="display: block; margin-bottom: 5px; font-weight: bold;">N° de Afiliado</label>
-        <input type="text" name="numero_afiliado" placeholder="N° de afiliado"
-               style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px;">
+        <label class="portal-form-label">N° de Afiliado</label>
+        <input type="text" name="numero_afiliado" placeholder="N° de afiliado" class="portal-form-input">
         
-        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <label class="portal-form-checkbox">
             <input type="checkbox" name="activa" checked>
             <span>¿Está activa?</span>
         </label>
         
-        <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn btn-success" style="flex: 1;">✅ Guardar</button>
-            <a href="{% url 'mis_obras_sociales' %}" class="btn" style="flex: 1; background: #6c757d; text-align: center;">Cancelar</a>
+        <div class="portal-form-botones">
+            <button type="submit" class="btn btn-success">✅ Guardar</button>
+            <a href="{% url 'mis_obras_sociales' %}" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
+
+</div>
 </div>
 
 <script>

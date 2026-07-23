@@ -4,469 +4,68 @@
 {% block title %}{{ profesional.nombre_completo }} - {{ profesional.get_especialidad_display }} | Turnos Online{% endblock %}
 
 {% block extra_css %}
-<style>
-    /* --- CORRECCIÓN PARA ANULAR EL BASE.HTML --- */
-    .container {
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    .landing {
-        width: 100%;
-    }
-
-    /* --- RESET Y VARIABLES --- */
-    :root {
-        --primary: #2563eb;
-        --primary-dark: #1d4ed8;
-        --success: #059669;
-        --text: #1f2937;
-        --text-secondary: #4b5563;
-        --text-muted: #9ca3af;
-        --bg: #ffffff;
-        --bg-alt: #f8fafc;
-        --border: #e5e7eb;
-        --radius: 12px;
-        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    }
-
-    /* --- CONTENEDOR INTERNO --- */
-    .container-custom {
-        width: 100%;
-        max-width: 1140px;
-        margin: 0 auto;
-        padding: 0 20px;
-        box-sizing: border-box;
-    }
-
-    /* ========== HERO ========== */
-    .hero {
-        width: 100%;
-        padding: 80px 0 70px 0;
-        text-align: center;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 1;
-        max-width: 750px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    .hero-avatar {
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid rgba(255,255,255,0.2);
-        background: #e2e8f0;
-        margin-bottom: 16px;
-    }
-
-    /* Placeholder con iniciales */
-    .hero-avatar-placeholder {
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        background: #334155;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3.5rem;
-        font-weight: 600;
-        color: white;
-        border: 4px solid rgba(255,255,255,0.2);
-        margin-bottom: 16px;
-    }
-
-    .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 6px 16px;
-        border-radius: 9999px;
-        font-size: 0.85rem;
-        color: #a5f3fc;
-        margin-bottom: 16px;
-    }
-
-    .hero h1 {
-        font-size: clamp(2rem, 4vw, 3rem);
-        font-weight: 700;
-        margin: 0 0 6px 0;
-        letter-spacing: -0.02em;
-    }
-
-    .hero .especialidad-hero {
-        font-size: 1.1rem;
-        color: #93c5fd;
-        font-weight: 500;
-        margin: 0 0 10px 0;
-    }
-
-    .hero .frase-destacada {
-        font-size: 1.05rem;
-        color: #cbd5e1;
-        font-style: italic;
-        margin: 0 0 25px 0;
-    }
-
-    .btn-hero {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: white;
-        color: #0f172a;
-        padding: 14px 36px;
-        border-radius: 9999px;
-        font-weight: 600;
-        font-size: 1rem;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-
-    .btn-hero:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(0,0,0,0.4);
-        color: var(--primary);
-    }
-
-    /* ========== SECCIONES ========== */
-    .section {
-        padding: 60px 0;
-    }
-
-    .section-alt {
-        background: var(--bg-alt);
-    }
-
-    .section-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-
-    .section-label {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--primary);
-        margin-bottom: 6px;
-    }
-
-    .section-title {
-        font-size: clamp(1.5rem, 2.5vw, 2rem);
-        font-weight: 700;
-        color: var(--text);
-        margin: 0;
-    }
-
-    .section-subtitle {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        margin-top: 4px;
-    }
-
-    /* ========== SOBRE MÍ ========== */
-    .sobre-mi-content {
-        max-width: 750px;
-        margin: 0 auto;
-        text-align: center;
-    }
-
-    .sobre-mi-content .descripcion {
-        color: var(--text-secondary);
-        font-size: 1.05rem;
-        line-height: 1.7;
-        margin-bottom: 32px;
-    }
-
-    .info-cajas-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-top: 24px;
-    }
-
-    .info-caja {
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    .info-caja .icono-grande {
-        font-size: 1.8rem;
-        margin-bottom: 8px;
-    }
-
-    .info-caja h4 {
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: var(--text);
-    }
-
-    .info-caja ul {
-        list-style: none;
-        padding: 0;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        line-height: 1.8;
-        margin: 0;
-    }
-
-    /* ========== CONSULTORIOS ========== */
-    .consultorios-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-    }
-
-    .consultorio-card {
-        background: white;
-        border-radius: var(--radius);
-        padding: 24px;
-        border: 1px solid var(--border);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    .consultorio-card h3 {
-        color: var(--text);
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0 0 12px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .consultorio-card h3 i { color: var(--primary); }
-
-    .consultorio-card .dato {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        margin: 4px 0;
-    }
-
-    .consultorio-card .dato i {
-        color: var(--primary);
-        width: 18px;
-        margin-top: 3px;
-    }
-
-    .horarios-lista {
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border);
-    }
-
-    .horarios-lista h4 {
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin: 0 0 8px 0;
-    }
-
-    .horario-item {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        padding: 2px 0;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    /* ========== PRECIOS, SERVICIOS Y OBRAS SOCIALES ========== */
-    .info-destacada-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 20px;
-    }
-
-    .info-destacada-card {
-        background: white;
-        border-radius: var(--radius);
-        padding: 28px 20px;
-        text-align: center;
-        border: 1px solid var(--border);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    .info-destacada-card .icono-header {
-        font-size: 2rem;
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .precio-label {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        font-weight: 500;
-    }
-
-    .precio-valor {
-        font-size: 1.8rem; 
-        font-weight: 700;
-        color: var(--success);
-        margin: 6px 0 0 0;
-    }
-
-    .obras-sociales-grid, .servicios-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        justify-content: center;
-        margin-top: 10px;
-    }
-
-    .os-tag, .servicio-tag {
-        font-size: 0.8rem;
-        padding: 4px 14px;
-        border-radius: 9999px;
-        font-weight: 500;
-    }
+    <!-- CSS específico de la landing del profesional -->
+    <link rel="stylesheet" href="{% static 'css/pages/landing_profesional.css' %}">
     
-    .os-tag { background: #ede9fe; color: #5b21b6; }
-    .servicio-tag { background: #dbeafe; color: #1e40af; }
-
-    /* ========== CONTACTO ========== */
-    .contacto-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 14px;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .contacto-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 24px;
-        background: white;
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: 0.95rem;
-        flex: 1 1 auto;
-        min-width: 180px;
-        justify-content: center;
-        transition: all 0.2s;
-    }
-
-    .contacto-item:hover {
-        border-color: var(--primary);
-        color: var(--text);
-        transform: translateY(-2px);
-    }
-
-    .contacto-item i { color: var(--primary); }
-
-    /* ========== BOTÓN FLOTANTE DE ACCIÓN (CTA) - A LA IZQUIERDA ========== */
-    .btn-flotante-turno {
-        position: fixed;
-        bottom: 30px; /* SUBIDO 10px PARA NO CHOCAR EN MÓVILES */
-        left: 20px; 
-        background: var(--success);
-        color: white;
-        padding: 16px 28px;
-        border-radius: 9999px;
-        font-weight: 600;
-        font-size: 1rem;
-        box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4);
-        text-decoration: none;
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-        /* Seguro para móviles con barra inferior (iPhone) */
-        bottom: calc(20px + env(safe-area-inset-bottom)); 
-    }
-
-    .btn-flotante-turno:hover {
-        background: #047857;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5);
-        color: white;
-    }
-
-    /* ========== FOOTER ========== */
-    .footer {
-        width: 100%;
-        background: #0f172a;
-        color: #94a3b8;
-        padding: 25px 0 40px 0; /* Aumenté el padding inferior para dar espacio a los botones */
-        font-size: 0.85rem;
-    }
-
-    .footer-content {
-        display: flex;
-        justify-content:space-around;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .footer a {
-        color: #60a5fa;
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    /* ========== MEDIA QUERIES ========== */
-    @media (max-width: 768px) {
-        .hero { padding: 50px 0 60px 0; }
-        .section { padding: 40px 0; }
-        .consultorios-grid { grid-template-columns: 1fr; }
-        .info-destacada-grid { grid-template-columns: 1fr; }
-        .footer-content { flex-direction: column; text-align: center; }
-        
-        .btn-flotante-turno {
-            width: auto;
-            padding: 14px 20px;
-            font-size: 0.9rem;
-            /* Ajuste calculado en móviles (subido) */
-            bottom: calc(15px + env(safe-area-inset-bottom));
-            left: 15px;
+    <!-- Colores personalizados desde el cliente SaaS -->
+        <style>
+        :root {
+            /* Heredamos y sobrescribimos los colores personalizados del cliente */
+            --primary: {{ cliente.color_primario|default:'#2563eb' }};
+            --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
+            
+            /* --- ESTO ES LO QUE FALTABA --- */
+            /* Heredamos los colores por defecto para que no fallen las variables */
+            --white: #ffffff;
+            --gray-200: #e5e7eb;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
         }
-    }
-</style>
+        
+        .hero {
+            {% if cliente.hero_imagen %}
+                background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{{ cliente.hero_imagen.url }}');
+                background-size: cover;
+                background-position: center;
+            {% else %}
+                background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{% static "img/consultorio_default.jpg" %}');
+                background-size: cover;
+                background-position: center;
+            {% endif %}
+        }
+        
+        /* Asegurar que la navbar NO sea transparente en las landings */
+        .navbar {
+            background-color: var(--white) !important;
+            border-bottom: 1px solid var(--gray-200) !important;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="landing">
 
     <!-- ========== HERO ========== -->
-    
-    
-    <section class="hero" style="background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{% static 'img/centro-de-rehabilitacion-scaled.webp' %}'); background-size: cover; background-position: center;">
+    <section class="hero">
         <div class="hero-content">
             {% if profesional.foto %}
                 <img src="{{ profesional.foto.url }}" alt="{{ profesional.nombre_completo }}" class="hero-avatar">
             {% else %}
-                <!-- Placeholder inteligente con las iniciales -->
                 <div class="hero-avatar-placeholder">
                     {{ profesional.nombre_completo|slice:":1" }}{{ profesional.apellido|slice:":1" }}
                 </div>
             {% endif %}
+
+            <div class="hero-badge">
+                <i class="fas fa-calendar-check"></i> Turnos Online 24/7
+            </div>
             
             <h1>{{ profesional.nombre_completo }}</h1>
             <p class="especialidad-hero">{{ profesional.get_especialidad_display }}</p>
@@ -519,7 +118,7 @@
         </div>
     </section>
 
-        <!-- ========== DONDE ATIENDO ========== -->
+    <!-- ========== DONDE ATIENDO ========== -->
     {% if consultorios %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -536,8 +135,8 @@
                     
                     {% if est.direccion %}
                     <div class="dato">
-                        <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: flex-start; gap: 10px; width: 100%;">
-                            <i class="fas fa-map-marker-alt" style="color: var(--primary); width: 18px; margin-top: 3px;"></i>
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank">
+                            <i class="fas fa-map-marker-alt"></i>
                             <span>{{ est.direccion }}</span>
                         </a>
                     </div>
@@ -545,8 +144,8 @@
                     
                     {% if est.telefono %}
                     <div class="dato">
-                        <a href="tel:{{ est.telefono }}" style="text-decoration: none; color: inherit; display: flex; align-items: flex-start; gap: 10px; width: 100%;">
-                            <i class="fas fa-phone" style="color: var(--primary); width: 18px; margin-top: 3px;"></i>
+                        <a href="tel:{{ est.telefono }}">
+                            <i class="fas fa-phone"></i>
                             <span>{{ est.telefono }}</span>
                         </a>
                     </div>
@@ -569,8 +168,8 @@
         </div>
     </section>
     {% endif %}
-    
-   <!-- ========== SERVICIOS Y COBERTURA ========== -->
+
+    <!-- ========== SERVICIOS Y COBERTURA ========== -->
     {% if profesional.precio_particular or profesional.obras_sociales.exists %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -615,12 +214,12 @@
             
             <div class="contacto-grid">
                 {% if profesional.telefono %}
-                <!-- Enlace directo a WhatsApp -->
                 <a href="https://wa.me/54{{ profesional.telefono|cut:' '|cut:'-'|cut:'+' }}" target="_blank" class="contacto-item">
                     <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i>
                     <span>Chatear por WhatsApp</span>
                 </a>
                 {% endif %}
+                
                 {% if profesional.email %}
                 <a href="mailto:{{ profesional.email }}" class="contacto-item">
                     <i class="fas fa-envelope"></i>
@@ -635,8 +234,8 @@
     <!-- ========== FOOTER ========== -->
     <footer class="footer">
         <div class="container-custom footer-content">
-            <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
             <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
+            <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
         </div>
     </footer>
 
@@ -647,4 +246,11 @@
     <i class="fas fa-calendar-plus"></i> Sacar Turno
 </a>
 
-{% endblock %}  
+<!-- ========== WHATSAPP FLOTANTE (DERECHA) ========== -->
+{% if profesional.telefono %}
+<a href="https://wa.me/54{{ profesional.telefono|cut:' '|cut:'-'|cut:'+' }}" target="_blank" class="whatsapp-flotante">
+    <i class="fab fa-whatsapp"></i>
+</a>
+{% endif %}
+
+{% endblock %}

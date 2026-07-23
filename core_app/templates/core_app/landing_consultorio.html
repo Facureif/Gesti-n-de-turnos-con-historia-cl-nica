@@ -1,582 +1,70 @@
 {% extends 'core_app/base.html' %}
 {% load static %}
+
 {% block title %}{{ cliente.nombre }} | Turnos Online{% endblock %}
 
 {% block extra_css %}
-<style>
-    /* --- CORRECCIÓN PARA ANULAR EL BASE.HTML --- */
-    .container {
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+    <!-- CSS específico de la landing -->
+    <link rel="stylesheet" href="{% static 'css/pages/landing_consultorio.css' %}">
     
-    .landing {
-        width: 100%;
-    }
-
-    /* --- RESET Y VARIABLES --- */
-    :root {
-        --primary: #2563eb;
-        --primary-dark: #1d4ed8;
-        --success: #059669;
-        --text: #1f2937;
-        --text-secondary: #4b5563;
-        --text-muted: #9ca3af;
-        --bg: #ffffff;
-        --bg-alt: #f8fafc;
-        --border: #e5e7eb;
-        --radius: 16px;
-        --shadow: 0 4px 10px -4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02);
-        --shadow-lg: 0 8px 25px -8px rgba(0,0,0,0.12), 0 0 0 1px rgba(37, 99, 235, 0.1);
-    }
-
-    /* --- CONTENEDOR INTERNO --- */
-    .container-custom {
-        width: 100%;
-        max-width: 1140px;
-        margin: 0 auto;
-        padding: 0 20px;
-        box-sizing: border-box;
-    }
-
-    /* ========== HERO CONSULTORIO CON IMAGEN ========== */
-    .hero-consultorio {
-        width: 100%;
-        padding: 100px 0 80px 0;
-        text-align: center;
-        color: white;
-        position: relative;
-    }
-
-    .hero-consultorio-content {
-        position: relative;
-        z-index: 1;
-        max-width: 750px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    .hero-consultorio .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 6px 16px;
-        border-radius: 9999px;
-        font-size: 0.85rem;
-        color: #a5f3fc;
-        margin-bottom: 16px;
-    }
-
-    .hero-consultorio h1 {
-        font-size: clamp(2rem, 4vw, 3rem);
-        font-weight: 700;
-        margin: 0 0 8px 0;
-        letter-spacing: -0.02em;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
-
-    .hero-consultorio p {
-        font-size: 1.05rem;
-        color: #cbd5e1;
-        margin: 0 0 28px 0;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-
-    .btn-hero-consultorio {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: white;
-        color: #0f172a;
-        padding: 14px 36px;
-        border-radius: 9999px;
-        font-weight: 600;
-        font-size: 1rem;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-    }
-
-    .btn-hero-consultorio:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-        color: var(--primary);
-    }
-
-    /* ========== SECCIONES ========== */
-    .section {
-        padding: 60px 0;
-    }
-
-    .section-alt {
-        background: var(--bg-alt);
-    }
-
-    .section-header {
-        text-align: center;
-        margin-bottom: 32px;
-    }
-
-    .section-label {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--primary);
-        margin-bottom: 6px;
-    }
-
-    .section-title {
-        font-size: clamp(1.5rem, 2.5vw, 2rem);
-        font-weight: 700;
-        color: var(--text);
-        margin: 0;
-    }
-
-    .section-subtitle {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        margin-top: 4px;
-    }
-
-    /* ========== FILTROS DE ESPECIALIDAD ========== */
-    .filtros-especialidades {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-        margin-bottom: 32px;
-    }
-
-    .filtro-pildora {
-        padding: 8px 18px;
-        border-radius: 9999px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border: 1px solid var(--border);
-        background: white;
-        color: var(--text-secondary);
-        white-space: nowrap;
-    }
-
-    .filtro-pildora:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-        background: #eff6ff;
-    }
-
-    .filtro-pildora.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        font-weight: 600;
-    }
-
-    .filtro-pildora .count {
-        font-size: 0.7rem;
-        opacity: 0.7;
-        margin-left: 4px;
-    }
-
-    /* ========== PROFESIONALES ========== */
-    .profesionales-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .profesional-card {
-        background: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        overflow: hidden;
-        transition: all 0.25s ease;
-    }
-
-    .profesional-card:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
-    }
-
-    .profesional-card.oculto {
-        display: none;
-    }
-
-    .profesional-header {
-        display: flex;
-        align-items: center;
-        padding: 24px;
-        cursor: pointer;
-        transition: background 0.2s ease;
-        gap: 20px;
-    }
-
-    .profesional-header:hover {
-        background: var(--bg-alt);
-    }
-
-    .profesional-avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #eff6ff;
-        flex-shrink: 0;
-    }
-
-    .profesional-avatar-placeholder {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        color: var(--primary);
-        flex-shrink: 0;
-        border: 3px solid #eff6ff;
-    }
-
-    .profesional-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .profesional-info h3 {
-        font-size: 1.15rem;
-        font-weight: 600;
-        color: var(--text);
-        margin: 0 0 2px 0;
-    }
-
-    .profesional-info .especialidad {
-        color: var(--primary);
-        font-weight: 500;
-        font-size: 0.85rem;
-        margin: 0 0 8px 0;
-    }
-
-    .profesional-tags {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-
-    .tag {
-        font-size: 0.7rem;
-        font-weight: 600;
-        padding: 2px 10px;
-        border-radius: 9999px;
-        background: #d1fae5;
-        color: #065f46;
-        white-space: nowrap;
-    }
-
-    .tag-os {
-        background: #ede9fe;
-        color: #5b21b6;
-    }
-
-    .profesional-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-    }
-
-    .btn-sacar-turno {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--success);
-        color: white;
-        padding: 10px 24px;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .btn-sacar-turno:hover {
-        background: #047857;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-    }
-
-    .btn-expand {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        transition: transform 0.3s ease;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: var(--bg-alt);
-    }
-
-    .btn-expand.open {
-        transform: rotate(180deg);
-        background: #dbeafe;
-        color: var(--primary);
-    }
-
-    /* ========== MEJORA DEL ACORDEÓN DESPLEGADO ========== */
-    .profesional-detalle {
-        display: none;
-        padding: 0 24px 24px;
-        border-top: 1px solid var(--border);
-        background: #fafbfc;
-        border-radius: 0 0 var(--radius) var(--radius);
-    }
-
-    .profesional-detalle.active {
-        display: block;
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .detalle-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px 40px;
-        padding-top: 24px;
-    }
-
-    .detalle-section {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .detalle-section h4 {
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #6b7280;
-        margin: 0 0 4px 0;
-        border-bottom: 1px solid #e5e7eb;
-        padding-bottom: 4px;
-    }
-
-    .detalle-section p {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        margin: 0;
-        line-height: 1.5;
-    }
-
-    .precio-destacado {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--success);
-        margin-top: 4px !important;
-    }
-
-    .obras-sociales-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 4px;
-    }
-
-    .os-badge {
-        font-size: 0.7rem;
-        padding: 4px 12px;
-        border-radius: 9999px;
-        background: #ede9fe;
-        color: #5b21b6;
-        font-weight: 500;
-    }
-
-    .detalle-section.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .contacto-linea {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 2px;
-    }
-    .contacto-linea i {
-        width: 16px;
-        color: #9ca3af;
-    }
-
-    /* ========== BOTÓN FLOTANTE DE ACCIÓN (CTA) - A LA IZQUIERDA ========== */
-    .btn-flotante-turno {
-        position: fixed;
-        left: 20px;
-        bottom: 20px;
-        /* Protección contra la barra inferior de móviles (iPhone) */
-        bottom: calc(20px + env(safe-area-inset-bottom));
-        
-        background: var(--success);
-        color: white;
-        padding: 16px 28px;
-        border-radius: 9999px;
-        font-weight: 600;
-        font-size: 1rem;
-        box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4);
-        text-decoration: none;
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-    }
-
-    .btn-flotante-turno:hover {
-        background: #047857;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5);
-        color: white;
-    }
-
-    /* ========== MENSAJE SIN RESULTADOS ========== */
-    .sin-resultados {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--text-muted);
-        display: none;
-    }
-
-    .sin-resultados.visible {
-        display: block;
-    }
-
-    .sin-resultados i {
-        font-size: 3rem;
-        display: block;
-        margin-bottom: 12px;
-        opacity: 0.5;
-    }
-
-    /* ========== INFO DEL CONSULTORIO ========== */
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-    }
-
-    .info-card {
-        background: white;
-        border-radius: var(--radius);
-        padding: 24px 20px;
-        text-align: center;
-        border: 1px solid var(--border);
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    .info-card .icono {
-        font-size: 1.8rem;
-        margin-bottom: 8px;
-    }
-
-    .info-card h4 {
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-muted);
-        margin: 0 0 4px 0;
-    }
-
-    .info-card p {
-        color: var(--text);
-        font-weight: 500;
-        font-size: 0.95rem;
-        margin: 0;
-    }
-
-    /* ========== FOOTER ========== */
-    .footer {
-        width: 100%;
-        background: #0f172a;
-        color: #94a3b8;
-        padding: 20px 0 40px 0; /* Padding inferior extra para no chocar con los botones */
-        font-size: 0.85rem;
-    }
-
-    .footer-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .footer a {
-        color: #60a5fa;
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    .footer a:hover {
-        color: #93c5fd;
-    }
-
-    /* ========== MEDIA QUERIES ========== */
-    @media (max-width: 768px) {
-        .hero-consultorio { padding: 60px 0 50px 0; }
-        .section { padding: 40px 0; }
-        .filtro-pildora { font-size: 0.78rem; padding: 6px 14px; }
-        .profesional-header { flex-wrap: wrap; padding: 16px; }
-        .profesional-actions { width: 100%; justify-content: flex-end; padding-top: 8px; }
-        .detalle-grid { grid-template-columns: 1fr; gap: 16px; }
-        .profesional-detalle { padding: 0 16px 20px; }
-        .info-grid { grid-template-columns: 1fr; }
-        .footer-content { flex-direction: column; text-align: center; }
-        
-        .btn-flotante-turno {
-            width: auto;
-            padding: 14px 20px;
-            font-size: 0.9rem;
-            left: 15px;
-            bottom: calc(15px + env(safe-area-inset-bottom));
+    <!-- Colores personalizados del consultorio -->
+        <style>
+        :root {
+            /* Colores personalizados del consultorio */
+            --primary: {{ cliente.color_primario|default:'#2563eb' }};
+            --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
+
+            /* --- VARIABLES DE GRISES (IMPORTANTE PARA LA NAVBAR) --- */
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
         }
-    }
-</style>
+        
+        .hero-consultorio {
+            {% if cliente.hero_imagen %}
+                background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{{ cliente.hero_imagen.url }}');
+                background-size: cover;
+                background-position: center;
+            {% else %}
+                background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{% static "img/consultorio_default.jpg" %}');
+                background-size: cover;
+                background-position: center;
+            {% endif %}
+        }
+
+        
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="landing">
 
-    <!-- ========== HERO ========== -->   
-    <section class="hero-consultorio" style="background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{% static 'img/consultorio.jpg' %}'); background-size: cover; background-position: center;">
+    <!-- ========== HERO ========== -->
+    <section class="hero-consultorio">
         <div class="hero-consultorio-content">
             <div class="hero-badge">
-                <i class="fas fa-calendar-check"></i> Turnos Online 24/7
+                <i class="fas fa-calendar-check"></i> 
+                {{ cliente.hero_badge_texto|default:'Turnos Online 24/7' }}
             </div>
-            <h1>{{ cliente.nombre }}</h1>
-            <p>Atención profesional de calidad. Reservá tu turno en segundos, sin llamadas ni esperas.</p>
+            <h1>{{ cliente.hero_titulo|default:cliente.nombre }}</h1>
+            <p>{{ cliente.hero_subtitulo|default:'Atención profesional de calidad. Reservá tu turno en segundos, sin llamadas ni esperas.' }}</p>
             <a href="#profesionales" class="btn-hero-consultorio">
-                <i class="fas fa-calendar-plus"></i> Ver Profesionales y Sacar Turno
+                <i class="fas fa-calendar-plus"></i> 
+                {{ cliente.hero_boton_texto|default:'Ver Profesionales y Sacar Turno' }}
             </a>
         </div>
     </section>
 
     <!-- ========== PROFESIONALES ========== -->
+    {% if cliente.mostrar_profesionales %}
     <section id="profesionales" class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
@@ -585,7 +73,7 @@
                 <p class="section-subtitle">Filtrá por especialidad y elegí con quién querés atenderte.</p>
             </div>
             
-            <!-- ========== FILTROS DE ESPECIALIDAD ========== -->
+            <!-- Filtros de especialidad -->
             <div class="filtros-especialidades" id="filtros-container">
                 <span class="filtro-pildora active" data-especialidad="todas">
                     Todos <span class="count">({{ profesionales|length }})</span>
@@ -627,22 +115,15 @@
                                 {% if prof.obras_sociales.exists %}
                                     <span class="tag tag-os">🏥 Obras Sociales</span>
                                 {% endif %}
-                                {% if prof.get_servicios_list %}
-                                    {% for servicio in prof.get_servicios_list|slice:":2" %}
-                                        <span class="tag">{{ servicio }}</span>
-                                    {% endfor %}
-                                {% endif %}
                             </div>
                         </div>
                         
                         <div class="profesional-actions">
                             {% if prof.atiende_por_orden %}
-                                <span >
-                                    Orden de Llegada
-                                </span>
+                                <span>Orden de Llegada</span>
                             {% else %}
                                 <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=prof.id %}" 
-                                class="btn-sacar-turno" onclick="event.stopPropagation();">
+                                   class="btn-sacar-turno" onclick="event.stopPropagation();">
                                     <i class="fas fa-calendar-plus"></i> Sacar Turno
                                 </a>
                             {% endif %}
@@ -652,10 +133,9 @@
                         </div>
                     </div>
                     
-                    <!-- ========== ACORDEÓN MEJORADO ========== -->
+                    <!-- Detalle desplegable -->
                     <div class="profesional-detalle" id="ficha-{{ prof.id }}">
                         <div class="detalle-grid">
-                            
                             {% if prof.descripcion %}
                             <div class="detalle-section full-width">
                                 <h4>Sobre {{ prof.nombre }}</h4>
@@ -692,15 +172,18 @@
                                 {% endif %}
                             </div>
 
-                            <div class="detalle-section" style="{% if not prof.descripcion %}grid-column: 1 / -1;{% endif %}">
+                            <div class="detalle-section">
                                 <h4>📞 Contacto Directo</h4>
                                 {% if prof.telefono %}
-                                    <a href="https://wa.me/54{{ prof.telefono|cut:' '|cut:'-' }}" target="_blank" class="contacto-linea" style="text-decoration: none; color: var(--text-secondary);">
-                                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> Chatear por WhatsApp
+                                    <a href="https://wa.me/54{{ prof.telefono|cut:' '|cut:'-' }}" 
+                                       target="_blank" 
+                                       class="contacto-linea" 
+                                       style="text-decoration: none; color: var(--text-secondary);">
+                                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> 
+                                        Chatear por WhatsApp
                                     </a>
                                 {% endif %}
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -708,8 +191,9 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
-        <!-- ========== INFORMACIÓN DEL CONSULTORIO ========== -->
+    <!-- ========== INFORMACIÓN DEL CONSULTORIO ========== -->
     {% if cliente.establecimiento %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -720,7 +204,9 @@
             
             <div class="info-grid">
                 {% if cliente.establecimiento.direccion %}
-                <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.establecimiento.direccion|urlencode }}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.establecimiento.direccion|urlencode }}" 
+                   target="_blank" 
+                   style="text-decoration: none; color: inherit; display: block;">
                     <div class="info-card" style="cursor: pointer;">
                         <div class="icono">📍</div>
                         <h4>Dirección</h4>
@@ -728,8 +214,10 @@
                     </div>
                 </a>
                 {% endif %}
+                
                 {% if cliente.establecimiento.telefono %}
-                <a href="tel:{{ cliente.establecimiento.telefono }}" style="text-decoration: none; color: inherit; display: block;">
+                <a href="tel:{{ cliente.establecimiento.telefono }}" 
+                   style="text-decoration: none; color: inherit; display: block;">
                     <div class="info-card" style="cursor: pointer;">
                         <div class="icono">📞</div>
                         <h4>Teléfono</h4>
@@ -737,8 +225,10 @@
                     </div>
                 </a>
                 {% endif %}
+                
                 {% if cliente.establecimiento.email %}
-                <a href="mailto:{{ cliente.establecimiento.email }}" style="text-decoration: none; color: inherit; display: block;">
+                <a href="mailto:{{ cliente.establecimiento.email }}" 
+                   style="text-decoration: none; color: inherit; display: block;">
                     <div class="info-card" style="cursor: pointer;">
                         <div class="icono">✉️</div>
                         <h4>Email</h4>
@@ -751,34 +241,18 @@
     </section>
     {% endif %}
 
-    <!-- ========== FOOTER MEJORADO ========== -->
-    <footer class="footer">
-        <div class="container-custom" style="display: flex; flex-direction: column; gap: 20px;">
-            
-            <!-- Primera fila: Datos generales -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
-                
-                <div>
-                    <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Atención al Paciente</h4>
-                    <p style="margin: 0; font-size: 0.85rem;">Lun a Vie: 7:30 a 20:00 hs</p>
-                    <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 a 12:00 hs</p>
-                </div>
-                
-                <div>
-                    <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Laboratorio</h4>
-                    <p style="margin: 0; font-size: 0.85rem;">Extracción: Lun a Vie 7:30 - 10:30 hs</p>
-                    <p style="margin: 0; font-size: 0.85rem;">Sáb: 8:00 - 10:30 hs</p>
-                </div>
-                
-                <div>
-                    <h4 style="color: white; margin: 0 0 8px 0; font-size: 0.85rem;">Contacto</h4>
-                    <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-phone"></i> 387 5 125 955</p>
-                    <p style="margin: 0; font-size: 0.85rem;"><i class="fas fa-envelope"></i> info@consultoriosalta.com</p>
-                </div>
-                
-            </div>
+    <!-- ========== WHATSAPP FLOTANTE ========== -->
+    {% if cliente.telefono_contacto %}
+    <a href="https://wa.me/54{{ cliente.telefono_contacto|cut:' '|cut:'-' }}?text=Hola,%20vengo%20de%20la%20web%20y%20quiero%20consultar%20por%20un%20turno" 
+       target="_blank" 
+       class="whatsapp-flotante">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    {% endif %}
 
-            <!-- Segunda fila: Copyright y Links -->
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="container-custom">
             <div class="footer-content">
                 <span>© {% now "Y" %} {{ cliente.nombre }}</span>
                 <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
@@ -787,9 +261,9 @@
     </footer>
 
 </div>
+{% endblock %}
 
-
-
+{% block extra_js %}
 <script>
 // Filtro por especialidad
 document.addEventListener('DOMContentLoaded', function() {
@@ -799,7 +273,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     filtros.forEach(filtro => {
         filtro.addEventListener('click', function() {
+            // Quitar active de todos
             filtros.forEach(f => f.classList.remove('active'));
+            // Poner active en el clickeado
             this.classList.add('active');
             
             const especialidadSeleccionada = this.dataset.especialidad;
@@ -814,30 +290,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
+            // Mostrar/ocultar mensaje sin resultados
             if (visibleCount === 0) {
                 sinResultados.classList.add('visible');
             } else {
                 sinResultados.classList.remove('visible');
             }
             
+            // Cerrar todos los acordeones abiertos
             document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
         });
     });
 });
 
-// Toggle ficha
+// Toggle ficha (acordeón)
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);
     const flecha = document.getElementById('flecha-' + id.split('-')[1]);
     const isOpen = ficha.classList.contains('active');
     
+    // Cerrar todos los acordeones
     document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
     document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
     
+    // Si estaba cerrado, abrirlo
     if (!isOpen) {
         ficha.classList.add('active');
         flecha.classList.add('open');
+        
+        // Scroll para que se vea bien
         setTimeout(() => {
             const cardRect = header.closest('.profesional-card').getBoundingClientRect();
             if (cardRect.top < 0 || cardRect.bottom > window.innerHeight) {

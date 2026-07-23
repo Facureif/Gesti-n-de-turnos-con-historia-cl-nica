@@ -1,15 +1,20 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Gestionar Obras Sociales - {{ paciente.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/pacientes_shared.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
+<div class="pacientes-container">
     
     <!-- Encabezado -->
     <div class="flex-between mb-6">
         <div>
-            <h1>🏥 Gestionar Obras Sociales y Sesiones</h1>
-            <p style="color: #666; margin-top: 4px;">{{ paciente.nombre_completo }}</p>
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">🏥 Gestionar Obras Sociales y Sesiones</h1>
+            <p style="color: var(--text-muted); margin-top: 4px;">{{ paciente.nombre_completo }}</p>
         </div>
         <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">← Volver a la Ficha</a>
     </div>
@@ -17,9 +22,9 @@
     <!-- Sesiones por Obra Social -->
     {% for os_paciente in obras_sociales_paciente %}
     {% if os_paciente.activa %}
-    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #22c55e;">
-        <div class="card-header flex-between">
-            <h3 class="card-title">
+    <div class="paciente-card" style="border-left: 4px solid #22c55e;">
+        <div class="paciente-card-header">
+            <h3>
                 📊 Sesiones: {{ os_paciente.obra_social.nombre }} ({{ os_paciente.obra_social.sigla }})
                 {% if os_paciente.profesional %} · {{ os_paciente.profesional.nombre_completo }}{% endif %}
             </h3>
@@ -32,47 +37,39 @@
             <input type="hidden" name="os_id" value="{{ os_paciente.id }}">
             
             {% if os_paciente.sesiones_autorizadas %}
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center; margin-bottom: 20px; padding: 16px; background: #f9fafb; border-radius: 10px;">
+            <div class="sesiones-stats-grid">
                 <div>
-                    <div style="font-size: 0.8em; color: #666;">AUTORIZADAS</div>
-                    <div style="font-size: 2em; font-weight: 700; color: #3b82f6;">{{ os_paciente.sesiones_autorizadas }}</div>
+                    <div class="sesiones-stat-etiqueta">Autorizadas</div>
+                    <div class="sesiones-stat-numero autorizadas">{{ os_paciente.sesiones_autorizadas }}</div>
                 </div>
                 <div>
-                    <div style="font-size: 0.8em; color: #666;">RESTANTES</div>
-                    <div style="font-size: 2em; font-weight: 700; {% if os_paciente.sesiones_restantes <= 3 %}color: #ef4444;{% elif os_paciente.sesiones_restantes <= 7 %}color: #f59e0b;{% else %}color: #10b981;{% endif %}">
+                    <div class="sesiones-stat-etiqueta">Restantes</div>
+                    <div class="sesiones-stat-numero restantes" style="{% if os_paciente.sesiones_restantes <= 3 %}color: var(--danger);{% elif os_paciente.sesiones_restantes <= 7 %}color: #f59e0b;{% endif %}">
                         {{ os_paciente.sesiones_restantes|default:"—" }}
                     </div>
                 </div>
-                <!-- <div>
-                    <div style="font-size: 0.8em; color: #666;">USADAS</div>
-                    <div style="font-size: 2em; font-weight: 700; color: #6b7280;">
-                        {{ os_paciente.sesiones_autorizadas|add:"-"|add:os_paciente.sesiones_restantes }}
-                    </div>
-                </div> -->
                 <div>
-                    <div style="font-size: 0.8em; color: #666;">VENCE</div>
-                    <div style="font-size: 1.5em; font-weight: 700; {% if os_paciente.fecha_vencimiento and os_paciente.fecha_vencimiento < hoy %}color: #ef4444;{% else %}color: #6b7280;{% endif %}">
+                    <div class="sesiones-stat-etiqueta">Vence</div>
+                    <div class="sesiones-stat-numero vencimiento" style="{% if os_paciente.fecha_vencimiento and os_paciente.fecha_vencimiento < hoy %}color: var(--danger);{% endif %}">
                         {{ os_paciente.fecha_vencimiento|date:"d/m/Y"|default:"—" }}
                     </div>
                 </div>
             </div>
             
-            <div style="margin-bottom: 20px;">
-                <div style="background: #e5e7eb; border-radius: 8px; height: 10px; overflow: hidden;">
-                    <div style="width: {% widthratio os_paciente.sesiones_autorizadas|add:'-'|add:os_paciente.sesiones_restantes os_paciente.sesiones_autorizadas 100 %}%; 
-                                height: 100%; 
-                                background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444); 
-                                border-radius: 8px;"></div>
-                </div>
+            <div class="sesiones-barra">
+                <div class="sesiones-barra-progreso" style="width: {% widthratio os_paciente.sesiones_autorizadas|add:'-'|add:os_paciente.sesiones_restantes os_paciente.sesiones_autorizadas 100 %}%;"></div>
             </div>
             {% endif %}
             
-            <div style="background: #f0f9ff; padding: 16px; border-radius: 8px;">
-                <h4 style="margin: 0 0 12px 0;">✏️ Editar Sesiones</h4>
+            <div style="background: #f0f9ff; padding: 16px; border-radius: var(--radius); margin-top: 16px;">
+                <h4 style="margin: 0 0 12px 0; font-size: 0.95rem;">✏️ Editar Sesiones</h4>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                    <input type="number" name="sesiones_autorizadas" value="{{ os_paciente.sesiones_autorizadas|default:'' }}" placeholder="Autorizadas" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    <input type="number" name="sesiones_restantes" value="{{ os_paciente.sesiones_restantes|default:'' }}" placeholder="Restantes" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                    <input type="date" name="fecha_vencimiento" value="{{ os_paciente.fecha_vencimiento|date:'Y-m-d'|default:'' }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <input type="number" name="sesiones_autorizadas" value="{{ os_paciente.sesiones_autorizadas|default:'' }}" 
+                           placeholder="Autorizadas" class="form-input">
+                    <input type="number" name="sesiones_restantes" value="{{ os_paciente.sesiones_restantes|default:'' }}" 
+                           placeholder="Restantes" class="form-input">
+                    <input type="date" name="fecha_vencimiento" value="{{ os_paciente.fecha_vencimiento|date:'Y-m-d'|default:'' }}" 
+                           class="form-input">
                 </div>
                 <button type="submit" class="btn btn-success btn-sm" style="margin-top: 10px;">💾 Guardar</button>
             </div>
@@ -82,9 +79,9 @@
     {% endfor %}
 
     <!-- Obras Sociales -->
-    <div class="card" style="margin-bottom: 24px;">
-        <div class="card-header flex-between">
-            <h3 class="card-title">🏥 Obras Sociales del Paciente</h3>
+    <div class="paciente-card">
+        <div class="paciente-card-header">
+            <h3>🏥 Obras Sociales del Paciente</h3>
             <button class="btn btn-primary btn-sm" onclick="toggleFormOS()">➕ Agregar Obra Social</button>
         </div>
         
@@ -92,26 +89,32 @@
             {% if obras_sociales_paciente %}
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 {% for os_paciente in obras_sociales_paciente %}
-                <div style="display: flex; align-items: center; justify-content: space-between; 
-                            padding: 16px; 
-                            background: {% if os_paciente.activa %}#f0fdf4{% else %}#f9fafb{% endif %}; 
-                            border-radius: 10px; 
-                            border: 2px solid {% if os_paciente.activa %}#22c55e{% else %}#e5e7eb{% endif %};">
+                <div class="os-card {% if os_paciente.activa %}activa{% else %}inactiva{% endif %}" 
+                     style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                     <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                            <strong style="font-size: 1.1em;">{{ os_paciente.obra_social.nombre }}</strong>
-                            <span class="badge badge-info">{{ os_paciente.obra_social.sigla }}</span>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                            <strong>{{ os_paciente.obra_social.nombre }}</strong>
+                            <span class="sigla-badge">{{ os_paciente.obra_social.sigla }}</span>
                             {% if os_paciente.activa %}
                                 <span class="badge badge-success">⭐ Activa</span>
                             {% else %}
                                 <span class="badge badge-gray">📦 Inactiva</span>
                             {% endif %}
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9em; color: #666;">
-                            <div><strong>N° Afiliado:</strong> {{ os_paciente.numero_afiliado|default:"—" }}</div>
-                            <div><strong>Plan:</strong> {{ os_paciente.plan.nombre|default:"Básico" }}</div>
+                        <div class="os-card-detalle">
+                            <div class="detalle-item">
+                                <span class="detalle-etiqueta">N° Afiliado:</span>
+                                <span class="detalle-valor">{{ os_paciente.numero_afiliado|default:"—" }}</span>
+                            </div>
+                            <div class="detalle-item">
+                                <span class="detalle-etiqueta">Plan:</span>
+                                <span class="detalle-valor">{{ os_paciente.plan.nombre|default:"Básico" }}</span>
+                            </div>
                             {% if os_paciente.profesional %}
-                            <div style="grid-column: 1 / -1;"><strong>Profesional:</strong> {{ os_paciente.profesional.nombre_completo }}</div>
+                            <div class="detalle-item" style="grid-column: 1 / -1;">
+                                <span class="detalle-etiqueta">Profesional:</span>
+                                <span class="detalle-valor">{{ os_paciente.profesional.nombre_completo }}</span>
+                            </div>
                             {% endif %}
                         </div>
                     </div>
@@ -138,8 +141,8 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div style="text-align: center; padding: 40px; color: #999;">
-                <p style="font-size: 3em;">🏥</p>
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <p style="font-size: 3rem;">🏥</p>
                 <p>Sin obras sociales registradas</p>
                 <small>Agregá una obra social para empezar</small>
             </div>
@@ -154,18 +157,18 @@
                 <input type="hidden" name="accion" value="agregar_obra_social">
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">Obra Social *</label>
-                        <select name="obra_social" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <div class="form-group">
+                        <label>Obra Social <span class="required">*</span></label>
+                        <select name="obra_social" required class="form-select">
                             <option value="">Seleccionar...</option>
                             {% for os in obras_sociales_disponibles %}
                             <option value="{{ os.id }}">{{ os.nombre }} ({{ os.sigla }})</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">Plan</label>
-                        <select name="plan" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <div class="form-group">
+                        <label>Plan</label>
+                        <select name="plan" class="form-select">
                             <option value="">— Seleccionar plan —</option>
                             {% for os in obras_sociales_disponibles %}
                                 {% for plan in os.planes.all %}
@@ -174,10 +177,9 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500;">N° de Afiliado</label>
-                        <input type="text" name="numero_afiliado" placeholder="Ej: 123456"
-                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <div class="form-group">
+                        <label>N° de Afiliado</label>
+                        <input type="text" name="numero_afiliado" placeholder="Ej: 123456" class="form-input">
                     </div>
                 </div>
                 

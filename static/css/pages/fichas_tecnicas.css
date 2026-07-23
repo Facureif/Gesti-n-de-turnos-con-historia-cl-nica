@@ -1,0 +1,591 @@
+/* =============================================
+   FICHAS TÉCNICAS - Base y especialidades
+   ============================================= */
+
+/* Contenedor principal */
+.ficha-tecnica-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+/* Header de la ficha */
+.ficha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.ficha-header-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.ficha-header-icono {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.ficha-header-texto h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.ficha-header-texto p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.ficha-header-texto .especialidad-badge {
+    color: #7c3aed;
+    font-weight: 500;
+}
+
+.ficha-header-acciones {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* =============================================
+   CARDS DE LA FICHA
+   ============================================= */
+.ficha-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    overflow: visible;
+}
+
+.ficha-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-alt);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ficha-card-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.ficha-card-body {
+    padding: 20px;
+}
+
+/* Card con borde izquierdo de color */
+.ficha-card.borde-primario { border-left: 4px solid var(--primary); }
+.ficha-card.borde-success { border-left: 4px solid var(--success); }
+.ficha-card.borde-danger { border-left: 4px solid var(--danger); }
+.ficha-card.borde-warning { border-left: 4px solid #f59e0b; }
+.ficha-card.borde-purpura { border-left: 4px solid #7c3aed; }
+.ficha-card.borde-rosa { border-left: 4px solid #e83e8c; }
+.ficha-card.borde-gray { border-left: 4px solid var(--gray-500); }
+
+/* =============================================
+   GRID DE 2 COLUMNAS
+   ============================================= */
+.ficha-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+/* =============================================
+   CAMPOS DE FORMULARIO
+   ============================================= */
+.ficha-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.ficha-input:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.ficha-input:disabled,
+.ficha-input[readonly] {
+    background: var(--bg-alt);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.ficha-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.ficha-select:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.ficha-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.ficha-textarea:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.ficha-file-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+/* =============================================
+   LABELS Y GRUPOS
+   ============================================= */
+.ficha-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.ficha-label .required {
+    color: var(--danger);
+}
+
+.ficha-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ficha-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ficha-form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* =============================================
+   CHECKBOXES
+   ============================================= */
+.ficha-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.ficha-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #7c3aed;
+}
+
+.ficha-checkboxes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+/* =============================================
+   BADGES DE ESPECIALIDAD
+   ============================================= */
+.ficha-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.ficha-badge-info { background: #e0f2fe; color: #0369a1; }
+.ficha-badge-success { background: #dcfce7; color: #15803d; }
+.ficha-badge-warning { background: #fef3c7; color: #92400e; }
+.ficha-badge-danger { background: #fee2e2; color: #991b1b; }
+.ficha-badge-purpura { background: #ede9fe; color: #5b21b6; }
+.ficha-badge-gray { background: var(--bg-alt); color: var(--text-muted); }
+
+/* Badge de tipo de nota/observación */
+.ficha-badge-tipo {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.ficha-badge-tipo.observacion { background: #e0f2fe; color: #0369a1; }
+.ficha-badge-tipo.resultado { background: #dcfce7; color: #15803d; }
+.ficha-badge-tipo.interconsulta { background: #fef3c7; color: #92400e; }
+.ficha-badge-tipo.indicacion { background: #ede9fe; color: #5b21b6; }
+.ficha-badge-tipo.otro { background: var(--bg-alt); color: var(--text-muted); }
+
+/* =============================================
+   TABLAS EN FICHAS
+   ============================================= */
+.ficha-tabla-container {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.ficha-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    overflow: visible;
+}
+
+.ficha-tabla thead th {
+    background: var(--bg-alt);
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+
+.ficha-tabla tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    position: relative;
+}
+
+.ficha-tabla tbody tr:hover {
+    background: var(--bg-alt);
+}
+
+.ficha-tabla .fecha-col {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* =============================================
+   NOTAS E HISTORIAL
+   ============================================= */
+.ficha-nota-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 130px 1fr auto;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.ficha-nota-item:last-child {
+    border-bottom: none;
+}
+
+.ficha-nota-fecha {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.ficha-nota-titulo {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.ficha-nota-contenido {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+}
+
+.ficha-nota-meta {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 6px;
+}
+
+.ficha-nota-acciones {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* =============================================
+   TOOLTIPS
+   ============================================= */
+.ficha-tooltip {
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px dotted var(--text-muted);
+    display: inline-block;
+    max-width: 100%;
+}
+
+.ficha-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background-color: #1f2937;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 400px;
+    min-width: 200px;
+    z-index: 9999;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-lg);
+    line-height: 1.5;
+    text-align: left;
+    pointer-events: none;
+}
+
+.ficha-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #1f2937;
+    z-index: 9999;
+    margin-bottom: -6px;
+    pointer-events: none;
+}
+
+/* =============================================
+   GRÁFICO DE EVOLUCIÓN (nutrición)
+   ============================================= */
+.ficha-grafico-container {
+    padding: 20px;
+    overflow-x: auto;
+}
+
+.ficha-grafico-barras {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    min-height: 200px;
+    min-width: fit-content;
+}
+
+.ficha-grafico-item {
+    flex: 0 0 auto;
+    min-width: 60px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ficha-grafico-valor {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.ficha-grafico-valor.actual {
+    color: var(--success);
+}
+
+.ficha-grafico-barra {
+    width: 50px;
+    min-height: 20px;
+    background: var(--primary);
+    border-radius: var(--radius) var(--radius) 0 0;
+    transition: all 0.3s ease;
+}
+
+.ficha-grafico-barra.actual {
+    background: var(--success);
+}
+
+.ficha-grafico-fecha {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    white-space: nowrap;
+}
+
+.ficha-grafico-tendencia {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* =============================================
+   IMC (compartido entre kinesio y nutrición)
+   ============================================= */
+.ficha-imc-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.ficha-imc-resultado {
+    display: block;
+    margin-top: 4px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   ESTADO VACÍO
+   ============================================= */
+.ficha-empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.ficha-empty .icono {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.ficha-empty p {
+    margin: 0 0 4px 0;
+}
+
+.ficha-empty small {
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   BOTONES PEQUEÑOS
+   ============================================= */
+.ficha-btn-xs {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: inherit;
+    transition: all 0.15s ease;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .ficha-tecnica-page {
+        padding: 0 16px 32px;
+    }
+    
+    .ficha-header {
+        flex-direction: column;
+    }
+    
+    .ficha-header-acciones {
+        width: 100%;
+    }
+    
+    .ficha-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .ficha-nota-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .ficha-nota-acciones {
+        justify-self: end;
+    }
+    
+    .ficha-form-row,
+    .ficha-form-row-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .ficha-checkboxes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ficha-header-icono {
+        font-size: 2rem;
+    }
+    
+    .ficha-header-texto h1 {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .ficha-card-body {
+        padding: 14px;
+    }
+    
+    .ficha-tabla thead th,
+    .ficha-tabla tbody td {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+}

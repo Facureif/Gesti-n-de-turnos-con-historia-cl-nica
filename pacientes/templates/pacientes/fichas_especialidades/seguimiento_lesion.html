@@ -1,63 +1,70 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Seguimiento - {{ lesion.zona }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/fichas_tecnicas.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+<div class="ficha-tecnica-page">
+
+    <!-- Header -->
+    <div class="ficha-header">
         <div>
-            <h1>📝 Seguimiento de Lesión</h1>
-            <p>{{ paciente.nombre_completo }} · {{ lesion.zona }} · {{ lesion.get_tipo_lesion_display }}</p>
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">📝 Seguimiento de Lesión</h1>
+            <p style="color: var(--text-muted); margin-top: 4px;">
+                {{ paciente.nombre_completo }} · {{ lesion.zona }} · {{ lesion.get_tipo_lesion_display }}
+            </p>
         </div>
         <a href="{% url 'ficha_tecnica' paciente.id %}" class="btn btn-secondary btn-sm">← Volver</a>
     </div>
 
     <!-- Info de la lesión -->
-    <div class="card" style="margin-bottom: 24px; background: #f8f9fa;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px;">
-            <div>
-                <strong>Fecha:</strong> {{ lesion.fecha_lesion|date:"d/m/Y" }}
+    <div class="ficha-card" style="background: var(--bg-alt);">
+        <div class="ficha-card-body">
+            <div class="ficha-form-row">
+                <div>
+                    <strong>Fecha:</strong> {{ lesion.fecha_lesion|date:"d/m/Y" }}
+                </div>
+                <div>
+                    <strong>Estado:</strong> 
+                    {% if lesion.resuelta %}
+                        ✅ Resuelta ({{ lesion.fecha_resolucion|date:"d/m/Y" }})
+                    {% else %}
+                        ⚠️ Activa
+                    {% endif %}
+                </div>
             </div>
-            <div>
-                <strong>Estado:</strong> 
-                {% if lesion.resuelta %}
-                    ✅ Resuelta ({{ lesion.fecha_resolucion|date:"d/m/Y" }})
-                {% else %}
-                    ⚠️ Activa
-                {% endif %}
-            </div>
-            <div style="grid-column: 1 / -1;">
+            <div style="margin-top: 8px;">
                 <strong>Tratamiento:</strong> {{ lesion.tratamiento|default:"No especificado" }}
             </div>
         </div>
     </div>
 
-    <!-- Formulario de nuevo seguimiento -->
-    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #007bff;">
-        <div class="card-header flex-between">
-            <h3 class="card-title">➕ Nuevo Registro de Progreso</h3>
+    <!-- Nuevo seguimiento -->
+    <div class="ficha-card borde-primario">
+        <div class="ficha-card-header">
+            <h3>➕ Nuevo Registro de Progreso</h3>
             <button class="btn btn-primary btn-sm" onclick="toggleForm()">Mostrar/Ocultar</button>
         </div>
-        <div id="form-seguimiento" style="padding: 16px;">
+        <div id="form-seguimiento" class="ficha-card-body">
             <form method="POST" action="{% url 'agregar_seguimiento' lesion.id %}">
                 {% csrf_token %}
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                <div class="ficha-form-row-3" style="margin-bottom: 14px;">
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Fecha</label>
-                        <input type="date" name="fecha" required value="{% now 'Y-m-d' %}"
-                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <label class="ficha-label">Fecha <span class="required">*</span></label>
+                        <input type="date" name="fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Peso trabajo (kg)</label>
-                        <input type="number" name="peso_trabajo_kg" step="0.5"
-                               placeholder="Ej: 5"
-                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <label class="ficha-label">Peso trabajo (kg)</label>
+                        <input type="number" name="peso_trabajo_kg" step="0.5" placeholder="Ej: 5" class="ficha-input">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Nivel de dolor (0-10)</label>
-                        <select name="nivel_dolor" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <label class="ficha-label">Nivel de dolor (0-10)</label>
+                        <select name="nivel_dolor" class="ficha-select">
                             <option value="">—</option>
                             <option value="0">0 - Sin dolor</option>
                             <option value="1">1</option><option value="2">2</option>
@@ -69,18 +76,16 @@
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Series</label>
-                        <input type="number" name="series" placeholder="Ej: 3"
-                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <label class="ficha-label">Series</label>
+                        <input type="number" name="series" placeholder="Ej: 3" class="ficha-input">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Repeticiones</label>
-                        <input type="number" name="repeticiones" placeholder="Ej: 10"
-                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <label class="ficha-label">Repeticiones</label>
+                        <input type="number" name="repeticiones" placeholder="Ej: 10" class="ficha-input">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Rango de movimiento</label>
-                        <select name="rango_movimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <label class="ficha-label">Rango de movimiento</label>
+                        <select name="rango_movimiento" class="ficha-select">
                             <option value="">—</option>
                             <option value="muy_limitado">Muy limitado</option>
                             <option value="limitado">Limitado</option>
@@ -91,16 +96,16 @@
                     </div>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="ficha-form-row">
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Ejercicios realizados</label>
-                        <textarea name="ejercicios_realizados" rows="2" placeholder="Describí los ejercicios..."
-                                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                        <label class="ficha-label">Ejercicios realizados</label>
+                        <textarea name="ejercicios_realizados" rows="2" class="ficha-textarea"
+                                  placeholder="Describí los ejercicios..."></textarea>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.9em;">Observaciones</label>
-                        <textarea name="observaciones" rows="2" placeholder="Notas sobre el progreso..."
-                                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                        <label class="ficha-label">Observaciones</label>
+                        <textarea name="observaciones" rows="2" class="ficha-textarea"
+                                  placeholder="Notas sobre el progreso..."></textarea>
                     </div>
                 </div>
                 
@@ -109,20 +114,19 @@
         </div>
     </div>
 
-    <!-- Historial de progreso -->
-    <div class="card">
-        <div class="card-header flex-between">
-            <h3 class="card-title">📈 Historial de Progreso</h3>
+    <!-- Historial -->
+    <div class="ficha-card">
+        <div class="ficha-card-header">
+            <h3>📈 Historial de Progreso</h3>
             {% if seguimientos %}
-            <button class="btn btn-danger btn-sm" onclick="if(confirm('¿Limpiar todo el historial de esta lesión?')){window.location.href='{% url 'limpiar_seguimientos' lesion.id %}'}">
-                🧹 Limpiar Historial
-            </button>
+            <a href="{% url 'limpiar_seguimientos' lesion.id %}" class="btn btn-danger btn-sm"
+               onclick="return confirm('¿Limpiar todo el historial de esta lesión?')">🧹 Limpiar Historial</a>
             {% endif %}
         </div>
         
         {% if seguimientos %}
-        <div class="table-container" style="overflow: visible;">
-            <table style="overflow: visible;">
+        <div class="ficha-tabla-container">
+            <table class="ficha-tabla">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -139,7 +143,7 @@
                 <tbody>
                     {% for s in seguimientos %}
                     <tr>
-                        <td><strong>{{ s.fecha|date:"d/m/Y" }}</strong></td>
+                        <td class="fecha-col">{{ s.fecha|date:"d/m/Y" }}</td>
                         <td>{{ s.peso_trabajo_kg|default:"—" }}</td>
                         <td>{{ s.series|default:"—" }}</td>
                         <td>{{ s.repeticiones|default:"—" }}</td>
@@ -153,30 +157,12 @@
                                 </span>
                             {% else %}—{% endif %}
                         </td>
+                        <td>{% if s.rango_movimiento %}<span class="ficha-badge ficha-badge-info">{{ s.get_rango_movimiento_display }}</span>{% else %}—{% endif %}</td>
+                        <td>{% if s.ejercicios_realizados %}<span class="ficha-tooltip" data-tooltip="{{ s.ejercicios_realizados|escapejs }}">{{ s.ejercicios_realizados|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                        <td>{% if s.observaciones %}<span class="ficha-tooltip" data-tooltip="{{ s.observaciones|escapejs }}">{{ s.observaciones|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
                         <td>
-                            {% if s.rango_movimiento %}
-                                <span class="badge badge-info">{{ s.get_rango_movimiento_display }}</span>
-                            {% else %}—{% endif %}
-                        </td>
-                        <td style="position: relative; overflow: visible;">
-                            {% if s.ejercicios_realizados %}
-                            <span class="tooltip-cell" data-tooltip="{{ s.ejercicios_realizados|escapejs }}">
-                                {{ s.ejercicios_realizados|truncatechars:30 }}
-                            </span>
-                            {% else %}—{% endif %}
-                        </td>
-                        <td style="position: relative; overflow: visible;">
-                            {% if s.observaciones %}
-                            <span class="tooltip-cell" data-tooltip="{{ s.observaciones|escapejs }}">
-                                {{ s.observaciones|truncatechars:30 }}
-                            </span>
-                            {% else %}—{% endif %}
-                        </td>
-                        <td>
-                            <a href="{% url 'eliminar_seguimiento' s.id %}" 
-                               class="btn btn-danger btn-xs"
-                               onclick="return confirm('¿Eliminar este registro?')"
-                               style="padding: 2px 6px; font-size: 0.8em;">🗑️</a>
+                            <a href="{% url 'eliminar_seguimiento' s.id %}" class="btn btn-danger ficha-btn-xs"
+                               onclick="return confirm('¿Eliminar este registro?')">🗑️</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -184,79 +170,14 @@
             </table>
         </div>
         {% else %}
-        <div style="text-align: center; padding: 30px; color: #999;">
+        <div class="ficha-empty">
             <p>📭 Sin registros de progreso</p>
             <small>Comenzá a registrar el avance del tratamiento</small>
         </div>
         {% endif %}
     </div>
+
 </div>
-
-<style>
-/* Estilos para los tooltips */
-.tooltip-cell {
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px dotted #666;
-    display: inline-block;
-    max-width: 100%;
-}
-
-.tooltip-cell:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.85em;
-    white-space: normal;
-    word-wrap: break-word;
-    max-width: 400px;
-    min-width: 250px;
-    z-index: 9999;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-    line-height: 1.5;
-    text-align: left;
-    pointer-events: none;
-}
-
-.tooltip-cell:hover::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 100%;
-    transform: translateX(-50%);
-    border: 8px solid transparent;
-    border-top-color: #333;
-    z-index: 9999;
-    margin-bottom: -6px;
-    pointer-events: none;
-}
-
-/* Asegurar que la celda tenga posición relativa para el tooltip */
-td {
-    position: relative;
-}
-
-/* Hacer que la tabla no corte los tooltips */
-.table-container {
-    overflow: visible !important;
-}
-
-table {
-    overflow: visible !important;
-}
-
-/* Asegurar que el card también permita overflow visible */
-.card {
-    overflow: visible;
-}
-</style>
 
 <script>
 function toggleForm() {

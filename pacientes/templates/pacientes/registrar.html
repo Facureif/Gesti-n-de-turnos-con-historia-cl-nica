@@ -1,18 +1,23 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Registrar Paciente{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/pacientes_form.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 700px; margin: 0 auto;">
-    <div class="page-header">
-        <h1><i class="fas fa-user-plus text-success"></i> Registrar Nuevo Paciente</h1>
+<div class="pacientes-form-container-sm">
+    
+    <div class="pacientes-header">
+        <h1><i class="fas fa-user-plus" style="color: var(--success);"></i> Registrar Nuevo Paciente</h1>
         <p>Completá los datos para crear un nuevo paciente</p>
     </div>
     
     <form method="post">
         {% csrf_token %}
         
-        <!-- Datos Personales -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -20,70 +25,47 @@
                 </h3>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Nombre <span style="color: var(--danger);">*</span>
-                    </label>
-                    <input type="text" name="nombre" required 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
-                           placeholder="Ingresá el nombre">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Nombre <span class="required">*</span></label>
+                    <input type="text" name="nombre" required class="form-input" placeholder="Ingresá el nombre">
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Apellido <span style="color: var(--danger);">*</span>
-                    </label>
-                    <input type="text" name="apellido" required 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
-                           placeholder="Ingresá el apellido">
+                
+                <div class="form-group">
+                    <label>Apellido <span class="required">*</span></label>
+                    <input type="text" name="apellido" required class="form-input" placeholder="Ingresá el apellido">
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        DNI <span style="color: var(--danger);">*</span>
-                    </label>
-                    <input type="text" name="dni" required 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
-                           placeholder="Sin puntos ni espacios">
+                
+                <div class="form-group">
+                    <label>DNI <span class="required">*</span></label>
+                    <input type="text" name="dni" required class="form-input" placeholder="Sin puntos ni espacios">
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Fecha de Nacimiento <span style="color: var(--danger);">*</span>
-                    </label>
-                    <input type="date" name="fecha_nacimiento" required 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                
+                <div class="form-group">
+                    <label>Fecha de Nacimiento <span class="required">*</span></label>
+                    <input type="date" name="fecha_nacimiento" required class="form-input">
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Teléfono <span style="color: var(--danger);">*</span>
-                    </label>
-                    <input type="text" name="telefono" required 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
-                           placeholder="Ej: 11 2345-6789">
+                
+                <div class="form-group">
+                    <label>Teléfono <span class="required">*</span></label>
+                    <input type="text" name="telefono" required class="form-input" placeholder="Ej: 11 2345-6789">
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                        Email
-                    </label>
-                    <input type="email" name="email" 
-                           style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
-                           placeholder="ejemplo@correo.com">
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-input" placeholder="ejemplo@correo.com">
                 </div>
             </div>
         </div>
         
-        <button type="submit" class="btn btn-success btn-lg" style="width: 100%; padding: 16px; font-size: 1.1rem; margin-top: 24px; justify-content: center;">
+        <button type="submit" class="btn btn-success btn-submit-block">
             <i class="fas fa-user-plus"></i> Registrar Paciente
         </button>
         
-        <div style="text-align: center; margin-top: 16px; color: var(--gray-500); font-size: 0.85rem;">
+        <p class="form-nota">
             💡 Después del registro podrás agregar la obra social desde la ficha del paciente
-        </div>
+        </p>
     </form>
+    
 </div>
 {% endblock %}

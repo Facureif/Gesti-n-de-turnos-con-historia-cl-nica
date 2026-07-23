@@ -1,0 +1,161 @@
+/* =============================================
+   PORTAL - Lista de profesionales para sacar turno
+   ============================================= */
+
+/* Hero del portal */
+.portal-hero {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.portal-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.portal-hero p {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Contenedor */
+.portal-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+}
+
+/* Grid de profesionales */
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+/* Card de profesional */
+.portal-profesional-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 28px 20px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.portal-profesional-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.portal-profesional-card .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.portal-profesional-card .avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.portal-profesional-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.portal-profesional-card .especialidad {
+    color: var(--primary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.portal-profesional-card .consultorios-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+}
+
+.portal-profesional-card .consultorio-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--bg-alt);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.portal-profesional-card .btn-sacar-turno {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: white;
+    padding: 10px 24px;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-top: auto;
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.portal-profesional-card .btn-sacar-turno:hover {
+    background: var(--primary-dark);
+    transform: scale(1.02);
+}
+
+/* Footer del portal */
+.portal-footer {
+    background: var(--gray-900);
+    color: var(--gray-400);
+    padding: 20px 0;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.portal-footer a {
+    color: #60a5fa;
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .portal-hero {
+        padding: 40px 0;
+    }
+    
+    .portal-hero h1 {
+        font-size: 1.5rem;
+    }
+    
+    .portal-grid {
+        grid-template-columns: 1fr;
+    }
+}

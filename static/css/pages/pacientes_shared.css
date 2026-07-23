@@ -1,0 +1,424 @@
+/* =============================================
+   PACIENTES - Cards, tablas y elementos compartidos
+   ============================================= */
+
+/* Card de datos */
+.paciente-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.paciente-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.paciente-card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Grid de 2 columnas para layout */
+.pacientes-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 0;
+}
+
+.pacientes-grid-full {
+    grid-column: 1 / -1;
+}
+
+/* Fila de dato */
+.dato-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.dato-fila:last-child {
+    border-bottom: none;
+}
+
+.dato-etiqueta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.dato-valor {
+    font-weight: 500;
+    color: var(--text);
+    text-align: right;
+}
+
+.dato-valor a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.dato-valor a:hover {
+    text-decoration: underline;
+}
+
+/* Nombre del paciente en grande */
+.paciente-nombre-grande {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 16px 0;
+}
+
+/* Obra social card */
+.os-card {
+    padding: 14px;
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    border: 2px solid var(--border);
+}
+
+.os-card.activa {
+    background: #f0fdf4;
+    border-color: #22c55e;
+}
+
+.os-card.inactiva {
+    background: var(--bg-alt);
+    border-color: var(--border);
+}
+
+.os-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.os-card-header .os-nombre {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.os-card-detalle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.os-card-detalle .detalle-item {
+    display: flex;
+    gap: 4px;
+}
+
+.os-card-detalle .detalle-etiqueta {
+    color: var(--text-muted);
+}
+
+.os-card-detalle .detalle-valor {
+    font-weight: 500;
+    color: var(--text);
+}
+
+/* Sesiones */
+.sesiones-info {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+}
+
+.sesiones-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.sesiones-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sesiones-stats .separador {
+    color: var(--border);
+}
+
+/* Barra de progreso de sesiones */
+.sesiones-barra {
+    margin-top: 8px;
+    background: var(--gray-200);
+    border-radius: var(--radius);
+    height: 8px;
+    overflow: hidden;
+}
+
+.sesiones-barra-progreso {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+    border-radius: var(--radius);
+}
+
+/* Antecedentes clínicos */
+.antecedentes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 16px;
+}
+
+.antecedente-card {
+    padding: 16px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--primary);
+}
+
+.antecedente-card h4 {
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.antecedente-card p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.antecedente-card.alergias {
+    border-left-color: var(--danger);
+}
+
+.antecedente-card.medicacion {
+    border-left-color: var(--success);
+}
+
+.antecedente-card.familiares {
+    border-left-color: #8b5cf6;
+}
+
+/* =============================================
+   BARRA DE BÚSQUEDA
+   ============================================= */
+.busqueda-container {
+    margin-bottom: 24px;
+}
+
+.busqueda-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.busqueda-input-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.busqueda-input {
+    width: 100%;
+    padding: 14px 16px 14px 44px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.busqueda-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.busqueda-input::placeholder {
+    color: var(--text-muted);
+}
+
+.busqueda-boton {
+    padding: 14px 28px;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+/* Contador de resultados */
+.resultados-contador {
+    font-size: 0.85rem;
+}
+
+/* Badge de sigla */
+.sigla-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--info-light);
+    color: #155e75;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Monto destacado */
+.monto-destacado {
+    font-weight: 700;
+    color: var(--success);
+}
+
+.monto-os {
+    font-size: 0.75rem;
+    color: var(--primary);
+}
+
+.monto-coseguro {
+    font-size: 0.75rem;
+    color: var(--danger);
+}
+
+/* =============================================
+   ESTADÍSTICAS DE SESIONES
+   ============================================= */
+.sesiones-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+}
+
+.sesiones-stat-numero {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.sesiones-stat-numero.autorizadas { color: var(--primary); }
+.sesiones-stat-numero.restantes { color: var(--success); }
+.sesiones-stat-numero.vencimiento { 
+    font-size: 1.5rem; 
+    color: var(--text-secondary);
+}
+
+.sesiones-stat-etiqueta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* =============================================
+   BOTONES DE ACCIÓN EN CABECERA
+   ============================================= */
+.acciones-header {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-accion-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    color: white;
+}
+
+.btn-accion-header:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-ficha-tecnica { background: #7c3aed; }
+.btn-ficha-tecnica:hover { background: #6d28d9; }
+
+.btn-estudios { background: #0ea5e9; }
+.btn-estudios:hover { background: #0284c7; }
+
+.btn-pagar { background: #22c55e; }
+.btn-pagar:hover { background: #16a34a; }
+
+.btn-reserva-multiple { background: #8b5cf6; }
+.btn-reserva-multiple:hover { background: #7c3aed; }
+
+/* =============================================
+   ESPACIADO ADICIONAL
+   ============================================= */
+
+/* Espacio entre el header y el contenido */
+.pacientes-header + .card,
+.pacientes-header + .pacientes-grid-2 {
+    margin-top: 8px;
+}
+
+/* El contenido dentro de las cards respira mejor */
+.paciente-card > div:not(.paciente-card-header) {
+    padding: 0;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .pacientes-grid-2 {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+    
+    .antecedentes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sesiones-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .sesiones-stat-numero {
+        font-size: 1.5rem;
+    }
+    
+    .acciones-header {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .sesiones-stats {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .os-card-detalle {
+        grid-template-columns: 1fr;
+    }
+}

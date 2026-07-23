@@ -1,0 +1,303 @@
+/* =============================================
+   SACAR TURNO - Formulario de reserva
+   ============================================= */
+
+/* Override del container para que ocupe todo */
+.sacar-turno-page .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Header de la página */
+.page-top {
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.page-top h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 4px 0;
+}
+
+.page-top .profesional-nombre {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Contenedor principal */
+.container-custom {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    box-sizing: border-box;
+}
+
+/* Tarjetas del formulario */
+.sacar-turno-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.sacar-turno-card h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 14px 0;
+}
+
+/* Campos de formulario */
+.input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.select-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    background: white;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.select-field:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Consultorio confirmado */
+.consultorio-confirmado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #f0fdf4;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    color: #065f46;
+}
+
+.consultorio-unico {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+}
+
+.consultorio-unico i {
+    color: var(--primary);
+    font-size: 1.2rem;
+}
+
+.consultorio-unico .nombre {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.consultorio-unico .direccion {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Grid de días */
+.dias-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dia-label {
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-align: center;
+    min-width: 75px;
+    transition: all 0.2s ease;
+    background: white;
+    user-select: none;
+}
+
+.dia-label:hover {
+    border-color: var(--primary);
+    background: #f8faff;
+}
+
+.dia-label.seleccionado {
+    border-color: var(--primary);
+    background: #eff6ff;
+}
+
+.dia-label input {
+    display: none;
+}
+
+.dia-numero {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+}
+
+.dia-mes {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.dia-nombre {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* Grid de horarios */
+.horarios-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hora-label {
+    padding: 10px 18px;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: white;
+    user-select: none;
+}
+
+.hora-label:hover {
+    background: #eff6ff;
+    transform: scale(1.03);
+}
+
+.hora-label.seleccionada {
+    border-color: var(--success);
+    background: #f0fdf4;
+    color: #065f46;
+}
+
+.hora-label input {
+    display: none;
+}
+
+/* Botón confirmar */
+.btn-confirmar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--success);
+    color: white;
+    padding: 14px 28px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.btn-confirmar:hover {
+    background: #047857;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.btn-confirmar:active {
+    transform: translateY(0);
+}
+
+/* Estados */
+.sin-turnos {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.loading-spinner i {
+    margin-right: 8px;
+}
+
+/* Label de campos obligatorios */
+.campo-requerido::after {
+    content: ' *';
+    color: var(--danger);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 600px) {
+    .page-top {
+        padding: 20px 0;
+    }
+    
+    .page-top h1 {
+        font-size: 1.3rem;
+    }
+    
+    .container-custom {
+        padding: 0 16px 40px;
+    }
+    
+    .dia-label {
+        min-width: 60px;
+        padding: 10px 8px;
+    }
+    
+    .hora-label {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+    }
+    
+    .sacar-turno-card {
+        padding: 16px;
+    }
+}

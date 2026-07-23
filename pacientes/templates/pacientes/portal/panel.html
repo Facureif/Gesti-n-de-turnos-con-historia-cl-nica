@@ -1,47 +1,56 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Mi Panel - {{ paciente.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/portal_paciente.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto;">
-    
+<div class="portal-paciente-page">
+<div class="portal-paciente-container">
+
     <!-- Saludo -->
-    <div style="margin-bottom: 20px;">
+    <div class="portal-saludo">
         <h1>👋 Hola, {{ paciente.nombre }}</h1>
         {% if cliente %}
-            <p style="color: #666;">🏥 {{ cliente.nombre }}</p>
+            <p class="consultorio-nombre">🏥 {{ cliente.nombre }}</p>
         {% endif %}
     </div>
 
     <!-- Botones de acción -->
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 30px;">
-        <a href="{% url 'editar_mi_ficha' %}" class="btn" style="background: #17a2b8; font-size: 0.9em;">✏️ Mi Ficha</a>
-        <a href="{% url 'mis_estudios' %}" class="btn" style="background: #7c3aed; font-size: 0.9em;">📁 Mis Estudios</a>
-        <a href="{% url 'sacar_turno_paciente' %}" class="btn btn-success" style="font-size: 0.9em;">📅 Sacar Turno</a>
-        <a href="{% url 'mis_turnos' %}" class="btn" style="background: #6c757d; font-size: 0.9em;">📋 Mis Turnos</a>
-        <a href="{% url 'cambiar_password' %}" class="btn" style="background: #dc3545; font-size: 0.9em;">🔒 Cambiar Contraseña</a>
+    <div class="portal-acciones">
+        <a href="{% url 'editar_mi_ficha' %}" class="portal-btn-accion portal-btn-ficha">✏️ Mi Ficha</a>
+        <a href="{% url 'mis_estudios' %}" class="portal-btn-accion portal-btn-estudios">📁 Mis Estudios</a>
+        <a href="{% url 'sacar_turno_paciente' %}" class="portal-btn-accion portal-btn-turno">📅 Sacar Turno</a>
+        <a href="{% url 'mis_turnos' %}" class="portal-btn-accion portal-btn-mis-turnos">📋 Mis Turnos</a>
+        <a href="{% url 'cambiar_password' %}" class="portal-btn-accion portal-btn-password">🔒 Cambiar Contraseña</a>
     </div>
 
-    {% if paciente.mis_obras_sociales.exists %}
-    <div class="card" style="margin-bottom: 20px; background: #f0f7ff;">
-        <h3 style="margin-bottom: 10px;">🎫 Tus Sesiones</h3>
-        {% for os in paciente.mis_obras_sociales.all %}
+    <!-- Sesiones -->
+    {% if obras_sociales_paciente %}
+    <div class="portal-card sesiones-card">
+        <div class="portal-card-header">
+            <h3>🎫 Tus Sesiones</h3>
+        </div>
+        {% for os in obras_sociales_paciente %}
             {% if os.activa and os.sesiones_restantes is not None %}
-            <div style="display: flex; gap: 30px; align-items: center; margin-bottom: 10px; padding-bottom: 10px; {% if not forloop.last %}border-bottom: 1px dashed #bae6fd;{% endif %}">
-                <div style="text-align: center; min-width: 70px;">
-                    <div style="font-size: 2.5em; font-weight: bold; color: #4A90D9;">{{ os.sesiones_restantes }}</div>
-                    <div style="color: #666; font-size: 0.8em;">Restantes</div>
+            <div class="sesion-item">
+                <div class="sesion-numero">
+                    <div class="numero">{{ os.sesiones_restantes }}</div>
+                    <div class="etiqueta">Restantes</div>
                 </div>
-                <div>
-                    <div style="font-weight: 600;">{{ os.obra_social.nombre }}</div>
-                    <div style="font-size: 0.85em; color: #666;">
+                <div class="sesion-detalle">
+                    <div class="obra-social-nombre">{{ os.obra_social.nombre }}</div>
+                    <div class="info">
                         {{ os.sesiones_autorizadas }} sesiones autorizadas
                         {% if os.profesional %}
                             · <strong>{{ os.profesional.nombre_completo }}</strong>
                         {% endif %}
                     </div>
                     {% if os.fecha_vencimiento %}
-                    <div style="font-size: 0.75em; color: {% if os.fecha_vencimiento < hoy %}#ef4444{% else %}#666{% endif %}; margin-top: 4px;">
+                    <div class="vencimiento {% if os.fecha_vencimiento < hoy %}vencido{% endif %}">
                         Vence: {{ os.fecha_vencimiento|date:"d/m/Y" }}
                         {% if os.fecha_vencimiento < hoy %}⚠️ Vencido{% endif %}
                     </div>
@@ -53,135 +62,113 @@
     </div>
     {% endif %}
 
-    <div class="card" style="margin-bottom: 15px; background: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 8px;">
-        <p style="margin: 0; color: #856404; font-size: 0.9em;">
+    <!-- Aviso de cancelación -->
+    <div class="portal-aviso">
+        <p>
             ⚠️ <strong>Importante:</strong> Si cancelás un turno con menos de 24 horas de anticipación, 
             se descontará una sesión de tu obra social.
         </p>
     </div>
 
-    <div class="card" style="margin-bottom: 20px;">
-        <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #28a745;">📅 Próximos Turnos</h3>
+    <!-- Próximos Turnos -->
+    <div class="portal-card">
+        <div class="portal-card-header verde">
+            <h3>📅 Próximos Turnos</h3>
+        </div>
         {% if proximos_turnos %}
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #f8f9fa;">
-                        <th style="padding: 10px;">Fecha</th>
-                        <th style="padding: 10px;">Hora</th>
-                        <th style="padding: 10px;">Profesional</th>
-                        <th style="padding: 10px;">Especialidad</th>
-                        <th style="padding: 10px;">Consultorio</th>
-                        <th style="padding: 10px;">Estado</th>
-                        <th style="padding: 10px;"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for turno in proximos_turnos %}
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px;">{{ turno.fecha|date:"d/m/Y" }}</td>
-                        <td style="padding: 10px;">{{ turno.hora_inicio|time:"H:i" }}</td>
-                        <td style="padding: 10px;">{{ turno.profesional.nombre_completo }}</td>
-                        <td style="padding: 10px;">{{ turno.profesional.especialidad }}</td>
-                        <td style="padding: 10px;">{{ turno.establecimiento.nombre|default:"—" }}</td>
-                        <td style="padding: 10px;">
-                            <span style="padding: 3px 10px; border-radius: 15px; font-size: 0.85em;
-                                {% if turno.estado == 'confirmado' %}background: #d4edda; color: #155724;
-                                {% else %}background: #fff3cd; color: #856404;{% endif %}">
-                                {{ turno.get_estado_display }}
-                            </span>
-                        </td>
-                        <td style="padding: 10px;">
-                            <a href="{% url 'cancelar_turno_paciente' turno.id %}" 
-                               class="btn btn-danger" style="padding: 3px 10px; font-size: 0.8em;"
-                               onclick="return confirm('¿Cancelar este turno?')">✕</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="portal-tabla">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Profesional</th>
+                            <th>Especialidad</th>
+                            <th>Consultorio</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for turno in proximos_turnos %}
+                        <tr>
+                            <td class="fecha-col">{{ turno.fecha|date:"d/m/Y" }}</td>
+                            <td class="hora-col">{{ turno.hora_inicio|time:"H:i" }}</td>
+                            <td>{{ turno.profesional.nombre_completo }}</td>
+                            <td>{{ turno.profesional.especialidad }}</td>
+                            <td>{{ turno.establecimiento.nombre|default:"—" }}</td>
+                            <td>
+                                <span class="turno-estado {% if turno.estado == 'confirmado' %}confirmado{% else %}pendiente{% endif %}">
+                                    {{ turno.get_estado_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'cancelar_turno_paciente' turno.id %}" 
+                                   class="btn btn-danger btn-xs"
+                                   onclick="return confirm('¿Cancelar este turno?')">✕</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-            <p style="text-align: center; color: #999; padding: 20px;">No tenés turnos pendientes.</p>
+            <div class="portal-empty">
+                <p>No tenés turnos pendientes.</p>
+            </div>
         {% endif %}
     </div>
 
+    <!-- Últimas Visitas -->
     {% if ultimos_turnos %}
-    <div class="card">
-        <h3 style="margin-bottom: 15px;">📋 Últimas Visitas</h3>
+    <div class="portal-card">
+        <div class="portal-card-header">
+            <h3>📋 Últimas Visitas</h3>
+        </div>
         
         {% for turno in ultimos_turnos %}
-        <div style="padding: 16px; border-bottom: 1px solid #eee; {% if forloop.last %}border-bottom: none;{% endif %}">
-            
-            <!-- Fecha y profesional -->
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+        <div class="visita-item">
+            <div class="visita-header">
                 <div>
-                    <strong style="font-size: 1.05em;">{{ turno.fecha|date:"d/m/Y" }}</strong>
-                    <span style="color: #666; margin-left: 8px;">{{ turno.hora_inicio|time:"H:i" }}</span>
+                    <span class="visita-fecha">{{ turno.fecha|date:"d/m/Y" }}</span>
+                    <span class="visita-hora">{{ turno.hora_inicio|time:"H:i" }}</span>
                 </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: 500;">{{ turno.profesional.nombre_completo }}</div>
-                    <small style="color: #666;">{{ turno.profesional.get_especialidad_display }} · {{ turno.establecimiento.nombre|default:"—" }}</small>
+                <div class="visita-profesional">
+                    <div class="nombre">{{ turno.profesional.nombre_completo }}</div>
+                    <div class="especialidad">{{ turno.profesional.get_especialidad_display }} · {{ turno.establecimiento.nombre|default:"—" }}</div>
                 </div>
             </div>
             
             {% if turno.evolucion %}
-            <!-- Diagnóstico -->
-            {% if turno.evolucion.diagnostico %}
-            <div style="background: #f0fdf4; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9em;">
-                <span style="color: #15803d;"><strong>Diagnóstico:</strong></span> {{ turno.evolucion.diagnostico }}
-            </div>
-            {% endif %}
-            
-            <!-- Tratamiento -->
-            {% if turno.evolucion.tratamiento_realizado %}
-            <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">
-                <strong> Tratamiento:</strong> {{ turno.evolucion.tratamiento_realizado|truncatechars:80 }}
-            </div>
-            {% endif %}
-            
-            <!-- Medicación y receta -->
-            {% if turno.evolucion.medicacion_recetada %}
-            <div style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9em;">
-                <strong>💊 Medicación recetada:</strong> {{ turno.evolucion.medicacion_recetada|truncatechars:60 }}
-                {% if turno.evolucion.indicaciones %}
-                <div style="margin-top: 4px; font-size: 0.85em; color: #92400e;">
-                    <strong>📝 Indicaciones:</strong> {{ turno.evolucion.indicaciones }}
+                {% if turno.evolucion.diagnostico %}
+                <div class="visita-diagnostico">
+                    <strong>Diagnóstico:</strong> {{ turno.evolucion.diagnostico }}
                 </div>
                 {% endif %}
-                <small style="display: block; margin-top: 4px; color: #999;">
-                    Solicitá la receta firmada a tu profesional para presentar en la farmacia.
-                </small>
-            </div>
-            {% endif %}
+                
+                {% if turno.evolucion.tratamiento_realizado %}
+                <div class="visita-tratamiento">
+                    <strong>💪 Tratamiento:</strong> {{ turno.evolucion.tratamiento_realizado|truncatechars:80 }}
+                </div>
+                {% endif %}
+                
+                {% if turno.evolucion.medicacion_recetada %}
+                <div class="visita-medicacion">
+                    <strong>💊 Medicación recetada:</strong> {{ turno.evolucion.medicacion_recetada|truncatechars:60 }}
+                    {% if turno.evolucion.indicaciones %}
+                    <div class="indicaciones">
+                        <strong>📝 Indicaciones:</strong> {{ turno.evolucion.indicaciones }}
+                    </div>
+                    {% endif %}
+                    <small class="nota">Solicitá la receta firmada a tu profesional para presentar en la farmacia.</small>
+                </div>
+                {% endif %}
             {% endif %}
             
-            <!-- Monto pagado -->
-            <div style="display: flex; gap: 16px; font-size: 0.85em; margin-bottom: 8px;">
-                {% if turno.monto_total %}
-                <div>
-                    <span style="color: #666;">Total:</span>
-                    <strong style="color: #10b981;">${{ turno.monto_total|floatformat:0 }}</strong>
-                </div>
-                {% endif %}
-                {% if turno.monto_coseguro %}
-                <div>
-                    <span style="color: #666;">Pagaste:</span>
-                    <strong style="color: #ef4444;">${{ turno.monto_coseguro|floatformat:0 }}</strong>
-                </div>
-                {% endif %}
-                {% if turno.monto_os %}
-                <div>
-                    <span style="color: #666;">Cubierto por OS:</span>
-                    <strong style="color: #3b82f6;">${{ turno.monto_os|floatformat:0 }}</strong>
-                </div>
-                {% endif %}
-            </div>
-            
-            <!-- Archivos adjuntos -->
             {% if turno.evolucion and turno.evolucion.archivos.all %}
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div class="visita-archivos">
                 {% for archivo in turno.evolucion.archivos.all %}
-                <a href="{{ archivo.archivo.url }}" target="_blank" 
-                style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f1f5f9; border-radius: 6px; text-decoration: none; font-size: 0.8em; color: #475569;">
+                <a href="{{ archivo.archivo.url }}" target="_blank" class="visita-archivo-link">
                     📎 {{ archivo.descripcion|default:"Archivo" }}
                 </a>
                 {% endfor %}
@@ -191,5 +178,7 @@
         {% endfor %}
     </div>
     {% endif %}
+
+</div>
 </div>
 {% endblock %}

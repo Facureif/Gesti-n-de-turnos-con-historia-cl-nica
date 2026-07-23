@@ -1,0 +1,595 @@
+/* =============================================
+   PERFIL PROFESIONAL - Edición de datos
+   ============================================= */
+
+/* Override del container para ocupar todo */
+.perfil-page .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Contenedor del perfil */
+.perfil-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    box-sizing: border-box;
+}
+
+/* Encabezado */
+.perfil-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px;
+}
+
+.perfil-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+/* Cards del perfil */
+.perfil-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.perfil-card h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+}
+
+/* Campos de formulario */
+.perfil-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.perfil-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.perfil-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    background: white;
+    cursor: pointer;
+}
+
+.perfil-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+
+.perfil-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Grid de 2 columnas */
+.perfil-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.perfil-grid-full {
+    grid-column: 1 / -1;
+}
+
+/* Foto de perfil */
+.perfil-foto-section {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.perfil-foto {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    background: var(--gray-200);
+}
+
+.perfil-foto-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    border: 3px solid var(--primary);
+}
+
+.perfil-foto-upload {
+    display: block;
+    margin-top: 8px;
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.perfil-foto-upload:hover {
+    text-decoration: underline;
+}
+
+.perfil-foto-upload input {
+    display: none;
+}
+
+.perfil-foto-info {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Color picker */
+.perfil-color-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.perfil-color-picker {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    padding: 2px;
+}
+
+/* Checkbox personalizado */
+.perfil-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.perfil-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+/* =============================================
+   BOTONES
+   ============================================= */
+.btn-guardar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--success);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    justify-content: center;
+}
+
+.btn-guardar:hover {
+    background: #047857;
+    transform: translateY(-1px);
+}
+
+.btn-guardar-block {
+    width: 100%;
+}
+
+.btn-accion-outline {
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: white;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.15s ease;
+}
+
+.btn-accion-outline:hover {
+    background: var(--bg-alt);
+}
+
+.btn-accion-outline.editar {
+    color: var(--primary);
+    border-color: #bfdbfe;
+}
+
+.btn-accion-outline.eliminar {
+    color: var(--danger);
+    border-color: #fecaca;
+}
+
+.btn-volver {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.btn-volver:hover {
+    color: var(--primary);
+}
+
+/* =============================================
+   LISTA DE CONSULTORIOS
+   ============================================= */
+.consultorios-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.consultorios-header h3 {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.consultorio-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    transition: background 0.15s ease;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.consultorio-item:last-child {
+    margin-bottom: 0;
+}
+
+.consultorio-item:hover {
+    background: var(--gray-100);
+}
+
+.consultorio-item .consultorio-info .consultorio-nombre {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.consultorio-item .consultorio-info .consultorio-detalle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.consultorio-item .consultorio-acciones {
+    display: flex;
+    gap: 6px;
+}
+
+/* =============================================
+   AGENDA Y HORARIOS
+   ============================================= */
+.agenda-item {
+    margin-bottom: 16px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    padding: 14px;
+    border: 1px solid var(--border);
+}
+
+.agenda-item:last-child {
+    margin-bottom: 0;
+}
+
+.agenda-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.agenda-header i {
+    color: var(--primary);
+}
+
+.agenda-header .simultaneos {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.agenda-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.agenda-tabla thead tr {
+    background: var(--gray-100);
+}
+
+.agenda-tabla th {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.agenda-tabla td {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.agenda-tabla .dia-col {
+    font-weight: 500;
+}
+
+/* =============================================
+   OBRAS SOCIALES
+   ============================================= */
+.obras-sociales-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.os-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.os-checkbox-label:hover {
+    border-color: var(--primary);
+}
+
+.os-checkbox-label.activa {
+    background: #ede9fe;
+    border-color: #7c3aed;
+    color: #5b21b6;
+}
+
+.os-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.os-checkbox-label .os-sigla {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Planes por obra social */
+.planes-container {
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 8px;
+}
+
+.plan-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.plan-item:last-child {
+    margin-bottom: 0;
+}
+
+.plan-os-nombre {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.plan-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.plan-checkbox-label:hover {
+    border-color: var(--primary);
+}
+
+.plan-checkbox-label.activa {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.plan-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+/* =============================================
+   MODAL
+   ============================================= */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.activo {
+    display: flex;
+}
+
+.modal-dialog {
+    background: white;
+    border-radius: var(--radius-xl);
+    width: 480px;
+    max-width: 90%;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-dialog h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 16px 0;
+}
+
+.modal-botones {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.modal-botones .btn-guardar {
+    flex: 1;
+}
+
+.modal-botones .btn-cancelar {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: white;
+    color: var(--text-secondary);
+}
+
+.modal-botones .btn-cancelar:hover {
+    background: var(--bg-alt);
+}
+
+/* =============================================
+   ESTADO VACÍO
+   ============================================= */
+.perfil-vacio {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .perfil-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .perfil-foto-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .perfil-foto-info {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .perfil-container {
+        padding: 0 12px 30px;
+    }
+    
+    .consultorio-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .consultorio-item .consultorio-acciones {
+        align-self: flex-end;
+    }
+}

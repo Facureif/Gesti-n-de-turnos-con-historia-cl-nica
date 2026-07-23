@@ -1,36 +1,40 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Estudios - {{ paciente.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/pacientes_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/pacientes_shared.css' %}">
+{% endblock %}
+
 {% block content %}
+
 <div class="flex-between mb-6">
     <div>
-        <h1>📁 Estudios Médicos</h1>
-        <p>{{ paciente.nombre_completo }}</p>
+        <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">📁 Estudios Médicos</h1>
+        <p style="color: var(--text-muted); margin-top: 4px;">{{ paciente.nombre_completo }}</p>
     </div>
-    <div>
-        <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
-            ← Volver a la ficha
-        </a>
-    </div>
+    <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
+        ← Volver a la ficha
+    </a>
 </div>
 
-<!-- Formulario para subir estudio -->
+<!-- Subir estudio -->
 <div class="card" style="margin-bottom: 30px;">
     <div class="card-header">
         <h3 class="card-title">📤 Subir Nuevo Estudio</h3>
     </div>
-    <form method="POST" enctype="multipart/form-data" style="padding: 20px;">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-grid-2">
             <div class="form-group">
-                <label>Título *</label>
-                <input type="text" name="titulo" class="form-control" required 
-                       placeholder="Ej: Radiografía de tórax">
+                <label>Título <span class="required">*</span></label>
+                <input type="text" name="titulo" class="form-input" required placeholder="Ej: Radiografía de tórax">
             </div>
             <div class="form-group">
                 <label>Tipo de Estudio</label>
-                <select name="tipo_estudio" class="form-control">
+                <select name="tipo_estudio" class="form-select">
                     {% for tipo in tipos_estudio %}
                         <option value="{{ tipo.0 }}">{{ tipo.1 }}</option>
                     {% endfor %}
@@ -38,17 +42,15 @@
             </div>
             <div class="form-group">
                 <label>Fecha del Estudio</label>
-                <input type="date" name="fecha_estudio" class="form-control">
+                <input type="date" name="fecha_estudio" class="form-input">
             </div>
             <div class="form-group">
-                <label>Archivo *</label>
-                <input type="file" name="archivo" class="form-control" required 
-                       accept=".pdf,.jpg,.jpeg,.png,.dcm">
+                <label>Archivo <span class="required">*</span></label>
+                <input type="file" name="archivo" class="form-input" required accept=".pdf,.jpg,.jpeg,.png,.dcm">
             </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group form-grid-full">
                 <label>Descripción / Notas</label>
-                <textarea name="descripcion" class="form-control" rows="2" 
-                          placeholder="Información adicional sobre el estudio..."></textarea>
+                <textarea name="descripcion" class="form-textarea" rows="2" placeholder="Información adicional sobre el estudio..."></textarea>
             </div>
         </div>
         <button type="submit" class="btn btn-primary" style="margin-top: 16px;">
@@ -56,7 +58,6 @@
         </button>
     </form>
 </div>
-
 
 <!-- Listado de estudios -->
 <div class="card">
@@ -89,12 +90,14 @@
                     <td><span class="badge badge-info">{{ estudio.get_tipo_estudio_display }}</span></td>
                     <td>{{ estudio.profesional.nombre_completo|default:"—" }}</td>
                     <td>
-                        <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-primary" target="_blank">
-                            📄 Ver
-                        </a>
-                        <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-secondary" download>
-                            ⬇️ Descargar
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-primary" target="_blank">
+                                📄 Ver
+                            </a>
+                            <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-secondary" download>
+                                ⬇️ Descargar
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -107,4 +110,5 @@
     </div>
     {% endif %}
 </div>
+
 {% endblock %}

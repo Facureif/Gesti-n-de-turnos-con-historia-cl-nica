@@ -1,38 +1,112 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
-{% block title %}{{ cliente.nombre }}{% endblock %}
+{% block title %}{{ cliente.nombre }} | Sacar Turno Online{% endblock %}
+
+{% block extra_css %}
+    <!-- CSS del portal -->
+    <link rel="stylesheet" href="{% static 'css/pages/portal.css' %}">
+    
+    <!-- Colores personalizados del cliente -->
+    <style>
+        :root {
+            --primary: {{ cliente.color_primario|default:'#2563eb' }};
+            --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <h1 style="text-align: center; margin-bottom: 5px;">🏥 {{ cliente.nombre }}</h1>
-    <p style="text-align: center; color: #666; margin-bottom: 30px;">Sacá tu turno online</p>
-    
-    {% if modo == 'consultorio' %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-            {% for prof in profesionales %}
-            <div class="card" style="text-align: center;">
-                <div style="font-size: 3em;">👨‍⚕️</div>
-                <h3>{{ prof.nombre_completo }}</h3>
-                <p style="color: #4A90D9;">{{ prof.get_especialidad_display }}</p>
-                <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=prof.id %}" 
-                   class="btn" style="width: 100%; margin-top: 10px;">Sacar Turno</a>
+<div class="landing">
+
+    <!-- Hero -->
+    <section class="portal-hero">
+        <div class="container-custom">
+            <h1>🏥 {{ cliente.hero_titulo|default:cliente.nombre }}</h1>
+            <p>{{ cliente.hero_subtitulo|default:'Sacá tu turno online de forma rápida y sencilla' }}</p>
+        </div>
+    </section>
+
+    <!-- Contenido principal -->
+    <div class="portal-container">
+        {% if modo == 'consultorio' %}
+            <!-- Varios profesionales -->
+            {% if profesionales %}
+            <div class="portal-grid">
+                {% for prof in profesionales %}
+                <div class="portal-profesional-card">
+                    {% if prof.foto %}
+                        <div class="avatar">
+                            <img src="{{ prof.foto.url }}" alt="{{ prof.nombre_completo }}">
+                        </div>
+                    {% else %}
+                        <div class="avatar">👨‍⚕️</div>
+                    {% endif %}
+                    
+                    <h3>{{ prof.nombre_completo }}</h3>
+                    <p class="especialidad">{{ prof.get_especialidad_display }}</p>
+                    
+                    {% if prof.establecimientos.all %}
+                    <div class="consultorios-tags">
+                        {% for est in prof.establecimientos.all %}
+                            <span class="consultorio-tag">📍 {{ est.nombre }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=prof.id %}" class="btn-sacar-turno">
+                        📅 Sacar Turno
+                    </a>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-user-md"></i>
+                <p>No hay profesionales disponibles en este momento.</p>
+            </div>
+            {% endif %}
+            
+        {% else %}
+            <!-- Profesional independiente -->
+            <div class="portal-grid" style="max-width: 400px; margin: 0 auto;">
+                <div class="portal-profesional-card">
+                    {% if profesional.foto %}
+                        <div class="avatar">
+                            <img src="{{ profesional.foto.url }}" alt="{{ profesional.nombre_completo }}">
+                        </div>
+                    {% else %}
+                        <div class="avatar">👨‍⚕️</div>
+                    {% endif %}
+                    
+                    <h3>{{ profesional.nombre_completo }}</h3>
+                    <p class="especialidad">{{ profesional.get_especialidad_display }}</p>
+                    
+                    {% if consultorios %}
+                    <div class="consultorios-tags">
+                        {% for est in consultorios %}
+                            <span class="consultorio-tag">📍 {{ est.nombre }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-sacar-turno">
+                        📅 Sacar Turno
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="portal-footer">
+        <div class="container-custom">
+            <p>© {% now "Y" %} {{ cliente.nombre }}</p>
+            <p style="margin-top: 4px;">
+                Desarrollado por <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a>
+            </p>
         </div>
-    {% else %}
-        <div class="card" style="text-align: center; max-width: 400px; margin: 0 auto;">
-            <div style="font-size: 4em;">👨‍⚕️</div>
-            <h2>{{ profesional.nombre_completo }}</h2>
-            <p style="color: #4A90D9;">{{ profesional.get_especialidad_display }}</p>
-            {% for est in consultorios %}
-                <span style="display: inline-block; padding: 2px 10px; background: #e9ecef; border-radius: 10px; font-size: 0.85em; margin: 2px;">
-                    📍 {{ est.nombre }}
-                </span>
-            {% endfor %}
-            <br><br>
-            <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" 
-               class="btn btn-success" style="width: 100%;">📅 Sacar Turno</a>
-        </div>
-    {% endif %}
+    </footer>
+
 </div>
 {% endblock %}
