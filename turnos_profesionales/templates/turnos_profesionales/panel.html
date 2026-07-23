@@ -1,27 +1,33 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Panel Profesional - {{ profesional.nombre_completo }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
+
 <div class="flex-between mb-6">
     <div class="page-header mb-0">
         <h1>👨‍⚕️ Panel Profesional</h1>
         <p>Dr/a. {{ profesional.nombre_completo }} · Matrícula: {{ profesional.matricula }}</p>
     </div>
-    <div class="flex gap-2 flex-wrap">
-        <a href="{% url 'mi_perfil' %}" class="btn btn-secondary btn-sm">
+    <div class="panel-pro-acciones">
+        <a href="{% url 'mi_perfil' %}" class="panel-pro-btn panel-pro-btn-perfil">
             <i class="fas fa-user"></i> Mi Perfil
         </a>
-        <a href="{% url 'calendario_semanal' %}" class="btn btn-sm" style="background: var(--info);">
+        <a href="{% url 'calendario_semanal' %}" class="panel-pro-btn panel-pro-btn-calendario">
             <i class="fas fa-calendar-week"></i> Calendario
         </a>
-        <a href="{% url 'registrar_paciente' %}" class="btn btn-success btn-sm">
+        <a href="{% url 'registrar_paciente' %}" class="panel-pro-btn panel-pro-btn-nuevo">
             <i class="fas fa-user-plus"></i> Nuevo
         </a>
-        <a href="{% url 'dashboard' %}" class="btn btn-sm" style="background: #7c3aed;">
+        <a href="{% url 'dashboard' %}" class="panel-pro-btn panel-pro-btn-dashboard">
             <i class="fas fa-chart-bar"></i> Dashboard
         </a>
-        <a href="{% url 'buscar_paciente' %}" class="btn btn-sm">
+        <a href="{% url 'buscar_paciente' %}" class="panel-pro-btn panel-pro-btn-buscar">
             <i class="fas fa-search"></i> Buscar
         </a>
     </div>
@@ -92,7 +98,7 @@
                     </td>
                     <td class="text-muted">{{ turno.establecimiento.nombre|default:"—" }}</td>
                     <td>
-                        <a href="{% url 'ficha_paciente' turno.paciente.id %}" style="color: var(--primary); text-decoration: none; font-weight: 500;">
+                        <a href="{% url 'ficha_paciente' turno.paciente.id %}" class="paciente-link">
                             {% if turno.es_sobreturno %}🚨 {% endif %}{{ turno.paciente.nombre_completo }}
                         </a>
                         {% if turno.tipo_consulta %}
@@ -101,7 +107,7 @@
                     </td>
                     <td>
                         {% if turno.paciente.obra_social %}
-                            <span style="font-weight: 600;">{{ turno.paciente.obra_social.sigla }}</span>
+                            <strong>{{ turno.paciente.obra_social.sigla }}</strong>
                         {% else %}
                             <span class="text-muted">Particular</span>
                         {% endif %}
@@ -110,7 +116,7 @@
                         {% for tid, os in sesiones_por_turno.items %}
                             {% if tid == turno.id %}
                                 {% if os and os.sesiones_restantes is not None %}
-                                    <span class="badge ...">Quedan {{ os.sesiones_restantes }}/{{ os.sesiones_autorizadas|default:"?" }}</span>
+                                    <span class="sesiones-badge">Quedan {{ os.sesiones_restantes }}/{{ os.sesiones_autorizadas|default:"?" }}</span>
                                 {% else %}
                                     <span class="text-muted">—</span>
                                 {% endif %}
@@ -130,7 +136,6 @@
                             <span class="badge badge-danger">No Asistió</span>
                         {% endif %}
                     </td>
-                    
                     <td>
                         <div class="flex gap-2">
                             {% if turno.estado == 'pendiente' %}
@@ -183,17 +188,17 @@
             <i class="fas fa-forward text-primary"></i> Próximos Turnos
         </h3>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div class="proximos-turnos-lista">
         {% for turno in proximos_turnos %}
-        <div style="display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: var(--gray-50); border-radius: var(--radius);">
-            <div style="min-width: 60px; text-align: center;">
-                <div style="font-weight: 700; font-size: 1.1rem;">{{ turno.fecha|date:"d" }}</div>
-                <div style="font-size: 0.75rem; color: var(--gray-500);">{{ turno.fecha|date:"M" }}</div>
+        <div class="proximo-turno-item">
+            <div class="proximo-turno-fecha">
+                <div class="dia">{{ turno.fecha|date:"d" }}</div>
+                <div class="mes">{{ turno.fecha|date:"M" }}</div>
             </div>
-            <div style="width: 1px; height: 40px; background: var(--gray-200);"></div>
-            <div style="flex: 1;">
-                <div style="font-weight: 600;">{{ turno.paciente.nombre_completo }}</div>
-                <div style="font-size: 0.85rem; color: var(--gray-500);">{{ turno.hora_inicio|time:"H:i" }}</div>
+            <div class="proximo-turno-separador"></div>
+            <div class="proximo-turno-info">
+                <div class="paciente">{{ turno.paciente.nombre_completo }}</div>
+                <div class="hora">{{ turno.hora_inicio|time:"H:i" }}</div>
             </div>
             <span class="badge {% if turno.estado == 'confirmado' %}badge-success{% else %}badge-warning{% endif %}">
                 {{ turno.get_estado_display }}
@@ -206,4 +211,5 @@
     </div>
 </div>
 {% endif %}
+
 {% endblock %}

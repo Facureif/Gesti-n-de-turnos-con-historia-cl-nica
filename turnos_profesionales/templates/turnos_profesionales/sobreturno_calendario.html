@@ -1,29 +1,35 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Sobreturno desde Calendario{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-    <h1 style="margin-bottom: 5px;">🚨 Sobreturno</h1>
-    <p style="color: #666;">
+<div class="sobreturno-container">
+
+    <h1>🚨 Sobreturno</h1>
+    <p class="sobreturno-info">
         Fecha: <strong id="fecha-mostrar"></strong> | Horario: <strong id="hora-mostrar"></strong>
     </p>
     
-    <div class="card" style="background: #fff3cd; border: 2px solid #ffc107; margin-bottom: 20px;">
-        <p style="margin: 0; color: #856404;">⚠️ El sobreturno se crea como <strong>confirmado</strong> automáticamente.</p>
+    <div class="sobreturno-aviso">
+        <p>⚠️ El sobreturno se crea como <strong>confirmado</strong> automáticamente.</p>
     </div>
     
     <!-- Buscar paciente -->
-    <div class="card" style="margin-bottom: 20px;">
-        <h3 style="margin-bottom: 10px;">🔍 Buscar Paciente</h3>
+    <div class="card" style="margin-bottom: 20px; padding: 24px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">🔍 Buscar Paciente</h3>
         <form method="get">
             <input type="hidden" name="fecha" value="{{ fecha_str }}">
             <input type="hidden" name="hora" value="{{ hora_str }}">
             <input type="hidden" name="hora_fin" value="{{ hora_fin_str }}">
-            <div style="display: flex; gap: 10px;">
+            <div class="flex gap-2">
                 <input type="text" name="buscar" value="{{ busqueda }}" 
                        placeholder="Nombre, apellido o DNI..."
-                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                       class="turnos-input" style="flex: 1;">
                 <button type="submit" class="btn">Buscar</button>
             </div>
         </form>
@@ -36,21 +42,22 @@
         <input type="hidden" name="hora" value="{{ hora_str }}">
         <input type="hidden" name="hora_fin" value="{{ hora_fin_str }}">
         
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 10px;">Seleccioná el paciente</h3>
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">Seleccioná el paciente</h3>
             {% for p in pacientes %}
-            <label style="display: block; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 5px; cursor: pointer;">
-                <input type="radio" name="paciente_id" value="{{ p.id }}" style="margin-right: 10px;">
+            <label class="sobreturno-paciente-option">
+                <input type="radio" name="paciente_id" value="{{ p.id }}">
                 {{ p.nombre_completo }} - DNI: {{ p.dni }}
             </label>
             {% endfor %}
         </div>
         
-        <button type="submit" class="btn btn-danger" style="width: 100%; padding: 12px;">
+        <button type="submit" class="btn btn-danger btn-lg" style="width: 100%; padding: 14px; justify-content: center;">
             🚨 Crear Sobreturno
         </button>
     </form>
     {% endif %}
+    
 </div>
 
 <script>

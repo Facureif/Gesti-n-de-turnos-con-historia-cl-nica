@@ -1,87 +1,15 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Cargar Evolución{% endblock %}
 
 {% block extra_css %}
-<style>
-    .evolucion-header {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border-radius: var(--radius-lg);
-        padding: 20px 24px;
-        margin-bottom: 24px;
-        display: flex;
-        gap: 24px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-    
-    .evolucion-header-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.9rem;
-    }
-    
-    .upload-zone {
-        border: 2px dashed var(--gray-300);
-        border-radius: var(--radius-lg);
-        padding: 32px;
-        text-align: center;
-        background: var(--gray-50);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        margin-bottom: 12px;
-    }
-    
-    .upload-zone:hover {
-        border-color: var(--primary);
-        background: var(--primary-light);
-    }
-    
-    .upload-zone i {
-        font-size: 2.5rem;
-        color: var(--gray-400);
-        margin-bottom: 12px;
-    }
-    
-    .upload-zone p {
-        color: var(--gray-500);
-        margin: 4px 0;
-    }
-    
-    .preview-container {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 12px;
-    }
-    
-    .preview-item {
-        position: relative;
-        width: 80px;
-        height: 80px;
-        border-radius: var(--radius);
-        overflow: hidden;
-        border: 2px solid var(--gray-200);
-    }
-    
-    .preview-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .next-control-card {
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        padding: 20px;
-        border: 1px solid var(--gray-200);
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 750px; margin: 0 auto;">
+<div class="turnos-container">
+
     <div class="page-header">
         <h1><i class="fas fa-notes-medical text-primary"></i> Cargar Evolución</h1>
     </div>
@@ -89,15 +17,15 @@
     <!-- Info del paciente y turno -->
     <div class="evolucion-header">
         <div class="evolucion-header-item">
-            <i class="fas fa-user text-primary"></i>
+            <i class="fas fa-user"></i>
             <strong>{{ turno.paciente.nombre_completo }}</strong>
         </div>
         <div class="evolucion-header-item">
-            <i class="fas fa-address-card text-primary"></i>
+            <i class="fas fa-address-card"></i>
             DNI: {{ turno.paciente.dni }}
         </div>
         <div class="evolucion-header-item">
-            <i class="fas fa-calendar text-primary"></i>
+            <i class="fas fa-calendar"></i>
             {{ turno.fecha|date:"d/m/Y" }}
         </div>
     </div>
@@ -105,6 +33,7 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
+        <!-- Datos de la consulta -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
@@ -112,54 +41,36 @@
                 </h3>
             </div>
             
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Motivo de Consulta <span style="color: var(--danger);">*</span>
-                </label>
-                <textarea name="motivo" rows="3" required
-                          style="width: 100%; padding: 12px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; resize: vertical; transition: border-color 0.2s;"
-                          placeholder="Describí el motivo de la consulta..."
-                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Diagnóstico
-                </label>
-                <textarea name="diagnostico" rows="3"
-                          style="width: 100%; padding: 12px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; resize: vertical; transition: border-color 0.2s;"
-                          placeholder="Diagnóstico presuntivo o definitivo..."
-                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Tratamiento Realizado
-                </label>
-                <textarea name="tratamiento" rows="3"
-                          style="width: 100%; padding: 12px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; resize: vertical; transition: border-color 0.2s;"
-                          placeholder="Describí el tratamiento realizado..."
-                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Medicación Recetada
-                </label>
-                <textarea name="medicacion_recetada" rows="2"
-                          style="width: 100%; padding: 12px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; resize: vertical; transition: border-color 0.2s;"
-                          placeholder="Medicación, dosis, frecuencia..."
-                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Indicaciones
-                </label>
-                <textarea name="indicaciones" rows="3"
-                          style="width: 100%; padding: 12px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; resize: vertical; transition: border-color 0.2s;"
-                          placeholder="Indicaciones para el paciente..."
-                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    <label class="turnos-label">Motivo de Consulta <span class="required">*</span></label>
+                    <textarea name="motivo" rows="3" required class="turnos-textarea"
+                              placeholder="Describí el motivo de la consulta..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="turnos-label">Diagnóstico</label>
+                    <textarea name="diagnostico" rows="3" class="turnos-textarea"
+                              placeholder="Diagnóstico presuntivo o definitivo..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="turnos-label">Tratamiento Realizado</label>
+                    <textarea name="tratamiento" rows="3" class="turnos-textarea"
+                              placeholder="Describí el tratamiento realizado..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="turnos-label">Medicación Recetada</label>
+                    <textarea name="medicacion_recetada" rows="2" class="turnos-textarea"
+                              placeholder="Medicación, dosis, frecuencia..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="turnos-label">Indicaciones</label>
+                    <textarea name="indicaciones" rows="3" class="turnos-textarea"
+                              placeholder="Indicaciones para el paciente..."></textarea>
+                </div>
             </div>
         </div>
         
@@ -171,27 +82,23 @@
                 </h3>
             </div>
             
-            <div class="next-control-card">
-                <div class="flex gap-3" style="align-items: flex-end;">
-                    <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                            Fecha
-                        </label>
-                        <input type="date" name="proximo_control" id="proximo-control-fecha"
-                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem;">
+            <div style="padding: 20px;">
+                <div class="proximo-control-card">
+                    <div class="flex gap-3" style="align-items: flex-end;">
+                        <div style="flex: 1;">
+                            <label class="turnos-label">Fecha</label>
+                            <input type="date" name="proximo_control" id="proximo-control-fecha" class="turnos-input">
+                        </div>
+                        <div style="width: 130px;">
+                            <label class="turnos-label">Hora</label>
+                            <input type="time" name="proximo_control_hora" id="proximo-control-hora" value="09:00" class="turnos-input">
+                        </div>
                     </div>
-                    <div style="width: 130px;">
-                        <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                            Hora
-                        </label>
-                        <input type="time" name="proximo_control_hora" id="proximo-control-hora" value="09:00"
-                               style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem;">
-                    </div>
+                    <p class="nota">
+                        <i class="fas fa-info-circle"></i> 
+                        Si completás la fecha, se generará un turno automáticamente en el primer horario libre.
+                    </p>
                 </div>
-                <p style="color: var(--gray-500); font-size: 0.8rem; margin-top: 12px;">
-                    <i class="fas fa-info-circle"></i> 
-                    Si completás la fecha, se generará un turno automáticamente en el primer horario libre.
-                </p>
             </div>
         </div>
         
@@ -203,20 +110,19 @@
                 </h3>
             </div>
             
-            <div class="upload-zone" onclick="document.getElementById('archivos-input-evo').click()">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p style="font-weight: 500;">Hacé clic para seleccionar archivos</p>
-                <p style="font-size: 0.85rem;">Imágenes (JPG, PNG, GIF, WebP)</p>
-            </div>
-            
-            <input type="file" name="archivos" id="archivos-input-evo" multiple accept="image/*" 
-                   style="display: none;" onchange="mostrarPreviaEvo(this.files)">
-            
-            <div id="previa-evo" class="preview-container"></div>
-            
-            <div>
-                <input type="text" name="descripcion_archivo" 
-                       style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem;"
+            <div style="padding: 20px;">
+                <div class="upload-zone" onclick="document.getElementById('archivos-input-evo').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p class="upload-titulo">Hacé clic para seleccionar archivos</p>
+                    <p class="upload-subtitulo">Imágenes (JPG, PNG, GIF, WebP)</p>
+                </div>
+                
+                <input type="file" name="archivos" id="archivos-input-evo" multiple accept="image/*" 
+                       style="display: none;" onchange="mostrarPreviaEvo(this.files)">
+                
+                <div id="previa-evo" class="preview-container"></div>
+                
+                <input type="text" name="descripcion_archivo" class="turnos-input"
                        placeholder="Descripción de los archivos (opcional)">
             </div>
         </div>
@@ -225,6 +131,7 @@
             <i class="fas fa-save"></i> Guardar Evolución
         </button>
     </form>
+    
 </div>
 
 <script>

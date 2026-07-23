@@ -1,123 +1,124 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Dashboard{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+
+<!-- Header -->
+<div class="dashboard-header">
     <h1>📊 Dashboard</h1>
-    <div style="display: flex; gap: 10px;">
-        <a href="?periodo=hoy" class="btn" style="background: {% if periodo == 'hoy' %}#4A90D9{% else %}#6c757d{% endif %};">Hoy</a>
-        <a href="?periodo=semana" class="btn" style="background: {% if periodo == 'semana' %}#4A90D9{% else %}#6c757d{% endif %};">Semana</a>
-        <a href="?periodo=mes" class="btn" style="background: {% if periodo == 'mes' %}#4A90D9{% else %}#6c757d{% endif %};">Mes</a>
-        <a href="?periodo=año" class="btn" style="background: {% if periodo == 'año' %}#4A90D9{% else %}#6c757d{% endif %};">Año</a>
+    <div class="dashboard-filtros">
+        <a href="?periodo=hoy" class="dashboard-filtro-btn {% if periodo == 'hoy' %}activo{% endif %}">Hoy</a>
+        <a href="?periodo=semana" class="dashboard-filtro-btn {% if periodo == 'semana' %}activo{% endif %}">Semana</a>
+        <a href="?periodo=mes" class="dashboard-filtro-btn {% if periodo == 'mes' %}activo{% endif %}">Mes</a>
+        <a href="?periodo=año" class="dashboard-filtro-btn {% if periodo == 'año' %}activo{% endif %}">Año</a>
     </div>
 </div>
 
-<!-- 🔥 NUEVO: Acceso rápido a Cobranza OS -->
-<div style="margin-bottom: 20px;">
+<!-- Acciones rápidas -->
+<div class="dashboard-acciones">
     <a href="{% url 'cobranza_os' %}" class="btn btn-sm" style="background: #f59e0b; color: white;">
         🏥 Cobranza a Obras Sociales
     </a>
-    <a href="{% url 'exportar_excel' %}?periodo={{ periodo }}" class="btn btn-sm btn-success" style="margin-left: 8px;">
+    <a href="{% url 'exportar_excel' %}?periodo={{ periodo }}" class="btn btn-success btn-sm">
         📥 Exportar a Excel
     </a>
 </div>
 
-<p style="color: #666;">{{ inicio|date:"d/m/Y" }} - {{ fin|date:"d/m/Y" }}</p>
+<p class="dashboard-periodo">{{ inicio|date:"d/m/Y" }} - {{ fin|date:"d/m/Y" }}</p>
 
 <!-- Métricas principales -->
-<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
-    <div class="card" style="text-align: center;">
-        <div style="font-size: 2em; font-weight: bold; color: #4A90D9;">{{ total_turnos }}</div>
-        <div style="color: #666;">Total Turnos</div>
+<div class="dashboard-metricas">
+    <div class="dashboard-metrica total">
+        <div class="metrica-valor">{{ total_turnos }}</div>
+        <div class="metrica-etiqueta">Total Turnos</div>
     </div>
-    <div class="card" style="text-align: center;">
-        <div style="font-size: 2em; font-weight: bold; color: #28a745;">{{ tasa_asistencia }}%</div>
-        <div style="color: #666;">Tasa Asistencia</div>
+    <div class="dashboard-metrica asistencia">
+        <div class="metrica-valor">{{ tasa_asistencia }}%</div>
+        <div class="metrica-etiqueta">Tasa Asistencia</div>
     </div>
-    <div class="card" style="text-align: center;">
-        <div style="font-size: 2em; font-weight: bold; color: #ffc107;">{{ pacientes_unicos }}</div>
-        <div style="color: #666;">Pacientes Únicos</div>
+    <div class="dashboard-metrica pacientes">
+        <div class="metrica-valor">{{ pacientes_unicos }}</div>
+        <div class="metrica-etiqueta">Pacientes Únicos</div>
     </div>
-    <div class="card" style="text-align: center;">
-        <div style="font-size: 2em; font-weight: bold; color: #10b981;">${{ total_facturado|floatformat:0 }}</div>
-        <div style="color: #666;">Total Facturado</div>
-        <div style="font-size: 0.7em; color: #999; margin-top: 4px;">
-            💰 Coseguros: ${{ total_coseguros|floatformat:0 }} · 🏥 OS: ${{ total_os|floatformat:0 }}
-        </div>
+    <div class="dashboard-metrica facturado">
+        <div class="metrica-valor">${{ total_facturado|floatformat:0 }}</div>
+        <div class="metrica-etiqueta">Total Facturado</div>
+        <div class="metrica-sub">💰 Coseguros: ${{ total_coseguros|floatformat:0 }} · 🏥 OS: ${{ total_os|floatformat:0 }}</div>
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div class="dashboard-grid">
     
     <!-- Turnos por estado -->
-    <div class="card">
-        <h3 style="margin-bottom: 15px;">📊 Turnos por Estado</h3>
-        <div style="display: flex; gap: 10px; justify-content: center;">
+    <div class="dashboard-card">
+        <h3>📊 Turnos por Estado</h3>
+        <div class="dashboard-estados">
             {% for item in turnos_por_estado %}
-            <div style="text-align: center; flex: 1;">
-                <div style="font-size: 1.5em; font-weight: bold; color: {{ item.color }};">{{ item.total }}</div>
-                <div style="font-size: 0.8em; color: #666;">{{ item.estado }}</div>
+            <div class="dashboard-estado-item">
+                <div class="estado-numero" style="color: {{ item.color }};">{{ item.total }}</div>
+                <div class="estado-nombre">{{ item.estado }}</div>
             </div>
             {% endfor %}
         </div>
     </div>
     
     <!-- Obras sociales -->
-    <div class="card">
-        <h3 style="margin-bottom: 15px;">🏥 Obras Sociales</h3>
+    <div class="dashboard-card">
+        <h3>🏥 Obras Sociales</h3>
         {% if obras_sociales %}
-            <ul style="list-style: none;">
+            <ul class="dashboard-lista">
                 {% for os in obras_sociales %}
-                <li style="padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                <li>
                     <span>{{ os.paciente__obra_social__sigla|default:os.paciente__obra_social__nombre }}</span>
-                    <span style="font-weight: bold;">{{ os.total }}</span>
+                    <span class="lista-valor">{{ os.total }}</span>
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p style="color: #999;">Sin datos</p>
+            <p class="text-muted" style="text-align: center; padding: 20px;">Sin datos</p>
         {% endif %}
     </div>
     
     <!-- Pacientes frecuentes -->
-    <div class="card">
-        <h3 style="margin-bottom: 15px;">👥 Pacientes Frecuentes</h3>
+    <div class="dashboard-card">
+        <h3>👥 Pacientes Frecuentes</h3>
         {% if pacientes_frecuentes %}
-            <ul style="list-style: none;">
+            <ul class="dashboard-lista">
                 {% for p in pacientes_frecuentes|slice:":5" %}
-                <li style="padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-                    <a href="{% url 'ficha_paciente' p.paciente__id %}" style="color: #4A90D9; text-decoration: none;">
+                <li>
+                    <a href="{% url 'ficha_paciente' p.paciente__id %}" class="lista-link">
                         {{ p.paciente__nombre }} {{ p.paciente__apellido }}
                     </a>
-                    <span style="font-weight: bold;">{{ p.total }} turnos</span>
+                    <span class="lista-valor">{{ p.total }} turnos</span>
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p style="color: #999;">Sin datos</p>
+            <p class="text-muted" style="text-align: center; padding: 20px;">Sin datos</p>
         {% endif %}
     </div>
     
     <!-- Turnos por día -->
-    <div class="card">
-        <h3 style="margin-bottom: 15px;">📅 Turnos por Día</h3>
+    <div class="dashboard-card">
+        <h3>📅 Turnos por Día</h3>
         {% if turnos_por_dia %}
-            <div style="max-height: 200px; overflow-y: auto;">
-                <table style="width: 100%; font-size: 0.9em;">
-                    {% for dia in turnos_por_dia %}
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 4px;">{{ dia.fecha|date:"d/m" }}</td>
-                        <td style="padding: 4px;">
-                            <div style="background: #4A90D9; height: 16px; width: {% widthratio dia.total total_turnos 100 %}%; min-width: 20px; border-radius: 4px;"></div>
-                        </td>
-                        <td style="padding: 4px; font-weight: bold;">{{ dia.total }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
+            <div class="dashboard-barras">
+                {% for dia in turnos_por_dia %}
+                <div class="dashboard-barra-item">
+                    <span class="dashboard-barra-fecha">{{ dia.fecha|date:"d/m" }}</span>
+                    <div class="dashboard-barra" style="width: {% widthratio dia.total total_turnos 100 %}%;"></div>
+                    <span class="dashboard-barra-valor">{{ dia.total }}</span>
+                </div>
+                {% endfor %}
             </div>
         {% else %}
-            <p style="color: #999;">Sin datos</p>
+            <p class="text-muted" style="text-align: center; padding: 20px;">Sin datos</p>
         {% endif %}
     </div>
     
@@ -125,36 +126,33 @@
 
 <!-- Comparativa profesional (solo secretaria) -->
 {% if comparativa_profesional %}
-<div class="card" style="margin-top: 20px;">
-    <h3 style="margin-bottom: 15px;">👨‍⚕️ Comparativa por Profesional</h3>
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #f8f9fa;">
-                <th style="padding: 10px;">Profesional</th>
-                <th style="padding: 10px;">Total</th>
-                <th style="padding: 10px;">Completados</th>
-                <th style="padding: 10px;">Cancelados</th>
-                <th style="padding: 10px;">Tasa</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in comparativa_profesional %}
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px;">{{ p.profesional__nombre }} {{ p.profesional__apellido }}</td>
-                <td style="padding: 10px; font-weight: bold;">{{ p.total }}</td>
-                <td style="padding: 10px; color: #28a745;">{{ p.completados }}</td>
-                <td style="padding: 10px; color: #dc3545;">{{ p.cancelados }}</td>
-                <td style="padding: 10px;">
-                    {% if p.total > 0 %}
-                        {{ p.completados|floatformat:0 }}%
-                    {% else %}—{% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="dashboard-card dashboard-comparativa">
+    <h3>👨‍⚕️ Comparativa por Profesional</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Profesional</th>
+                    <th>Total</th>
+                    <th>Completados</th>
+                    <th>Cancelados</th>
+                    <th>Tasa</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in comparativa_profesional %}
+                <tr>
+                    <td>{{ p.profesional__nombre }} {{ p.profesional__apellido }}</td>
+                    <td><strong>{{ p.total }}</strong></td>
+                    <td style="color: var(--success);">{{ p.completados }}</td>
+                    <td style="color: var(--danger);">{{ p.cancelados }}</td>
+                    <td>{% if p.total > 0 %}{{ p.completados|floatformat:0 }}%{% else %}—{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endif %}
-
 
 {% endblock %}

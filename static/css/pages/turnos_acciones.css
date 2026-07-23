@@ -1,0 +1,1581 @@
+/* =============================================
+   TURNOS - Asignar, evolución, cobranza
+   ============================================= */
+
+/* Contenedor */
+.turnos-container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.turnos-container-wide {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+/* =============================================
+   SLOT INFO CARD (asignar turno desde calendario)
+   ============================================= */
+.slot-info-card {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.slot-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    text-align: center;
+}
+
+.slot-info-valor {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.slot-info-etiqueta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* =============================================
+   PACIENTE OPTION (selector de paciente)
+   ============================================= */
+.paciente-option {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.paciente-option:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.paciente-option.seleccionado {
+    border-color: var(--success);
+    background: var(--success-light);
+}
+
+.paciente-option input[type="radio"] {
+    margin-right: 14px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--success);
+    flex-shrink: 0;
+}
+
+.paciente-option-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.paciente-option-nombre {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.paciente-option-detalle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.paciente-option-badge {
+    flex-shrink: 0;
+}
+
+/* =============================================
+   INFO BAR DEL PACIENTE (asignar desde ficha)
+   ============================================= */
+.paciente-info-bar {
+    background: var(--primary-light);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.paciente-info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.paciente-info-item i {
+    color: var(--primary);
+}
+
+.paciente-info-item strong {
+    font-weight: 600;
+}
+
+/* =============================================
+   SELECTOR DE DÍAS Y HORARIOS
+   ============================================= */
+.dia-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dia-option {
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    text-align: center;
+    min-width: 90px;
+    transition: all 0.2s ease;
+    background: white;
+    user-select: none;
+}
+
+.dia-option:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.dia-option.seleccionado {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.dia-option input[type="radio"] {
+    display: none;
+}
+
+.dia-option-numero {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text);
+}
+
+.dia-option-mes {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.dia-option-nombre {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* Horarios */
+.horarios-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.horarios-dia-grupo {
+    display: none;
+}
+
+.horarios-dia-grupo.activo {
+    display: flex;
+}
+
+.hora-option {
+    display: block;
+    padding: 12px 20px;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    background: white;
+    user-select: none;
+}
+
+.hora-option:hover {
+    background: var(--primary-light);
+}
+
+.hora-option.seleccionada {
+    border-color: var(--success);
+    background: var(--success-light);
+    color: #065f46;
+}
+
+.hora-option input[type="radio"] {
+    display: none;
+}
+
+/* =============================================
+   INDICADOR DE PASOS
+   ============================================= */
+.paso-indicador {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.paso-numero {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.paso-texto {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* =============================================
+   EVOLUCIÓN (header y formulario)
+   ============================================= */
+.evolucion-header {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.evolucion-header-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.evolucion-header-item i {
+    color: var(--primary);
+}
+
+/* Zona de upload */
+.upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    background: var(--bg-alt);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.upload-zone i {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.upload-zone p {
+    color: var(--text-muted);
+    margin: 4px 0;
+}
+
+.upload-zone .upload-titulo {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.upload-zone .upload-subtitulo {
+    font-size: 0.85rem;
+}
+
+/* Previsualización de imágenes */
+.preview-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 2px solid var(--border);
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Próximo control */
+.proximo-control-card {
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+}
+
+.proximo-control-card .nota {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 12px;
+}
+
+.proximo-control-card .nota i {
+    margin-right: 4px;
+}
+
+/* =============================================
+   COBRANZA (dashboard)
+   ============================================= */
+.cobranza-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.cobranza-stat {
+    text-align: center;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+}
+
+.cobranza-stat.facturado {
+    background: #fef3c7;
+    border-color: #fde68a;
+}
+
+.cobranza-stat.cobrado {
+    background: #dcfce7;
+    border-color: #bbf7d0;
+}
+
+.cobranza-stat.pendiente {
+    background: #fee2e2;
+    border-color: #fecaca;
+}
+
+.cobranza-stat .stat-etiqueta {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.cobranza-stat.facturado .stat-etiqueta { color: #92400e; }
+.cobranza-stat.cobrado .stat-etiqueta { color: #15803d; }
+.cobranza-stat.pendiente .stat-etiqueta { color: #991b1b; }
+
+.cobranza-stat .stat-valor {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.cobranza-stat.facturado .stat-valor { color: #92400e; }
+.cobranza-stat.cobrado .stat-valor { color: #15803d; }
+.cobranza-stat.pendiente .stat-valor { color: #991b1b; }
+
+/* =============================================
+   BÚSQUEDA (compartida)
+   ============================================= */
+.turnos-busqueda-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.turnos-busqueda-wrapper i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.turnos-busqueda-input {
+    width: 100%;
+    padding: 14px 16px 14px 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.turnos-busqueda-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* =============================================
+   FORMULARIO CAMPOS
+   ============================================= */
+.turnos-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.turnos-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.turnos-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+    min-height: 80px;
+}
+
+.turnos-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.turnos-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.turnos-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.turnos-label .required {
+    color: var(--danger);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .turnos-container,
+    .turnos-container-wide {
+        padding: 0 16px 32px;
+    }
+    
+    .slot-info-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .paciente-info-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .cobranza-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .dia-option {
+        min-width: 70px;
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .evolucion-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+/* =============================================
+   COBRANZA (estilos adicionales)
+   ============================================= */
+
+.cobranza-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cobranza-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.cobranza-navegacion {
+    display: flex;
+    gap: 10px;
+}
+
+.cobranza-mes {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.cobranza-tabla td {
+    vertical-align: middle;
+}
+
+.cobranza-tabla .paciente-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.cobranza-tabla .paciente-link:hover {
+    text-decoration: underline;
+}
+
+.cobranza-tabla .monto-os {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.cobranza-tabla .monto-coseguro {
+    color: var(--danger);
+    font-weight: 500;
+}
+
+.cobranza-tabla .monto-total {
+    font-weight: 600;
+}
+
+
+/* =============================================
+   DASHBOARD
+   ============================================= */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.dashboard-filtros {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dashboard-filtro-btn {
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white;
+    background: var(--gray-500);
+    transition: all 0.15s ease;
+}
+
+.dashboard-filtro-btn:hover {
+    opacity: 0.9;
+    color: white;
+    text-decoration: none;
+}
+
+.dashboard-filtro-btn.activo {
+    background: var(--primary);
+}
+
+.dashboard-acciones {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dashboard-periodo {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+/* Métricas */
+.dashboard-metricas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.dashboard-metrica {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.dashboard-metrica .metrica-valor {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.dashboard-metrica .metrica-etiqueta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.dashboard-metrica .metrica-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.dashboard-metrica.total .metrica-valor { color: var(--primary); }
+.dashboard-metrica.asistencia .metrica-valor { color: var(--success); }
+.dashboard-metrica.pacientes .metrica-valor { color: #d97706; }
+.dashboard-metrica.facturado .metrica-valor { color: var(--success); }
+
+/* Grid del dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.dashboard-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 16px 0;
+}
+
+/* Estados */
+.dashboard-estados {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.dashboard-estado-item {
+    text-align: center;
+    flex: 1;
+}
+
+.dashboard-estado-item .estado-numero {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.dashboard-estado-item .estado-nombre {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Lista simple */
+.dashboard-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dashboard-lista li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-lista li:last-child {
+    border-bottom: none;
+}
+
+.dashboard-lista .lista-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.dashboard-lista .lista-link:hover {
+    text-decoration: underline;
+}
+
+.dashboard-lista .lista-valor {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Barras de turnos por día */
+.dashboard-barras {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dashboard-barra-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 0.9rem;
+}
+
+.dashboard-barra-fecha {
+    width: 40px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.dashboard-barra {
+    height: 16px;
+    background: var(--primary);
+    border-radius: var(--radius-sm);
+    min-width: 20px;
+    transition: width 0.3s ease;
+}
+
+.dashboard-barra-valor {
+    font-weight: 600;
+    color: var(--text);
+    margin-left: 4px;
+}
+
+/* Comparativa tabla */
+.dashboard-comparativa {
+    margin-top: 20px;
+}
+
+/* =============================================
+   REGISTRAR COBRO
+   ============================================= */
+.cobro-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.cobro-container h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+}
+
+.cobro-paciente-card {
+    background: #f0f7ff;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cobro-paciente-info .nombre {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cobro-paciente-info .detalle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.cobro-plan-badge {
+    text-align: right;
+}
+
+/* Monto total */
+.cobro-monto-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.cobro-monto-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Bloque OS */
+.cobro-os-block {
+    background: #f0fdf4;
+    padding: 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    border: 1px solid #bbf7d0;
+}
+
+.cobro-os-block label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.cobro-os-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #22c55e;
+    border-radius: var(--radius);
+    font-size: 1.1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.cobro-os-input:focus {
+    outline: none;
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Bloque coseguro */
+.cobro-coseguro-block {
+    padding: 20px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    text-align: center;
+    border: 2px solid;
+}
+
+.cobro-coseguro-block.con-os {
+    background: #fef2f2;
+    border-color: var(--danger);
+}
+
+.cobro-coseguro-block.sin-os {
+    background: #fef3c7;
+    border-color: #d97706;
+}
+
+.cobro-coseguro-etiqueta {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.cobro-coseguro-block.con-os .cobro-coseguro-etiqueta { color: #991b1b; }
+.cobro-coseguro-block.sin-os .cobro-coseguro-etiqueta { color: #92400e; }
+
+.cobro-coseguro-monto {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.cobro-coseguro-block.con-os .cobro-coseguro-monto { color: var(--danger); }
+.cobro-coseguro-block.sin-os .cobro-coseguro-monto { color: #d97706; }
+
+.cobro-coseguro-detalle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Botones */
+.cobro-botones {
+    display: flex;
+    gap: 10px;
+}
+
+.cobro-botones .btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 1.1rem;
+    justify-content: center;
+}
+
+/* =============================================
+   EDITAR TURNO
+   ============================================= */
+.editar-turno-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.editar-turno-container h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.editar-turno-paciente {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.editar-turno-paciente strong {
+    color: var(--text);
+}
+
+/* Selector de día editable */
+.editar-dia-label {
+    padding: 10px 15px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-align: center;
+    min-width: 85px;
+    background: white;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.editar-dia-label:hover {
+    border-color: var(--primary);
+}
+
+.editar-dia-label.seleccionado {
+    border-color: var(--primary);
+    background: #eff6ff;
+}
+
+.editar-dia-label input {
+    display: none;
+}
+
+.editar-dia-numero {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.editar-dia-mes {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.editar-dia-nombre {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Selector de hora editable */
+.editar-hora-label {
+    padding: 10px 18px;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary);
+    background: white;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.editar-hora-label:hover {
+    background: var(--primary-light);
+}
+
+.editar-hora-label.seleccionada {
+    border-color: var(--success);
+    color: #065f46;
+    background: #f0fdf4;
+}
+
+.editar-hora-label input {
+    display: none;
+}
+
+/* Archivos existentes */
+.editar-archivos-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.editar-archivo-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.editar-archivo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.editar-archivo-item a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-alt);
+    text-decoration: none;
+    font-size: 1.5rem;
+}
+
+/* =============================================
+   PANEL SECRETARÍA
+   ============================================= */
+.secretaria-acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.secretaria-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white;
+    transition: all 0.15s ease;
+}
+
+.secretaria-btn:hover {
+    opacity: 0.9;
+    color: white;
+    text-decoration: none;
+}
+
+.secretaria-btn-calendario { background: var(--info); }
+.secretaria-btn-buscar { background: var(--gray-500); }
+.secretaria-btn-nuevo { background: var(--success); }
+
+/* Aviso profesionales orden de llegada */
+.secretaria-aviso {
+    background: #fef3c7;
+    border: 1px solid #d97706;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    color: #92400e;
+    font-size: 0.9rem;
+}
+
+.secretaria-aviso strong {
+    color: #92400e;
+}
+
+.secretaria-aviso small {
+    display: block;
+    margin-top: 4px;
+    color: #a16207;
+}
+
+/* Selector de profesional */
+.secretaria-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.secretaria-selector label {
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text);
+}
+
+.secretaria-selector select {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    min-width: 250px;
+    background: white;
+    cursor: pointer;
+}
+
+/* Punto de color del profesional en tabla */
+.profesional-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .dashboard-metricas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .cobro-container,
+    .editar-turno-container {
+        padding: 0 16px 32px;
+    }
+    
+    .cobro-botones {
+        flex-direction: column;
+    }
+    
+    .secretaria-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .secretaria-selector select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-filtros {
+        width: 100%;
+    }
+    
+    .dashboard-filtro-btn {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .editar-dia-label {
+        min-width: 65px;
+        padding: 8px 10px;
+    }
+}
+
+/* =============================================
+   PANEL PROFESIONAL (versión resumida)
+   ============================================= */
+.panel-pro-acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.panel-pro-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: white;
+    transition: all 0.15s ease;
+}
+
+.panel-pro-btn:hover {
+    opacity: 0.9;
+    color: white;
+    text-decoration: none;
+}
+
+.panel-pro-btn-perfil { background: var(--gray-500); }
+.panel-pro-btn-calendario { background: var(--info); }
+.panel-pro-btn-nuevo { background: var(--success); }
+.panel-pro-btn-dashboard { background: #7c3aed; }
+.panel-pro-btn-buscar { background: var(--primary); }
+
+/* Próximos turnos (lista compacta) */
+.proximos-turnos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.proximo-turno-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+}
+
+.proximo-turno-fecha {
+    min-width: 60px;
+    text-align: center;
+}
+
+.proximo-turno-fecha .dia {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+}
+
+.proximo-turno-fecha .mes {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.proximo-turno-separador {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+}
+
+.proximo-turno-info {
+    flex: 1;
+}
+
+.proximo-turno-info .paciente {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.proximo-turno-info .hora {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Badge de sesiones */
+.sesiones-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--info-light);
+    color: #155e75;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* =============================================
+   REPROGRAMAR TURNO
+   ============================================= */
+.reprogramar-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.reprogramar-container h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.reprogramar-info {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.reprogramar-info strong {
+    color: var(--text);
+}
+
+/* Aviso hoy */
+.reprogramar-aviso {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    color: #856404;
+    font-size: 0.9rem;
+}
+
+.reprogramar-aviso p {
+    margin: 0;
+}
+
+/* Día con etiqueta HOY */
+.dia-hoy-badge {
+    font-size: 0.6rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+/* =============================================
+   RESERVA MÚLTIPLE
+   ============================================= */
+.reserva-multiple-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.reserva-multiple-container h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.reserva-multiple-container .subtitulo {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+/* Paciente seleccionado */
+.reserva-paciente-confirmado {
+    padding: 12px;
+    background: #f0fdf4;
+    border-radius: var(--radius);
+    border: 1px solid #bbf7d0;
+    font-size: 0.95rem;
+}
+
+.reserva-paciente-confirmado strong {
+    color: var(--text);
+}
+
+.reserva-paciente-confirmado .detalle {
+    color: var(--text-muted);
+}
+
+/* Fila de día */
+.reserva-dia-fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.reserva-dia-fila:last-child {
+    border-bottom: none;
+}
+
+.reserva-dia-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    min-width: 120px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.reserva-dia-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+.reserva-dia-hora {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+}
+
+.reserva-dia-etiqueta {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Semanas */
+.reserva-semanas-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.reserva-semanas-input {
+    width: 80px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+/* =============================================
+   SOBRETURNO
+   ============================================= */
+.sobreturno-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.sobreturno-container h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.sobreturno-info {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.sobreturno-info strong {
+    color: var(--text);
+}
+
+.sobreturno-aviso {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+
+.sobreturno-aviso p {
+    margin: 0;
+    color: #856404;
+    font-size: 0.9rem;
+}
+
+/* Opción de paciente (radio) */
+.sobreturno-paciente-option {
+    display: block;
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+}
+
+.sobreturno-paciente-option:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.sobreturno-paciente-option input[type="radio"] {
+    margin-right: 10px;
+    accent-color: var(--primary);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .reprogramar-container,
+    .reserva-multiple-container,
+    .sobreturno-container {
+        padding: 0 16px 32px;
+    }
+    
+    .proximo-turno-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .proximo-turno-separador {
+        display: none;
+    }
+    
+    .panel-pro-acciones {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .panel-pro-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .reserva-dia-fila {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

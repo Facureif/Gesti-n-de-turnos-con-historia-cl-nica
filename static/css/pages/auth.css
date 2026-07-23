@@ -1,0 +1,130 @@
+/* =============================================
+   AUTENTICACIÓN - Login y Registro
+   ============================================= */
+
+.auth-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.auth-container-wide {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+}
+
+.auth-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-card h2 {
+    text-align: center;
+    margin: 0 0 20px 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.auth-card .subtitulo {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+/* Campos del formulario */
+.auth-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.95rem;
+    margin-top: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.auth-label {
+    display: block;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.auth-form-group {
+    margin-bottom: 16px;
+}
+
+/* Grid de 2 columnas para registro */
+.auth-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Separador */
+.auth-separador {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid var(--border);
+}
+
+/* Botón submit */
+.auth-submit {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+/* Link al pie */
+.auth-footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 480px) {
+    .auth-container,
+    .auth-container-wide {
+        margin: 20px auto;
+        padding: 0 16px 32px;
+    }
+    
+    .auth-card {
+        padding: 24px 20px;
+    }
+    
+    .auth-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}

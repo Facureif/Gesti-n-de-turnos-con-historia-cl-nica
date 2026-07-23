@@ -1,27 +1,33 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Reserva Múltiple{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
+<div class="reserva-multiple-container">
+
     <h1>📅 Reserva Múltiple</h1>
-    <p style="color: #666; margin-bottom: 20px;">Creá varios turnos para un paciente de una sola vez.</p>
+    <p class="subtitulo">Creá varios turnos para un paciente de una sola vez.</p>
 
     <form method="post">
         {% csrf_token %}
         
         <!-- Seleccionar paciente -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3>👤 Paciente</h3>
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700;">👤 Paciente</h3>
             {% if paciente_seleccionado %}
-                <div style="padding: 12px; background: #f0fdf4; border-radius: 8px;">
+                <div class="reserva-paciente-confirmado">
                     <strong>{{ paciente_seleccionado.nombre_completo }}</strong>
-                    <span style="color: #666;">· DNI: {{ paciente_seleccionado.dni }}</span>
+                    <span class="detalle">· DNI: {{ paciente_seleccionado.dni }}</span>
                     <input type="hidden" name="paciente_id" value="{{ paciente_seleccionado.id }}">
                 </div>
             {% else %}
                 <input type="text" name="buscar_paciente" placeholder="Buscar por nombre o DNI..."
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+                       class="turnos-input"
                        hx-get="{% url 'buscar_paciente_ajax' %}"
                        hx-trigger="keyup changed delay:300ms"
                        hx-target="#resultados-busqueda">
@@ -31,41 +37,40 @@
         
         {% if paciente_seleccionado %}
         <!-- Días y horarios -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3>📅 Días y Horarios</h3>
-            <p style="color: #666; font-size: 0.85em;">Seleccioná los días y la hora para cada uno.</p>
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 4px 0; font-size: 1rem; font-weight: 700;">📅 Días y Horarios</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">Seleccioná los días y la hora para cada uno.</p>
             
             {% for dia in dias_semana %}
-            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 120px;">
-                    <input type="checkbox" name="dias" value="{{ dia.0 }}" style="width: 18px; height: 18px;">
-                    <span style="font-weight: 500;">{{ dia.1 }}</span>
+            <div class="reserva-dia-fila">
+                <label class="reserva-dia-checkbox">
+                    <input type="checkbox" name="dias" value="{{ dia.0 }}">
+                    <span>{{ dia.1 }}</span>
                 </label>
-                <input type="time" name="hora_{{ dia.0 }}" value="09:00"
-                       style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                <span style="color: #999; font-size: 0.8em;">hs</span>
+                <input type="time" name="hora_{{ dia.0 }}" value="09:00" class="reserva-dia-hora">
+                <span class="reserva-dia-etiqueta">hs</span>
             </div>
             {% endfor %}
         </div>
         
         <!-- Duración -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3>🔄 Duración</h3>
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <span>Cantidad de semanas:</span>
-                <input type="number" name="semanas" value="4" min="1" max="12"
-                       style="width: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700;">🔄 Duración</h3>
+            <div class="reserva-semanas-row">
+                <span style="font-weight: 500;">Cantidad de semanas:</span>
+                <input type="number" name="semanas" value="4" min="1" max="12" class="reserva-semanas-input">
             </div>
         </div>
         
-        <button type="submit" class="btn btn-success" style="width: 100%; padding: 14px; font-size: 1.1em;">
+        <button type="submit" class="btn btn-success btn-lg" style="width: 100%; padding: 14px; font-size: 1.1rem; justify-content: center;">
             📅 Crear Reservas
         </button>
         {% endif %}
         
-        <a href="{% url 'panel_profesional' %}" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">
+        <a href="{% url 'panel_profesional' %}" class="btn btn-secondary" style="width: 100%; margin-top: 8px; justify-content: center;">
             Cancelar
         </a>
     </form>
+    
 </div>
 {% endblock %}

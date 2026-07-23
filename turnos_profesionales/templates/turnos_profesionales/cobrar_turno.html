@@ -1,95 +1,82 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Registrar Cobro{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 500px; margin: 0 auto;">
+<div class="cobro-container">
+
     <h1>💰 Registrar Cobro</h1>
     
     <!-- Info del paciente -->
-    <div class="card" style="margin-bottom: 20px; background: #f0f7ff;">
-        <div style="display: flex; justify-content: space-between;">
-            <div>
-                <strong>{{ paciente.nombre_completo }}</strong>
-                <div style="color: #666; font-size: 0.9em;">
-                    {{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }}
-                </div>
-            </div>
-            <div style="text-align: right;">
-                {% if plan %}
-                    <span class="badge badge-info">{{ plan.obra_social.sigla }}</span>
-                    <div style="font-size: 0.8em; color: #666;">{{ plan.nombre }}</div>
-                {% else %}
-                    <span class="badge badge-gray">Particular</span>
-                {% endif %}
-            </div>
+    <div class="cobro-paciente-card">
+        <div class="cobro-paciente-info">
+            <div class="nombre">{{ paciente.nombre_completo }}</div>
+            <div class="detalle">{{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }}</div>
+        </div>
+        <div class="cobro-plan-badge">
+            {% if plan %}
+                <span class="badge badge-info">{{ plan.obra_social.sigla }}</span>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ plan.nombre }}</div>
+            {% else %}
+                <span class="badge badge-gray">Particular</span>
+            {% endif %}
         </div>
     </div>
     
     <div class="card">
-        <form method="post" id="form-cobro">
+        <form method="post" id="form-cobro" style="padding: 20px;">
             {% csrf_token %}
             
             <!-- Monto total -->
             <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 6px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--text);">
                     💵 Monto total de la consulta
                 </label>
                 <input type="number" name="monto_total" id="monto_total" step="0.01" min="0"
                        value="{{ profesional.precio_particular|default:'' }}"
-                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1em;"
+                       class="cobro-monto-input"
                        placeholder="Ej: 15000"
                        oninput="calcularCoseguro()">
             </div>
             
             {% if plan %}
-            <!-- Si tiene OS -->
-            <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 6px;">
-                        🏥 Cubre {{ plan.obra_social.nombre }}
-                    </label>
-                    <input type="number" name="monto_os" id="monto_os" step="0.01" min="0"
-                           style="width: 100%; padding: 12px; border: 1px solid #22c55e; border-radius: 8px; font-size: 1.1em;"
-                           placeholder="Monto que cubre la OS"
-                           oninput="calcularCoseguro()">
-                </div>
+            <div class="cobro-os-block">
+                <label>🏥 Cubre {{ plan.obra_social.nombre }}</label>
+                <input type="number" name="monto_os" id="monto_os" step="0.01" min="0"
+                       class="cobro-os-input"
+                       placeholder="Monto que cubre la OS"
+                       oninput="calcularCoseguro()">
             </div>
             {% endif %}
             
-            <!-- Coseguro (calculado automáticamente) -->
-            <div style="background: {% if plan %}#fef2f2{% else %}#fef3c7{% endif %}; 
-                        padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;
-                        border: 2px solid {% if plan %}#ef4444{% else %}#f59e0b{% endif %};">
-                
+            <!-- Coseguro -->
+            <div class="cobro-coseguro-block {% if plan %}con-os{% else %}sin-os{% endif %}">
                 {% if plan %}
-                <div style="font-size: 0.9em; color: #991b1b; margin-bottom: 4px;">
-                    💰 COBRAR AL PACIENTE AHORA
-                </div>
+                <div class="cobro-coseguro-etiqueta">💰 COBRAR AL PACIENTE AHORA</div>
                 {% else %}
-                <div style="font-size: 0.9em; color: #92400e; margin-bottom: 4px;">
-                    👤 PACIENTE PARTICULAR · COBRAR TOTAL
-                </div>
+                <div class="cobro-coseguro-etiqueta">👤 PACIENTE PARTICULAR · COBRAR TOTAL</div>
                 {% endif %}
                 
-                <div style="font-size: 2.5em; font-weight: 800; color: {% if plan %}#ef4444{% else %}#f59e0b{% endif %};" id="coseguro-mostrado">
-                    $0.00
-                </div>
+                <div class="cobro-coseguro-monto" id="coseguro-mostrado">$0.00</div>
                 <input type="hidden" name="monto_coseguro" id="monto_coseguro" value="">
                 
-                <div style="font-size: 0.8em; color: #666; margin-top: 4px;" id="detalle-calculo"></div>
+                <div class="cobro-coseguro-detalle" id="detalle-calculo"></div>
             </div>
             
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-success" style="flex: 1; padding: 14px; font-size: 1.1em;">
+            <div class="cobro-botones">
+                <button type="submit" class="btn btn-success">
                     💾 Registrar Cobro
                 </button>
-                <a href="{% url 'panel_profesional' %}" class="btn btn-secondary" style="padding: 14px 20px;">
-                    Saltar
-                </a>
+                <a href="{% url 'panel_profesional' %}" class="btn btn-secondary">Saltar</a>
             </div>
         </form>
     </div>
+    
 </div>
 
 <script>
@@ -109,9 +96,6 @@ function calcularCoseguro() {
     {% endif %}
 }
 
-// Calcular al cargar si ya hay valores
-window.onload = function() {
-    calcularCoseguro();
-};
+window.onload = function() { calcularCoseguro(); };
 </script>
 {% endblock %}

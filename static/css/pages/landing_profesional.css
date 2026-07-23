@@ -445,19 +445,25 @@ HERO
    FOOTER
    ============================================= */
 .footer {
-    width: 100%;
+    width: 100vw; /* Ancho completo de la ventana */
+    margin-left: calc(-50vw + 50%); /* Corrige el scrollbar y centra */
+    margin-right: calc(-50vw + 50%);
     background: #0f172a;
     color: #94a3b8;
-    padding: 25px 0 40px 0;
+    padding: 10px 0 10px 0; 
     font-size: 0.85rem;
+    box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
 }
 
 .footer-content {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-around; /* O space-between según tu preferencia */
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
+    max-width: 1140px; /* Opcional: Para que el texto no quede pegado a los bordes */
+    margin: 0 auto;    /* Centra el contenido interno */
+    padding: 0 20px;   /* Un poco de aire interno */
 }
 
 .footer a {

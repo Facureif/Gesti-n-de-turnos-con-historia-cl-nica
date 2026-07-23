@@ -1,84 +1,77 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Registro de Paciente{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/auth.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 500px; margin: 50px auto;">
-    <div class="card">
-        <h2 style="text-align: center; margin-bottom: 20px;">Crear Cuenta</h2>
-        <p style="text-align: center; color: #666; margin-bottom: 20px;">
-            Registrate para acceder a tu historial y gestionar tus turnos
-        </p>
+<div class="auth-container-wide">
+    <div class="auth-card">
+        <h2>Crear Cuenta</h2>
+        <p class="subtitulo">Registrate para acceder a tu historial y gestionar tus turnos</p>
         
         <form method="post">
             {% csrf_token %}
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label>Nombre:</label>
-                    <input type="text" name="nombre" required 
-                           style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <!-- Datos personales -->
+            <div class="auth-grid-2">
+                <div class="auth-form-group">
+                    <label class="auth-label">Nombre</label>
+                    <input type="text" name="nombre" required class="auth-input">
                 </div>
                 
-                <div>
-                    <label>Apellido:</label>
-                    <input type="text" name="apellido" required 
-                           style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="auth-form-group">
+                    <label class="auth-label">Apellido</label>
+                    <input type="text" name="apellido" required class="auth-input">
                 </div>
                 
-                <div>
-                    <label>DNI:</label>
-                    <input type="text" name="dni" required 
-                           style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="auth-form-group">
+                    <label class="auth-label">DNI</label>
+                    <input type="text" name="dni" required class="auth-input">
                 </div>
                 
-                <div>
-                    <label>Fecha de Nacimiento:</label>
-                    <input type="date" name="fecha_nacimiento" required 
-                           style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="auth-form-group">
+                    <label class="auth-label">Fecha de Nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" required class="auth-input">
                 </div>
                 
-                <div>
-                    <label>Teléfono:</label>
-                    <input type="text" name="telefono" required 
-                           style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="auth-form-group">
+                    <label class="auth-label">Teléfono</label>
+                    <input type="text" name="telefono" required class="auth-input">
                 </div>
                 
-                <div>
-                    <label>Email:</label>
-                    <input type="email" name="email" required 
-                           style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <div class="auth-form-group">
+                    <label class="auth-label">Email</label>
+                    <input type="email" name="email" required class="auth-input">
                 </div>
             </div>
             
-            <hr style="margin: 20px 0;">
+            <hr class="auth-separador">
             
-            <div style="margin-bottom: 15px;">
-                <label>Nombre de Usuario:</label>
-                <input type="text" name="username" required 
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <!-- Datos de cuenta -->
+            <div class="auth-form-group">
+                <label class="auth-label">Nombre de Usuario</label>
+                <input type="text" name="username" required class="auth-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Contraseña:</label>
-                <input type="password" name="password" required 
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <div class="auth-form-group">
+                <label class="auth-label">Contraseña</label>
+                <input type="password" name="password" required class="auth-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Repetir Contraseña:</label>
-                <input type="password" name="password2" required 
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <div class="auth-form-group">
+                <label class="auth-label">Repetir Contraseña</label>
+                <input type="password" name="password2" required class="auth-input">
             </div>
             
-            <button type="submit" class="btn btn-success" style="width: 100%;">
-                Crear Cuenta
-            </button>
+            <button type="submit" class="btn btn-success auth-submit">Crear Cuenta</button>
         </form>
         
-        <p style="text-align: center; margin-top: 15px;">
-            ¿Ya tenés cuenta? 
-            <a href="{% url 'login' %}">Iniciá sesión</a>
+        <p class="auth-footer">
+            ¿Ya tenés cuenta? <a href="{% url 'login' %}">Iniciá sesión</a>
         </p>
     </div>
 </div>

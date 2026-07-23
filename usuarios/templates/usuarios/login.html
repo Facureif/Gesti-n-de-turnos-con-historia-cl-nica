@@ -1,14 +1,20 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/auth.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 400px; margin: 50px auto;">
-    <div class="card">
-        <h2 style="text-align: center; margin-bottom: 20px;">Iniciar Sesión</h2>
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Iniciar Sesión</h2>
         
         {% if form.errors %}
             <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
                 Usuario o contraseña incorrectos. Intentá de nuevo.
             </div>
         {% endif %}
@@ -16,32 +22,21 @@
         <form method="post">
             {% csrf_token %}
             
-            <div style="margin-bottom: 15px;">
-                <label for="id_username">Usuario:</label>
-                <input type="text" 
-                       name="username" 
-                       id="id_username" 
-                       required 
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <div class="auth-form-group">
+                <label for="id_username" class="auth-label">Usuario</label>
+                <input type="text" name="username" id="id_username" required class="auth-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label for="id_password">Contraseña:</label>
-                <input type="password" 
-                       name="password" 
-                       id="id_password" 
-                       required 
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <div class="auth-form-group">
+                <label for="id_password" class="auth-label">Contraseña</label>
+                <input type="password" name="password" id="id_password" required class="auth-input">
             </div>
             
-            <button type="submit" class="btn" style="width: 100%;">
-                Ingresar
-            </button>
+            <button type="submit" class="btn auth-submit">Ingresar</button>
         </form>
         
-        <p style="text-align: center; margin-top: 15px;">
-            ¿No tenés cuenta? 
-            <a href="{% url 'registro' %}">Registrate acá</a>
+        <p class="auth-footer">
+            ¿No tenés cuenta? <a href="{% url 'registro' %}">Registrate acá</a>
         </p>
     </div>
 </div>

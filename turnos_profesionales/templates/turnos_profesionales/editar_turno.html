@@ -1,12 +1,17 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Editar Turno{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 700px; margin: 0 auto;">
-    <h1 style="margin-bottom: 5px;">✏️ Editar Turno</h1>
-    
-    <p style="color: #666; margin-bottom: 20px;">
+<div class="editar-turno-container">
+
+    <h1>✏️ Editar Turno</h1>
+    <p class="editar-turno-paciente">
         Paciente: <strong>{{ turno.paciente.nombre_completo }}</strong>
     </p>
     
@@ -14,50 +19,34 @@
         {% csrf_token %}
         
         <!-- Fecha y Hora -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px;">📅 Fecha y Hora</h3>
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700;">📅 Fecha y Hora</h3>
             
-            <div style="margin-bottom: 15px;">
-                <label>Fecha actual: <strong>{{ turno.fecha|date:"d/m/Y" }}</strong></label>
-            </div>
+            <p style="color: var(--text-muted); margin-bottom: 12px;">
+                Fecha actual: <strong>{{ turno.fecha|date:"d/m/Y" }}</strong>
+            </p>
             
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+            <div class="dia-selector" style="margin-bottom: 16px;">
                 {% for dia in dias_disponibles %}
-                <label style="
-                    padding: 10px 15px;
-                    border: 2px solid {% if dia.fecha == turno.fecha %}#28a745{% else %}#ddd{% endif %};
-                    border-radius: 8px;
-                    cursor: pointer;
-                    text-align: center;
-                    min-width: 85px;
-                    background: {% if dia.fecha == turno.fecha %}#f0fff4{% else %}white{% endif %};
-                " class="dia-label" onclick="seleccionarDia(this, '{{ dia.fecha_str }}')">
+                <label class="editar-dia-label {% if dia.fecha == turno.fecha %}seleccionado{% endif %}" 
+                       onclick="seleccionarDia(this, '{{ dia.fecha_str }}')">
                     <input type="radio" name="fecha" value="{{ dia.fecha_str }}" 
-                           style="display: none;"
                            {% if dia.fecha == turno.fecha %}checked{% endif %}>
-                    <div style="font-weight: bold;">{{ dia.fecha|date:"d" }}</div>
-                    <div style="font-size: 0.8em; color: #666;">{{ dia.fecha|date:"M" }}</div>
-                    <div style="font-size: 0.7em; color: #999;">{{ dia.nombre_dia|slice:":3" }}</div>
+                    <div class="editar-dia-numero">{{ dia.fecha|date:"d" }}</div>
+                    <div class="editar-dia-mes">{{ dia.fecha|date:"M" }}</div>
+                    <div class="editar-dia-nombre">{{ dia.nombre_dia|slice:":3" }}</div>
                 </label>
                 {% endfor %}
             </div>
             
             <div id="horarios-container">
                 {% for dia in dias_disponibles %}
-                <div class="horarios-dia" data-fecha="{{ dia.fecha_str }}" 
-                     style="display: {% if dia.fecha == turno.fecha %}flex{% else %}none{% endif %}; gap: 10px; flex-wrap: wrap;">
+                <div class="horarios-selector horarios-dia-grupo {% if dia.fecha == turno.fecha %}activo{% endif %}" 
+                     data-fecha="{{ dia.fecha_str }}">
                     {% for slot in dia.slots %}
-                    <label style="
-                        padding: 10px 18px;
-                        border: 2px solid {% if dia.fecha == turno.fecha and slot == turno.hora_inicio|time:'H:i' %}#28a745{% else %}#4A90D9{% endif %};
-                        border-radius: 8px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        color: {% if dia.fecha == turno.fecha and slot == turno.hora_inicio|time:'H:i' %}#28a745{% else %}#4A90D9{% endif %};
-                        background: {% if dia.fecha == turno.fecha and slot == turno.hora_inicio|time:'H:i' %}#f0fff4{% else %}white{% endif %};
-                    " class="hora-label" onclick="seleccionarHora(this)">
-                        <input type="radio" name="hora" value="{{ slot }}" 
-                               style="display: none;"
+                    <label class="editar-hora-label {% if dia.fecha == turno.fecha and slot == turno.hora_inicio|time:'H:i' %}seleccionada{% endif %}" 
+                           onclick="seleccionarHora(this)">
+                        <input type="radio" name="hora" value="{{ slot }}"
                                {% if dia.fecha == turno.fecha and slot == turno.hora_inicio|time:'H:i' %}checked{% endif %}>
                         {{ slot }}
                     </label>
@@ -69,17 +58,15 @@
 
         <!-- Archivos existentes -->
         {% if turno.archivos.all %}
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 10px;">📎 Archivos adjuntos</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">📎 Archivos adjuntos</h3>
+            <div class="editar-archivos-grid">
                 {% for archivo in turno.archivos.all %}
-                <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+                <div class="editar-archivo-item">
                     {% if archivo.es_imagen %}
-                        <img src="{{ archivo.archivo.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="{{ archivo.archivo.url }}" alt="Archivo">
                     {% else %}
-                        <a href="{{ archivo.archivo.url }}" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f8f9fa; text-decoration: none;">
-                            📄
-                        </a>
+                        <a href="{{ archivo.archivo.url }}" target="_blank">📄</a>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -88,12 +75,12 @@
         {% endif %}
 
         <!-- Estado y Notas -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px;">📝 Información</h3>
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700;">📝 Información</h3>
             
-            <div style="margin-bottom: 15px;">
-                <label>Estado</label>
-                <select name="estado" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Estado</label>
+                <select name="estado" class="turnos-select">
                     <option value="pendiente" {% if turno.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
                     <option value="confirmado" {% if turno.estado == 'confirmado' %}selected{% endif %}>Confirmado</option>
                     <option value="completado" {% if turno.estado == 'completado' %}selected{% endif %}>Completado</option>
@@ -102,96 +89,74 @@
                 </select>
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Tipo de Consulta</label>
-                <input type="text" name="tipo_consulta" value="{{ turno.tipo_consulta }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Tipo de Consulta</label>
+                <input type="text" name="tipo_consulta" value="{{ turno.tipo_consulta }}" class="turnos-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Notas Internas</label>
-                <textarea name="notas" rows="3"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">{{ turno.notas_internas }}</textarea>
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Notas Internas</label>
+                <textarea name="notas" rows="3" class="turnos-textarea">{{ turno.notas_internas }}</textarea>
             </div>
         </div>
         
-        <!-- SUBIDA DE ARCHIVOS -->
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 style="margin-bottom: 10px;">📎 Agregar archivos</h3>
+        <!-- Subida de archivos -->
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">📎 Agregar archivos</h3>
             
-            <div style="
-                border: 2px dashed #ddd;
-                border-radius: 10px;
-                padding: 20px;
-                text-align: center;
-                background: #fafafa;
-                cursor: pointer;
-                margin-bottom: 10px;
-            " onclick="document.getElementById('archivos-input-editar').click()">
-                <div style="font-size: 2em;">📁</div>
-                <p style="color: #666; margin: 5px 0;">Hacé clic para seleccionar archivos</p>
-                <p style="color: #999; font-size: 0.85em;">Imágenes (JPG, PNG, GIF, WebP)</p>
+            <div class="upload-zone" onclick="document.getElementById('archivos-input-editar').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p class="upload-titulo">Hacé clic para seleccionar archivos</p>
+                <p class="upload-subtitulo">Imágenes (JPG, PNG, GIF, WebP)</p>
             </div>
             
             <input type="file" name="archivos" id="archivos-input-editar" multiple accept="image/*" 
                    style="display: none;" onchange="mostrarPreviaEditar(this.files)">
             
-            <div id="previa-editar" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;"></div>
+            <div id="previa-editar" class="preview-container"></div>
             
-            <div>
-                <input type="text" name="descripcion_archivo" 
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                       placeholder="Descripción de los archivos (opcional)">
-            </div>
+            <input type="text" name="descripcion_archivo" class="turnos-input"
+                   placeholder="Descripción de los archivos (opcional)">
         </div>
 
         <!-- Botones -->
-        <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn btn-success" style="flex: 1; padding: 12px;">
+        <div class="flex gap-3">
+            <button type="submit" class="btn btn-success btn-lg" style="flex: 1; justify-content: center;">
                 💾 Guardar Cambios
             </button>
-            <a href="{% url 'panel_profesional' %}" class="btn" style="padding: 12px 30px; background: #6c757d;">
+            <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-lg" style="justify-content: center;">
                 Cancelar
             </a>
         </div>
     </form>
+    
 </div>
 
 <script>
 function seleccionarDia(label, fecha) {
-    document.querySelectorAll('.horarios-dia').forEach(div => div.style.display = 'none');
-    let horariosDiv = document.querySelector(`.horarios-dia[data-fecha="${fecha}"]`);
-    if (horariosDiv) horariosDiv.style.display = 'flex';
+    document.querySelectorAll('.horarios-dia-grupo').forEach(function(d) { d.classList.remove('activo'); });
+    var grupo = document.querySelector('.horarios-dia-grupo[data-fecha="' + fecha + '"]');
+    if (grupo) grupo.classList.add('activo');
     
-    document.querySelectorAll('.dia-label').forEach(l => {
-        l.style.border = '2px solid #ddd';
-        l.style.background = 'white';
-    });
-    label.style.border = '2px solid #4A90D9';
-    label.style.background = '#f0f7ff';
+    document.querySelectorAll('.editar-dia-label').forEach(function(l) { l.classList.remove('seleccionado'); });
+    label.classList.add('seleccionado');
 }
 
 function seleccionarHora(label) {
-    document.querySelectorAll('.hora-label').forEach(l => {
-        l.style.border = '2px solid #4A90D9';
-        l.style.background = 'white';
-        l.style.color = '#4A90D9';
-    });
-    label.style.border = '2px solid #28a745';
-    label.style.background = '#f0fff4';
-    label.style.color = '#28a745';
+    document.querySelectorAll('.editar-hora-label').forEach(function(l) { l.classList.remove('seleccionada'); });
+    label.classList.add('seleccionada');
 }
 
 function mostrarPreviaEditar(fileList) {
-    const container = document.getElementById('previa-editar');
+    var container = document.getElementById('previa-editar');
     container.innerHTML = '';
-    Array.from(fileList).forEach(file => {
+    Array.from(fileList).forEach(function(file) {
         if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
+        var reader = new FileReader();
         reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.style.cssText = 'position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;';
-            div.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover;">';
+            var div = document.createElement('div');
+            div.className = 'preview-item';
+            div.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
             container.appendChild(div);
         };
         reader.readAsDataURL(file);

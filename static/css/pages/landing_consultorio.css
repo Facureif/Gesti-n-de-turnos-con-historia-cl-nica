@@ -1,24 +1,24 @@
 /* =============================================
-LANDING CONSULTORIO - Estilos específicos
-============================================= */
+   LANDING CONSULTORIO - Estilos específicos
+   ============================================= */
 
-/* NECESARIO PARA EVITAR EL ESPACIO DE ARRIBA Y LATERALES */
+/* NECESARIO PARA EVITAR EL ESPACIO DE ARRIBA Y LATERALES EN EL HERO */
 .container {
     padding: 0px !important;
 }
 
 /* =============================================
-HERO DEL CONSULTORIO
-============================================= */
+   HERO DEL CONSULTORIO
+   ============================================= */
 .hero-consultorio {
-    width: 100vw; /* <--- CAMBIO CLAVE: 100vw ocupa todo el ancho de la ventana */
+    width: 100vw; 
     padding: 100px 0 80px 0;
-    margin-left: calc(-50vw + 50%); /* <--- CAMBIO CLAVE: Corrige el scrollbar y centra */
+    margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
     text-align: center;
     color: white;
     position: relative;
-    background-size: cover;      /* <--- La imagen debe cubrir todo */
+    background-size: cover;
     background-position: center;
 }
 
@@ -62,6 +62,13 @@ HERO DEL CONSULTORIO
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .btn-hero-consultorio {
     display: inline-flex;
     align-items: center;
@@ -83,8 +90,55 @@ HERO DEL CONSULTORIO
     color: var(--primary);
 }
 
+.btn-hero-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 36px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid white;
+    color: white;
+    background: transparent;
+}
+
+.btn-hero-outline:hover {
+    background: white;
+    color: var(--text);
+}
+
+/* Scroll indicator */
+.hero-scroll {
+    text-align: center;
+    margin-top: 40px;
+    animation: bounce 2s infinite;
+}
+
+.hero-scroll span {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+    opacity: 0.7;
+}
+
+.hero-scroll i {
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-8px); }
+    60% { transform: translateY(-4px); }
+}
+
 /* =============================================
-   SECCIONES
+   SECCIONES COMUNES
    ============================================= */
 .section {
     padding: 60px 0;
@@ -120,6 +174,205 @@ HERO DEL CONSULTORIO
     color: var(--text-secondary);
     font-size: 1rem;
     margin-top: 4px;
+}
+
+/* =============================================
+   QUIÉNES SOMOS
+   ============================================= */
+.nosotros-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+}
+
+.nosotros-texto p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 16px;
+    font-size: 1rem;
+}
+
+.nosotros-texto p strong {
+    color: var(--text);
+}
+
+.nosotros-destacados {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.destacado-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.destacado-item i {
+    font-size: 1.3rem;
+    color: var(--primary);
+    margin-top: 3px;
+    width: 24px;
+    text-align: center;
+}
+
+.destacado-item strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.destacado-item span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.nosotros-imagen {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.nosotros-imagen img {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
+.nosotros-imagen-placeholder {
+    width: 100%;
+    min-height: 350px;
+    background: linear-gradient(135deg, var(--primary-light), #bfdbfe);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--primary);
+}
+
+.nosotros-imagen-placeholder i {
+    font-size: 4rem;
+}
+
+.nosotros-imagen-placeholder span {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* =============================================
+   HORARIOS DE ATENCIÓN
+   ============================================= */
+.horarios-atencion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.horario-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.horario-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.horario-card.destacado {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.horario-card.destacado .horario-dia,
+.horario-card.destacado .horario-horas,
+.horario-card.destacado .horario-tipo {
+    color: white;
+}
+
+.horario-dia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+
+.horario-dia i {
+    color: var(--primary);
+}
+
+.horario-card.destacado .horario-dia i {
+    color: white;
+}
+
+.horario-horas {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.horario-tipo {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* =============================================
+   SERVICIOS
+   ============================================= */
+.servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.servicio-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: all 0.25s ease;
+}
+
+.servicio-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.servicio-icono {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+}
+
+.servicio-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 8px 0;
+}
+
+.servicio-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
 }
 
 /* =============================================
@@ -315,6 +568,18 @@ HERO DEL CONSULTORIO
     color: var(--primary);
 }
 
+.btn-orden-llegada {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-500);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
 /* =============================================
    ACORDEÓN DESPLEGABLE DEL PROFESIONAL
    ============================================= */
@@ -427,47 +692,9 @@ HERO DEL CONSULTORIO
     opacity: 0.5;
 }
 
-/* =============================================
-   INFO DEL CONSULTORIO (tarjetas de contacto)
-   ============================================= */
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-}
-
-.info-card {
-    background: white;
-    border-radius: var(--radius);
-    padding: 24px 20px;
-    text-align: center;
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.info-card .icono {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-}
-
-.info-card h4 {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-    margin: 0 0 4px 0;
-}
-
-.info-card p {
-    color: var(--text);
-    font-weight: 500;
-    font-size: 0.95rem;
-    margin: 0;
-}
 
 /* =============================================
-   WHATSAPP FLOTANTE
+   WHATSAPP FLOTANTE (DEFINITIVO Y SIN DUPLICADOS)
    ============================================= */
 .whatsapp-flotante {
     position: fixed;
@@ -483,77 +710,164 @@ HERO DEL CONSULTORIO
     align-items: center;
     justify-content: center;
     font-size: 30px;
-    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
     text-decoration: none;
     z-index: 9999;
-    transition: transform 0.2s;
+    transition: all 0.3s ease;
+    animation: whatsapp-pulse 2s infinite;
 }
 
 .whatsapp-flotante:hover {
     transform: scale(1.1);
-}
-
-/* =============================================
-   BOTÓN FLOTANTE SACAR TURNO (izquierda)
-   ============================================= */
-.btn-flotante-turno {
-    position: fixed;
-    left: 20px;
-    bottom: 20px;
-    bottom: calc(20px + env(safe-area-inset-bottom));
-    background: var(--success);
-    color: white;
-    padding: 16px 28px;
-    border-radius: var(--radius-full);
-    font-weight: 600;
-    font-size: 1rem;
-    box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4);
-    text-decoration: none;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-}
-
-.btn-flotante-turno:hover {
-    background: #047857;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.5);
+    box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+    animation: none;
     color: white;
 }
 
+@keyframes whatsapp-pulse {
+    0% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
+    50% { box-shadow: 0 4px 30px rgba(37, 211, 102, 0.7); }
+    100% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
+}
+
+
 /* =============================================
-   FOOTER
+   FOOTER COMPLETO (CORREGIDO PARA OCUPAR TODO EL ANCHO)
    ============================================= */
 .footer {
-    width: 100%;
+    /* EL TRUCO DEL 100vw PARA ESTIRARSE A LOS BORDES */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    
     background: #0f172a;
     color: #94a3b8;
-    padding: 20px 0 40px 0;
-    font-size: 0.85rem;
+    padding: 48px 0 24px 0;
+    font-size: 0.9rem;
+    box-sizing: border-box;
 }
 
-.footer-content {
+/* El contenido interno se centra gracias al container-custom del HTML */
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 36px;
+    margin-bottom: 36px;
+}
+
+.footer-col h4 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 14px 0;
+}
+
+.footer-col p {
+    margin: 0 0 8px 0;
+    line-height: 1.6;
+}
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-col ul li {
+    margin-bottom: 8px;
+}
+
+.footer-col ul li a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.footer-col ul li a:hover {
+    color: white;
+}
+
+/* Links de contacto con íconos */
+.footer-contacto-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 6px 0;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+}
+
+.footer-contacto-link:hover {
+    color: white;
+    transform: translateX(4px);
+}
+
+.footer-contacto-link i {
+    width: 18px;
+    text-align: center;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.footer-contacto-link .fa-whatsapp { color: #25D366; }
+.footer-contacto-link .fa-map-marker-alt { color: #ef4444; }
+.footer-contacto-link .fa-phone { color: #60a5fa; }
+.footer-contacto-link .fa-envelope { color: #f59e0b; }
+
+/* Línea inferior (Copyright) */
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
+    font-size: 0.85rem;
 }
 
-.footer a {
+.footer-bottom a {
     color: #60a5fa;
     font-weight: 500;
     text-decoration: none;
 }
 
-.footer a:hover {
+.footer-bottom a:hover {
     color: #93c5fd;
 }
 
+/* RESPONSIVE DEL FOOTER Y MÓVILES */
+@media (max-width: 768px) {
+    .footer {
+        padding: 36px 0 20px 0;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 24px;
+    }
+    
+    .footer-contacto-link {
+        justify-content: center;
+    }
+    
+    .footer-col ul li {
+        display: inline-block;
+        margin: 0 10px;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
 /* =============================================
-   RESPONSIVE
+   RESPONSIVE GENERAL
    ============================================= */
 @media (max-width: 768px) {
     .hero-consultorio { 
@@ -593,16 +907,69 @@ HERO DEL CONSULTORIO
         grid-template-columns: 1fr; 
     }
     
-    .footer-content { 
-        flex-direction: column; 
-        text-align: center; 
-    }
-    
     .btn-flotante-turno {
         width: auto;
         padding: 14px 20px;
         font-size: 0.9rem;
         left: 15px;
         bottom: calc(15px + env(safe-area-inset-bottom));
+    }
+
+    .nosotros-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    .nosotros-imagen {
+        order: -1;
+    }
+    
+    .nosotros-imagen img,
+    .nosotros-imagen-placeholder {
+        min-height: 250px;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-hero-outline {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .footer {
+        padding: 36px 0 20px 0;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 24px;
+    }
+    
+    .footer-contacto-link {
+        justify-content: center;
+    }
+    
+    .footer-col ul li {
+        display: inline-block;
+        margin: 0 10px;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .servicios-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .horarios-atencion-grid {
+        grid-template-columns: 1fr;
     }
 }

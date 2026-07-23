@@ -1,0 +1,373 @@
+/* =============================================
+   CALENDARIO SEMANAL - Vista de slots
+   ============================================= */
+
+/* Grid del calendario */
+.calendario-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+/* Día del calendario */
+.calendario-dia {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.calendario-dia.hoy {
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Header del día */
+.calendario-dia-header {
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.calendario-dia-header.activo {
+    background: var(--primary);
+    color: white;
+}
+
+.calendario-dia-header.inactivo {
+    background: var(--gray-200);
+    color: var(--gray-400);
+}
+
+.calendario-dia-header.bloqueado {
+    background: var(--danger);
+    color: white;
+}
+
+.calendario-dia-header.atiende {
+    background: var(--bg-alt);
+    color: var(--text);
+}
+
+.calendario-dia-header .dia-nombre {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.calendario-dia-header .dia-numero {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.calendario-dia-header .dia-mes {
+    font-size: 0.75rem;
+}
+
+/* Slots del día */
+.calendario-slots {
+    max-height: 500px;
+    overflow-y: auto;
+    background: white;
+}
+
+/* Slot individual */
+.calendario-slot {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+}
+
+.calendario-slot:hover {
+    transform: translateX(2px);
+}
+
+.calendario-slot.vacio {
+    color: var(--gray-400);
+    border-left-color: transparent;
+}
+
+.calendario-slot.vacio:hover {
+    background: var(--bg-alt);
+    color: var(--primary);
+}
+
+.calendario-slot.sobreturno {
+    background: #fef2f2;
+    border-left-color: var(--danger);
+}
+
+.calendario-slot.confirmado {
+    background: #f0fdf4;
+    border-left-color: var(--success);
+}
+
+.calendario-slot.pendiente {
+    background: #fffbeb;
+    border-left-color: #d97706;
+}
+
+.calendario-slot.completado {
+    background: var(--bg-alt);
+    border-left-color: var(--gray-400);
+}
+
+.calendario-slot.cancelado {
+    background: #fef2f2;
+    border-left-color: var(--danger);
+}
+
+.calendario-slot-hora {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.calendario-slot-paciente {
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.calendario-slot-tipo {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 1px;
+}
+
+.calendario-slot-agregar {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.calendario-slot-disponibilidad {
+    font-size: 0.7rem;
+    color: var(--success);
+    font-weight: 500;
+}
+
+/* Separador de consultorio */
+.consultorio-separador {
+    padding: 6px 12px;
+    background: var(--gray-500);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.consultorio-separador i {
+    font-size: 0.8rem;
+    color: white;
+}
+
+/* Footer del día */
+.calendario-dia-footer {
+    padding: 6px;
+    text-align: center;
+    border-top: 1px solid var(--gray-100);
+    font-size: 0.75rem;
+    background: var(--bg-alt);
+}
+
+.calendario-dia-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.calendario-dia-footer a:hover {
+    color: var(--danger);
+}
+
+/* =============================================
+   LEYENDA
+   ============================================= */
+.calendario-leyenda {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* =============================================
+   MODAL GENÉRICO (compartido)
+   ============================================= */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay.activo {
+    display: flex;
+}
+
+.modal-dialog {
+    background: white;
+    border-radius: var(--radius-xl);
+    width: 480px;
+    max-width: 90%;
+    box-shadow: var(--shadow-lg);
+    animation: modalSlideUp 0.3s ease;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+.modal-close:hover {
+    color: var(--text);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Filas de info en el modal */
+.modal-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.modal-info-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.modal-info-value {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+/* Modal centrado */
+.modal-dialog.centrado {
+    text-align: center;
+}
+
+.modal-dialog.centrado .modal-body p {
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.modal-dialog.centrado .modal-body .horario-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+
+.modal-botones-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-botones-vertical .btn {
+    justify-content: center;
+}
+
+/* Badge en modal */
+.modal-badge {
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+/* =============================================
+   FORMULARIO DE BLOQUEO
+   ============================================= */
+.bloqueo-horas {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.bloqueo-horas.visible {
+    display: grid;
+}
+
+/* =============================================
+   ANIMACIONES
+   ============================================= */
+@keyframes modalSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 1200px) {
+    .calendario-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        font-size: 0.8rem;
+    }
+    
+    .calendario-slot {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendario-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+    }
+    
+    .calendario-dia-header {
+        padding: 8px 6px;
+    }
+    
+    .calendario-dia-header .dia-numero {
+        font-size: 1.2rem;
+    }
+}

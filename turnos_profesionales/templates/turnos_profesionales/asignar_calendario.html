@@ -1,89 +1,15 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Asignar Turno{% endblock %}
 
 {% block extra_css %}
-<style>
-    .slot-info-card {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border: 2px solid var(--primary);
-        border-radius: var(--radius-lg);
-        padding: 24px;
-        margin-bottom: 24px;
-    }
-    
-    .slot-info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        text-align: center;
-    }
-    
-    .slot-info-value {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--gray-900);
-    }
-    
-    .slot-info-label {
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        font-weight: 500;
-    }
-    
-    .paciente-option {
-        display: flex;
-        align-items: center;
-        padding: 14px 16px;
-        border: 2px solid var(--gray-300);
-        border-radius: var(--radius);
-        margin-bottom: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        background: white;
-    }
-    
-    .paciente-option:hover {
-        border-color: var(--primary);
-        background: var(--primary-light);
-    }
-    
-    .paciente-option.selected {
-        border-color: var(--success);
-        background: var(--success-light);
-    }
-    
-    .paciente-option input[type="radio"] {
-        margin-right: 14px;
-        width: 18px;
-        height: 18px;
-        accent-color: var(--success);
-    }
-    
-    .paciente-info {
-        flex: 1;
-    }
-    
-    .paciente-nombre {
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--gray-900);
-    }
-    
-    .paciente-detalle {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-        margin-top: 2px;
-    }
-    
-    .paciente-badge {
-        flex-shrink: 0;
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 750px; margin: 0 auto;">
+<div class="turnos-container">
+    
     <div class="flex-between mb-6">
         <div class="page-header mb-0">
             <h1><i class="fas fa-calendar-plus text-success"></i> Asignar Turno</h1>
@@ -93,30 +19,28 @@
         </a>
     </div>
     
-    <!-- Info del slot seleccionado -->
+    <!-- Info del slot -->
     <div class="slot-info-card">
         <div class="slot-info-grid">
             <div>
-                <div class="slot-info-label"><i class="fas fa-calendar"></i> FECHA</div>
-                <div class="slot-info-value">{{ fecha|date:"d/m/Y" }}</div>
-                <div style="color: var(--gray-500); font-size: 0.9rem;">{{ fecha|date:"l" }}</div>
+                <div class="slot-info-etiqueta"><i class="fas fa-calendar"></i> FECHA</div>
+                <div class="slot-info-valor">{{ fecha|date:"d/m/Y" }}</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">{{ fecha|date:"l" }}</div>
             </div>
             <div>
-                <div class="slot-info-label"><i class="fas fa-clock"></i> HORARIO</div>
-                <div class="slot-info-value">{{ hora|time:"H:i" }} - {{ hora_fin|time:"H:i" }}</div>
+                <div class="slot-info-etiqueta"><i class="fas fa-clock"></i> HORARIO</div>
+                <div class="slot-info-valor">{{ hora|time:"H:i" }} - {{ hora_fin|time:"H:i" }}</div>
             </div>
         </div>
     </div>
     
-    <!-- Selector de consultorio si hay múltiples -->
+    <!-- Consultorio si hay varios -->
     {% if profesional.establecimientos.count > 1 %}
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-building text-primary"></i> Consultorio
-            </h3>
+            <h3 class="card-title"><i class="fas fa-building text-primary"></i> Consultorio</h3>
         </div>
-        <select name="establecimiento" style="width: 100%; padding: 12px 16px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 1rem; background: white;">
+        <select name="establecimiento" class="turnos-select">
             {% for est in profesional.establecimientos.all %}
                 <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
             {% endfor %}
@@ -127,21 +51,17 @@
     <!-- Buscar paciente -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-search text-primary"></i> Buscar Paciente
-            </h3>
+            <h3 class="card-title"><i class="fas fa-search text-primary"></i> Buscar Paciente</h3>
         </div>
         <form method="get">
             <input type="hidden" name="fecha" value="{{ fecha_str }}">
             <input type="hidden" name="hora" value="{{ hora_str }}">
             <div class="flex gap-2">
-                <div style="flex: 1; position: relative;">
-                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gray-400);"></i>
+                <div class="turnos-busqueda-wrapper">
+                    <i class="fas fa-search"></i>
                     <input type="text" name="buscar" value="{{ busqueda }}" 
                            placeholder="Nombre, apellido o DNI..."
-                           style="width: 100%; padding: 14px 16px 14px 44px; border: 1px solid var(--gray-300); border-radius: var(--radius-lg); font-family: inherit; font-size: 1rem; transition: border-color 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"
-                           autofocus>
+                           class="turnos-busqueda-input" autofocus>
                 </div>
                 <button type="submit" class="btn" style="padding: 14px 28px;">
                     <i class="fas fa-search"></i> Buscar
@@ -150,7 +70,7 @@
         </form>
     </div>
     
-    <!-- Resultados de búsqueda -->
+    <!-- Resultados -->
     {% if pacientes %}
     <form method="post">
         {% csrf_token %}
@@ -159,24 +79,22 @@
         
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-users text-primary"></i> Seleccioná el Paciente
-                </h3>
+                <h3 class="card-title"><i class="fas fa-users text-primary"></i> Seleccioná el Paciente</h3>
                 <span class="badge badge-info">{{ pacientes.count }} encontrado(s)</span>
             </div>
             
             {% for paciente in pacientes %}
             <label class="paciente-option" onclick="seleccionarPaciente(this)">
                 <input type="radio" name="paciente_id" value="{{ paciente.id }}">
-                <div class="paciente-info">
-                    <div class="paciente-nombre">{{ paciente.nombre_completo }}</div>
-                    <div class="paciente-detalle">
+                <div class="paciente-option-info">
+                    <div class="paciente-option-nombre">{{ paciente.nombre_completo }}</div>
+                    <div class="paciente-option-detalle">
                         DNI: {{ paciente.dni }} · Tel: {{ paciente.telefono }}
                         {% if paciente.obra_social %} · {{ paciente.obra_social.sigla }}{% endif %}
                     </div>
                 </div>
                 {% if paciente.obra_social %}
-                <span class="badge badge-info paciente-badge">{{ paciente.obra_social.sigla }}</span>
+                <span class="badge badge-info paciente-option-badge">{{ paciente.obra_social.sigla }}</span>
                 {% endif %}
             </label>
             {% endfor %}
@@ -185,29 +103,19 @@
         <!-- Datos del turno -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-clipboard-list text-primary"></i> Datos del Turno
-                </h3>
+                <h3 class="card-title"><i class="fas fa-clipboard-list text-primary"></i> Datos del Turno</h3>
             </div>
             
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Tipo de Consulta
-                </label>
-                <input type="text" name="tipo_consulta" 
-                       style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;"
-                       placeholder="Ej: Control general, primera consulta..."
-                       onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'">
+                <label class="turnos-label">Tipo de Consulta</label>
+                <input type="text" name="tipo_consulta" class="turnos-input"
+                       placeholder="Ej: Control general, primera consulta...">
             </div>
             
             <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 500; color: var(--gray-700); font-size: 0.9rem;">
-                    Notas Internas
-                </label>
-                <textarea name="notas" rows="2"
-                          style="width: 100%; padding: 10px 14px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; resize: vertical; transition: border-color 0.2s;"
-                          placeholder="Notas visibles solo para el profesional..."
-                          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--gray-300)'"></textarea>
+                <label class="turnos-label">Notas Internas</label>
+                <textarea name="notas" rows="2" class="turnos-textarea"
+                          placeholder="Notas visibles solo para el profesional..."></textarea>
             </div>
         </div>
         
@@ -224,8 +132,8 @@
     {% elif busqueda %}
         <div class="card">
             <div class="empty-state">
-                <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-300);"></i>
-                <p style="font-size: 1.1rem; font-weight: 500; color: var(--gray-600);">No se encontraron resultados</p>
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted);"></i>
+                <p style="font-size: 1.1rem; font-weight: 500; color: var(--text-secondary);">No se encontraron resultados</p>
                 <p class="text-muted">No hay pacientes que coincidan con "<strong>{{ busqueda }}</strong>"</p>
                 <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 20px;">
                     <i class="fas fa-user-plus"></i> Registrar Nuevo Paciente
@@ -235,22 +143,21 @@
     {% else %}
         <div class="card">
             <div class="empty-state">
-                <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--gray-300);"></i>
-                <p style="color: var(--gray-500);">Buscá un paciente para asignarle el turno</p>
-                <p style="color: var(--gray-400); font-size: 0.9rem;">
+                <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--text-muted);"></i>
+                <p style="color: var(--text-muted);">Buscá un paciente para asignarle el turno</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
                     También podés <a href="{% url 'registrar_paciente' %}" style="color: var(--primary);">registrar uno nuevo</a>
                 </p>
             </div>
         </div>
     {% endif %}
+    
 </div>
 
 <script>
 function seleccionarPaciente(label) {
-    document.querySelectorAll('.paciente-option').forEach(l => {
-        l.classList.remove('selected');
-    });
-    label.classList.add('selected');
+    document.querySelectorAll('.paciente-option').forEach(function(l) { l.classList.remove('seleccionado'); });
+    label.classList.add('seleccionado');
     label.querySelector('input[type="radio"]').checked = true;
 }
 </script>

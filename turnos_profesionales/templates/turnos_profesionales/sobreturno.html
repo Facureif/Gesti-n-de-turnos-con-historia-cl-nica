@@ -1,40 +1,44 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Crear Sobreturno{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width: 600px; margin: 0 auto;">
-    <h1 style="margin-bottom: 5px;">🚨 Crear Sobreturno</h1>
-    <p style="color: #666; margin-bottom: 20px;">
+<div class="sobreturno-container">
+
+    <h1>🚨 Crear Sobreturno</h1>
+    <p class="sobreturno-info" style="margin-bottom: 20px;">
         Paciente: <strong>{{ paciente.nombre_completo }}</strong>
     </p>
     
-    <div class="card" style="background: #fff3cd; border: 2px solid #ffc107; margin-bottom: 20px;">
-        <p style="margin: 0; color: #856404;">
+    <div class="sobreturno-aviso">
+        <p>
             ⚠️ <strong>Atención:</strong> El sobreturno se crea como <strong>confirmado</strong> automáticamente. 
             Se superpondrá a los horarios existentes si los hay.
         </p>
     </div>
     
     <div class="card">
-        <form method="post">
+        <form method="post" style="padding: 24px;">
             {% csrf_token %}
             
-            <div style="margin-bottom: 15px;">
-                <label><strong>Fecha *</strong></label>
-                <input type="date" name="fecha" required value="{{ hoy|date:'Y-m-d' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Fecha <span class="required">*</span></label>
+                <input type="date" name="fecha" required value="{{ hoy|date:'Y-m-d' }}" class="turnos-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label><strong>Hora *</strong></label>
-                <input type="time" name="hora" required value="{{ ahora|time:'H:i'|default:'09:00' }}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Hora <span class="required">*</span></label>
+                <input type="time" name="hora" required value="{{ ahora|time:'H:i'|default:'09:00' }}" class="turnos-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label><strong>Duración (minutos)</strong></label>
-                <select name="duracion" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Duración (minutos)</label>
+                <select name="duracion" class="turnos-select">
                     <option value="10">10 minutos</option>
                     <option value="15" selected>15 minutos</option>
                     <option value="20">20 minutos</option>
@@ -43,9 +47,9 @@
             </div>
             
             {% if profesional.establecimientos.count > 1 %}
-            <div style="margin-bottom: 15px;">
-                <label><strong>Consultorio</strong></label>
-                <select name="establecimiento" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Consultorio</label>
+                <select name="establecimiento" class="turnos-select">
                     {% for est in profesional.establecimientos.all %}
                         <option value="{{ est.id }}">{{ est.nombre }}</option>
                     {% endfor %}
@@ -53,23 +57,21 @@
             </div>
             {% endif %}
             
-            <div style="margin-bottom: 15px;">
-                <label>Tipo de Consulta</label>
-                <input type="text" name="tipo_consulta" value="URGENCIA - Sobreturno"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Tipo de Consulta</label>
+                <input type="text" name="tipo_consulta" value="URGENCIA - Sobreturno" class="turnos-input">
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <label>Notas</label>
-                <textarea name="notas" rows="2"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                          placeholder="Motivo de la urgencia..."></textarea>
+            <div style="margin-bottom: 16px;">
+                <label class="turnos-label">Notas</label>
+                <textarea name="notas" rows="2" class="turnos-textarea" placeholder="Motivo de la urgencia..."></textarea>
             </div>
             
-            <button type="submit" class="btn btn-danger" style="width: 100%; padding: 12px; font-size: 1.1em;">
+            <button type="submit" class="btn btn-danger btn-lg" style="width: 100%; padding: 14px; font-size: 1.1rem; justify-content: center;">
                 🚨 Crear Sobreturno
             </button>
         </form>
     </div>
+    
 </div>
 {% endblock %}

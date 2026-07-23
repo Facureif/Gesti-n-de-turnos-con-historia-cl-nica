@@ -1,130 +1,14 @@
 {% extends 'core_app/base.html' %}
+{% load static %}
 
 {% block title %}Calendario - {{ establecimiento.nombre }}{% endblock %}
 
 {% block extra_css %}
-<style>
-    .calendar-table-container {
-        overflow-x: auto;
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--gray-200);
-    }
-    
-    .calendar-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 900px;
-    }
-    
-    .calendar-table th {
-        padding: 14px 10px;
-        text-align: center;
-        border: 1px solid var(--gray-200);
-        background: var(--gray-50);
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-    
-    .calendar-table th.today {
-        background: var(--primary);
-        color: white;
-    }
-    
-    .calendar-table th .day-name {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    
-    .calendar-table th .day-number {
-        font-size: 1.4rem;
-        font-weight: 700;
-    }
-    
-    .calendar-table td {
-        padding: 4px;
-        border: 1px solid var(--gray-100);
-        vertical-align: top;
-        min-height: 40px;
-    }
-    
-    .calendar-table .time-cell {
-        text-align: center;
-        font-weight: 600;
-        background: var(--gray-50);
-        color: var(--gray-600);
-        font-size: 0.8rem;
-        white-space: nowrap;
-        width: 70px;
-    }
-    
-    .turno-chip {
-        padding: 4px 8px;
-        margin-bottom: 3px;
-        border-radius: var(--radius-sm);
-        font-size: 0.7rem;
-        border-left: 3px solid;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .turno-chip:hover {
-        transform: translateX(2px);
-        box-shadow: var(--shadow-sm);
-    }
-    
-    .turno-chip.confirmado {
-        background: #f0fdf4;
-        border-left-color: var(--success);
-    }
-    
-    .turno-chip.pendiente {
-        background: #fffbeb;
-        border-left-color: var(--warning);
-    }
-    
-    .turno-chip.completado {
-        background: var(--gray-50);
-        border-left-color: var(--gray-400);
-    }
-    
-    .turno-chip.cancelado {
-        background: #fef2f2;
-        border-left-color: var(--danger);
-    }
-    
-    .professional-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-        flex-shrink: 0;
-    }
-    
-    .professional-legend {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-        padding: 16px;
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        margin-bottom: 20px;
-    }
-    
-    .professional-legend-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/pages/calendario_general.css' %}">
 {% endblock %}
 
 {% block content %}
+
 <div class="flex-between mb-6">
     <div class="page-header mb-0">
         <h1><i class="fas fa-calendar-alt text-primary"></i> Calendario General</h1>
@@ -145,25 +29,25 @@
 </div>
 
 <!-- Leyenda de profesionales -->
-<div class="professional-legend">
+<div class="profesional-leyenda">
     {% for prof in profesionales %}
-    <div class="professional-legend-item">
-        <span class="professional-dot" style="background: {{ prof.color_calendario }};"></span>
+    <div class="profesional-leyenda-item">
+        <span class="profesional-dot" style="background: {{ prof.color_calendario }};"></span>
         <span>{{ prof.nombre_completo }}</span>
     </div>
     {% endfor %}
 </div>
 
 <!-- Tabla del calendario -->
-<div class="calendar-table-container">
-    <table class="calendar-table">
+<div class="calendario-general-container">
+    <table class="calendario-general-tabla">
         <thead>
             <tr>
                 <th style="width: 70px;">Hora</th>
                 {% for dia in dias_semana %}
-                <th class="{% if dia.es_hoy %}today{% endif %}">
-                    <div class="day-name">{{ dia.nombre|slice:":3" }}</div>
-                    <div class="day-number">{{ dia.fecha|date:"d" }}</div>
+                <th class="{% if dia.es_hoy %}hoy{% endif %}">
+                    <div class="dia-nombre">{{ dia.nombre|slice:":3" }}</div>
+                    <div class="dia-numero">{{ dia.fecha|date:"d" }}</div>
                     <div style="font-size: 0.7rem;">{{ dia.fecha|date:"M" }}</div>
                 </th>
                 {% endfor %}
@@ -172,7 +56,7 @@
         <tbody>
             {% for hora_str in horas %}
             <tr>
-                <td class="time-cell">{{ hora_str }}</td>
+                <td class="hora-celda">{{ hora_str }}</td>
                 {% for dia in dias_semana %}
                 <td>
                     {% for prof_id, data in dia.turnos_por_profesional.items %}
@@ -181,7 +65,7 @@
                             <div class="turno-chip {{ turno.estado }}"
                                  onclick="window.location='{% url 'ficha_paciente' turno.paciente.id %}'"
                                  title="{{ data.profesional.nombre_completo }} - {{ turno.paciente.nombre_completo }}">
-                                <span class="professional-dot" style="background: {{ data.color }};"></span>
+                                <span class="profesional-dot" style="background: {{ data.color }};"></span>
                                 <span>{{ turno.paciente.apellido }}</span>
                             </div>
                             {% endif %}
@@ -194,4 +78,5 @@
         </tbody>
     </table>
 </div>
+
 {% endblock %}
