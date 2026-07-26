@@ -6,7 +6,7 @@
 .turnos-container {
     max-width: 750px;
     margin: 0 auto;
-    padding: 0 24px 40px;
+    padding: 20px 24px 40px;
     box-sizing: border-box;
 }
 
@@ -54,12 +54,12 @@
     display: flex;
     align-items: center;
     padding: 14px 16px;
-    border: 2px solid var(--border);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius);
     margin-bottom: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: white;
+    background: var(--bg-card);
 }
 
 .paciente-option:hover {
@@ -142,7 +142,7 @@
 
 .dia-option {
     padding: 14px 16px;
-    border: 2px solid var(--border);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius-lg);
     cursor: pointer;
     text-align: center;
@@ -331,7 +331,7 @@
     height: 80px;
     border-radius: var(--radius);
     overflow: hidden;
-    border: 2px solid var(--border);
+    border: 2px solid var(--border-color);
 }
 
 .preview-item img {
@@ -345,7 +345,7 @@
     background: var(--bg-alt);
     border-radius: var(--radius);
     padding: 20px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
 }
 
 .proximo-control-card .nota {
@@ -372,7 +372,7 @@
     text-align: center;
     padding: 20px;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
 }
 
 .cobranza-stat.facturado {
@@ -430,7 +430,7 @@
 .turnos-busqueda-input {
     width: 100%;
     padding: 14px 16px 14px 44px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     font-family: inherit;
     font-size: 1rem;
@@ -450,7 +450,7 @@
 .turnos-input {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.95rem;
@@ -467,7 +467,7 @@
 .turnos-textarea {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.95rem;
@@ -486,7 +486,7 @@
 .turnos-select {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 1rem;
@@ -673,11 +673,11 @@
 }
 
 .dashboard-metrica {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     padding: 20px;
     text-align: center;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
 }
 
@@ -711,10 +711,10 @@
 }
 
 .dashboard-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     padding: 24px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow);
 }
 
@@ -756,7 +756,7 @@
 
 .dashboard-lista li {
     padding: 10px 0;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -838,7 +838,7 @@
 }
 
 .cobro-paciente-card {
-    background: #f0f7ff;
+    background: var(--primary-light);
     border-radius: var(--radius-lg);
     padding: 16px;
     margin-bottom: 20px;
@@ -868,7 +868,7 @@
 .cobro-monto-input {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-size: 1.1rem;
     font-family: inherit;
@@ -884,7 +884,7 @@
 
 /* Bloque OS */
 .cobro-os-block {
-    background: #f0fdf4;
+    background: var(--success-light);
     padding: 16px;
     border-radius: var(--radius);
     margin-bottom: 20px;
@@ -924,7 +924,7 @@
 }
 
 .cobro-coseguro-block.con-os {
-    background: #fef2f2;
+    background: var(--danger-light);
     border-color: var(--danger);
 }
 
@@ -998,12 +998,12 @@
 /* Selector de día editable */
 .editar-dia-label {
     padding: 10px 15px;
-    border: 2px solid var(--border);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius);
     cursor: pointer;
     text-align: center;
     min-width: 85px;
-    background: white;
+    background: var(--bg-card);
     transition: all 0.15s ease;
     user-select: none;
 }
@@ -1044,7 +1044,7 @@
     cursor: pointer;
     font-weight: 600;
     color: var(--primary);
-    background: white;
+    background: var(--bg-card);
     transition: all 0.15s ease;
     user-select: none;
 }
@@ -1076,7 +1076,7 @@
     height: 80px;
     border-radius: var(--radius);
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
 }
 
 .editar-archivo-item img {
@@ -1164,7 +1164,7 @@
 
 .secretaria-selector select {
     padding: 10px 16px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.9rem;
@@ -1305,7 +1305,7 @@
 .proximo-turno-separador {
     width: 1px;
     height: 40px;
-    background: var(--border);
+    background: var(--border-color);
 }
 
 .proximo-turno-info {
@@ -1420,6 +1420,10 @@
     color: var(--text);
 }
 
+.reserva-paciente-confirmado strong {
+    color: #0f172a;
+}
+
 .reserva-paciente-confirmado .detalle {
     color: var(--text-muted);
 }
@@ -1430,7 +1434,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 0;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .reserva-dia-fila:last-child {
@@ -1455,7 +1459,7 @@
 
 .reserva-dia-hora {
     padding: 8px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
 }
@@ -1475,11 +1479,26 @@
 .reserva-semanas-input {
     width: 80px;
     padding: 10px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     text-align: center;
     font-family: inherit;
     font-size: 0.95rem;
+}
+
+.sesiones-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--info-light);
+    color: #dae4e7;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: var(--success-light);
+    color: #dae4e7;
 }
 
 /* =============================================
@@ -1526,7 +1545,7 @@
 .sobreturno-paciente-option {
     display: block;
     padding: 12px;
-    border: 2px solid var(--border);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius);
     margin-bottom: 6px;
     cursor: pointer;
@@ -1577,5 +1596,408 @@
     .reserva-dia-fila {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+/* =============================================
+   CORRECCIÓN DIRECTA - EVOLUCIÓN
+   ============================================= */
+
+/* Funciona en modo oscuro automático (Windows/Mac/iOS) */
+@media (prefers-color-scheme: dark) {
+    
+    /* 1. Header que no se leía (Fondo oscuro y texto claro) */
+    .evolucion-header {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    .evolucion-header-item {
+        color: #f1f5f9 !important; /* Texto claro para los ítems */
+    }
+    .evolucion-header-item i {
+        color: #60a5fa !important; /* Íconos azules legibles */
+    }
+
+    /* 2. Inputs y Textareas (Fondo azul oscuro como el login) */
+    .turnos-input, 
+    .turnos-textarea, 
+    .turnos-select,
+    input[type="date"], 
+    input[type="time"] {
+        background: #0f172a !important; /* Azul oscuro del login */
+        color: #f1f5f9 !important;      /* Letras blancas */
+        border-color: #334155 !important;
+    }
+    .turnos-input::placeholder, 
+    .turnos-textarea::placeholder {
+        color: #94a3b8 !important;      /* Placeholder gris tenue */
+    }
+
+    /* 3. Área de subir archivos */
+    .upload-zone {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f1f5f9 !important;
+    }
+}
+
+/* =============================================
+   CORRECCIÓN DIRECTA - ASIGNAR TURNO (Días, Horas y Upload)
+   ============================================= */
+
+/* Funciona en modo oscuro automático (Windows/Mac/iOS) */
+@media (prefers-color-scheme: dark) {
+    
+    /* 1. Header que no se leía (Fondo oscuro y texto claro) */
+    .evolucion-header {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    .evolucion-header-item {
+        color: #f1f5f9 !important;
+    }
+    .evolucion-header-item i {
+        color: #60a5fa !important;
+    }
+
+    /* 2. Inputs y Textareas (Fondo azul oscuro como el login) */
+    .turnos-input, 
+    .turnos-textarea, 
+    .turnos-select,
+    input[type="date"], 
+    input[type="time"] {
+        background: #0f172a !important;
+        color: #f1f5f9 !important;
+        border-color: #334155 !important;
+    }
+    .turnos-input::placeholder, 
+    .turnos-textarea::placeholder {
+        color: #94a3b8 !important;
+    }
+
+    /* 3. Área de subir archivos (Se acabó el blanco) */
+    .upload-zone {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f1f5f9 !important;
+    }
+    .upload-zone i {
+        color: #60a5fa !important; /* Icono azul claro sobre fondo oscuro */
+    }
+    .upload-zone .upload-titulo {
+        color: #f1f5f9 !important;
+    }
+    .upload-zone .upload-subtitulo {
+        color: #94a3b8 !important;
+    }
+
+    /* 4. Botones de Días NO seleccionados (Letras oscuras para que se lean) */
+    .dia-option:not(.seleccionado) .dia-option-numero {
+        color: #1e293b !important; /* Gris oscuro profundo */
+    }
+    .dia-option:not(.seleccionado) .dia-option-mes,
+    .dia-option:not(.seleccionado) .dia-option-nombre {
+        color: #64748b !important; /* Gris medio */
+    }
+
+    /* 5. Botones de Horas NO seleccionados (Letras oscuras y borde ajustado) */
+    .hora-option:not(.seleccionada) {
+        color: #1e293b !important;      /* Número oscuro legible */
+        border-color: #cbd5e1 !important; /* Borde gris suave */
+        background: #f8fafc !important;  /* Fondo blanco roto */
+    }
+    /* 2. El input de texto de abajo ("Descripción de los archivos") */
+    .upload-area-input,
+    input[name="descripcion_archivo"],
+    #id_descripcion_archivos {
+        background: #0f172a !important; /* Azul oscuro profundo como login */
+        color: #f1f5f9 !important;
+        border: 1px solid #334155 !important;
+    }
+    .upload-area-input::placeholder,
+    input[name="descripcion_archivo"]::placeholder,
+    #id_descripcion_archivos::placeholder {
+        color: #94a3b8 !important;
+    }
+}
+
+/* =============================================
+   CORRECCIÓN ASIGNAR TURNO - BÚSQUEDA, BADGES Y CABECERA
+   ============================================= */
+
+@media (prefers-color-scheme: dark) {
+
+    /* 1. CABECERA DE FECHA Y HORA (El bloque blanco superior) */
+    .slot-info-card {
+        background: #1e293b !important; /* Fondo azul grisáceo oscuro */
+        border-color: #475569 !important; /* Borde sutil */
+    }
+    .slot-info-valor {
+        color: #f1f5f9 !important; /* Texto de la fecha/hora en blanco */
+    }
+    .slot-info-grid div:last-child .slot-info-valor {
+        color: #f1f5f9 !important;
+    }
+
+    /* 2. CAMPO DE BÚSQUEDA (Input blanco) */
+    .turnos-busqueda-input {
+        background: #0f172a !important; /* Azul oscuro del login */
+        color: #f1f5f9 !important;
+        border-color: #334155 !important;
+    }
+    .turnos-busqueda-input::placeholder {
+        color: #94a3b8 !important;
+    }
+    .turnos-busqueda-wrapper i {
+        color: #94a3b8 !important; /* Icono de lupa */
+    }
+
+    /* 3. BADGE DE "Encontrado(s)" (Fondo azul claro ilegible) */
+    .badge-info {
+        background: #1e3a8a !important; /* Azul oscuro */
+        color: #93c5fd !important;      /* Azul claro */
+    }
+
+    /* 4. OBRA SOCIAL (Dentro de la ficha del paciente) */
+    .paciente-option-badge.badge-info {
+        background: #1e3a8a !important;
+        color: #93c5fd !important;
+    }
+
+    /* 5. TEXTO DE DETALLE DEL PACIENTE (Teléfono, DNI y OS) */
+    .paciente-option-detalle {
+        color: #94a3b8 !important; /* Gris claro legible */
+    }
+    .paciente-option-detalle strong {
+        color: #e2e8f0 !important;
+    }
+
+    /* 6. ESTADO VACÍO (Cuando no hay resultados) */
+    .empty-state p.text-muted {
+        color: #94a3b8 !important;
+    }
+    .empty-state p.text-muted strong {
+        color: #f1f5f9 !important;
+    }
+}
+
+/* ================================================================
+   SÚPER PARCHE GLOBAL MODO OSCURO - 100% DINÁMICO CON VARIABLES
+   ================================================================ */
+
+@media (prefers-color-scheme: dark) {
+
+    /* =============== 1. CABECERAS, CARDS Y TEXTOS GENERALES =============== */
+    
+    .card, .paciente-card, .perfil-card, .ficha-card, .slot-info-card, .modal-dialog {
+        background: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .page-header h1, .perfil-header h1, .ficha-header-texto h1, 
+    .portal-saludo h1, .dashboard-header h1, .cobranza-header h1,
+    .card-title, .ficha-card-header h3, .paciente-card-header h3,
+    .modal-header h3, .calendario-dia-header.atiende,
+    .consultorio-item .consultorio-info .consultorio-nombre {
+        color: var(--text-main) !important;
+    }
+    
+    .page-header p, .perfil-header p, .ficha-header-texto p, .text-muted,
+    .slot-info-etiqueta, .cobranza-mes, .dashboard-periodo, .modal-info-label,
+    .calendario-slot-tipo, .calendario-slot-agregar, .consultorio-item .consultorio-info .consultorio-detalle {
+        color: var(--text-muted) !important;
+    }
+
+    .card-header, .ficha-card-header, .paciente-card-header {
+        background: var(--bg-alt) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    /* =============== 2. INPUTS, SELECTS, TEXTAREAS Y FECHAS =============== */
+
+    .turnos-input, .turnos-textarea, .turnos-select, .turnos-busqueda-input,
+    .ficha-input, .ficha-textarea, .ficha-select, .ficha-file-input,
+    .perfil-input, .perfil-select, .perfil-textarea,
+    .form-input, .form-select, .form-textarea,
+    input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="password"], input[type="file"],
+    textarea, select {
+        background: var(--bg-input) !important; /* Fondo oscuro profundo del sistema */
+        color: var(--text-main) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .turnos-input::placeholder, .turnos-textarea::placeholder,
+    .ficha-input::placeholder, .ficha-textarea::placeholder,
+    .perfil-input::placeholder, .perfil-textarea::placeholder,
+    .form-input::placeholder, .form-textarea::placeholder,
+    input::placeholder, textarea::placeholder {
+        color: var(--text-muted) !important;
+    }
+
+    select option {
+        background: var(--bg-card) !important;
+        color: var(--text-main) !important;
+    }
+
+    input[type="file"] {
+        background: var(--bg-alt) !important;
+        color: var(--text-main) !important;
+    }
+
+    /* =============== 3. CALENDARIO SEMANAL =============== */
+
+    .calendario-dia-header.inactivo {
+        background: var(--bg-alt) !important;
+        color: var(--text-muted) !important;
+    }
+    .calendario-dia-header.activo {
+        background: var(--primary) !important; /* Toma el color primario del tema */
+        color: #ffffff !important;
+    }
+
+    .calendario-slots {
+        background: var(--bg-card) !important;
+    }
+    .calendario-slot {
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    .calendario-slot-hora {
+        color: var(--text-main) !important;
+    }
+    .calendario-slot-paciente {
+        color: var(--text-main) !important;
+    }
+    
+    .calendario-slot.vacio {
+        color: var(--text-muted) !important;
+    }
+    .calendario-slot.vacio:hover {
+        background: var(--bg-alt) !important;
+        color: var(--primary) !important;
+    }
+
+    .calendario-slot.pendiente {
+        background: var(--warning-bg) !important;
+        border-left-color: var(--warning) !important;
+    }
+    .calendario-slot.pendiente .calendario-slot-paciente {
+        color: var(--warning-text) !important;
+    }
+    
+    .calendario-slot.confirmado {
+        background: var(--success-bg) !important;
+        border-left-color: var(--success) !important;
+    }
+    .calendario-slot.confirmado .calendario-slot-paciente {
+        color: var(--success-text) !important;
+    }
+    
+    .calendario-slot.sobreturno {
+        background: var(--danger-bg) !important;
+        border-left-color: var(--danger) !important;
+    }
+    .calendario-slot.sobreturno .calendario-slot-paciente {
+        color: var(--danger-text) !important;
+    }
+
+    .consultorio-separador {
+        background: var(--bg-alt) !important;
+        color: var(--text-main) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .calendario-dia-footer {
+        background: var(--bg-card) !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+    .calendario-dia-footer a {
+        color: var(--text-muted) !important;
+    }
+    .calendario-dia-footer a:hover {
+        color: var(--danger) !important;
+    }
+
+    .modal-info-row {
+        border-color: var(--border-color) !important;
+    }
+    .modal-info-value {
+        color: var(--text-main) !important;
+    }
+
+
+    /* =============== 4. BADGES Y ETIQUETAS =============== */
+
+    .badge-info, .badge-info.paciente-option-badge,
+    .ficha-badge-info, .sesiones-badge {
+        background: var(--info-bg) !important;
+        color: var(--info-text) !important;
+    }
+    .badge-success, .ficha-badge-success {
+        background: var(--success-bg) !important;
+        color: var(--success-text) !important;
+    }
+    .badge-warning, .ficha-badge-warning {
+        background: var(--warning-bg) !important;
+        color: var(--warning-text) !important;
+    }
+    .badge-danger, .ficha-badge-danger {
+        background: var(--danger-bg) !important;
+        color: var(--danger-text) !important;
+    }
+    .badge-gray, .ficha-badge-gray {
+        background: var(--bg-alt) !important;
+        color: var(--text-muted) !important;
+    }
+
+    .paciente-option-detalle {
+        color: var(--text-muted) !important;
+    }
+    .paciente-option-detalle strong {
+        color: var(--text-main) !important;
+    }
+    .paciente-option-info .paciente-option-nombre {
+        color: var(--text-main) !important;
+    }
+    .paciente-option {
+        border-color: var(--border-color) !important;
+        background: var(--bg-card) !important;
+    }
+    .paciente-option:hover {
+        border-color: var(--primary) !important;
+    }
+    .paciente-option.seleccionado {
+        border-color: var(--success) !important;
+        background: var(--success-bg) !important;
+    }
+
+
+    /* =============== 5. CHECKBOXES (Fichas y Formularios) =============== */
+    .ficha-checkbox-label, .perfil-checkbox-label {
+        color: var(--text-main) !important;
+    }
+    .ficha-checkbox-label input[type="checkbox"],
+    .perfil-checkbox-label input[type="checkbox"] {
+        accent-color: var(--primary) !important; /* Aplica el color primario del tema */
+    }
+
+
+    /* =============== 6. ESTADOS VACÍOS Y TABLAS =============== */
+    .empty-state p, .perfil-vacio, .ficha-empty p, .portal-empty p {
+        color: var(--text-muted) !important;
+    }
+    
+    table thead th {
+        background: var(--bg-alt) !important;
+        color: var(--text-muted) !important;
+        border-color: var(--border-color) !important;
+    }
+    table tbody td {
+        color: var(--text-main) !important;
+        border-color: var(--border-color) !important;
+    }
+    table tbody tr:hover {
+        background: var(--bg-alt) !important;
     }
 }

@@ -15,12 +15,46 @@
     
     {% load static %}
     
-    <!-- CSS del sistema (siempre se cargan) -->
+    <!-- CSS del sistema -->
     <link rel="stylesheet" href="{% static 'css/core/base.css' %}">
+    
+    <!-- Theme CSS: si cliente tiene colores personalizados, los pasamos como variables CSS -->
+    {% if cliente %}
+        {% with cliente.color_primario as cp %}
+        <style>
+            :root {
+                --custom-primary: {{ cp|default:'#2563eb' }};
+                --custom-primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
+            }
+        </style>
+        {% endwith %}
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/themes/default.css' %}" id="theme-css">
+    
     <link rel="stylesheet" href="{% static 'css/core/layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/core/components.css' %}">
     
-    <!-- CSS extra que cada página quiera agregar -->
+    <!-- Cargar tema guardado en localStorage ANTES de que se renderice la página -->
+    <script>
+        (function() {
+            // 1. Intentar cargar el tema guardado por el usuario
+            var savedTheme = localStorage.getItem('consultorio-theme');
+            
+            // 2. Si el cliente tiene un tema configurado por defecto y no hay uno guardado, úsalo
+            {% if cliente and cliente.theme_css and cliente.theme_css != 'default' %}
+            var defaultClientTheme = '{{ cliente.theme_css }}';
+            {% else %}
+            var defaultClientTheme = null;
+            {% endif %}
+
+            // Definir el tema final
+            var themeToLoad = savedTheme || defaultClientTheme || 'default';
+
+            // Aplicar el tema
+            document.getElementById('theme-css').href = '/static/css/themes/' + themeToLoad + '.css';
+        })();
+    </script>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -83,7 +117,6 @@
         {% block content %}{% endblock %}
     </div>
     
-    <!-- JavaScript extra -->
     {% block extra_js %}{% endblock %}
 </body>
 </html>

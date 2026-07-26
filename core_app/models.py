@@ -69,6 +69,7 @@ class ConfiguracionSistema(ModeloBase):
         return config        
     
 class ClienteSaaS(ModeloBase):
+    
     TIPOS = [
         ('consultorio', 'Consultorio'),
         ('profesional', 'Profesional Independiente'),
@@ -89,13 +90,31 @@ class ClienteSaaS(ModeloBase):
     )
     activo = models.BooleanField(default=True)
 
+    theme_css = models.CharField(
+    max_length=50,
+    default='default',
+    verbose_name='Tema Visual',
+    choices=[
+        ('default', '🔵 Blanco Profesional'),
+        ('azul_oscuro', '🌟 Azul Oscuro Premium'),
+        ('verde_oscuro', '🟢 Verde Médico Clásico'),
+        ('blanco_negro', '⬜⬛ Blanco & Negro Minimalista'),
+    ]
+)
+    # 🖼️ Hero
     hero_titulo = models.CharField(max_length=200, default='Sacá tu turno online', verbose_name='Título principal')
     hero_subtitulo = models.TextField(default='Rápido, fácil y sin esperas', verbose_name='Subtítulo')
     hero_imagen = models.ImageField(upload_to='landing/', blank=True, null=True, verbose_name='Imagen de fondo')
+    
+    # 🎨 Colores (se usan si no hay theme o para pisar colores del theme)
     color_primario = models.CharField(max_length=7, default='#4A90D9', verbose_name='Color principal')
     color_secundario = models.CharField(max_length=7, default='#28a745', verbose_name='Color secundario')
+    
+    # 📋 Módulos
     mostrar_profesionales = models.BooleanField(default=True, verbose_name='Mostrar profesionales')
     mostrar_servicios = models.BooleanField(default=True, verbose_name='Mostrar servicios')
+    
+    # 📞 Contacto
     telefono_contacto = models.CharField(max_length=20, blank=True, verbose_name='Teléfono')
     email_contacto = models.EmailField(blank=True, verbose_name='Email')
     direccion = models.CharField(max_length=200, blank=True, verbose_name='Dirección')
@@ -105,4 +124,4 @@ class ClienteSaaS(ModeloBase):
         verbose_name_plural = 'Clientes SaaS'
     
     def __str__(self):
-        return f"{self.nombre} ({self.get_tipo_display()})"    
+        return f"{self.nombre} ({self.get_tipo_display()})"

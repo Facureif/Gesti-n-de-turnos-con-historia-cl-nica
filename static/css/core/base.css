@@ -2,9 +2,8 @@
    BASE.CSS - Variables y reset global
    ============================================= */
 
-/* Variables CSS globales */
 :root {
-    /* Colores principales (se pueden sobrescribir por consultorio) */
+    /* Colores principales (se pueden sobrescribir por tema) */
     --primary: #2563eb;
     --primary-dark: #1d4ed8;
     --primary-light: #dbeafe;
@@ -19,7 +18,8 @@
     --info: #0891b2;
     --info-light: #cffafe;
     
-    /* Escala de grises */
+    /* Escala de grises (se sobrescriben en temas oscuros) */
+    --white: #ffffff;
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
@@ -31,13 +31,14 @@
     --gray-800: #1f2937;
     --gray-900: #111827;
     
-    /* Colores de la landing */
-    --text: #1f2937;
+    /* Texto y fondos (se sobrescriben en temas) */
+    --text-main: #1f2937;
     --text-secondary: #4b5563;
     --text-muted: #9ca3af;
-    --bg: #ffffff;
+    --bg-body: #ffffff;
+    --bg-card: #ffffff;
     --bg-alt: #f8fafc;
-    --border: #e5e7eb;
+    --border-color: #e5e7eb;
     
     /* Sombras */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -51,60 +52,119 @@
     --radius-lg: 12px;
     --radius-xl: 16px;
     --radius-full: 9999px;
+
+    /* --- TEMA CLARO (Light) --- */
+
+    --sacar-input-bg: #ffffff;
+    --sacar-input-text: #1e293b;
+    --sacar-input-border: #cbd5e1;
+
+    --sacar-dia-bg: #ffffff;
+    --sacar-dia-text: #1e293b;
+    --sacar-dia-border: #e2e8f0;
+
+    --sacar-dia-selected-bg: #eff6ff;
+    --sacar-dia-selected-border: #3b82f6;
+    --sacar-dia-selected-text: #1d4ed8;
+
+    --sacar-consultorio-bg: #f0fdf4;
+    --sacar-consultorio-text: #065f46;
+    --sacar-consultorio-border: #bbf7d0;
+    
+    --diagnostic-bg: #f0fdf4;
+    --diagnostic-text: #166534;      /* Texto general legible */
+    --diagnostic-text-strong: #15803d;
+
+    --medication-bg: #fef3c7;
+    --medication-text: #78350f;      /* Texto general legible */
+    --medication-text-strong: #92400e;
+    --medication-text-muted: #92400e;
+
+    --warning-bg: #fff3cd;
+    --warning-border: #ffc107;
+    --warning-text: #856404;
 }
 
-/* Reset básico para todo */
+/* --- TEMA OSCURO (Dark) - Ajusta el selector según tu implementación --- */
+[data-theme="dark"], .dark-theme, body.dark-mode {
+    /* ... tus variables oscuras existentes ... */
+
+    /* Fondo un poco más claro para que se note la caja, y su borde respectivo */
+    --diagnostic-bg: #142a22;       /* Un verde oscuro pero distinguible */
+    --diagnostic-border: #2b5a48;   /* Borde del mismo tono para dar relieve */
+    --diagnostic-text: #bbf7d0;
+    --diagnostic-text-strong: #86efac;
+
+    --medication-bg: #2a2414;       /* Un ámbar oscuro distinguible */
+    --medication-border: #594d2a;   /* Borde del mismo tono */
+    --medication-text: #fef08a;
+    --medication-text-strong: #fde047;
+    --medication-text-muted: #fef08a;
+
+    --warning-bg: #2a2414;
+    --warning-border: #594d2a;
+    --warning-text: #fde047;
+}
+.dark-mode .sacar-turno-page,
+[data-theme="dark"] .sacar-turno-page,
+.theme-dark .sacar-turno-page {
+    --sacar-input-bg: #1e293b;
+    --sacar-input-text: #e2e8f0;
+    --sacar-input-border: #475569;
+
+    --sacar-dia-bg: #1e293b;
+    --sacar-dia-text: #cbd5e1;
+    --sacar-dia-border: #334155;
+
+    --sacar-dia-selected-bg: #1e3a8a;
+    --sacar-dia-selected-border: #3b82f6;
+    --sacar-dia-selected-text: #93c5fd;
+
+    --sacar-consultorio-bg: #0a1f1a;
+    --sacar-consultorio-text: #bbf7d0;
+    --sacar-consultorio-border: #2b5a48;
+}
+
+
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Estilos base del body */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background-color: var(--gray-50);
-    color: var(--gray-800);
+    background-color: var(--bg-body);
+    color: var(--text-main);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
 }
 
-/* Estilos para enlaces */
 a {
     color: var(--primary);
     text-decoration: none;
 }
-
 a:hover {
     text-decoration: underline;
 }
 
-/* Estilos para imágenes */
 img {
     max-width: 100%;
     height: auto;
 }
 
-/* Utilidades de texto */
 .text-center { text-align: center; }
 .text-muted { color: var(--text-muted); }
 .text-primary { color: var(--primary); }
-
-/* Utilidades de margen */
 .mt-0 { margin-top: 0; }
 .mb-0 { margin-bottom: 0; }
 .mb-4 { margin-bottom: 16px; }
 .mb-6 { margin-bottom: 24px; }
 .mb-8 { margin-bottom: 32px; }
 .mb-12 { margin-bottom: 48px; }
-
-/* Utilidades flex */
 .flex { display: flex; }
-.flex-between { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-}
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
 .flex-wrap { flex-wrap: wrap; }
 .items-center { align-items: center; }
 .gap-2 { gap: 8px; }

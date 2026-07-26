@@ -285,6 +285,31 @@ document.addEventListener('keydown', function(e) {
         cerrarModalConsultorio();
     }
 });
+
+// Script para resaltar Obras Sociales y Planes al hacer clic
+    document.addEventListener('DOMContentLoaded', function() {
+        // Selecciona todas las etiquetas (labels) de obras sociales y planes
+        const labels = document.querySelectorAll('.os-checkbox-label, .plan-checkbox-label');
+        
+        labels.forEach(label => {
+            label.addEventListener('click', function(e) {
+                // Encontramos el input checkbox dentro de esta etiqueta
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                
+                // Si el checkbox existe, invertimos su estado
+                if (checkbox) {
+                    // Hacemos un pequeño timeout para permitir que el navegador cambie el estado del checkbox
+                    setTimeout(() => {
+                        if (checkbox.checked) {
+                            this.classList.add('activa');
+                        } else {
+                            this.classList.remove('activa');
+                        }
+                    }, 10);
+                }
+            });
+        });
+    });
 </script>
 
 {% endblock %}

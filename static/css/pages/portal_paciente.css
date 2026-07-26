@@ -131,11 +131,11 @@
    CARDS DEL PORTAL
    ============================================= */
 .portal-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     padding: 24px;
     margin-bottom: 20px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow);
 }
 
@@ -224,13 +224,17 @@
    AVISO DE CANCELACIÓN
    ============================================= */
 .portal-aviso {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    margin-bottom: 20px;
+    background: #fef3c7 !important; /* Amarillo claro por defecto */
+    border: 1px solid #fde68a !important;
+    color: #92400e !important;
+    padding: 12px 18px !important;
+    border-radius: 50px !important; /* Forma de cápsula redondeada */
     font-size: 0.9rem;
-    color: #856404;
+    font-weight: 500;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .portal-aviso p {
@@ -257,12 +261,12 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid var(--border-color);
 }
 
 .portal-tabla td {
     padding: 12px 10px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.88rem;
     vertical-align: middle;
 }
@@ -292,7 +296,7 @@
 
 .turno-estado.confirmado {
     background: var(--success-light);
-    color: #065f46;
+    color: var(--diagnostic-bg);
 }
 
 .turno-estado.pendiente {
@@ -320,7 +324,7 @@
    ============================================= */
 .visita-item {
     padding: 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .visita-item:last-child {
@@ -363,15 +367,18 @@
 
 /* Bloques de información */
 .visita-diagnostico {
-    background: #f0fdf4;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    margin-bottom: 8px;
+    background: #f0fdf4 !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #166534 !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
     font-size: 0.9rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
 }
 
 .visita-diagnostico strong {
-    color: #15803d;
+    color: var(--diagnostic-text-strong);
 }
 
 .visita-tratamiento {
@@ -381,17 +388,24 @@
 }
 
 .visita-medicacion {
-    background: #fef3c7;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    margin-bottom: 8px;
+    background: #fef3c7 !important;
+    border: 1px solid #fde68a !important;
+    color: #78350f !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
     font-size: 0.9rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.visita-medicacion .indicaciones {
+    color: #92400e !important;
 }
 
 .visita-medicacion .indicaciones {
     margin-top: 4px;
     font-size: 0.85rem;
-    color: #92400e;
+    color: var(--medication-text-muted);
 }
 
 .visita-medicacion .nota {
@@ -432,7 +446,7 @@
     display: flex;
     align-items: center;
     padding: 16px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     gap: 16px;
     transition: box-shadow 0.2s ease;
@@ -486,11 +500,11 @@
 }
 
 .profesional-card-portal {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-xl);
     padding: 28px 20px;
     text-align: center;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow);
     transition: all 0.25s ease;
     display: flex;
@@ -605,6 +619,36 @@
     background: var(--gray-600);
 }
 
+.dark-mode .portal-aviso, 
+[data-theme="dark"] .portal-aviso,
+.theme-dark .portal-aviso {
+    background: #4a3a1a !important;   /* Fondo ámbar oscuro */
+    border: 1px solid #d4a330 !important;
+    color: #ffde70 !important;       /* Texto amarillo claro */
+}
+
+.dark-mode .visita-diagnostico,
+[data-theme="dark"] .visita-diagnostico,
+.theme-dark .visita-diagnostico {
+    background: #142a22 !important;  /* Fondo verde oscuro */
+    border: 1px solid #2b5a48 !important;
+    color: #bbf7d0 !important;
+}
+
+.dark-mode .visita-medicacion,
+[data-theme="dark"] .visita-medicacion,
+.theme-dark .visita-medicacion {
+    background: #2a2414 !important;  /* Fondo amarillo oscuro */
+    border: 1px solid #594d2a !important;
+    color: #fef08a !important;
+}
+
+.dark-mode .visita-medicacion .indicaciones,
+[data-theme="dark"] .visita-medicacion .indicaciones,
+.theme-dark .visita-medicacion .indicaciones {
+    color: #fef08a !important;
+}
+
 /* =============================================
    MODAL DE HORARIOS
    ============================================= */
@@ -626,7 +670,7 @@
 }
 
 .modal-dialog {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-xl);
     padding: 30px;
     max-width: 450px;
@@ -680,7 +724,7 @@
 
 .modal-horarios-tabla td {
     padding: 8px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
 }
 
@@ -699,7 +743,7 @@
 .portal-form-input {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.95rem;
@@ -723,7 +767,7 @@
 .portal-form-select {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.95rem;
@@ -775,7 +819,7 @@
     display: none;
     margin-bottom: 20px;
     padding: 20px;
-    background: #f0f7ff;
+    background: var(--primary-light);
     border-radius: var(--radius);
     border: 1px solid var(--primary);
 }
@@ -895,7 +939,7 @@
 /* Header de la página */
 .sacar-turno-top {
     background: var(--bg-alt);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     padding: 28px 0;
     text-align: center;
     margin-bottom: 24px;
@@ -916,11 +960,11 @@
 
 /* Cards del formulario */
 .sacar-turno-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius);
     padding: 22px;
     margin-bottom: 16px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
 }
 
@@ -937,7 +981,7 @@
 .sacar-turno-select {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.95rem;
@@ -952,11 +996,83 @@
     border-color: var(--primary);
 }
 
+
+/* 1. Inputs de texto y Selects */
+.sacar-turno-input, 
+.sacar-turno-select,
+.upload-area-input, /* Por si el upload tiene inputs */
+#id_descripcion_archivos {
+    background: var(--sacar-input-bg) !important;
+    color: var(--sacar-input-text) !important;
+    border: 1px solid var(--sacar-input-border) !important;
+    border-radius: var(--radius) !important;
+    transition: border-color 0.2s ease !important;
+}
+.sacar-turno-input:focus, 
+.sacar-turno-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+/* 2. Días y Horarios (Botones cuadrados) */
+.dia-label-sacar,
+.hora-label-sacar {
+    background: var(--sacar-dia-bg) !important;
+    color: var(--sacar-dia-text) !important;
+    border: 2px solid var(--sacar-dia-border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    transition: all 0.2s ease !important;
+}
+.dia-label-sacar:hover,
+.hora-label-sacar:hover {
+    border-color: var(--sacar-dia-selected-border) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 3. Días y Horarios Seleccionados */
+.dia-label-sacar.seleccionado,
+.hora-label-sacar.seleccionada {
+    background: var(--sacar-dia-selected-bg) !important;
+    border-color: var(--sacar-dia-selected-border) !important;
+    color: var(--sacar-dia-selected-text) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 4. Consultorio Confirmado (el bloque verde de abajo) */
+.consultorio-confirmado {
+    background: var(--sacar-consultorio-bg) !important;
+    color: var(--sacar-consultorio-text) !important;
+    border: 1px solid var(--sacar-consultorio-border) !important;
+    border-radius: var(--radius) !important;
+    padding: 12px !important;
+    font-weight: 500 !important;
+}
+
+/* 5. Área de Subida de Archivos (upload area blanca) */
+/* Nota: Ajusta la clase '.upload-area' si en tu include HTML tiene otro nombre */
+.upload-area {
+    background: var(--sacar-input-bg) !important;
+    color: var(--sacar-input-text) !important;
+    border: 2px dashed var(--sacar-input-border) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 24px !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+}
+.upload-area:hover {
+    border-color: var(--primary) !important;
+}
+.upload-area .icono-upload {
+    font-size: 2rem !important;
+    color: var(--sacar-input-text) !important;
+}
+
 /* Input de texto */
 .sacar-turno-input {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     font-family: inherit;
     font-size: 0.95rem;
@@ -980,7 +1096,7 @@
     align-items: center;
     gap: 10px;
     padding: 12px;
-    background: #f0fdf4;
+    background: var(--success-light);
     border-radius: var(--radius);
     color: #065f46;
     font-weight: 500;
@@ -1001,7 +1117,7 @@
 
 .dia-label-sacar {
     padding: 12px 14px;
-    border: 2px solid var(--border);
+    border: 2px solid var(--border-color);
     border-radius: var(--radius);
     cursor: pointer;
     text-align: center;
@@ -1028,7 +1144,7 @@
 .dia-numero-sacar {
     font-weight: 700;
     font-size: 1.1rem;
-    color: var(--text);
+    color: var(--sacar-input-text);
 }
 
 .dia-mes-sacar {
@@ -1162,5 +1278,224 @@
     
     .sacar-turno-card {
         padding: 16px;
+    }
+}
+
+/* ================================================================
+   SÚPER PARCHE GLOBAL MODO OSCURO - 100% DINÁMICO CON VARIABLES
+   ================================================================ */
+
+@media (prefers-color-scheme: dark) {
+
+    /* =============== 1. CABECERAS, CARDS Y TEXTOS GENERALES =============== */
+    
+    .card, .paciente-card, .perfil-card, .ficha-card, .slot-info-card, .modal-dialog {
+        background: var(--bg-card) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .page-header h1, .perfil-header h1, .ficha-header-texto h1, 
+    .portal-saludo h1, .dashboard-header h1, .cobranza-header h1,
+    .card-title, .ficha-card-header h3, .paciente-card-header h3,
+    .modal-header h3, .calendario-dia-header.atiende,
+    .consultorio-item .consultorio-info .consultorio-nombre {
+        color: var(--text-main) !important;
+    }
+    
+    .page-header p, .perfil-header p, .ficha-header-texto p, .text-muted,
+    .slot-info-etiqueta, .cobranza-mes, .dashboard-periodo, .modal-info-label,
+    .calendario-slot-tipo, .calendario-slot-agregar, .consultorio-item .consultorio-info .consultorio-detalle {
+        color: var(--text-muted) !important;
+    }
+
+    .card-header, .ficha-card-header, .paciente-card-header {
+        background: var(--bg-alt) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    /* =============== 2. INPUTS, SELECTS, TEXTAREAS Y FECHAS =============== */
+
+    .turnos-input, .turnos-textarea, .turnos-select, .turnos-busqueda-input,
+    .ficha-input, .ficha-textarea, .ficha-select, .ficha-file-input,
+    .perfil-input, .perfil-select, .perfil-textarea,
+    .form-input, .form-select, .form-textarea,
+    input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="password"], input[type="file"],
+    textarea, select {
+        background: var(--bg-input) !important; /* Fondo oscuro profundo del sistema */
+        color: var(--text-main) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .turnos-input::placeholder, .turnos-textarea::placeholder,
+    .ficha-input::placeholder, .ficha-textarea::placeholder,
+    .perfil-input::placeholder, .perfil-textarea::placeholder,
+    .form-input::placeholder, .form-textarea::placeholder,
+    input::placeholder, textarea::placeholder {
+        color: var(--text-muted) !important;
+    }
+
+    select option {
+        background: var(--bg-card) !important;
+        color: var(--text-main) !important;
+    }
+
+    input[type="file"] {
+        background: var(--bg-alt) !important;
+        color: var(--text-main) !important;
+    }
+
+    /* =============== 3. CALENDARIO SEMANAL =============== */
+
+    .calendario-dia-header.inactivo {
+        background: var(--bg-alt) !important;
+        color: var(--text-muted) !important;
+    }
+    .calendario-dia-header.activo {
+        background: var(--primary) !important; /* Toma el color primario del tema */
+        color: #ffffff !important;
+    }
+
+    .calendario-slots {
+        background: var(--bg-card) !important;
+    }
+    .calendario-slot {
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    .calendario-slot-hora {
+        color: var(--text-main) !important;
+    }
+    .calendario-slot-paciente {
+        color: var(--text-main) !important;
+    }
+    
+    .calendario-slot.vacio {
+        color: var(--text-muted) !important;
+    }
+    .calendario-slot.vacio:hover {
+        background: var(--bg-alt) !important;
+        color: var(--primary) !important;
+    }
+
+    .calendario-slot.pendiente {
+        background: var(--warning-bg) !important;
+        border-left-color: var(--warning) !important;
+    }
+    .calendario-slot.pendiente .calendario-slot-paciente {
+        color: var(--warning-text) !important;
+    }
+    
+    .calendario-slot.confirmado {
+        background: var(--success-bg) !important;
+        border-left-color: var(--success) !important;
+    }
+    .calendario-slot.confirmado .calendario-slot-paciente {
+        color: var(--success-text) !important;
+    }
+    
+    .calendario-slot.sobreturno {
+        background: var(--danger-bg) !important;
+        border-left-color: var(--danger) !important;
+    }
+    .calendario-slot.sobreturno .calendario-slot-paciente {
+        color: var(--danger-text) !important;
+    }
+
+    .consultorio-separador {
+        background: var(--bg-alt) !important;
+        color: var(--text-main) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .calendario-dia-footer {
+        background: var(--bg-card) !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+    .calendario-dia-footer a {
+        color: var(--text-muted) !important;
+    }
+    .calendario-dia-footer a:hover {
+        color: var(--danger) !important;
+    }
+
+    .modal-info-row {
+        border-color: var(--border-color) !important;
+    }
+    .modal-info-value {
+        color: var(--text-main) !important;
+    }
+
+
+    /* =============== 4. BADGES Y ETIQUETAS =============== */
+
+    .badge-info, .badge-info.paciente-option-badge,
+    .ficha-badge-info, .sesiones-badge {
+        background: var(--info-bg) !important;
+        color: var(--info-text) !important;
+    }
+    .badge-success, .ficha-badge-success {
+        background: var(--success-bg) !important;
+        color: var(--success-text) !important;
+    }
+    .badge-warning, .ficha-badge-warning {
+        background: var(--warning-bg) !important;
+        color: var(--warning-text) !important;
+    }
+    .badge-danger, .ficha-badge-danger {
+        background: var(--danger-bg) !important;
+        color: var(--danger-text) !important;
+    }
+    .badge-gray, .ficha-badge-gray {
+        background: var(--bg-alt) !important;
+        color: var(--text-muted) !important;
+    }
+
+    .paciente-option-detalle {
+        color: var(--text-muted) !important;
+    }
+    .paciente-option-detalle strong {
+        color: var(--text-main) !important;
+    }
+    .paciente-option-info .paciente-option-nombre {
+        color: var(--text-main) !important;
+    }
+    .paciente-option {
+        border-color: var(--border-color) !important;
+        background: var(--bg-card) !important;
+    }
+    .paciente-option:hover {
+        border-color: var(--primary) !important;
+    }
+    .paciente-option.seleccionado {
+        border-color: var(--success) !important;
+        background: var(--success-bg) !important;
+    }
+
+
+    /* =============== 5. CHECKBOXES (Fichas y Formularios) =============== */
+    .ficha-checkbox-label, .perfil-checkbox-label {
+        color: var(--text-main) !important;
+    }
+    .ficha-checkbox-label input[type="checkbox"],
+    .perfil-checkbox-label input[type="checkbox"] {
+        accent-color: var(--primary) !important; /* Aplica el color primario del tema */
+    }
+
+
+    /* =============== 6. ESTADOS VACÍOS Y TABLAS =============== */
+    .empty-state p, .perfil-vacio, .ficha-empty p, .portal-empty p {
+        color: var(--text-muted) !important;
+    }
+    
+    table thead th {
+        background: var(--bg-alt) !important;
+        color: var(--text-muted) !important;
+        border-color: var(--border-color) !important;
+    }
+    table tbody td {
+        color: var(--text-main) !important;
+        border-color: var(--border-color) !important;
+    }
+    table tbody tr:hover {
+        background: var(--bg-alt) !important;
     }
 }

@@ -1,0 +1,34 @@
+:root {
+    --primary: #10b981; --primary-dark: #059669; --primary-light: #064e3b;
+    --success: #10b981; --success-light: #064e3b;
+    --warning: #f59e0b; --warning-light: #451a03;
+    --danger: #ef4444; --danger-light: #450a0a;
+    --info: #06b6d4; --info-light: #083344;
+
+    --bg-body: #061712; --bg-card: #0a221b; --bg-alt: #0a221b;
+    --text-main: #f0fdf4; --text-secondary: #d1fae5; --text-muted: #6ee7b7;
+    --border-color: #0f3328;
+
+    --navbar-bg: #081a14; --navbar-border: #0f3328; --navbar-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    --navbar-brand-color: #f0fdf4; --navbar-link-color: #d1fae5;
+    --navbar-link-hover-bg: rgba(16,185,129,0.15); --navbar-link-hover-color: #10b981;
+    --navbar-user-bg: #061712; --navbar-user-color: #d1fae5;
+
+    --footer-bg: #030e0a; --footer-text: #6ee7b7; --footer-border: #0f3328;
+    --footer-heading-color: #f0fdf4; --footer-link-color: #10b981; --footer-link-hover-color: #34d399;
+
+    --whatsapp-bg: #25D366; --whatsapp-color: #ffffff;
+    --hero-btn-bg: #10b981; --hero-btn-color: #061712;
+
+    --tag-bg: #064e3b; --tag-color: #d1fae5;
+    --tag-os-bg: #312e81; --tag-os-color: #c7d2fe;
+--text: var(--text-main);
+    --white: #0a221b; --gray-50: #061712; --gray-100: #0f3328; --gray-200: #1a3d32; --gray-300: #2a5040;
+    --gray-400: #5a8a7a; --gray-500: #6ee7b7; --gray-600: #a7f3d0; --gray-700: #d1fae5; --gray-800: #ecfdf5; --gray-900: #f0fdf4;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow: 0 1px 3px rgba(0,0,0,0.5);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.5); --shadow-lg: 0 10px 15px rgba(0,0,0,0.6);
+}
+.tag { background: var(--tag-bg) !important; color: var(--tag-color) !important; }
+.tag-os { background: var(--tag-os-bg) !important; color: var(--tag-os-color) !important; }
+.whatsapp-flotante { background-color: #25D366 !important; color: white !important; }

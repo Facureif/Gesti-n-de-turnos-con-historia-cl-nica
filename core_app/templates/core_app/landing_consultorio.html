@@ -7,11 +7,6 @@
     <link rel="stylesheet" href="{% static 'css/pages/landing_consultorio.css' %}">
     
     <style>
-        :root {
-            --primary: {{ cliente.color_primario|default:'#2563eb' }};
-            --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
-        }
-        
         .hero-consultorio {
             {% if cliente.hero_imagen %}
                 background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), url('{{ cliente.hero_imagen.url }}');
@@ -40,15 +35,15 @@
                 <a href="#profesionales" class="btn-hero-consultorio">
                     <i class="fas fa-calendar-plus"></i> Sacar Turno
                 </a>
-                {% if cliente.telefono_contacto %}
+                <!-- {% if cliente.telefono_contacto %}
                 <a href="https://wa.me/54{{ cliente.telefono_contacto|cut:' '|cut:'-' }}?text=Hola,%20quiero%20consultar%20por%20un%20turno" 
                    target="_blank" class="btn-hero-outline">
                     <i class="fab fa-whatsapp"></i> Consultar por WhatsApp
                 </a>
-                {% endif %}
+                {% endif %} -->
             </div>
         </div>
-        
+        <br>
         <div class="hero-scroll">
             <span>Conocenos</span>
             <i class="fas fa-chevron-down"></i>
@@ -177,11 +172,11 @@
                 {% endfor %}
             </div>
             
-            <div class="sin-resultados" id="sin-resultados">
+            <!-- <div class="sin-resultados" id="sin-resultados">
                 <i class="fas fa-search"></i>
                 <p>No hay profesionales de esta especialidad.</p>
                 <p style="font-size: 0.9rem;">Probá seleccionando otra especialidad.</p>
-            </div>
+            </div> -->
             
             <div class="profesionales-list" id="profesionales-list">
                 {% for prof in profesionales %}
@@ -334,6 +329,19 @@
 </a>
 {% endif %}
 
+
+<!-- ========== SELECTOR DE TEMAS ========== -->
+<div class="theme-selector">
+    <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
+            data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
+    <button class="theme-selector-btn theme-btn-dorado {% if cliente.theme_css == 'azul_oscuro' %}activo{% endif %}" 
+            data-tema="Azul Oscuro" onclick="cambiarTema('azul_oscuro')" title="Azul Oscuro Premium"></button>
+    <button class="theme-selector-btn theme-btn-verde-oscuro {% if cliente.theme_css == 'verde_oscuro' %}activo{% endif %}" 
+            data-tema="Verde Oscuro" onclick="cambiarTema('verde_oscuro')" title="Verde Médico Clásico"></button>
+    <button class="theme-selector-btn theme-btn-bn {% if cliente.theme_css == 'blanco_negro' %}activo{% endif %}" 
+            data-tema="Blanco & Negro" onclick="cambiarTema('blanco_negro')" title="Minimalista"></button>
+</div>
+
 <!-- ========== FOOTER COMPLETO (FUERA DEL .LANDING Y DEL CONTAINER-CUSTOM) ========== -->
 <footer class="footer">
     <div class="container-custom">
@@ -438,6 +446,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+function cambiarTema(theme) {
+    document.getElementById('theme-css').href = '/static/css/themes/' + theme + '.css';
+    
+    document.querySelectorAll('.theme-selector-btn').forEach(function(btn) {
+        btn.classList.remove('activo');
+    });
+    
+    var botones = document.querySelectorAll('.theme-selector-btn');
+    botones.forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(theme) !== -1) {
+            btn.classList.add('activo');
+        }
+    });
+    
+    localStorage.setItem('consultorio-theme', theme);
+}
 
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);

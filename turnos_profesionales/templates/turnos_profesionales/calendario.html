@@ -4,8 +4,8 @@
 {% block title %}Calendario Semanal{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/calendario_semanal.css' %}">
     <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/calendario_semanal.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -109,9 +109,22 @@
                             )
                         {% endif %}">
                         
+                        <!-- Línea de hora con icono del estado -->
                         <div class="calendario-slot-hora">
+                            {% if slot.turno %}
+                                {% if slot.turno.es_sobreturno %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% elif slot.turno.estado == 'confirmado' %}
+                                    <i class="fas fa-check"></i>
+                                {% elif slot.turno.estado == 'pendiente' %}
+                                    <i class="fas fa-clock"></i>
+                                {% elif slot.turno.estado == 'completado' %}
+                                    <i class="fas fa-check-double"></i>
+                                {% elif slot.turno.estado == 'cancelado' %}
+                                    <i class="fas fa-times"></i>
+                                {% endif %}
+                            {% endif %}
                             {{ slot.hora_inicio|time:"H:i" }} - {{ slot.hora_fin|time:"H:i" }}
-                            {% if slot.turno and slot.turno.es_sobreturno %}🚨{% endif %}
                         </div>
                         
                         {% if slot.turno %}
@@ -159,9 +172,9 @@
 <div class="calendario-leyenda">
     <span class="badge badge-warning"><i class="fas fa-clock"></i> Pendiente</span>
     <span class="badge badge-success"><i class="fas fa-check"></i> Confirmado</span>
-    <span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> Sobreturno</span>
-    <span class="badge badge-gray"><i class="fas fa-check-double"></i> Completado</span>
-    <span class="badge badge-danger"><i class="fas fa-times"></i> Cancelado</span>
+    <span class="badge badge-sobreturno"><i class="fas fa-exclamation-triangle"></i> Sobreturno</span>
+    <span class="badge badge-completado"><i class="fas fa-check-double"></i> Completado</span>
+    <span class="badge badge-cancelado"><i class="fas fa-times"></i> Cancelado</span>
     <span style="color: var(--gray-400);"><i class="far fa-square"></i> Disponible</span>
 </div>
 
@@ -300,7 +313,8 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
     badge.className = 'badge modal-badge ';
     if (estado === 'confirmado') badge.className += 'badge-success';
     else if (estado === 'pendiente') badge.className += 'badge-warning';
-    else if (estado === 'completado') badge.className += 'badge-gray';
+    else if (estado === 'completado') badge.className += 'badge-completado';
+    else if (estado === 'cancelado') badge.className += 'badge-cancelado';
     else badge.className += 'badge-danger';
     
     document.getElementById('btn-confirmar').style.display = estado === 'pendiente' ? 'inline-flex' : 'none';

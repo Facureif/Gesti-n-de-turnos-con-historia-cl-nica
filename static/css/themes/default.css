@@ -1,0 +1,42 @@
+:root {
+    --primary: var(--custom-primary, #2563eb);
+    --primary-dark: var(--custom-primary-dark, #1d4ed8);
+    --primary-light: #eff6ff;
+    --success: #059669; --success-light: #ecfdf5;
+    --warning: #d97706; --warning-light: #fffbeb;
+    --danger: #dc2626; --danger-light: #fef2f2;
+    --info: #0891b2; --info-light: #ecfeff;
+--text: var(--text-main);
+    --bg-body: #ffffff; --bg-card: #ffffff; --bg-alt: #f8fafc;
+    --text-main: #0f172a; --text-secondary: #334155; --text-muted: #64748b;
+    --border-color: #e2e8f0;
+
+    --navbar-bg: #ffffff; --navbar-border: #e2e8f0; --navbar-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    --navbar-brand-color: #0f172a; --navbar-link-color: #334155;
+    --navbar-link-hover-bg: #eff6ff; --navbar-link-hover-color: var(--primary);
+    --navbar-user-bg: #f8fafc; --navbar-user-color: #334155;
+
+    --footer-bg: #0f172a; --footer-text: #94a3b8; --footer-border: rgba(255,255,255,0.1);
+    --footer-heading-color: #ffffff; --footer-link-color: #93c5fd; --footer-link-hover-color: #bfdbfe;
+
+    --whatsapp-bg: #25D366; --whatsapp-color: #ffffff;
+    --hero-btn-bg: #ffffff; --hero-btn-color: #0f172a;
+
+    --tag-bg: #d1fae5; --tag-color: #065f46;
+    --tag-os-bg: #ede9fe; --tag-os-color: #5b21b6;
+
+    --white: #ffffff; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1;
+    --gray-400: #94a3b8; --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.06); --shadow-lg: 0 10px 15px rgba(0,0,0,0.08);
+}
+.tag { background: var(--tag-bg) !important; color: var(--tag-color) !important; }
+.tag-os { background: var(--tag-os-bg) !important; color: var(--tag-os-color) !important; }
+.whatsapp-flotante { background-color: #25D366 !important; color: white !important; }
+
+/* Si existen variables custom, las usamos como primarias */
+:root {
+    --primary: var(--custom-primary, #2563eb);
+    --primary-dark: var(--custom-primary-dark, #1d4ed8);
+}

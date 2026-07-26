@@ -4,29 +4,14 @@
 {% block title %}{{ profesional.nombre_completo }} - {{ profesional.get_especialidad_display }} | Turnos Online{% endblock %}
 
 {% block extra_css %}
-    <!-- CSS específico de la landing del profesional -->
     <link rel="stylesheet" href="{% static 'css/pages/landing_profesional.css' %}">
     
-    <!-- Colores personalizados desde el cliente SaaS -->
-        <style>
+    <style>
+        /* SOLO colores principales e imagen de fondo */
+        
         :root {
-            /* Heredamos y sobrescribimos los colores personalizados del cliente */
             --primary: {{ cliente.color_primario|default:'#2563eb' }};
             --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
-            
-            /* --- ESTO ES LO QUE FALTABA --- */
-            /* Heredamos los colores por defecto para que no fallen las variables */
-            --white: #ffffff;
-            --gray-200: #e5e7eb;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
         }
         
         .hero {
@@ -39,12 +24,6 @@
                 background-size: cover;
                 background-position: center;
             {% endif %}
-        }
-        
-        /* Asegurar que la navbar NO sea transparente en las landings */
-        .navbar {
-            background-color: var(--white) !important;
-            border-bottom: 1px solid var(--gray-200) !important;
         }
     </style>
 {% endblock %}
@@ -241,6 +220,19 @@
 
 </div>
 
+<!-- ========== SELECTOR DE TEMAS ========== -->
+<div class="theme-selector">
+    <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
+            data-tema="Blanco Profesional" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
+    <button class="theme-selector-btn theme-btn-azul-oscuro {% if cliente.theme_css == 'azul_oscuro' %}activo{% endif %}" 
+            data-tema="Azul Oscuro Premium" onclick="cambiarTema('azul_oscuro')" title="Azul Oscuro Premium"></button>
+    <button class="theme-selector-btn theme-btn-verde-oscuro {% if cliente.theme_css == 'verde_oscuro' %}activo{% endif %}" 
+            data-tema="Verde Médico Clásico" onclick="cambiarTema('verde_oscuro')" title="Verde Médico Clásico"></button>
+    <button class="theme-selector-btn theme-btn-blanco-negro {% if cliente.theme_css == 'blanco_negro' %}activo{% endif %}" 
+            data-tema="Blanco & Negro" onclick="cambiarTema('blanco_negro')" title="Blanco & Negro Minimalista"></button>
+</div>
+
+
 <!-- ========== BOTÓN FLOTANTE PARA SACAR TURNO (IZQUIERDA) ========== -->
 <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-flotante-turno">
     <i class="fas fa-calendar-plus"></i> Sacar Turno
@@ -252,5 +244,24 @@
     <i class="fab fa-whatsapp"></i>
 </a>
 {% endif %}
+
+<script>
+    function cambiarTema(theme) {
+    document.getElementById('theme-css').href = '/static/css/themes/' + theme + '.css';
+    
+    document.querySelectorAll('.theme-selector-btn').forEach(function(btn) {
+        btn.classList.remove('activo');
+    });
+    
+    var botones = document.querySelectorAll('.theme-selector-btn');
+    botones.forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(theme) !== -1) {
+            btn.classList.add('activo');
+        }
+    });
+    
+    localStorage.setItem('consultorio-theme', theme);
+}
+</script>
 
 {% endblock %}

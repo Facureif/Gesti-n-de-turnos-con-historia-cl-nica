@@ -1,21 +1,22 @@
+from django import forms
 from django.contrib import admin
-from .models import ConfiguracionSistema
+from .models import ClienteSaaS, ConfiguracionSistema
 
+# =============================================
+# CONFIGURACIÓN DEL SISTEMA
+# =============================================
 @admin.register(ConfiguracionSistema)
 class ConfiguracionSistemaAdmin(admin.ModelAdmin):
     list_display = ('nombre_sistema', 'modo', 'establecimiento_principal', 'profesional_principal')
     
     def has_add_permission(self, request):
-        # Solo permitir una configuración
         return not ConfiguracionSistema.objects.exists()
-    
 
-from django import forms
-from django.contrib import admin
-from .models import ClienteSaaS
 
+# =============================================
+# CLIENTE SAAS
+# =============================================
 class ClienteSaaSForm(forms.ModelForm):
-    """Formulario con widgets mejorados para el admin"""
     class Meta:
         model = ClienteSaaS
         fields = '__all__'
@@ -25,37 +26,38 @@ class ClienteSaaSForm(forms.ModelForm):
             'hero_subtitulo': forms.Textarea(attrs={'rows': 3}),
         }
 
+
 @admin.register(ClienteSaaS)
 class ClienteSaaSAdmin(admin.ModelAdmin):
     form = ClienteSaaSForm
     
-    # Organizar los campos en secciones
     fieldsets = (
-        ('Información Básica', {
+        ('📋 Información Básica', {
             'fields': ('slug', 'tipo', 'nombre', 'activo')
         }),
-        ('Vinculación', {
+        ('🔗 Vinculación', {
             'fields': ('establecimiento', 'profesional'),
             'description': 'Vinculá este cliente con un establecimiento (consultorio) o un profesional independiente'
         }),
-        ('🎨 Personalización Visual', {
-            'fields': ('color_primario', 'color_secundario'),
-            'description': 'Estos colores se usarán en la landing page del consultorio'
+        ('🎨 Tema y Colores', {
+            'fields': ('theme_css', 'color_primario', 'color_secundario'),
+            'description': 'Elegí un tema predefinido o personalizá los colores manualmente. El color pisa al del theme.'
         }),
         ('🖼️ Hero (Portada)', {
             'fields': ('hero_imagen', 'hero_titulo', 'hero_subtitulo'),
-            'description': 'Configurá la imagen de fondo y textos de la portada'
+            'description': 'Imagen de fondo y textos principales de la landing page'
         }),
         ('📋 Módulos', {
             'fields': ('mostrar_profesionales', 'mostrar_servicios'),
-            'description': 'Activá o desactivá secciones de la landing'
+            'description': 'Activá o desactivá secciones de la landing page'
         }),
         ('📞 Contacto', {
-            'fields': ('telefono_contacto', 'email_contacto', 'direccion')
+            'fields': ('telefono_contacto', 'email_contacto', 'direccion'),
+            'description': 'Estos datos aparecerán en el footer con links directos (WhatsApp, mail, maps)'
         }),
     )
     
-    list_display = ('nombre', 'tipo', 'activo', 'slug')
-    list_filter = ('tipo', 'activo')
+    list_display = ('nombre', 'tipo', 'theme_css', 'activo', 'slug')
+    list_filter = ('tipo', 'activo', 'theme_css')
     search_fields = ('nombre', 'slug')
-    prepopulated_fields = {'slug': ('nombre',)}    
+    prepopulated_fields = {'slug': ('nombre',)}

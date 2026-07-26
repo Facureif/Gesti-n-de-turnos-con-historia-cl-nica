@@ -13,7 +13,7 @@
 .calendario-dia {
     border-radius: var(--radius-lg);
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     transition: all 0.2s ease;
 }
 
@@ -68,7 +68,7 @@
 .calendario-slots {
     max-height: 500px;
     overflow-y: auto;
-    background: white;
+    background: var(--bg-card);
 }
 
 /* Slot individual */
@@ -85,6 +85,7 @@
     transform: translateX(2px);
 }
 
+/* --- SLOTS VACÍOS --- */
 .calendario-slot.vacio {
     color: var(--gray-400);
     border-left-color: transparent;
@@ -95,45 +96,64 @@
     color: var(--primary);
 }
 
-.calendario-slot.sobreturno {
-    background: #fef2f2;
-    border-left-color: var(--danger);
+/* =============================================
+   SLOTS - COLORES DE FONDO (ALTA ESPECIFICIDAD)
+   ============================================= */
+
+/* Confirmado */
+.calendario-slots .calendario-slot.confirmado {
+    background: #bbf7d0 !important;
+    border-left-color: #16a34a !important;
+}
+.calendario-slots .calendario-slot.confirmado .calendario-slot-paciente,
+.calendario-slots .calendario-slot.confirmado .calendario-slot-hora {
+    color: #14532d !important;
 }
 
-.calendario-slot.confirmado {
-    background: #f0fdf4;
-    border-left-color: var(--success);
+/* Pendiente */
+.calendario-slots .calendario-slot.pendiente {
+    background: #fde68a !important;
+    border-left-color: #d97706 !important;
+}
+.calendario-slots .calendario-slot.pendiente .calendario-slot-paciente,
+.calendario-slots .calendario-slot.pendiente .calendario-slot-hora {
+    color: #78350f !important;
 }
 
-.calendario-slot.pendiente {
-    background: #fffbeb;
-    border-left-color: #d97706;
+/* Completado */
+.calendario-slots .calendario-slot.completado {
+    background: #bfdbfe !important;
+    border-left-color: #2563eb !important;
+}
+.calendario-slots .calendario-slot.completado .calendario-slot-paciente,
+.calendario-slots .calendario-slot.completado .calendario-slot-hora {
+    color: #1e3a8a !important;
 }
 
-.calendario-slot.completado {
-    background: var(--bg-alt);
-    border-left-color: var(--gray-400);
+/* Cancelado */
+.calendario-slots .calendario-slot.cancelado {
+    background: #fecaca !important;
+    border-left-color: #dc2626 !important;
+}
+.calendario-slots .calendario-slot.cancelado .calendario-slot-paciente,
+.calendario-slots .calendario-slot.cancelado .calendario-slot-hora {
+    color: #7f1d1d !important;
 }
 
-.calendario-slot.cancelado {
-    background: #fef2f2;
-    border-left-color: var(--danger);
+/* Sobreturno */
+.calendario-slots .calendario-slot.sobreturno {
+    background: #f5a3ad  !important;
+    border-left-color: #e11d48 !important;
+}
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-hora {
+    color: #9f1239 !important;
 }
 
-.calendario-slot-hora {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--text);
-}
-
-.calendario-slot-paciente {
-    font-weight: 500;
-    margin-top: 2px;
-}
-
+/* Textos secundarios neutros */
 .calendario-slot-tipo {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--text-main);
     margin-top: 1px;
 }
 
@@ -141,7 +161,6 @@
     font-size: 0.75rem;
     color: var(--text-muted);
 }
-
 .calendario-slot-disponibilidad {
     font-size: 0.7rem;
     color: var(--success);
@@ -152,7 +171,7 @@
 .consultorio-separador {
     padding: 6px 12px;
     background: var(--gray-500);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -188,7 +207,7 @@
 }
 
 /* =============================================
-   LEYENDA
+   LEYENDA – CLASES PROPIAS PARA CADA ESTADO
    ============================================= */
 .calendario-leyenda {
     display: flex;
@@ -196,6 +215,41 @@
     margin-top: 24px;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+.calendario-leyenda .badge-success {
+    background-color: #bbf7d0 !important;
+    color: #14532d !important;
+    border: 1px solid #16a34a !important;
+}
+
+.calendario-leyenda .badge-warning {
+    background-color: #fde68a !important;
+    color: #78350f !important;
+    border: 1px solid #d97706 !important;
+}
+
+.calendario-leyenda .badge-completado {
+    background-color: #bfdbfe !important;
+    color: #1e3a8a !important;
+    border: 1px solid #2563eb !important;
+}
+
+.calendario-leyenda .badge-cancelado {
+    background-color: #fecaca !important;
+    color: #7f1d1d !important;
+    border: 1px solid #dc2626 !important;
+}
+
+.calendario-leyenda .badge-sobreturno {
+    background-color: #fecdd3 !important;
+    color: #9f1239 !important;
+    border: 1px solid #e11d48 !important;
+}
+
+/* Texto "Disponible" */
+.calendario-leyenda span {
+    color: var(--gray-400);
 }
 
 /* =============================================
@@ -220,7 +274,7 @@
 }
 
 .modal-dialog {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius-xl);
     width: 480px;
     max-width: 90%;
@@ -230,7 +284,7 @@
 
 .modal-header {
     padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -262,7 +316,7 @@
 
 .modal-footer {
     padding: 16px 24px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-color);
     display: flex;
     gap: 8px;
     justify-content: flex-end;
@@ -371,3 +425,318 @@
         font-size: 1.2rem;
     }
 }
+
+/* =============================================
+   MODO OSCURO DINÁMICO – SLOTS PINTADOS
+   ============================================= */
+
+/* Selector múltiple para cualquier activación de tema oscuro */
+body.dark-mode .calendario-slots,
+[data-theme="dark"] .calendario-slots,
+.dark-theme .calendario-slots {
+    background: #111827;
+}
+
+body.dark-mode .calendario-slot,
+[data-theme="dark"] .calendario-slot,
+.dark-theme .calendario-slot {
+    border-bottom: 1px solid #1f2937;
+}
+
+/* --- ENCABEZADOS Y ELEMENTOS BASE --- */
+body.dark-mode .calendario-dia-header.atiende,
+[data-theme="dark"] .calendario-dia-header.atiende,
+.dark-theme .calendario-dia-header.atiende {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+body.dark-mode .calendario-dia-header.activo,
+[data-theme="dark"] .calendario-dia-header.activo,
+.dark-theme .calendario-dia-header.activo {
+    background: #d97706;
+    color: #fff;
+}
+body.dark-mode .calendario-dia-header.inactivo,
+[data-theme="dark"] .calendario-dia-header.inactivo,
+.dark-theme .calendario-dia-header.inactivo {
+    background: #0f172a;
+    color: #64748b;
+}
+body.dark-mode .consultorio-separador,
+[data-theme="dark"] .consultorio-separador,
+.dark-theme .consultorio-separador {
+    background: #334155;
+    color: #e2e8f0;
+    border-bottom: 1px solid #1e293b;
+}
+body.dark-mode .calendario-dia-footer,
+[data-theme="dark"] .calendario-dia-footer,
+.dark-theme .calendario-dia-footer {
+    background: #111827;
+    border-top: 1px solid #1e293b;
+}
+body.dark-mode .calendario-dia-footer a,
+[data-theme="dark"] .calendario-dia-footer a,
+.dark-theme .calendario-dia-footer a {
+    color: #94a3b8;
+}
+body.dark-mode .calendario-dia-footer a:hover,
+[data-theme="dark"] .calendario-dia-footer a:hover,
+.dark-theme .calendario-dia-footer a:hover {
+    color: #f87171;
+}
+
+/* --- SLOTS VACÍOS --- */
+body.dark-mode .calendario-slot.vacio,
+[data-theme="dark"] .calendario-slot.vacio,
+.dark-theme .calendario-slot.vacio {
+    color: #9ca3af;
+}
+body.dark-mode .calendario-slot.vacio:hover,
+[data-theme="dark"] .calendario-slot.vacio:hover,
+.dark-theme .calendario-slot.vacio:hover {
+    background: #1f2937;
+    color: #3b82f6;
+}
+
+/* =============================================
+   ESTADOS – FONDO PINTADO (CARACTERÍSTICO)
+   ============================================= */
+
+/* Confirmado */
+body.dark-mode .calendario-slots .calendario-slot.confirmado,
+[data-theme="dark"] .calendario-slots .calendario-slot.confirmado,
+.dark-theme .calendario-slots .calendario-slot.confirmado {
+    background: #064e3b !important;
+    border-left: 3px solid #34d399 !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.confirmado .calendario-slot-paciente,
+[data-theme="dark"] .calendario-slots .calendario-slot.confirmado .calendario-slot-paciente,
+.dark-theme .calendario-slots .calendario-slot.confirmado .calendario-slot-paciente {
+    color: #6ee7b7 !important;
+}
+
+/* Pendiente */
+body.dark-mode .calendario-slots .calendario-slot.pendiente,
+[data-theme="dark"] .calendario-slots .calendario-slot.pendiente,
+.dark-theme .calendario-slots .calendario-slot.pendiente {
+    background: #78350f !important;
+    border-left: 3px solid #fbbf24 !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.pendiente .calendario-slot-paciente,
+[data-theme="dark"] .calendario-slots .calendario-slot.pendiente .calendario-slot-paciente,
+.dark-theme .calendario-slots .calendario-slot.pendiente .calendario-slot-paciente {
+    color: #fde047 !important;
+}
+
+/* Sobreturno */
+body.dark-mode .calendario-slots .calendario-slot.sobreturno,
+[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno,
+.dark-theme .calendario-slots .calendario-slot.sobreturno {
+    background: #7f1d1d !important;
+    border-left: 3px solid #f87171 !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
+[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
+.dark-theme .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente {
+    color: #fca5a5 !important;
+}
+
+/* Completado */
+body.dark-mode .calendario-slots .calendario-slot.completado,
+[data-theme="dark"] .calendario-slots .calendario-slot.completado,
+.dark-theme .calendario-slots .calendario-slot.completado {
+    background: #1e3a8a !important;
+    border-left: 3px solid #60a5fa !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.completado .calendario-slot-paciente,
+[data-theme="dark"] .calendario-slots .calendario-slot.completado .calendario-slot-paciente,
+.dark-theme .calendario-slots .calendario-slot.completado .calendario-slot-paciente {
+    color: #93c5fd !important;
+}
+
+/* Cancelado */
+body.dark-mode .calendario-slots .calendario-slot.cancelado,
+[data-theme="dark"] .calendario-slots .calendario-slot.cancelado,
+.dark-theme .calendario-slots .calendario-slot.cancelado {
+    background: #374151 !important;
+    border-left: 3px solid #9ca3af !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.cancelado .calendario-slot-paciente,
+[data-theme="dark"] .calendario-slots .calendario-slot.cancelado .calendario-slot-paciente,
+.dark-theme .calendario-slots .calendario-slot.cancelado .calendario-slot-paciente {
+    color: #9ca3af !important;
+}
+
+/* --- TEXTOS SECUNDARIOS (hora, tipo de consulta) --- */
+body.dark-mode .calendario-slot-hora,
+[data-theme="dark"] .calendario-slot-hora,
+.dark-theme .calendario-slot-hora {
+    color: #f3f4f6 !important;
+}
+body.dark-mode .calendario-slot-tipo,
+[data-theme="dark"] .calendario-slot-tipo,
+.dark-theme .calendario-slot-tipo {
+    color: #d1d5db !important;
+}
+body.dark-mode .calendario-slot-disponibilidad,
+[data-theme="dark"] .calendario-slot-disponibilidad,
+.dark-theme .calendario-slot-disponibilidad {
+    color: #34d399 !important;
+}
+
+/* =============================================
+   LEYENDA – MISMOS FONDOS EN MODO OSCURO
+   ============================================= */
+body.dark-mode .calendario-leyenda .badge-success,
+[data-theme="dark"] .calendario-leyenda .badge-success,
+.dark-theme .calendario-leyenda .badge-success {
+    background: #064e3b !important;
+    color: #6ee7b7 !important;
+    border-color: #047857 !important;
+}
+body.dark-mode .calendario-leyenda .badge-warning,
+[data-theme="dark"] .calendario-leyenda .badge-warning,
+.dark-theme .calendario-leyenda .badge-warning {
+    background: #78350f !important;
+    color: #fde047 !important;
+    border-color: #a16207 !important;
+}
+body.dark-mode .calendario-leyenda .badge-completado,
+[data-theme="dark"] .calendario-leyenda .badge-completado,
+.dark-theme .calendario-leyenda .badge-completado {
+    background: #1e3a8a !important;
+    color: #93c5fd !important;
+    border-color: #2563eb !important;
+}
+body.dark-mode .calendario-leyenda .badge-cancelado,
+[data-theme="dark"] .calendario-leyenda .badge-cancelado,
+.dark-theme .calendario-leyenda .badge-cancelado {
+    background: #374151 !important;
+    color: #9ca3af !important;
+    border-color: #4b5563 !important;
+}
+body.dark-mode .calendario-leyenda .badge-sobreturno,
+[data-theme="dark"] .calendario-leyenda .badge-sobreturno,
+.dark-theme .calendario-leyenda .badge-sobreturno {
+    background: #7f1d1d !important;
+    color: #fca5a5 !important;
+    border-color: #b91c1c !important;
+}
+body.dark-mode .calendario-leyenda span,
+[data-theme="dark"] .calendario-leyenda span,
+.dark-theme .calendario-leyenda span {
+    color: #9ca3af !important;
+}
+
+/* =============================================
+   MODALES (igual que antes)
+   ============================================= */
+body.dark-mode .modal-dialog,
+[data-theme="dark"] .modal-dialog,
+.dark-theme .modal-dialog {
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+body.dark-mode .modal-header,
+[data-theme="dark"] .modal-header,
+.dark-theme .modal-header {
+    border-color: #334155;
+}
+body.dark-mode .modal-header h3,
+[data-theme="dark"] .modal-header h3,
+.dark-theme .modal-header h3 {
+    color: #f1f5f9;
+}
+body.dark-mode .modal-close,
+[data-theme="dark"] .modal-close,
+.dark-theme .modal-close {
+    color: #94a3b8;
+}
+body.dark-mode .modal-close:hover,
+[data-theme="dark"] .modal-close:hover,
+.dark-theme .modal-close:hover {
+    color: #f1f5f9;
+}
+body.dark-mode .modal-body,
+[data-theme="dark"] .modal-body,
+.dark-theme .modal-body {
+    color: #e2e8f0;
+}
+body.dark-mode .modal-info-row,
+[data-theme="dark"] .modal-info-row,
+.dark-theme .modal-info-row {
+    border-color: #334155;
+}
+body.dark-mode .modal-info-label,
+[data-theme="dark"] .modal-info-label,
+.dark-theme .modal-info-label {
+    color: #94a3b8;
+}
+body.dark-mode .modal-info-value,
+[data-theme="dark"] .modal-info-value,
+.dark-theme .modal-info-value {
+    color: #f1f5f9;
+}
+body.dark-mode .modal-footer,
+[data-theme="dark"] .modal-footer,
+.dark-theme .modal-footer {
+    border-color: #334155;
+}
+
+
+/* Confirmado */
+.calendario-slots .calendario-slot.confirmado {
+    background: #bbf7d0 !important;
+    border-left-color: #16a34a !important;
+}
+.calendario-slots .calendario-slot.confirmado .calendario-slot-paciente,
+.calendario-slots .calendario-slot.confirmado .calendario-slot-hora,
+.calendario-slots .calendario-slot.confirmado .calendario-slot-tipo {
+    color: #14532d !important;
+}
+
+/* Pendiente */
+.calendario-slots .calendario-slot.pendiente {
+    background: #fde68a !important;
+    border-left-color: #d97706 !important;
+}
+.calendario-slots .calendario-slot.pendiente .calendario-slot-paciente,
+.calendario-slots .calendario-slot.pendiente .calendario-slot-hora,
+.calendario-slots .calendario-slot.pendiente .calendario-slot-tipo {
+    color: #78350f !important;
+}
+
+/* Completado */
+.calendario-slots .calendario-slot.completado {
+    background: #bfdbfe !important;
+    border-left-color: #2563eb !important;
+}
+.calendario-slots .calendario-slot.completado .calendario-slot-paciente,
+.calendario-slots .calendario-slot.completado .calendario-slot-hora,
+.calendario-slots .calendario-slot.completado .calendario-slot-tipo {
+    color: #1e3a8a !important;
+}
+
+/* Cancelado */
+.calendario-slots .calendario-slot.cancelado {
+    background: #fecaca !important;
+    border-left-color: #dc2626 !important;
+}
+.calendario-slots .calendario-slot.cancelado .calendario-slot-paciente,
+.calendario-slots .calendario-slot.cancelado .calendario-slot-hora,
+.calendario-slots .calendario-slot.cancelado .calendario-slot-tipo {
+    color: #7f1d1d !important;
+}
+
+/* Sobreturno */
+.calendario-slots .calendario-slot.sobreturno {
+    background: #f5a3ad  !important;
+    border-left-color: #e11d48 !important;
+}
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-hora,
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-tipo {
+    color: #9f1239 !important;
+}
+
