@@ -20,15 +20,13 @@
     
     <!-- Theme CSS: si cliente tiene colores personalizados, los pasamos como variables CSS -->
     {% if cliente %}
-        {% with cliente.color_primario as cp %}
-        <style>
-            :root {
-                --custom-primary: {{ cp|default:'#2563eb' }};
-                --custom-primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
-            }
-        </style>
-        {% endwith %}
-    {% endif %}
+    <style>
+        :root {
+            --primary: {{ cliente.color_primario|default:'#2563eb' }};
+            --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
+        }
+    </style>
+{% endif %}
     <link rel="stylesheet" href="{% static 'css/themes/default.css' %}" id="theme-css">
     
     <link rel="stylesheet" href="{% static 'css/core/layout.css' %}">

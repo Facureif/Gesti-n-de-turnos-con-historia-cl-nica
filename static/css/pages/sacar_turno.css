@@ -106,7 +106,7 @@
     background: var(--success-light);
     border-radius: var(--radius);
     font-size: 0.85rem;
-    color: #065f46;
+    color: #9bc9bc;
 }
 
 .consultorio-unico {
@@ -160,7 +160,7 @@
 
 .dia-label.seleccionado {
     border-color: var(--primary);
-    background: #eff6ff;
+    background: #afb6be;
 }
 
 .dia-label input {
@@ -175,12 +175,12 @@
 
 .dia-mes {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: #000;
 }
 
 .dia-nombre {
     font-size: 0.7rem;
-    color: var(--text-muted);
+    color: #000;
     text-transform: uppercase;
 }
 
@@ -196,7 +196,7 @@
     border: 2px solid var(--primary);
     border-radius: var(--radius);
     cursor: pointer;
-    color: var(--primary);
+    color: #000000;
     font-weight: 600;
     font-size: 0.9rem;
     transition: all 0.2s ease;
@@ -210,9 +210,9 @@
 }
 
 .hora-label.seleccionada {
-    border-color: var(--success);
-    background: #f0fdf4;
-    color: #065f46;
+    border-color: var(--primary);
+    background: #afb6be;
+    color: #000000;
 }
 
 .hora-label input {

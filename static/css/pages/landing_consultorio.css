@@ -398,9 +398,10 @@
     white-space: nowrap;
 }
 .btn-sacar-turno:hover {
-    background: var(--primary-dark);
+    filter: brightness(0.85);
     transform: translateY(-1px);
 }
+
 .btn-orden-llegada {
     display: inline-flex;
     align-items: center;
@@ -668,7 +669,7 @@
 }
 
 .btn-sacar-turno:hover {
-    background: var(--primary-dark);
+    filter: brightness(0.85);
     transform: translateY(-1px);
 }
 
