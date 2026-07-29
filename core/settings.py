@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'historias_clinicas',
     'recordatorios',
     'reportes',
-    'turnos_profesionales',  
+    'turnos_profesionales.apps.TurnosProfesionalesConfig',  
 ]
 
 MIDDLEWARE = [

@@ -133,7 +133,11 @@
                         {% elif turno.estado == 'cancelado' %}
                             <span class="badge badge-danger">Cancelado</span>
                         {% elif turno.estado == 'no_asistio' %}
-                            <span class="badge badge-danger">No Asistió</span>
+                            {% if turno.no_asistio_automatico %}
+                                <span class="badge badge-danger">No Asistió (Auto)</span>
+                            {% else %}
+                                <span class="badge badge-danger">No Asistió</span>
+                            {% endif %}    
                         {% endif %}
                     </td>
                     <td>
@@ -163,7 +167,19 @@
                             {% elif turno.estado == 'cancelado' %}
                                 <span class="badge badge-danger"><i class="fas fa-ban"></i> Cancelado</span>
                             {% elif turno.estado == 'no_asistio' %}
-                                <span class="badge badge-gray"><i class="fas fa-user-times"></i> No Asistió</span>
+                                {% if turno.no_asistio_automatico and turno.puede_reactivar %}
+                                    <a href="{% url 'atender_igual_turno' turno.id %}" class="btn btn-warning btn-xs">
+                                        <i class="fas fa-stethoscope"></i> Atender igual
+                                    </a>
+                                    <a href="{% url 'editar_turno_pro' turno.id %}" class="btn btn-secondary btn-xs" title="Editar">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="badge badge-gray"><i class="fas fa-user-times"></i> No Asistió</span>
+                                    <a href="{% url 'editar_turno_pro' turno.id %}" class="btn btn-secondary btn-xs" title="Editar">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                {% endif %} 
                             {% endif %}
                         </div>
                     </td>

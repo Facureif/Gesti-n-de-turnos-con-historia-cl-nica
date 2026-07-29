@@ -1,4 +1,8 @@
+from datetime import datetime, timedelta
+
 from django.db import models
+from django.db.models import Q
+from agendas.models import Agenda, HorarioAtencion
 from core_app.models import ModeloBase
 
 
@@ -76,7 +80,7 @@ class TurnoProfesional(ModeloBase):
 
     monto_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Monto Total')
     monto_os = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Cubre OS')
-
+    
     monto_coseguro = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -86,6 +90,8 @@ class TurnoProfesional(ModeloBase):
     )
     os_cobrado = models.BooleanField(default=False, verbose_name='¿Cobrado a la OS?')
     fecha_cobro_os = models.DateField(null=True, blank=True, verbose_name='Fecha de cobro a OS')
+    no_asistio_automatico = models.BooleanField(default=False, verbose_name="No asistió por sistema")
+    sesion_descontada = models.BooleanField(default=False, verbose_name="Sesión descontada")
     
     google_event_id = models.CharField(max_length=200, blank=True, null=True, verbose_name='ID Evento Google')
 
@@ -96,6 +102,44 @@ class TurnoProfesional(ModeloBase):
     
     def __str__(self):
         return f"{self.fecha} {self.hora_inicio} - {self.paciente.nombre_completo}"
+
+    def save(self, *args, **kwargs):
+        # Solo calcular si no es un sobreturno explícito y hay datos básicos
+        if not self.es_sobreturno and self.fecha and self.hora_inicio and self.hora_fin:
+            agenda = Agenda.objects.filter(
+                profesional=self.profesional,
+                activo=True,
+                fecha_inicio__lte=self.fecha,
+            ).filter(
+                Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=self.fecha)
+            ).first()
+            
+            if not agenda:
+                self.es_sobreturno = True
+            else:
+                horario = HorarioAtencion.objects.filter(
+                    agenda=agenda,
+                    dia=self.fecha.weekday()
+                ).first()
+                
+                if not horario:
+                    self.es_sobreturno = True
+                else:
+                    # Verificar que coincida exactamente con algún slot
+                    duracion = horario.duracion_turno
+                    hora_actual = horario.hora_inicio
+                    coincide = False
+                    while hora_actual < horario.hora_fin:
+                        hora_fin_slot = (datetime.combine(self.fecha, hora_actual) + timedelta(minutes=duracion)).time()
+                        if self.hora_inicio == hora_actual and self.hora_fin == hora_fin_slot:
+                            coincide = True
+                            break
+                        hora_actual = hora_fin_slot
+                    
+                    if not coincide:
+                        self.es_sobreturno = True
+        
+        super().save(*args, **kwargs)
     
 
 class ArchivoTurno(ModeloBase):
@@ -127,3 +171,4 @@ class ArchivoTurno(ModeloBase):
     def es_imagen(self):
         ext = self.archivo.name.split('.')[-1].lower()
         return ext in ['jpg', 'jpeg', 'png', 'gif', 'webp']    
+

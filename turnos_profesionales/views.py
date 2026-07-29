@@ -21,6 +21,50 @@ from historias_clinicas.models import HistoriaClinica, Evolucion, ArchivoClinico
 from .google_calendar import GoogleCalendarManager
 
 
+
+
+from datetime import datetime
+
+def marcar_turnos_vencidos(profesional=None):
+    """
+    Marca como 'no_asistio' los turnos de hoy que ya pasaron 30 minutos de su hora de inicio.
+    Si se pasa un profesional, solo revisa los de ese profesional.
+    Se ejecuta cada vez que se carga un panel.
+    """
+    ahora = datetime.now()
+    hoy = ahora.date()
+    hora_limite = (ahora - timedelta(minutes=30)).time()
+
+    filtro = {
+        'fecha': hoy,
+        'estado__in': ['pendiente', 'confirmado'],
+        'hora_inicio__lte': hora_limite,
+        'no_asistio_automatico': False,
+    }
+    if profesional:
+        filtro['profesional'] = profesional
+
+    turnos_vencidos = TurnoProfesional.objects.filter(**filtro)
+
+    for turno in turnos_vencidos:
+        turno.estado = 'no_asistio'
+        turno.no_asistio_automatico = True
+
+        # Descontar sesión
+        os_paciente = PacienteObraSocial.objects.filter(
+            paciente=turno.paciente,
+            activa=True,
+            profesional=turno.profesional,
+            sesiones_restantes__gt=0,
+        ).first()
+        if os_paciente:
+            os_paciente.sesiones_restantes -= 1
+            os_paciente.save()
+            turno.sesion_descontada = True
+
+        turno.save()
+
+
 # ============ GOOGLE CALENDAR (funciones auxiliares) ============
 
 def crear_evento_google(turno):
@@ -120,11 +164,22 @@ def panel_profesional(request):
         profesionales_consultorio = None
     
     hoy = date.today()
-    
-    turnos_hoy = TurnoProfesional.objects.filter(
+    marcar_turnos_vencidos(profesional=profesional)
+    turnos_hoy_qs = TurnoProfesional.objects.filter(
         profesional=profesional, fecha=hoy
     ).order_by('hora_inicio')
-    
+
+    # Lista para el template con el atributo puede_reactivar
+    turnos_hoy = list(turnos_hoy_qs)
+    ahora = datetime.now()
+    for turno in turnos_hoy:
+        if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
+            fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
+            limite = fecha_hora_inicio + timedelta(minutes=60)
+            turno.puede_reactivar = (ahora <= limite)
+        else:
+            turno.puede_reactivar = False
+
     manana = hoy + timedelta(days=1)
     turnos_manana = TurnoProfesional.objects.filter(
         profesional=profesional, fecha=manana
@@ -146,17 +201,17 @@ def panel_profesional(request):
         sesiones_por_turno[turno.id] = os_paciente
     
     contexto = {
-        'profesional': profesional,
-        'hoy': hoy,
-        'turnos_hoy': turnos_hoy,
-        'turnos_manana': turnos_manana,
-        'proximos_turnos': proximos_turnos,
-        'total_hoy': turnos_hoy.count(),
-        'sesiones_por_turno': sesiones_por_turno,
-        'confirmados_hoy': turnos_hoy.filter(estado='confirmado').count(),
-        'pendientes_hoy': turnos_hoy.filter(estado='pendiente').count(),
-        'completados_hoy': turnos_hoy.filter(estado='completado').count(),
-    }
+    'profesional': profesional,
+    'hoy': hoy,
+    'turnos_hoy': turnos_hoy,
+    'turnos_manana': turnos_manana,
+    'proximos_turnos': proximos_turnos,
+    'total_hoy': turnos_hoy_qs.count(),
+    'sesiones_por_turno': sesiones_por_turno,
+    'confirmados_hoy': turnos_hoy_qs.filter(estado='confirmado').count(),
+    'pendientes_hoy': turnos_hoy_qs.filter(estado='pendiente').count(),
+    'completados_hoy': turnos_hoy_qs.filter(estado='completado').count(),
+}
     
     return render(request, 'turnos_profesionales/panel.html', contexto)
 
@@ -226,16 +281,20 @@ def completar_turno(request, turno_id):
     turno.estado = 'completado'
     paciente = turno.paciente
     
-    # Descontar sesión de la OS activa del paciente
-    os_paciente = PacienteObraSocial.objects.filter(
-        paciente=paciente,
-        activa=True,
-        profesional=turno.profesional
-    ).first()
-
-    if os_paciente and os_paciente.sesiones_restantes is not None and os_paciente.sesiones_restantes > 0:
-        os_paciente.sesiones_restantes -= 1
-        os_paciente.save()
+    # Dentro de completar_turno, reemplazar el bloque de descuento actual por esto:
+    if not turno.sesion_descontada:
+        os_paciente = PacienteObraSocial.objects.filter(
+            paciente=paciente,
+            activa=True,
+            profesional=turno.profesional
+        ).first()
+        if os_paciente and os_paciente.sesiones_restantes is not None and os_paciente.sesiones_restantes > 0:
+            os_paciente.sesiones_restantes -= 1
+            os_paciente.save()
+            turno.sesion_descontada = True
+    else:
+        # Ya estaba descontada (por inasistencia anterior), no hacer nada
+        pass
     
     if paciente.plan_obra_social:
         plan = paciente.plan_obra_social
@@ -304,22 +363,36 @@ def no_asistio_turno(request, turno_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés permiso.')
         return redirect('panel_profesional')
-    
+
     turno.estado = 'no_asistio'
+    turno.no_asistio_automatico = False  # fue manual
+
+    # Descontar sesión si no se había descontado antes
+    if not turno.sesion_descontada:
+        os_paciente = PacienteObraSocial.objects.filter(
+            paciente=turno.paciente,
+            activa=True,
+            profesional=turno.profesional,
+            sesiones_restantes__gt=0,
+        ).first()
+        if os_paciente:
+            os_paciente.sesiones_restantes -= 1
+            os_paciente.save()
+            turno.sesion_descontada = True
+
     turno.save()
-    
+
     # Eliminar evento de Google Calendar
     try:
         threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
     except:
         pass
-    
+
     messages.warning(request, f'{turno.paciente.nombre_completo} no asistió.')
-    
+
     if request.user.rol == 'secretaria':
         return redirect('panel_secretaria')
     return redirect('panel_profesional')
-
 
 # ============ CARGA DE EVOLUCIÓN ============
 
@@ -753,7 +826,7 @@ def calendario_semanal(request):
     agendas = Agenda.objects.filter(
         profesional=profesional, activo=True
     ).select_related('establecimiento')
-    
+    marcar_turnos_vencidos(profesional=profesional)
     for i in range(7):
         dia = lunes + timedelta(days=i)
         turnos_dia = TurnoProfesional.objects.filter(
@@ -793,13 +866,22 @@ def calendario_semanal(request):
                                 turnos_en_horario = [t for t in turnos_dia if t.hora_inicio == hora_actual]
                                 if turnos_en_horario:
                                     for turno in turnos_en_horario:
-                                        horarios_por_consultorio[est_nombre].append({
+                                        slot_data = {
                                             'hora_inicio': hora_actual,
                                             'hora_fin': hora_fin_slot,
                                             'turno': turno,
                                             'disponible': False,
                                             'lugares_restantes': 0,
-                                        })
+                                            'puede_reactivar': False,
+                                        }
+                                        # Solo si es no_asistio automático y está dentro de los 60 min de tolerancia
+                                        if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
+                                            ahora = datetime.now()
+                                            fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
+                                            limite = fecha_hora_inicio + timedelta(minutes=60)
+                                            if ahora <= limite:
+                                                slot_data['puede_reactivar'] = True
+                                        horarios_por_consultorio[est_nombre].append(slot_data)
                                 else:
                                     horarios_por_consultorio[est_nombre].append({
                                         'hora_inicio': hora_actual,
@@ -809,10 +891,39 @@ def calendario_semanal(request):
                                         'lugares_restantes': agenda.pacientes_simultaneos,
                                     })
                         hora_actual = hora_fin_slot
-        
+        turnos_en_slots = set()
+        for slots_list in horarios_por_consultorio.values():
+            for s in slots_list:
+                if s['turno']:
+                    turnos_en_slots.add(s['turno'].id)
+
+        # Cualquier turno no incluido en los slots se mostrará como sobreturno
+        turnos_fuera_de_slot = [t for t in turnos_dia if t.id not in turnos_en_slots]
+        for turno in turnos_fuera_de_slot:
+            est_nombre = turno.establecimiento.nombre if turno.establecimiento else 'Consultorio'
+            if est_nombre not in horarios_por_consultorio:
+                horarios_por_consultorio[est_nombre] = []
+
+            puede_reactivar = False
+            if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
+                ahora = datetime.now()
+                fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
+                limite = fecha_hora_inicio + timedelta(minutes=60)
+                puede_reactivar = ahora <= limite
+
+            horarios_por_consultorio[est_nombre].append({
+                'hora_inicio': turno.hora_inicio,
+                'hora_fin': turno.hora_fin,
+                'turno': turno,
+                'disponible': False,
+                'lugares_restantes': 0,
+                'puede_reactivar': puede_reactivar,
+                'mostrar_como_sobreturno': True,   # <-- fuerza visualización como sobreturno
+            })
+        # Ordenar todos los slots, incluyendo los nuevos
         for est in horarios_por_consultorio:
             horarios_por_consultorio[est].sort(key=lambda x: x['hora_inicio'])
-        
+
         dias_semana.append({
             'fecha': dia,
             'nombre': nombres_dias[i],
@@ -1023,7 +1134,6 @@ def desbloquear_dia(request, bloqueo_id):
 
 
 # ============ PANEL SECRETARIA ============
-
 @login_required
 def panel_secretaria(request):
     if request.user.rol != 'secretaria':
@@ -1044,25 +1154,42 @@ def panel_secretaria(request):
     if profesional_id:
         profesional_seleccionado = get_object_or_404(Profesional, id=profesional_id, establecimientos=establecimiento)
     
+    marcar_turnos_vencidos()
+    
     if profesional_seleccionado:
-        turnos_hoy = TurnoProfesional.objects.filter(profesional=profesional_seleccionado, fecha=hoy).order_by('hora_inicio')
+        turnos_hoy_qs = TurnoProfesional.objects.filter(
+            profesional=profesional_seleccionado, fecha=hoy
+        ).order_by('hora_inicio')
     else:
-        turnos_hoy = TurnoProfesional.objects.filter(
+        turnos_hoy_qs = TurnoProfesional.objects.filter(
             profesional__in=profesionales, establecimiento=establecimiento, fecha=hoy
         ).order_by('profesional', 'hora_inicio')
     
-    total_hoy = turnos_hoy.count()
-    pendientes = turnos_hoy.filter(estado='pendiente').count()
-    confirmados = turnos_hoy.filter(estado='confirmado').count()
-    en_sala = turnos_hoy.filter(estado='en_sala').count()
-
-    profesionales_orden_llegada = Profesional.objects.filter(
-    establecimientos=establecimiento,
-    activo=True,
-    atiende_por_orden=True
-)
-    sesiones_por_turno = {}
+    # Lista para el template con el atributo puede_reactivar
+    turnos_hoy = list(turnos_hoy_qs)
+    ahora = datetime.now()
     for turno in turnos_hoy:
+        if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
+            fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
+            limite = fecha_hora_inicio + timedelta(minutes=60)
+            turno.puede_reactivar = (ahora <= limite)
+        else:
+            turno.puede_reactivar = False
+    
+    # Estadísticas con el queryset original
+    total_hoy = turnos_hoy_qs.count()
+    pendientes = turnos_hoy_qs.filter(estado='pendiente').count()
+    confirmados = turnos_hoy_qs.filter(estado='confirmado').count()
+    en_sala = turnos_hoy_qs.filter(estado='en_sala').count()
+    
+    profesionales_orden_llegada = Profesional.objects.filter(
+        establecimientos=establecimiento,
+        activo=True,
+        atiende_por_orden=True
+    )
+    
+    sesiones_por_turno = {}
+    for turno in turnos_hoy_qs:
         os_paciente = turno.paciente.mis_obras_sociales.filter(
             profesional=turno.profesional,
             activa=True
@@ -1070,14 +1197,18 @@ def panel_secretaria(request):
         sesiones_por_turno[turno.id] = os_paciente
     
     return render(request, 'turnos_profesionales/panel_secretaria.html', {
-        'profesionales': profesionales, 'profesional_seleccionado': profesional_seleccionado,
+        'profesionales': profesionales,
+        'profesional_seleccionado': profesional_seleccionado,
         'profesionales_orden_llegada': profesionales_orden_llegada,
-        'turnos_hoy': turnos_hoy, 'hoy': hoy, 'total_hoy': total_hoy,
+        'turnos_hoy': turnos_hoy,
+        'hoy': hoy,
+        'total_hoy': total_hoy,
         'sesiones_por_turno': sesiones_por_turno,
-        'pendientes': pendientes, 'confirmados': confirmados, 'en_sala': en_sala,
+        'pendientes': pendientes,
+        'confirmados': confirmados,
+        'en_sala': en_sala,
         'establecimiento': establecimiento,
     })
-
 
 # ============ CALENDARIO MULTI ============
 
@@ -1784,26 +1915,19 @@ def reserva_multiple(request):
                 
                 hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
                 
-                # Verificar disponibilidad
-                ocupado = TurnoProfesional.objects.filter(
+                # Siempre creamos el turno como sobreturno, sin importar si el horario ya está ocupado
+                TurnoProfesional.objects.create(
                     profesional=profesional,
+                    establecimiento=establecimiento,
+                    paciente=paciente,
                     fecha=fecha,
                     hora_inicio=hora,
-                    estado__in=['pendiente', 'confirmado']
-                ).exists()
-                
-                if not ocupado:
-                    TurnoProfesional.objects.create(
-                        profesional=profesional,
-                        establecimiento=establecimiento,
-                        paciente=paciente,
-                        fecha=fecha,
-                        hora_inicio=hora,
-                        hora_fin=hora_fin,
-                        estado='pendiente',
-                        tipo_consulta='Reserva múltiple',
-                    )
-                    turnos_creados += 1
+                    hora_fin=hora_fin,
+                    estado='pendiente',
+                    tipo_consulta='Reserva múltiple',
+                    es_sobreturno=True,
+                )
+                turnos_creados += 1
         
         messages.success(request, f'✅ {turnos_creados} turnos creados para {paciente.nombre_completo}.')
         return redirect('panel_profesional')
@@ -1813,3 +1937,41 @@ def reserva_multiple(request):
         'paciente_seleccionado': paciente_seleccionado,
         'dias_semana': dias_semana,
     })    
+
+
+@login_required
+def atender_igual(request, turno_id):
+    turno = get_object_or_404(TurnoProfesional, id=turno_id)
+    if request.user.rol not in ['profesional', 'secretaria']:
+        messages.error(request, 'No tenés permiso.')
+        return redirect('panel_profesional')
+
+    if turno.estado != 'no_asistio' or not turno.no_asistio_automatico:
+        messages.error(request, 'Este turno no puede ser atendido de esta manera.')
+        return redirect('panel_profesional')
+
+    # Restaurar sesión si se había descontado
+    if turno.sesion_descontada:
+        os_paciente = PacienteObraSocial.objects.filter(
+            paciente=turno.paciente,
+            activa=True,
+            profesional=turno.profesional,
+        ).first()
+        if os_paciente:
+            os_paciente.sesiones_restantes += 1
+            os_paciente.save()
+            turno.sesion_descontada = False
+
+    turno.estado = 'pendiente'
+    turno.no_asistio_automatico = False
+    turno.save()
+
+    messages.success(request, f'El turno de {turno.paciente.nombre_completo} fue reactivado. Podés atenderlo.')
+    if request.user.rol == 'secretaria':
+        return redirect('panel_secretaria')
+    return redirect('panel_profesional')
+
+
+
+
+    
