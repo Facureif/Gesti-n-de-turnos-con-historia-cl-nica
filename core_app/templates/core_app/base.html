@@ -32,27 +32,20 @@
     <link rel="stylesheet" href="{% static 'css/core/layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/core/components.css' %}">
     
-    <!-- Cargar tema guardado en localStorage ANTES de que se renderice la página -->
     <script>
         (function() {
-            // 1. Intentar cargar el tema guardado por el usuario
             var savedTheme = localStorage.getItem('consultorio-theme');
-            
-            // 2. Si el cliente tiene un tema configurado por defecto y no hay uno guardado, úsalo
             {% if cliente and cliente.theme_css and cliente.theme_css != 'default' %}
             var defaultClientTheme = '{{ cliente.theme_css }}';
             {% else %}
             var defaultClientTheme = null;
             {% endif %}
-
-            // Definir el tema final
             var themeToLoad = savedTheme || defaultClientTheme || 'default';
 
-            // Aplicar el tema
+            // Solo cambiar el CSS, NO tocar document.body
             document.getElementById('theme-css').href = '/static/css/themes/' + themeToLoad + '.css';
         })();
     </script>
-    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -114,7 +107,25 @@
         
         {% block content %}{% endblock %}
     </div>
-    
+    <script>
+    (function() {
+        var savedTheme = localStorage.getItem('consultorio-theme');
+        {% if cliente and cliente.theme_css and cliente.theme_css != 'default' %}
+        var defaultClientTheme = '{{ cliente.theme_css }}';
+        {% else %}
+        var defaultClientTheme = null;
+        {% endif %}
+        var themeToLoad = savedTheme || defaultClientTheme || 'default';
+
+        var darkThemes = ['azul_oscuro', 'verde_oscuro']; // ← completá con todos los temas oscuros
+        if (darkThemes.includes(themeToLoad)) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    })();
+</script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

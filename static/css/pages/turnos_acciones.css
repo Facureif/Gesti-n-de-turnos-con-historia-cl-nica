@@ -166,10 +166,21 @@
     display: none;
 }
 
+
+.dia-option:hover,
+.dia-option.seleccionado {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+.dia-option:hover *,
+.dia-option.seleccionado * {
+    color: var(--primary-dark);
+}
+
 .dia-option-numero {
     font-weight: 700;
     font-size: 1.2rem;
-    color: var(--text);
+    color: #0a0808;
 }
 
 .dia-option-mes {
@@ -216,9 +227,9 @@
 }
 
 .hora-option.seleccionada {
-    border-color: var(--success);
-    background: var(--success-light);
-    color: #065f46;
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary-dark);      /* Texto oscuro del primario, buen contraste */
 }
 
 .hora-option input[type="radio"] {
@@ -1693,14 +1704,7 @@
         color: #94a3b8 !important;
     }
 
-    /* 4. Botones de Días NO seleccionados (Letras oscuras para que se lean) */
-    .dia-option:not(.seleccionado) .dia-option-numero {
-        color: #1e293b !important; /* Gris oscuro profundo */
-    }
-    .dia-option:not(.seleccionado) .dia-option-mes,
-    .dia-option:not(.seleccionado) .dia-option-nombre {
-        color: #64748b !important; /* Gris medio */
-    }
+   
 
     /* 5. Botones de Horas NO seleccionados (Letras oscuras y borde ajustado) */
     .hora-option:not(.seleccionada) {
@@ -1735,10 +1739,10 @@
         border-color: #475569 !important; /* Borde sutil */
     }
     .slot-info-valor {
-        color: #f1f5f9 !important; /* Texto de la fecha/hora en blanco */
+        color: var(--text-main)!important; /* Texto de la fecha/hora en blanco */
     }
     .slot-info-grid div:last-child .slot-info-valor {
-        color: #f1f5f9 !important;
+        color: var(--text-main) !important;
     }
 
     /* 2. CAMPO DE BÚSQUEDA (Input blanco) */
@@ -2000,4 +2004,96 @@
     table tbody tr:hover {
         background: var(--bg-alt) !important;
     }
+}
+
+
+/* =============================================
+   IGUALAR BADGES DE TURNOS CON LEYENDA DEL CALENDARIO
+   ============================================= */
+
+/* --- TEMA CLARO --- */
+.badge-warning {
+    background-color: #fde68a !important;
+    color: #78350f !important;
+    border: 1px solid #d97706 !important;
+}
+
+.badge-success {
+    background-color: #bbf7d0 !important;
+    color: #14532d !important;
+    border: 1px solid #16a34a !important;
+}
+
+.badge-completado {
+    background-color: #bfdbfe !important;
+    color: #1e3a8a !important;
+    border: 1px solid #2563eb !important;
+}
+
+.badge-cancelado {
+    background-color: #fecaca !important;
+    color: #7f1d1d !important;
+    border: 1px solid #dc2626 !important;
+}
+
+.badge-sobreturno {
+    background-color: #f5a3ad !important;
+    color: #9f1239 !important;
+    border: 1px solid #e11d48 !important;
+}
+
+.badge-info {
+    /* opcional: si también querés un badge “info” idéntico al completado o similar */
+    background-color: #bfdbfe !important;
+    color: #1e3a8a !important;
+    border: 1px solid #2563eb !important;
+}
+
+/* --- TEMA OSCURO (igual que en la leyenda) --- */
+body.dark-mode .badge-warning,
+[data-theme="dark"] .badge-warning,
+.dark-theme .badge-warning {
+    background-color: #78350f !important;
+    color: #fde047 !important;
+    border-color: #a16207 !important;
+}
+
+body.dark-mode .badge-success,
+[data-theme="dark"] .badge-success,
+.dark-theme .badge-success {
+    background-color: #064e3b !important;
+    color: #6ee7b7 !important;
+    border-color: #047857 !important;
+}
+
+body.dark-mode .badge-completado,
+[data-theme="dark"] .badge-completado,
+.dark-theme .badge-completado {
+    background-color: #1e3a8a !important;
+    color: #93c5fd !important;
+    border-color: #2563eb !important;
+}
+
+body.dark-mode .badge-cancelado,
+[data-theme="dark"] .badge-cancelado,
+.dark-theme .badge-cancelado {
+    background-color: #374151 !important;
+    color: #9ca3af !important;
+    border-color: #4b5563 !important;
+}
+
+body.dark-mode .badge-sobreturno,
+[data-theme="dark"] .badge-sobreturno,
+.dark-theme .badge-sobreturno {
+    background-color: #7f1d1d !important;
+    color: #fca5a5 !important;
+    border-color: #b91c1c !important;
+}
+
+body.dark-mode .badge-info,
+[data-theme="dark"] .badge-info,
+.dark-theme .badge-info {
+    background-color: #1e3a8a !important;
+    color: #93c5fd !important;
+    border-color: #2563eb !important;
 }

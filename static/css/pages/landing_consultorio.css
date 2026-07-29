@@ -632,6 +632,12 @@
 .theme-btn-dorado { background: linear-gradient(135deg, #0b1120 60%, #f59e0b 40%); }
 .theme-btn-verde-oscuro { background: linear-gradient(135deg, #061712 60%, #10b981 40%); }
 .theme-btn-bn { background: linear-gradient(135deg, #111827 50%, #ffffff 50%); border: 1px solid #d1d5db; }
+.theme-btn-azulclaro { background: linear-gradient(135deg, #e0f2fe 40%, #0284c7 60%); }
+.theme-btn-grisclasico { background: linear-gradient(135deg, #cbd5e1 40%, #475569 60%); }
+.theme-btn-lavanda { background: linear-gradient(135deg, #ede9fe 40%, #7c3aed 60%); }
+.theme-btn-tierra { background: linear-gradient(135deg, #fef3c7 40%, #b45309 60%); }
+.theme-btn-turquesa { background: linear-gradient(135deg, #ccfbf1 40%, #0d9488 60%); }
+
 
 /* Responsive */
 @media (max-width: 768px) {

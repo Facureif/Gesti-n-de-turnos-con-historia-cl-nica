@@ -97,7 +97,7 @@
 }
 
 /* =============================================
-   SLOTS - COLORES DE FONDO (ALTA ESPECIFICIDAD)
+   SLOTS - COLORES DE FONDO (TEMA CLARO)
    ============================================= */
 
 /* Confirmado */
@@ -106,7 +106,8 @@
     border-left-color: #16a34a !important;
 }
 .calendario-slots .calendario-slot.confirmado .calendario-slot-paciente,
-.calendario-slots .calendario-slot.confirmado .calendario-slot-hora {
+.calendario-slots .calendario-slot.confirmado .calendario-slot-hora,
+.calendario-slots .calendario-slot.confirmado .calendario-slot-tipo {
     color: #14532d !important;
 }
 
@@ -116,7 +117,8 @@
     border-left-color: #d97706 !important;
 }
 .calendario-slots .calendario-slot.pendiente .calendario-slot-paciente,
-.calendario-slots .calendario-slot.pendiente .calendario-slot-hora {
+.calendario-slots .calendario-slot.pendiente .calendario-slot-hora,
+.calendario-slots .calendario-slot.pendiente .calendario-slot-tipo {
     color: #78350f !important;
 }
 
@@ -126,7 +128,8 @@
     border-left-color: #2563eb !important;
 }
 .calendario-slots .calendario-slot.completado .calendario-slot-paciente,
-.calendario-slots .calendario-slot.completado .calendario-slot-hora {
+.calendario-slots .calendario-slot.completado .calendario-slot-hora,
+.calendario-slots .calendario-slot.completado .calendario-slot-tipo {
     color: #1e3a8a !important;
 }
 
@@ -136,7 +139,8 @@
     border-left-color: #dc2626 !important;
 }
 .calendario-slots .calendario-slot.cancelado .calendario-slot-paciente,
-.calendario-slots .calendario-slot.cancelado .calendario-slot-hora {
+.calendario-slots .calendario-slot.cancelado .calendario-slot-hora,
+.calendario-slots .calendario-slot.cancelado .calendario-slot-tipo {
     color: #7f1d1d !important;
 }
 
@@ -146,11 +150,12 @@
     border-left-color: #e11d48 !important;
 }
 .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
-.calendario-slots .calendario-slot.sobreturno .calendario-slot-hora {
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-hora,
+.calendario-slots .calendario-slot.sobreturno .calendario-slot-tipo {
     color: #9f1239 !important;
 }
 
-/* Textos secundarios neutros */
+/* Textos secundarios neutros (tema claro) */
 .calendario-slot-tipo {
     font-size: 0.75rem;
     color: var(--text-main);
@@ -215,6 +220,7 @@
     margin-top: 24px;
     justify-content: center;
     flex-wrap: wrap;
+    padding-bottom: 15px;
 }
 
 .calendario-leyenda .badge-success {
@@ -242,7 +248,7 @@
 }
 
 .calendario-leyenda .badge-sobreturno {
-    background-color: #fecdd3 !important;
+    background-color: #e88a95 !important;
     color: #9f1239 !important;
     border: 1px solid #e11d48 !important;
 }
@@ -500,7 +506,7 @@ body.dark-mode .calendario-slot.vacio:hover,
 }
 
 /* =============================================
-   ESTADOS – FONDO PINTADO (CARACTERÍSTICO)
+   ESTADOS – FONDO PINTADO (TEMA OSCURO)
    ============================================= */
 
 /* Confirmado */
@@ -515,6 +521,14 @@ body.dark-mode .calendario-slots .calendario-slot.confirmado .calendario-slot-pa
 .dark-theme .calendario-slots .calendario-slot.confirmado .calendario-slot-paciente {
     color: #6ee7b7 !important;
 }
+body.dark-mode .calendario-slots .calendario-slot.confirmado .calendario-slot-hora,
+body.dark-mode .calendario-slots .calendario-slot.confirmado .calendario-slot-tipo,
+[data-theme="dark"] .calendario-slots .calendario-slot.confirmado .calendario-slot-hora,
+[data-theme="dark"] .calendario-slots .calendario-slot.confirmado .calendario-slot-tipo,
+.dark-theme .calendario-slots .calendario-slot.confirmado .calendario-slot-hora,
+.dark-theme .calendario-slots .calendario-slot.confirmado .calendario-slot-tipo {
+    color: #a7f3d0 !important;
+}
 
 /* Pendiente */
 body.dark-mode .calendario-slots .calendario-slot.pendiente,
@@ -528,18 +542,13 @@ body.dark-mode .calendario-slots .calendario-slot.pendiente .calendario-slot-pac
 .dark-theme .calendario-slots .calendario-slot.pendiente .calendario-slot-paciente {
     color: #fde047 !important;
 }
-
-/* Sobreturno */
-body.dark-mode .calendario-slots .calendario-slot.sobreturno,
-[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno,
-.dark-theme .calendario-slots .calendario-slot.sobreturno {
-    background: #7f1d1d !important;
-    border-left: 3px solid #f87171 !important;
-}
-body.dark-mode .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
-[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
-.dark-theme .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente {
-    color: #fca5a5 !important;
+body.dark-mode .calendario-slots .calendario-slot.pendiente .calendario-slot-hora,
+body.dark-mode .calendario-slots .calendario-slot.pendiente .calendario-slot-tipo,
+[data-theme="dark"] .calendario-slots .calendario-slot.pendiente .calendario-slot-hora,
+[data-theme="dark"] .calendario-slots .calendario-slot.pendiente .calendario-slot-tipo,
+.dark-theme .calendario-slots .calendario-slot.pendiente .calendario-slot-hora,
+.dark-theme .calendario-slots .calendario-slot.pendiente .calendario-slot-tipo {
+    color: #fde68a !important;
 }
 
 /* Completado */
@@ -554,6 +563,14 @@ body.dark-mode .calendario-slots .calendario-slot.completado .calendario-slot-pa
 .dark-theme .calendario-slots .calendario-slot.completado .calendario-slot-paciente {
     color: #93c5fd !important;
 }
+body.dark-mode .calendario-slots .calendario-slot.completado .calendario-slot-hora,
+body.dark-mode .calendario-slots .calendario-slot.completado .calendario-slot-tipo,
+[data-theme="dark"] .calendario-slots .calendario-slot.completado .calendario-slot-hora,
+[data-theme="dark"] .calendario-slots .calendario-slot.completado .calendario-slot-tipo,
+.dark-theme .calendario-slots .calendario-slot.completado .calendario-slot-hora,
+.dark-theme .calendario-slots .calendario-slot.completado .calendario-slot-tipo {
+    color: #bfdbfe !important;
+}
 
 /* Cancelado */
 body.dark-mode .calendario-slots .calendario-slot.cancelado,
@@ -567,8 +584,37 @@ body.dark-mode .calendario-slots .calendario-slot.cancelado .calendario-slot-pac
 .dark-theme .calendario-slots .calendario-slot.cancelado .calendario-slot-paciente {
     color: #9ca3af !important;
 }
+body.dark-mode .calendario-slots .calendario-slot.cancelado .calendario-slot-hora,
+body.dark-mode .calendario-slots .calendario-slot.cancelado .calendario-slot-tipo,
+[data-theme="dark"] .calendario-slots .calendario-slot.cancelado .calendario-slot-hora,
+[data-theme="dark"] .calendario-slots .calendario-slot.cancelado .calendario-slot-tipo,
+.dark-theme .calendario-slots .calendario-slot.cancelado .calendario-slot-hora,
+.dark-theme .calendario-slots .calendario-slot.cancelado .calendario-slot-tipo {
+    color: #d1d5db !important;
+}
 
-/* --- TEXTOS SECUNDARIOS (hora, tipo de consulta) --- */
+/* Sobreturno */
+body.dark-mode .calendario-slots .calendario-slot.sobreturno,
+[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno,
+.dark-theme .calendario-slots .calendario-slot.sobreturno {
+    background: #7f1d1d !important;
+    border-left: 3px solid #f87171 !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
+[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
+.dark-theme .calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente {
+    color: #fca5a5 !important;
+}
+body.dark-mode .calendario-slots .calendario-slot.sobreturno .calendario-slot-hora,
+body.dark-mode .calendario-slots .calendario-slot.sobreturno .calendario-slot-tipo,
+[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno .calendario-slot-hora,
+[data-theme="dark"] .calendario-slots .calendario-slot.sobreturno .calendario-slot-tipo,
+.dark-theme .calendario-slots .calendario-slot.sobreturno .calendario-slot-hora,
+.dark-theme .calendario-slots .calendario-slot.sobreturno .calendario-slot-tipo {
+    color: #fecaca !important;
+}
+
+/* --- TEXTOS SECUNDARIOS (hora, tipo de consulta) genéricos si no tienen estado --- */
 body.dark-mode .calendario-slot-hora,
 [data-theme="dark"] .calendario-slot-hora,
 .dark-theme .calendario-slot-hora {
@@ -683,60 +729,3 @@ body.dark-mode .modal-footer,
 .dark-theme .modal-footer {
     border-color: #334155;
 }
-
-
-/* Confirmado */
-.calendario-slots .calendario-slot.confirmado {
-    background: #bbf7d0 !important;
-    border-left-color: #16a34a !important;
-}
-.calendario-slots .calendario-slot.confirmado .calendario-slot-paciente,
-.calendario-slots .calendario-slot.confirmado .calendario-slot-hora,
-.calendario-slots .calendario-slot.confirmado .calendario-slot-tipo {
-    color: #14532d !important;
-}
-
-/* Pendiente */
-.calendario-slots .calendario-slot.pendiente {
-    background: #fde68a !important;
-    border-left-color: #d97706 !important;
-}
-.calendario-slots .calendario-slot.pendiente .calendario-slot-paciente,
-.calendario-slots .calendario-slot.pendiente .calendario-slot-hora,
-.calendario-slots .calendario-slot.pendiente .calendario-slot-tipo {
-    color: #78350f !important;
-}
-
-/* Completado */
-.calendario-slots .calendario-slot.completado {
-    background: #bfdbfe !important;
-    border-left-color: #2563eb !important;
-}
-.calendario-slots .calendario-slot.completado .calendario-slot-paciente,
-.calendario-slots .calendario-slot.completado .calendario-slot-hora,
-.calendario-slots .calendario-slot.completado .calendario-slot-tipo {
-    color: #1e3a8a !important;
-}
-
-/* Cancelado */
-.calendario-slots .calendario-slot.cancelado {
-    background: #fecaca !important;
-    border-left-color: #dc2626 !important;
-}
-.calendario-slots .calendario-slot.cancelado .calendario-slot-paciente,
-.calendario-slots .calendario-slot.cancelado .calendario-slot-hora,
-.calendario-slots .calendario-slot.cancelado .calendario-slot-tipo {
-    color: #7f1d1d !important;
-}
-
-/* Sobreturno */
-.calendario-slots .calendario-slot.sobreturno {
-    background: #f5a3ad  !important;
-    border-left-color: #e11d48 !important;
-}
-.calendario-slots .calendario-slot.sobreturno .calendario-slot-paciente,
-.calendario-slots .calendario-slot.sobreturno .calendario-slot-hora,
-.calendario-slots .calendario-slot.sobreturno .calendario-slot-tipo {
-    color: #9f1239 !important;
-}
-

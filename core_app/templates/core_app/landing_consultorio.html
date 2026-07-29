@@ -333,13 +333,23 @@
 <!-- ========== SELECTOR DE TEMAS ========== -->
 <div class="theme-selector">
     <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
-            data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
+        data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
     <button class="theme-selector-btn theme-btn-dorado {% if cliente.theme_css == 'azul_oscuro' %}activo{% endif %}" 
-            data-tema="Azul Oscuro" onclick="cambiarTema('azul_oscuro')" title="Azul Oscuro Premium"></button>
+        data-tema="Azul Oscuro" onclick="cambiarTema('azul_oscuro')" title="Azul Oscuro Premium"></button>
     <button class="theme-selector-btn theme-btn-verde-oscuro {% if cliente.theme_css == 'verde_oscuro' %}activo{% endif %}" 
-            data-tema="Verde Oscuro" onclick="cambiarTema('verde_oscuro')" title="Verde Médico Clásico"></button>
+        data-tema="Verde Oscuro" onclick="cambiarTema('verde_oscuro')" title="Verde Médico Clásico"></button>
     <button class="theme-selector-btn theme-btn-bn {% if cliente.theme_css == 'blanco_negro' %}activo{% endif %}" 
-            data-tema="Blanco & Negro" onclick="cambiarTema('blanco_negro')" title="Minimalista"></button>
+        data-tema="Blanco & Negro" onclick="cambiarTema('blanco_negro')" title="Minimalista"></button>
+    <button class="theme-selector-btn theme-btn-azulclaro {% if cliente.theme_css == 'azul_claro' %}activo{% endif %}" 
+        data-tema="Azul Claro" onclick="cambiarTema('azul_claro')" title="Azul Claro Profesional"></button>
+    <button class="theme-selector-btn theme-btn-grisclasico {% if cliente.theme_css == 'gris_clasico' %}activo{% endif %}" 
+        data-tema="Gris Clásico" onclick="cambiarTema('gris_clasico')" title="Gris Clásico Elegante"></button>  
+    <button class="theme-selector-btn theme-btn-lavanda {% if cliente.theme_css == 'lavanda' %}activo{% endif %}" 
+        data-tema="Lavanda" onclick="cambiarTema('lavanda')" title="Lavanda Profesional"></button>
+    <button class="theme-selector-btn theme-btn-tierracalido {% if cliente.theme_css == 'tierra_calidoo' %}activo{% endif %}" 
+        data-tema="Tierra calido" onclick="cambiarTema('tierra_calido')" title="Tierra calido Elegante"></button>  
+    <button class="theme-selector-btn theme-btn-turquesa {% if cliente.theme_css == 'turquesa' %}activo{% endif %}" 
+        data-tema="Turquesa" onclick="cambiarTema('turquesa')" title="Turquesa Profesional"></button>
 </div>
 
 <!-- ========== FOOTER COMPLETO (FUERA DEL .LANDING Y DEL CONTAINER-CUSTOM) ========== -->
@@ -446,21 +456,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
 function cambiarTema(theme) {
+    // 1. Cambiar el archivo CSS del tema
     document.getElementById('theme-css').href = '/static/css/themes/' + theme + '.css';
-    
+
+    // 2. Marcar el botón activo (ya lo tenías)
     document.querySelectorAll('.theme-selector-btn').forEach(function(btn) {
         btn.classList.remove('activo');
-    });
-    
-    var botones = document.querySelectorAll('.theme-selector-btn');
-    botones.forEach(function(btn) {
         if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(theme) !== -1) {
             btn.classList.add('activo');
         }
     });
-    
+
+    // 3. Guardar la preferencia
     localStorage.setItem('consultorio-theme', theme);
+
+    // 4. Activar o desactivar la clase dark-mode en el body
+    var darkThemes = ['azul_oscuro', 'verde_oscuro'];  // ¡Completá con todos tus temas oscuros!
+    if (darkThemes.includes(theme)) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
 }
 
 function toggleFicha(id, header) {

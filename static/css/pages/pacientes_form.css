@@ -261,15 +261,15 @@
 
     /* 2. Etiquetas (Labels) */
     .form-group label {
-        color: #f1f5f9 !important;
+        color: var(--text-main) !important;
     }
 
-    /* 3. Input type="file" (Selector de archivo en Estudios) */
-    .form-input[type="file"] {
-        background: #1e293b !important; /* Un tono un poco más claro para el botón de archivo */
-        color: #f1f5f9 !important;
-    }
 
+.form-input[type="file"] {
+    background: var(--bg-alt);      /* o var(--bg-card), según prefieras */
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
     /* 4. Input type="date" (Calendario nativo en Estudios y Editar) */
     .form-input[type="date"] {
         color-scheme: dark !important; /* Hace que el ícono del calendario nativo sea oscuro */
@@ -291,10 +291,11 @@
         border-color: #334155 !important;
     }
     .card-header h3 {
-        color: #f1f5f9 !important;
-    }
+    color: var(--text-main);
+}
+
     .pacientes-header h1 {
-        color: #f1f5f9 !important;
+        color: var(--text-main) !important;
     }
     .pacientes-header p {
         color: #94a3b8 !important;
@@ -322,7 +323,7 @@
     
     /* 10. Texto descriptivo dentro de la tabla */
     table tbody td strong {
-        color: #f1f5f9 !important;
+        color: #10151a !important;
     }
 }
 

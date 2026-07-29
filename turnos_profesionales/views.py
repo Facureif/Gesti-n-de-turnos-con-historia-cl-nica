@@ -474,6 +474,13 @@ def asignar_turno(request, paciente_id):
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
+
+    # Obra social activa del paciente para este profesional
+    obra_social_activa = PacienteObraSocial.objects.filter(
+        paciente=paciente,
+        profesional=profesional,
+        activa=True
+    ).first()
     
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
@@ -584,6 +591,7 @@ def asignar_turno(request, paciente_id):
         'dias_disponibles': dias_disponibles, 'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
         'max_simultaneos': max_simultaneos,
+        'obra_social_activa': obra_social_activa,
     })
 
 

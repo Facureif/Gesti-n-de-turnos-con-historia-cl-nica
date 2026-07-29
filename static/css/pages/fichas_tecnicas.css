@@ -6,7 +6,7 @@
 .ficha-tecnica-page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0 24px 40px;
+    padding: 17px 24px 40px; /* padding-top incluido */
     box-sizing: border-box;
 }
 
@@ -110,7 +110,10 @@
 /* =============================================
    CAMPOS DE FORMULARIO
    ============================================= */
-.ficha-input {
+.ficha-input,
+.ficha-textarea,
+.ficha-select,
+.ficha-file-input {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid var(--border-color);
@@ -119,9 +122,13 @@
     font-size: 0.9rem;
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
+    background: var(--bg-card);
+    color: var(--text-main);
 }
 
-.ficha-input:focus {
+.ficha-input:focus,
+.ficha-textarea:focus,
+.ficha-select:focus {
     outline: none;
     border-color: #7c3aed;
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
@@ -134,52 +141,13 @@
     cursor: not-allowed;
 }
 
-.ficha-select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.9rem;
-    background: var(--bg-card);
-    cursor: pointer;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    box-sizing: border-box;
-}
-
-.ficha-select:focus {
-    outline: none;
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-}
-
 .ficha-textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.9rem;
     resize: vertical;
     min-height: 60px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    box-sizing: border-box;
-}
-
-.ficha-textarea:focus {
-    outline: none;
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .ficha-file-input {
-    width: 100%;
     padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.9rem;
-    box-sizing: border-box;
 }
 
 /* =============================================
@@ -281,14 +249,12 @@
    ============================================= */
 .ficha-tabla-container {
     overflow-x: auto;
-    overflow-y: visible;
 }
 
 .ficha-tabla {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.88rem;
-    overflow: visible;
 }
 
 .ficha-tabla thead th {
@@ -308,7 +274,7 @@
     padding: 12px 14px;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
-    position: relative;
+    color: var(--text-main);
 }
 
 .ficha-tabla tbody tr:hover {
@@ -427,7 +393,6 @@
     align-items: flex-end;
     gap: 12px;
     min-height: 200px;
-    min-width: fit-content;
 }
 
 .ficha-grafico-item {
@@ -536,43 +501,43 @@
    ============================================= */
 @media (max-width: 768px) {
     .ficha-tecnica-page {
-        padding: 0 16px 32px;
+        padding: 17px 16px 32px;
     }
-    
+
     .ficha-header {
         flex-direction: column;
     }
-    
+
     .ficha-header-acciones {
         width: 100%;
     }
-    
+
     .ficha-grid-2 {
         grid-template-columns: 1fr;
     }
-    
+
     .ficha-nota-item {
         grid-template-columns: 1fr;
         gap: 8px;
     }
-    
+
     .ficha-nota-acciones {
         justify-self: end;
     }
-    
+
     .ficha-form-row,
     .ficha-form-row-3 {
         grid-template-columns: 1fr;
     }
-    
+
     .ficha-checkboxes-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .ficha-header-icono {
         font-size: 2rem;
     }
-    
+
     .ficha-header-texto h1 {
         font-size: 1.4rem;
     }
@@ -582,7 +547,7 @@
     .ficha-card-body {
         padding: 14px;
     }
-    
+
     .ficha-tabla thead th,
     .ficha-tabla tbody td {
         padding: 8px 10px;
@@ -590,310 +555,149 @@
     }
 }
 
-/* =============================================
-   CORRECCIÓN MODO OSCURO - FICHAS TÉCNICAS (Odontología, Paciente, etc.)
-   ============================================= */
-
-/* Aplicamos el padding-top de 10px al contenedor principal de las fichas */
-.ficha-tecnica-page {
-    padding-top: 17px !important;
-}
-
-@media (prefers-color-scheme: dark) {
-
-    /* 1. Inputs, Textareas y Selects (Fondo azul oscuro como el login) */
-    .ficha-input,
-    .ficha-textarea,
-    .ficha-select,
-    .ficha-file-input {
-        background: #0f172a !important;
-        color: #f1f5f9 !important;
-        border-color: #334155 !important;
-    }
-    
-    /* Placeholder de los inputs (Gris tenue para que sea legible) */
-    .ficha-input::placeholder,
-    .ficha-textarea::placeholder {
-        color: #94a3b8 !important;
-    }
-
-    /* 2. Etiquetas (Labels) */
-    .ficha-label {
-        color: #f1f5f9 !important;
-    }
-
-    /* 3. Checkboxes y sus textos */
-    .ficha-checkbox-label {
-        color: #f1f5f9 !important;
-    }
-    .ficha-checkbox-label input[type="checkbox"] {
-        accent-color: #7c3aed !important; /* El morado que tenías, se mantiene legible */
-    }
-
-    /* 4. Encabezados, Cards y Detalles */
-    .ficha-card-header {
-        background: #1e293b !important;  /* Fondo un tono más claro que el cuerpo */
-        border-color: #334155 !important;
-    }
-    .ficha-card-header h3 {
-        color: #f1f5f9 !important;
-    }
-    
-    .ficha-header-texto h1 {
-        color: #f1f5f9 !important;
-    }
-    .ficha-header-texto p {
-        color: #94a3b8 !important;
-    }
-
-    /* 5. Tablas dentro de las fichas */
-    .ficha-tabla thead th {
-        background: #1e293b !important;
-        color: #94a3b8 !important;
-        border-color: #334155 !important;
-    }
-    .ficha-tabla tbody td {
-        color: #f1f5f9 !important;
-        border-color: #334155 !important;
-    }
-    .ficha-tabla tbody tr:hover {
-        background: #1e293b !important;
-    }
-
-    /* 6. Notas y estados vacíos */
-    .ficha-nota-item {
-        border-color: #334155 !important;
-    }
-    .ficha-nota-titulo {
-        color: #f1f5f9 !important;
-    }
-    .ficha-nota-contenido {
-        color: #cbd5e1 !important;
-    }
-    .ficha-empty {
-        color: #94a3b8 !important;
-    }
-
-    /* 7. Badges y gráficos (Corrección de texto para que resalte) */
-    .ficha-badge-gray { background: #1e293b !important; color: #cbd5e1 !important; }
-    .ficha-grafico-fecha { color: #94a3b8 !important; }
-}
-
 /* ================================================================
-   SÚPER PARCHE GLOBAL MODO OSCURO - 100% DINÁMICO CON VARIABLES
+   MODO OSCURO DINÁMICO (clases de tema, NO media query)
    ================================================================ */
+/* Aplicamos solo cuando el sitio esté en modo oscuro explícitamente */
 
-@media (prefers-color-scheme: dark) {
+body.dark-mode .ficha-input,
+body.dark-mode .ficha-textarea,
+body.dark-mode .ficha-select,
+body.dark-mode .ficha-file-input,
+[data-theme="dark"] .ficha-input,
+[data-theme="dark"] .ficha-textarea,
+[data-theme="dark"] .ficha-select,
+[data-theme="dark"] .ficha-file-input,
+.dark-theme .ficha-input,
+.dark-theme .ficha-textarea,
+.dark-theme .ficha-select,
+.dark-theme .ficha-file-input {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
 
-    /* =============== 1. CABECERAS, CARDS Y TEXTOS GENERALES =============== */
-    
-    .card, .paciente-card, .perfil-card, .ficha-card, .slot-info-card, .modal-dialog {
-        background: var(--bg-card) !important;
-        border-color: var(--border-color) !important;
-    }
+body.dark-mode .ficha-input::placeholder,
+body.dark-mode .ficha-textarea::placeholder,
+[data-theme="dark"] .ficha-input::placeholder,
+[data-theme="dark"] .ficha-textarea::placeholder,
+.dark-theme .ficha-input::placeholder,
+.dark-theme .ficha-textarea::placeholder {
+    color: #94a3b8 !important;
+}
 
-    .page-header h1, .perfil-header h1, .ficha-header-texto h1, 
-    .portal-saludo h1, .dashboard-header h1, .cobranza-header h1,
-    .card-title, .ficha-card-header h3, .paciente-card-header h3,
-    .modal-header h3, .calendario-dia-header.atiende,
-    .consultorio-item .consultorio-info .consultorio-nombre {
-        color: var(--text-main) !important;
-    }
-    
-    .page-header p, .perfil-header p, .ficha-header-texto p, .text-muted,
-    .slot-info-etiqueta, .cobranza-mes, .dashboard-periodo, .modal-info-label,
-    .calendario-slot-tipo, .calendario-slot-agregar, .consultorio-item .consultorio-info .consultorio-detalle {
-        color: var(--text-muted) !important;
-    }
+body.dark-mode .ficha-label,
+[data-theme="dark"] .ficha-label,
+.dark-theme .ficha-label {
+    color: #f1f5f9 !important;
+}
 
-    .card-header, .ficha-card-header, .paciente-card-header {
-        background: var(--bg-alt) !important;
-        border-bottom: 1px solid var(--border-color) !important;
-    }
+body.dark-mode .ficha-checkbox-label,
+[data-theme="dark"] .ficha-checkbox-label,
+.dark-theme .ficha-checkbox-label {
+    color: #f1f5f9 !important;
+}
 
-    /* =============== 2. INPUTS, SELECTS, TEXTAREAS Y FECHAS =============== */
+body.dark-mode .ficha-card-header,
+[data-theme="dark"] .ficha-card-header,
+.dark-theme .ficha-card-header {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
 
-    .turnos-input, .turnos-textarea, .turnos-select, .turnos-busqueda-input,
-    .ficha-input, .ficha-textarea, .ficha-select, .ficha-file-input,
-    .perfil-input, .perfil-select, .perfil-textarea,
-    .form-input, .form-select, .form-textarea,
-    input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="password"], input[type="file"],
-    textarea, select {
-        background: var(--bg-input) !important; /* Fondo oscuro profundo del sistema */
-        color: var(--text-main) !important;
-        border: 1px solid var(--border-color) !important;
-    }
+body.dark-mode .ficha-card-header h3,
+[data-theme="dark"] .ficha-card-header h3,
+.dark-theme .ficha-card-header h3 {
+    color: #f1f5f9 !important;
+}
 
-    .turnos-input::placeholder, .turnos-textarea::placeholder,
-    .ficha-input::placeholder, .ficha-textarea::placeholder,
-    .perfil-input::placeholder, .perfil-textarea::placeholder,
-    .form-input::placeholder, .form-textarea::placeholder,
-    input::placeholder, textarea::placeholder {
-        color: var(--text-muted) !important;
-    }
+body.dark-mode .ficha-header-texto h1,
+[data-theme="dark"] .ficha-header-texto h1,
+.dark-theme .ficha-header-texto h1 {
+    color: #f1f5f9 !important;
+}
 
-    select option {
-        background: var(--bg-card) !important;
-        color: var(--text-main) !important;
-    }
+body.dark-mode .ficha-header-texto p,
+[data-theme="dark"] .ficha-header-texto p,
+.dark-theme .ficha-header-texto p {
+    color: #94a3b8 !important;
+}
 
-    input[type="file"] {
-        background: var(--bg-alt) !important;
-        color: var(--text-main) !important;
-    }
+body.dark-mode .ficha-tabla thead th,
+[data-theme="dark"] .ficha-tabla thead th,
+.dark-theme .ficha-tabla thead th {
+    background: #1e293b !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
 
-    /* =============== 3. CALENDARIO SEMANAL =============== */
+body.dark-mode .ficha-tabla tbody td,
+[data-theme="dark"] .ficha-tabla tbody td,
+.dark-theme .ficha-tabla tbody td {
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
 
-    .calendario-dia-header.inactivo {
-        background: var(--bg-alt) !important;
-        color: var(--text-muted) !important;
-    }
-    .calendario-dia-header.activo {
-        background: var(--primary) !important; /* Toma el color primario del tema */
-        color: #ffffff !important;
-    }
+body.dark-mode .ficha-tabla tbody tr:hover,
+[data-theme="dark"] .ficha-tabla tbody tr:hover,
+.dark-theme .ficha-tabla tbody tr:hover {
+    background: #1e293b !important;
+}
 
-    .calendario-slots {
-        background: var(--bg-card) !important;
-    }
-    .calendario-slot {
-        border-bottom: 1px solid var(--border-color) !important;
-    }
-    .calendario-slot-hora {
-        color: var(--text-main) !important;
-    }
-    .calendario-slot-paciente {
-        color: var(--text-main) !important;
-    }
-    
-    .calendario-slot.vacio {
-        color: var(--text-muted) !important;
-    }
-    .calendario-slot.vacio:hover {
-        background: var(--bg-alt) !important;
-        color: var(--primary) !important;
-    }
+body.dark-mode .ficha-nota-item,
+[data-theme="dark"] .ficha-nota-item,
+.dark-theme .ficha-nota-item {
+    border-color: #334155 !important;
+}
 
-    .calendario-slot.pendiente {
-        background: var(--warning-bg) !important;
-        border-left-color: var(--warning) !important;
-    }
-    .calendario-slot.pendiente .calendario-slot-paciente {
-        color: var(--warning-text) !important;
-    }
-    
-    .calendario-slot.confirmado {
-        background: var(--success-bg) !important;
-        border-left-color: var(--success) !important;
-    }
-    .calendario-slot.confirmado .calendario-slot-paciente {
-        color: var(--success-text) !important;
-    }
-    
-    .calendario-slot.sobreturno {
-        background: var(--danger-bg) !important;
-        border-left-color: var(--danger) !important;
-    }
-    .calendario-slot.sobreturno .calendario-slot-paciente {
-        color: var(--danger-text) !important;
-    }
+body.dark-mode .ficha-nota-titulo,
+[data-theme="dark"] .ficha-nota-titulo,
+.dark-theme .ficha-nota-titulo {
+    color: #f1f5f9 !important;
+}
 
-    .consultorio-separador {
-        background: var(--bg-alt) !important;
-        color: var(--text-main) !important;
-        border-bottom: 1px solid var(--border-color) !important;
-    }
+body.dark-mode .ficha-nota-contenido,
+[data-theme="dark"] .ficha-nota-contenido,
+.dark-theme .ficha-nota-contenido {
+    color: #cbd5e1 !important;
+}
 
-    .calendario-dia-footer {
-        background: var(--bg-card) !important;
-        border-top: 1px solid var(--border-color) !important;
-    }
-    .calendario-dia-footer a {
-        color: var(--text-muted) !important;
-    }
-    .calendario-dia-footer a:hover {
-        color: var(--danger) !important;
-    }
+body.dark-mode .ficha-empty,
+[data-theme="dark"] .ficha-empty,
+.dark-theme .ficha-empty {
+    color: #94a3b8 !important;
+}
 
-    .modal-info-row {
-        border-color: var(--border-color) !important;
-    }
-    .modal-info-value {
-        color: var(--text-main) !important;
-    }
+body.dark-mode .ficha-badge-gray,
+[data-theme="dark"] .ficha-badge-gray,
+.dark-theme .ficha-badge-gray {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+}
 
+body.dark-mode .ficha-grafico-fecha,
+[data-theme="dark"] .ficha-grafico-fecha,
+.dark-theme .ficha-grafico-fecha {
+    color: #94a3b8 !important;
+}
 
-    /* =============== 4. BADGES Y ETIQUETAS =============== */
+/* También los inputs genéricos heredan el mismo tratamiento */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme select {
+    background: #0f172a !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
 
-    .badge-info, .badge-info.paciente-option-badge,
-    .ficha-badge-info, .sesiones-badge {
-        background: var(--info-bg) !important;
-        color: var(--info-text) !important;
-    }
-    .badge-success, .ficha-badge-success {
-        background: var(--success-bg) !important;
-        color: var(--success-text) !important;
-    }
-    .badge-warning, .ficha-badge-warning {
-        background: var(--warning-bg) !important;
-        color: var(--warning-text) !important;
-    }
-    .badge-danger, .ficha-badge-danger {
-        background: var(--danger-bg) !important;
-        color: var(--danger-text) !important;
-    }
-    .badge-gray, .ficha-badge-gray {
-        background: var(--bg-alt) !important;
-        color: var(--text-muted) !important;
-    }
-
-    .paciente-option-detalle {
-        color: var(--text-muted) !important;
-    }
-    .paciente-option-detalle strong {
-        color: var(--text-main) !important;
-    }
-    .paciente-option-info .paciente-option-nombre {
-        color: var(--text-main) !important;
-    }
-    .paciente-option {
-        border-color: var(--border-color) !important;
-        background: var(--bg-card) !important;
-    }
-    .paciente-option:hover {
-        border-color: var(--primary) !important;
-    }
-    .paciente-option.seleccionado {
-        border-color: var(--success) !important;
-        background: var(--success-bg) !important;
-    }
-
-
-    /* =============== 5. CHECKBOXES (Fichas y Formularios) =============== */
-    .ficha-checkbox-label, .perfil-checkbox-label {
-        color: var(--text-main) !important;
-    }
-    .ficha-checkbox-label input[type="checkbox"],
-    .perfil-checkbox-label input[type="checkbox"] {
-        accent-color: var(--primary) !important; /* Aplica el color primario del tema */
-    }
-
-
-    /* =============== 6. ESTADOS VACÍOS Y TABLAS =============== */
-    .empty-state p, .perfil-vacio, .ficha-empty p, .portal-empty p {
-        color: var(--text-muted) !important;
-    }
-    
-    table thead th {
-        background: var(--bg-alt) !important;
-        color: var(--text-muted) !important;
-        border-color: var(--border-color) !important;
-    }
-    table tbody td {
-        color: var(--text-main) !important;
-        border-color: var(--border-color) !important;
-    }
-    table tbody tr:hover {
-        background: var(--bg-alt) !important;
-    }
+body.dark-mode .ficha-checkbox-label input[type="checkbox"],
+[data-theme="dark"] .ficha-checkbox-label input[type="checkbox"],
+.dark-theme .ficha-checkbox-label input[type="checkbox"] {
+    accent-color: var(--primary) !important;
 }

@@ -1,0 +1,35 @@
+/* lavanda.css */
+:root {
+    --primary: #7c3aed; --primary-dark: #6d28d9; --primary-light: #ede9fe;
+    --success: #059669; --success-light: #ecfdf5;
+    --warning: #d97706; --warning-light: #fffbeb;
+    --danger: #dc2626; --danger-light: #fef2f2;
+    --info: #8b5cf6; --info-light: #f5f3ff;
+
+    --bg-body: #ffffff; --bg-card: #ffffff; --bg-alt: #faf5ff;
+    --text-main: #1e1b4b; --text-secondary: #4338ca; --text-muted: #6d28d9;
+    --border-color: #ddd6fe;
+
+    --navbar-bg: #ffffff; --navbar-border: #ddd6fe; --navbar-shadow: 0 2px 8px rgba(124,58,237,0.1);
+    --navbar-brand-color: #4c1d95; --navbar-link-color: #4338ca;
+    --navbar-link-hover-bg: #ede9fe; --navbar-link-hover-color: #7c3aed;
+    --navbar-user-bg: #faf5ff; --navbar-user-color: #4338ca;
+
+    --footer-bg: #1e1b4b; --footer-text: #c4b5fd; --footer-border: rgba(255,255,255,0.1);
+    --footer-heading-color: #ffffff; --footer-link-color: #a78bfa; --footer-link-hover-color: #c4b5fd;
+
+    --whatsapp-bg: #25D366; --whatsapp-color: #ffffff;
+    --hero-btn-bg: #7c3aed; --hero-btn-color: #ffffff;
+
+    --tag-bg: #d1fae5; --tag-color: #065f46;
+    --tag-os-bg: #ede9fe; --tag-os-color: #5b21b6;
+
+    --white: #ffffff; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1;
+    --gray-400: #94a3b8; --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.06); --shadow-lg: 0 10px 15px rgba(0,0,0,0.08);
+}
+.tag { background: var(--tag-bg) !important; color: var(--tag-color) !important; }
+.tag-os { background: var(--tag-os-bg) !important; color: var(--tag-os-color) !important; }
+.whatsapp-flotante { background-color: #25D366 !important; color: white !important; }

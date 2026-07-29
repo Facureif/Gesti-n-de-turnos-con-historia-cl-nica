@@ -614,10 +614,10 @@
     .perfil-checkbox-label input[type="checkbox"] { accent-color: #3b82f6 !important; }
 
     /* CONSULTORIOS Y ACCIONES */
-    .consultorio-item {
+    /* .consultorio-item {
         background: #1e293b !important;
         border: 1px solid #334155 !important;
-    }
+    } */
     .consultorio-item .consultorio-info .consultorio-nombre { color: #f1f5f9 !important; }
     .consultorio-item .consultorio-info .consultorio-detalle { color: #94a3b8 !important; }
     .btn-accion-outline {
@@ -630,13 +630,13 @@
     .btn-accion-outline.eliminar { color: #fca5a5 !important; border-color: #7f1d1d !important; }
 
     /* HORARIOS Y TABLAS */
-    .agenda-item { background: #1e293b !important; border-color: #334155 !important; }
-    .agenda-header { color: #f1f5f9 !important; }
+    .agenda-item { border-color: #334155 !important; }
+    /* .agenda-header { color: #f1f5f9 !important; } */
     .agenda-header .simultaneos { color: #94a3b8 !important; }
-    .agenda-tabla { background: #0f172a !important; }
-    .agenda-tabla thead tr { background: #1e293b !important; }
+    /* .agenda-tabla { background: #0f172a !important; }
+    .agenda-tabla thead tr { background: #1e293b !important; } */
     .agenda-tabla th { color: #94a3b8 !important; border-bottom: 1px solid #334155 !important; }
-    .agenda-tabla td { color: #e2e8f0 !important; border-bottom: 1px solid #1e293b !important; }
+    /* .agenda-tabla td { color: #e2e8f0 !important; border-bottom: 1px solid #1e293b !important; } */
 
     /* =============================================
        OBRAS SOCIALES Y PLANES - FEEDBACK DE SELECCIÓN
@@ -670,7 +670,7 @@
     }
 
     /* --- PLANES (Base) --- */
-    .plan-os-nombre { color: #e2e8f0 !important; }
+    .plan-os-nombre { color: var(--text-main) !important; }
     .plan-checkbox-label {
         background: transparent !important;
         border: 1px solid #475569 !important;

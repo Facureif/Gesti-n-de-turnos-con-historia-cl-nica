@@ -331,7 +331,7 @@
 }
 .sigla-badge {
     display: inline-block;
-    color: rgb(12, 81, 102);
+    color: var(--warning-bg);
     font-size: 0.8rem;
     font-weight: 600;
     padding: 2px 8px;
@@ -376,8 +376,8 @@
 .btn-pagar { background: #22c55e; }
 .btn-pagar:hover { background: #16a34a; }
 
-.btn-reserva-multiple { background: #8b5cf6; }
-.btn-reserva-multiple:hover { background: #7c3aed; }
+.btn-reserva-multiple { background: #ea6c3a; }
+.btn-reserva-multiple:hover { background: #da8919; }
 
 /* =============================================
    ESPACIADO ADICIONAL
@@ -453,16 +453,24 @@
         color: #94a3b8 !important;
     }
 
-    /* 2. Etiquetas (Labels) */
-    .form-group label {
-        color: #f1f5f9 !important;
-    }
+/* Tema claro */
+.form-group label {
+    color: #0c0f11 !important;
+}
 
-    /* 3. Input type="file" (Selector de archivo en Estudios) */
-    .form-input[type="file"] {
-        background: #1e293b !important; /* Un tono un poco más claro para el botón de archivo */
-        color: #f1f5f9 !important;
-    }
+/* Tema oscuro */
+body.dark-mode .form-group label {
+    color: #f1f5f9 !important;
+}
+
+
+
+.form-input[type="file"] {
+    background: var(--bg-card);      /* o var(--bg-card), según prefieras */
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
 
     /* 4. Input type="date" (Calendario nativo en Estudios y Editar) */
     .form-input[type="date"] {
@@ -484,9 +492,12 @@
         background: #1e293b !important;
         border-color: #334155 !important;
     }
-    .card-header h3 {
-        color: #f1f5f9 !important;
-    }
+    
+.card-header h3 {
+    color: var(--text-main);
+}
+
+
     .pacientes-header h1 {
         color: #f1f5f9 !important;
     }

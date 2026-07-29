@@ -506,10 +506,18 @@
     box-shadow: 0 0 0 2px white, 0 2px 8px rgba(0,0,0,0.3);
 }
 
+/* Colores de los botones */
 .theme-btn-default { background: #2563eb; }
-.theme-btn-dorado { background: linear-gradient(135deg, #0f172a 50%, #f59e0b 50%); }
-.theme-btn-verde-oscuro { background: #0a1f1a; }
+.theme-btn-dorado { background: linear-gradient(135deg, #0b1120 60%, #2687b8 40%); }
+.theme-btn-verde-oscuro { background: linear-gradient(135deg, #061712 60%, #10b981 40%); }
 .theme-btn-bn { background: linear-gradient(135deg, #111827 50%, #ffffff 50%); border: 1px solid #d1d5db; }
+.theme-btn-azulclaro { background: linear-gradient(135deg, #e0f2fe 40%, #0284c7 60%); }
+.theme-btn-grisclasico { background: linear-gradient(135deg, #cbd5e1 40%, #475569 60%); }
+.theme-btn-lavanda { background: linear-gradient(135deg, #ede9fe 40%, #7c3aed 60%); }
+.theme-btn-tierra { background: linear-gradient(135deg, #b45309  40%, #fef3c7 60%); }
+.theme-btn-turquesa { background: linear-gradient(135deg, #ccfbf1 40%, #0d9488 60%); }
+
+
 
 /* =============================================
    RESPONSIVE

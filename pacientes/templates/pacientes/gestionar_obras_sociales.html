@@ -22,7 +22,7 @@
     <!-- Sesiones por Obra Social -->
     {% for os_paciente in obras_sociales_paciente %}
     {% if os_paciente.activa %}
-    <div class="paciente-card" style="border-left: 4px solid #22c55e;">
+    <div class="paciente-card" style="border-left: 4px solid var(--success);">
         <div class="paciente-card-header">
             <h3>
                 📊 Sesiones: {{ os_paciente.obra_social.nombre }} ({{ os_paciente.obra_social.sigla }})
@@ -44,7 +44,7 @@
                 </div>
                 <div>
                     <div class="sesiones-stat-etiqueta">Restantes</div>
-                    <div class="sesiones-stat-numero restantes" style="{% if os_paciente.sesiones_restantes <= 3 %}color: var(--danger);{% elif os_paciente.sesiones_restantes <= 7 %}color: #f59e0b;{% endif %}">
+                    <div class="sesiones-stat-numero restantes" style="{% if os_paciente.sesiones_restantes <= 3 %}color: var(--danger);{% elif os_paciente.sesiones_restantes <= 7 %}color: var(--warning);{% endif %}">
                         {{ os_paciente.sesiones_restantes|default:"—" }}
                     </div>
                 </div>
@@ -61,7 +61,7 @@
             </div>
             {% endif %}
             
-            <div style="background: #f0f9ff; padding: 16px; border-radius: var(--radius); margin-top: 16px;">
+            <div style="background: var(--bg-alt); padding: 16px; border-radius: var(--radius); margin-top: 16px;">
                 <h4 style="margin: 0 0 12px 0; font-size: 0.95rem;">✏️ Editar Sesiones</h4>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
                     <input type="number" name="sesiones_autorizadas" value="{{ os_paciente.sesiones_autorizadas|default:'' }}" 
@@ -89,8 +89,7 @@
             {% if obras_sociales_paciente %}
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 {% for os_paciente in obras_sociales_paciente %}
-                <div class="os-card {% if os_paciente.activa %}activa{% else %}inactiva{% endif %}" 
-                     style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div class="os-card {% if os_paciente.activa %}activa{% else %}inactiva{% endif %}">
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
                             <strong>{{ os_paciente.obra_social.nombre }}</strong>
@@ -124,8 +123,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="accion" value="toggle_obra_social">
                             <input type="hidden" name="os_id" value="{{ os_paciente.id }}">
-                            <button type="submit" class="btn btn-sm" 
-                                    style="background: {% if os_paciente.activa %}#f59e0b{% else %}#10b981{% endif %}; color: white;">
+                            <button type="submit" class="btn btn-sm {% if os_paciente.activa %}btn-warning{% else %}btn-success{% endif %}">
                                 {% if os_paciente.activa %}⏸️ Desactivar{% else %}▶️ Activar{% endif %}
                             </button>
                         </form>
@@ -150,7 +148,7 @@
         </div>
         
         <!-- Formulario para agregar obra social -->
-        <div id="form-agregar-os" style="display: none; padding: 20px; background: #f0f9ff; border-top: 1px solid #bae6fd; margin-top: 16px;">
+        <div id="form-agregar-os" style="display: none; padding: 20px; background: var(--bg-alt); border-top: 1px solid var(--border-color); margin-top: 16px;">
             <h4 style="margin: 0 0 16px 0;">➕ Nueva Obra Social</h4>
             <form method="POST">
                 {% csrf_token %}
@@ -192,11 +190,4 @@
     </div>
     
 </div>
-
-<script>
-function toggleFormOS() {
-    var form = document.getElementById('form-agregar-os');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-</script>
 {% endblock %}

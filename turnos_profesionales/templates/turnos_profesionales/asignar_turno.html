@@ -29,10 +29,13 @@
             <i class="fas fa-id-card"></i>
             DNI: {{ paciente.dni }}
         </div>
-        {% if paciente.obra_social %}
+        {% if obra_social_activa %}
         <div class="paciente-info-item">
             <i class="fas fa-shield-alt"></i>
-            {{ paciente.obra_social.sigla }}
+            {{ obra_social_activa.obra_social.nombre }}
+            {% if obra_social_activa.numero_afiliado %}
+                (N° Afiliado: {{ obra_social_activa.numero_afiliado }})
+            {% endif %}
         </div>
         {% endif %}
         {% if paciente.sesiones_restantes is not None %}

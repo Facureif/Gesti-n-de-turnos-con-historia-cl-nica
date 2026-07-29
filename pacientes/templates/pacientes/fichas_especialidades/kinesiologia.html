@@ -9,46 +9,87 @@
 
 <div class="ficha-grid-2">
     
-    <!-- Datos Físicos -->
+    <!-- Tarjeta combinada: Datos Físicos + Perfil -->
     <div class="ficha-card">
         <div class="ficha-card-header">
-            <h3>📏 Datos Físicos</h3>
+            <h3>📏 Datos Físicos y Perfil</h3>
         </div>
         <div class="ficha-card-body">
-            <div class="ficha-form-group">
-                <div class="ficha-form-row">
-                    <div>
-                        <label class="ficha-label">Peso (kg)</label>
-                        <input type="number" name="peso" id="peso" step="0.1" 
-                               value="{{ ficha_tecnica.datos_especificos.peso|default:'' }}"
-                               placeholder="Ej: 70.5" class="ficha-input"
-                               oninput="calcularIMC()">
-                    </div>
-                    <div>
-                        <label class="ficha-label">Altura (m)</label>
-                        <input type="number" name="altura" id="altura" step="0.01"
-                               value="{{ ficha_tecnica.datos_especificos.altura|default:'' }}"
-                               placeholder="Ej: 1.70" class="ficha-input"
-                               oninput="calcularIMC()">
-                    </div>
+            
+            <!-- Peso y Altura (primera fila) -->
+            <div class="ficha-form-row">
+                <div>
+                    <label class="ficha-label">Peso (kg)</label>
+                    <input type="number" name="peso" step="0.1" 
+                           value="{{ ficha_tecnica.datos_especificos.peso|default:'' }}"
+                           placeholder="Ej: 70.5" class="ficha-input">
                 </div>
                 <div>
-                    <label class="ficha-label">IMC</label>
-                    <div class="ficha-imc-row">
-                        <input type="text" name="imc" id="imc" 
-                               value="{{ ficha_tecnica.datos_especificos.imc|default:'' }}" 
-                               readonly class="ficha-input" style="background: var(--bg-alt);">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="calcularIMC()" style="white-space: nowrap;">
-                            🔢 Calcular
-                        </button>
-                    </div>
-                    <small id="imc-resultado" class="ficha-imc-resultado"></small>
+                    <label class="ficha-label">Altura (m)</label>
+                    <input type="number" name="altura" step="0.01"
+                           value="{{ ficha_tecnica.datos_especificos.altura|default:'' }}"
+                           placeholder="Ej: 1.70" class="ficha-input">
                 </div>
             </div>
+
+            <hr style="margin: 20px 0; border-color: var(--border-color);">
+
+            <!-- Deporte + Mano hábil -->
+            <div class="ficha-form-row">
+                <div>
+                    <label class="ficha-label">¿Practica deporte?</label>
+                    <select name="deporte_practica" class="ficha-select">
+                        <option value="no" {% if ficha_tecnica.datos_especificos.deporte_practica == 'no' %}selected{% endif %}>No</option>
+                        <option value="si" {% if ficha_tecnica.datos_especificos.deporte_practica == 'si' %}selected{% endif %}>Sí</option>
+                    </select>
+                    <input type="text" name="deporte_cual" class="ficha-input" style="margin-top:6px;"
+                           placeholder="¿Cuál? (ej: fútbol, yoga)"
+                           value="{{ ficha_tecnica.datos_especificos.deporte_cual|default:'' }}">
+                </div>
+                <div>
+                    <label class="ficha-label">Mano hábil</label>
+                    <select name="mano_habil" class="ficha-select">
+                        <option value="" {% if not ficha_tecnica.datos_especificos.mano_habil %}selected{% endif %}>Seleccionar...</option>
+                        <option value="diestro" {% if ficha_tecnica.datos_especificos.mano_habil == 'diestro' %}selected{% endif %}>Diestro</option>
+                        <option value="zurdo" {% if ficha_tecnica.datos_especificos.mano_habil == 'zurdo' %}selected{% endif %}>Zurdo</option>
+                        <option value="ambidiestro" {% if ficha_tecnica.datos_especificos.mano_habil == 'ambidiestro' %}selected{% endif %}>Ambidiestro</option>
+                    </select>
+                </div>
+            </div>
+            <br>
+            <!-- Ocupación + Dolor actual -->
+            <div class="ficha-form-row">
+                <div>
+                    <label class="ficha-label">Ocupación/Pasatiempo</label>
+                    <input type="text" name="ocupacion" class="ficha-input"
+                           value="{{ ficha_tecnica.datos_especificos.ocupacion|default:'' }}"
+                           placeholder="Ej: administrativo, albañil">
+                </div>
+                <div>
+                    <label class="ficha-label">Molestia recurente</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" name="dolor_zona" class="ficha-input" 
+                               placeholder="Zona (ej: cervical)" 
+                               value="{{ ficha_tecnica.datos_especificos.dolor_zona|default:'' }}" style="flex:2;">
+                        <!-- <input type="number" name="dolor_eva" class="ficha-input" 
+                               min="0" max="10" step="1" placeholder="EVA 0-10"
+                               value="{{ ficha_tecnica.datos_especificos.dolor_eva|default:'' }}" style="flex:1;"> -->
+                    </div>
+                    <!-- <small style="color:var(--text-muted);">Escala EVA (0 = sin dolor, 10 = máximo dolor)</small> -->
+                </div>
+            </div>
+
+            <!-- Antecedentes relevantes -->
+            <div style="margin-top:12px;">
+                <label class="ficha-label">Antecedentes relevantes</label>
+                <textarea name="antecedentes" rows="2" class="ficha-textarea"
+                          placeholder="Cirugías, fracturas, enfermedades crónicas que afecten el movimiento...">{{ ficha_tecnica.datos_especificos.antecedentes|default:'' }}</textarea>
+            </div>
+
         </div>
     </div>
 
-    <!-- Registrar Nueva Lesión -->
+    <!-- Registrar Nueva Lesión (sin cambios) -->
     <div class="ficha-card borde-danger">
         <div class="ficha-card-header">
             <h3>🩹 Registrar Nueva Lesión</h3>
@@ -98,7 +139,7 @@
     </div>
 </div>
 
-<!-- Historial de Lesiones -->
+<!-- Historial de Lesiones (sin cambios) -->
 <div class="ficha-card" style="margin-top: 24px;">
     <div class="ficha-card-header">
         <h3>📜 Historial de Lesiones</h3>
@@ -157,37 +198,5 @@
     </div>
     {% endif %}
 </div>
-
-<script>
-function calcularIMC() {
-    var peso = parseFloat(document.getElementById('peso').value);
-    var altura = parseFloat(document.getElementById('altura').value);
-    var imcInput = document.getElementById('imc');
-    var resultado = document.getElementById('imc-resultado');
-    
-    if (peso && altura && altura > 0) {
-        var imc = (peso / (altura * altura)).toFixed(1);
-        imcInput.value = imc;
-        
-        var clasificacion = '';
-        var color = '';
-        
-        if (imc < 18.5) { clasificacion = 'Bajo peso'; color = '#e67e22'; }
-        else if (imc < 25) { clasificacion = '✅ Peso normal'; color = '#27ae60'; }
-        else if (imc < 30) { clasificacion = '⚠️ Sobrepeso'; color = '#f39c12'; }
-        else if (imc < 35) { clasificacion = '⚠️ Obesidad grado I'; color = '#e74c3c'; }
-        else if (imc < 40) { clasificacion = '🔴 Obesidad grado II'; color = '#c0392b'; }
-        else { clasificacion = '🔴 Obesidad grado III'; color = '#922b21'; }
-        
-        resultado.innerHTML = clasificacion;
-        resultado.style.color = color;
-    } else {
-        imcInput.value = '';
-        resultado.innerHTML = '';
-    }
-}
-
-window.onload = function() { calcularIMC(); };
-</script>
 
 {% endblock %}
