@@ -121,7 +121,18 @@ def mis_turnos(request):
     for turno in turnos_pendientes_pasados:
         turno.estado = 'no_asistio'
         turno.no_asistio_automatico = True
-        # Si querés descontar sesión, podés hacerlo acá
+        # Descontar sesión si no se había hecho antes
+        if not turno.sesion_descontada:
+            os_paciente = PacienteObraSocial.objects.filter(
+                paciente=turno.paciente,
+                activa=True,
+                profesional=turno.profesional,
+                sesiones_restantes__gt=0,
+            ).first()
+            if os_paciente:
+                os_paciente.sesiones_restantes -= 1
+                os_paciente.save()
+                turno.sesion_descontada = True
         turno.save()
 
     # Volver a obtener la lista actualizada

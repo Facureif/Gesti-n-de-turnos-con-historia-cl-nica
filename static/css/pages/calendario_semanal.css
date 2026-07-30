@@ -111,6 +111,18 @@
     color: #14532d !important;
 }
 
+
+/* No asistio */
+.calendario-slots .calendario-slot.no_asistio {
+    background: #e1dc44  !important;
+    border-left-color: #d9c406 !important;
+}
+.calendario-slots .calendario-slot.no_asistio .calendario-slot-paciente,
+.calendario-slots .calendario-slot.no_asistio .calendario-slot-hora,
+.calendario-slots .calendario-slot.no_asistio .calendario-slot-tipo {
+    color: #523309 !important;
+}
+
 /* Pendiente */
 .calendario-slots .calendario-slot.pendiente {
     background: #fde68a !important;
@@ -234,6 +246,13 @@
     color: #78350f !important;
     border: 1px solid #d97706 !important;
 }
+
+.calendario-leyenda .badge-noasistio {
+    background-color: #e1dc44 !important;
+    color: #523309 !important;
+    border: 1px solid #d9c406 !important;
+}
+
 
 .calendario-leyenda .badge-completado {
     background-color: #bfdbfe !important;
