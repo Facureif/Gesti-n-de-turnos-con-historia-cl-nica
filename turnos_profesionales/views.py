@@ -1537,107 +1537,133 @@ def sobreturno_calendario(request):
 
 
 # ============ RECETA PDF ============
+from reportlab.lib.pagesizes import A5
+from reportlab.lib.units import cm
+from reportlab.pdfgen import canvas
 
 @login_required
 def generar_receta(request, evolucion_id):
     evolucion = get_object_or_404(Evolucion, id=evolucion_id)
     paciente = evolucion.historia_clinica.paciente
     profesional = evolucion.profesional
-    
+
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="receta_{paciente.apellido}_{evolucion.creado.strftime("%Y%m%d")}.pdf"'
-    
+    response['Content-Disposition'] = f'attachment; filename="indicacion_{paciente.apellido}_{evolucion.creado.strftime("%Y%m%d")}.pdf"'
+
     p = canvas.Canvas(response, pagesize=A5)
     width, height = A5
-    
-    # Membrete
-    p.setFont("Helvetica-Bold", 18)
-    p.drawString(2*cm, height - 2*cm, "INDICACIÓN MÉDICA")
-    p.drawString(2*cm, height - 2.5*cm, "(No válida para farmacia - Requiere firma y sello original)")
+
+    # Márgenes
+    margen_izq = 1.5*cm
+    margen_der = width - 1.5*cm
+    y = height - 1.5*cm
+
+    # ─── RECUADRO EXTERNO ────────────────────────
+    p.setStrokeColorRGB(0.2, 0.2, 0.2)
+    p.setLineWidth(1.5)
+    p.rect(1*cm, 1*cm, width - 2*cm, height - 2*cm, stroke=1, fill=0)
+
+    # ─── TÍTULO ──────────────────────────────────
+    p.setFont("Helvetica-Bold", 14)
+    p.drawCentredString(width/2, y, "INDICACIÓN MÉDICA")
+    y -= 0.8*cm
     p.setFont("Helvetica", 8)
-    p.drawString(2*cm, height - 2.5*cm, "Documento válido para la prescripción de medicamentos")
-    p.line(2*cm, height - 2.7*cm, width - 2*cm, height - 2.7*cm)
-    
-    # Datos del profesional
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(2*cm, height - 3.5*cm, f"Dr/a. {profesional.nombre_completo}")
-    p.setFont("Helvetica", 10)
-    p.drawString(2*cm, height - 4.1*cm, f"{profesional.get_especialidad_display()} · M.N. {profesional.matricula}")
+    p.drawCentredString(width/2, y, "(No válida para farmacia – Uso exclusivo del paciente)")
+    y -= 0.4*cm
+    p.setFont("Helvetica-Oblique", 7)
+    p.drawCentredString(width/2, y, "Documento informativo – No reemplaza una receta oficial")
+    y -= 0.6*cm
+    # Línea separadora
+    p.line(margen_izq, y, margen_der, y)
+    y -= 0.8*cm
+
+    # ─── DATOS DEL PROFESIONAL ──────────────────
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(margen_izq, y, f"Dr/a. {profesional.nombre_completo}")
+    y -= 0.5*cm
+    p.setFont("Helvetica", 9)
+    p.drawString(margen_izq, y, f"{profesional.get_especialidad_display()}  ·  M.N. {profesional.matricula}")
+    y -= 0.5*cm
     if profesional.establecimientos.first():
         est = profesional.establecimientos.first()
-        p.drawString(2*cm, height - 4.7*cm, f"{est.nombre} · {est.direccion} · Tel: {est.telefono}")
-    
-    p.line(2*cm, height - 5.2*cm, width - 2*cm, height - 5.2*cm)
-    
-    # Datos del paciente
-    p.setFont("Helvetica-Bold", 10)
-    p.drawString(2*cm, height - 6*cm, "Paciente:")
-    p.setFont("Helvetica", 10)
-    p.drawString(4*cm, height - 6*cm, paciente.nombre_completo)
-    p.drawString(2*cm, height - 6.5*cm, f"DNI: {paciente.dni}")
-    p.drawString(6*cm, height - 6.5*cm, f"Fecha: {evolucion.creado.strftime('%d/%m/%Y')}")
-    if paciente.obra_social:
-        p.drawString(2*cm, height - 7*cm, f"O.S.: {paciente.obra_social.nombre} · N° {paciente.numero_afiliado or '—'}")
-    
-    p.line(2*cm, height - 7.5*cm, width - 2*cm, height - 7.5*cm)
-    
-    # Diagnóstico (opcional, solo si hay)
-    y = height - 8.3*cm
-    if evolucion.diagnostico:
-        p.setFont("Helvetica-Bold", 10)
-        p.drawString(2*cm, y, "Diagnóstico:")
-        p.setFont("Helvetica", 10)
-        y -= 0.6*cm
-        for linea in evolucion.diagnostico.split('\n'):
-            p.drawString(2.5*cm, y, linea.strip()[:80])
-            y -= 0.5*cm
-        y -= 0.4*cm
-    
-    # Medicación (lo más importante, en grande)
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(2*cm, y, "Rp.")
-    p.setFont("Helvetica", 11)
+        p.drawString(margen_izq, y, f"{est.nombre}  ·  {est.direccion}  ·  Tel: {est.telefono}")
     y -= 0.8*cm
-    
-    medicacion = evolucion.medicacion_recetada or "No se recetó medicación"
-    for linea in medicacion.split('\n'):
-        p.drawString(2.5*cm, y, linea.strip()[:80])
-        y -= 0.5*cm
-    
-    y -= 0.5*cm
-    
-    # Indicaciones
-    if evolucion.indicaciones:
-        p.setFont("Helvetica-Bold", 10)
-        p.drawString(2*cm, y, "Indicaciones:")
-        p.setFont("Helvetica", 10)
-        y -= 0.6*cm
-        for linea in evolucion.indicaciones.split('\n'):
-            p.drawString(2.5*cm, y, linea.strip()[:80])
-            y -= 0.5*cm
-    
-    # Firma
-    y = 5*cm
-    p.line(2*cm, y, 8*cm, y)
-    p.setFont("Helvetica-Bold", 10)
-    p.drawString(2*cm, y - 0.5*cm, f"Dr/a. {profesional.nombre_completo}")
+    p.line(margen_izq, y, margen_der, y)
+    y -= 0.8*cm
+
+    # ─── DATOS DEL PACIENTE ─────────────────────
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(margen_izq, y, "Paciente:")
     p.setFont("Helvetica", 9)
-    p.drawString(2*cm, y - 1*cm, f"M.N. {profesional.matricula}")
-    p.drawString(2*cm, y - 1.5*cm, profesional.get_especialidad_display())
-    
-    # Sello (rectángulo)
+    p.drawString(margen_izq + 3*cm, y, paciente.nombre_completo)
+    y -= 0.5*cm
+    p.drawString(margen_izq, y, f"DNI: {paciente.dni}")
+    p.drawString(margen_izq + 5*cm, y, f"Fecha: {evolucion.creado.strftime('%d/%m/%Y')}")
+    y -= 0.5*cm
+    if paciente.obra_social:
+        p.drawString(margen_izq, y, f"O.S.: {paciente.obra_social.nombre}  ·  N° {paciente.numero_afiliado or '—'}")
+    y -= 0.8*cm
+    p.line(margen_izq, y, margen_der, y)
+    y -= 0.8*cm
+
+    # ─── DIAGNÓSTICO (si existe) ────────────────
+    if evolucion.diagnostico:
+        p.setFont("Helvetica-Bold", 9)
+        p.drawString(margen_izq, y, "Diagnóstico:")
+        y -= 0.5*cm
+        p.setFont("Helvetica", 9)
+        for linea in evolucion.diagnostico.split('\n')[:3]:  # limitar a 3 líneas
+            p.drawString(margen_izq + 0.5*cm, y, linea.strip()[:80])
+            y -= 0.4*cm
+        y -= 0.6*cm
+
+    # ─── MEDICACIÓN (Rp.) ────────────────────────
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(margen_izq, y, "Rp.")
+    y -= 0.7*cm
+    p.setFont("Helvetica", 10)
+    medicacion = evolucion.medicacion_recetada or "No se recetó medicación"
+    for linea in medicacion.split('\n')[:5]:
+        p.drawString(margen_izq + 0.5*cm, y, linea.strip()[:80])
+        y -= 0.5*cm
+    y -= 0.5*cm
+
+    # ─── INDICACIONES ───────────────────────────
+    if evolucion.indicaciones:
+        p.setFont("Helvetica-Bold", 9)
+        p.drawString(margen_izq, y, "Indicaciones:")
+        y -= 0.5*cm
+        p.setFont("Helvetica", 9)
+        for linea in evolucion.indicaciones.split('\n')[:6]:
+            p.drawString(margen_izq + 0.5*cm, y, linea.strip()[:80])
+            y -= 0.4*cm
+        y -= 0.6*cm
+
+    # ─── FIRMA DEL PROFESIONAL ──────────────────
+    # Línea para firma
+    firma_y = y - 0.2*cm
+    p.line(margen_izq, firma_y, margen_izq + 6*cm, firma_y)
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(margen_izq, firma_y - 0.5*cm, f"Dr/a. {profesional.nombre_completo}")
+    p.setFont("Helvetica", 8)
+    p.drawString(margen_izq, firma_y - 1.0*cm, f"M.N. {profesional.matricula}")
+    p.drawString(margen_izq, firma_y - 1.4*cm, profesional.get_especialidad_display())
+
+    # ─── SELLO DEL PROFESIONAL ──────────────────
+    sello_x = margen_izq + 8*cm
+    sello_y = firma_y - 2.5*cm
     p.setStrokeColorRGB(0.8, 0.2, 0.2)
-    p.rect(9*cm, y - 2.5*cm, 3*cm, 3*cm, stroke=1, fill=0)
-    p.setFont("Helvetica", 7)
-    p.drawString(9.3*cm, y - 1*cm, "FIRMA Y SELLO")
-    p.drawString(9.3*cm, y - 1.5*cm, "DEL PROFESIONAL")
-    
-    # Pie de página legal
+    p.setLineWidth(1)
+    p.rect(sello_x, sello_y, 3.2*cm, 2.8*cm, stroke=1, fill=0)
     p.setFont("Helvetica", 6)
-    p.setFillColorRGB(0.6, 0.6, 0.6)
-    p.drawString(2*cm, 1.5*cm, "Receta válida por 30 días desde la fecha de emisión.")
-    p.drawString(2*cm, 1.1*cm, "Conservar en lugar fresco y seco. Mantener fuera del alcance de los niños.")
-    
+    p.drawCentredString(sello_x + 1.6*cm, sello_y + 1.8*cm, "FIRMA Y SELLO")
+    p.drawCentredString(sello_x + 1.6*cm, sello_y + 1.2*cm, "DEL PROFESIONAL")
+
+    # ─── PIE DE PÁGINA LEGAL ────────────────────
+    # p.setFont("Helvetica", 6)
+    # p.setFillColorRGB(0.5, 0.5, 0.5)
+    # p.drawCentredString(width/2, 1.8*cm, "Receta válida por 30 días desde la fecha de emisión.")
+
     p.showPage()
     p.save()
     return response

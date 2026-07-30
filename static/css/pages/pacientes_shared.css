@@ -499,7 +499,7 @@ body.dark-mode .form-group label {
 
 
     .pacientes-header h1 {
-        color: #f1f5f9 !important;
+        color: var(--text-main)  !important;
     }
     .pacientes-header p {
         color: #94a3b8 !important;
@@ -527,7 +527,7 @@ body.dark-mode .form-group label {
     
     /* 10. Texto descriptivo dentro de la tabla */
     table tbody td strong {
-        color: #f1f5f9 !important;
+        color: var(--text-main) !important;
     }
 }
 
@@ -748,4 +748,72 @@ body.dark-mode .form-group label {
     table tbody tr:hover {
         background: var(--bg-alt) !important;
     }
+}
+
+/* =============================================
+   ZONA DE DROP PARA ARCHIVOS (dinámica)
+   ============================================= */
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 10px;
+    background: var(--bg-alt);
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.drop-zone-text {
+    color: var(--text-secondary);
+    margin: 10px 0;
+}
+
+.drop-zone-hint {
+    color: var(--text-muted);
+    font-size: 0.85em;
+}
+
+/* Previa de imágenes */
+.previa-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.previa-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.previa-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.previa-item .btn-eliminar {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1;
 }

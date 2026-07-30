@@ -978,7 +978,6 @@
     font-size: 1.1rem;
     justify-content: center;
 }
-
 /* =============================================
    EDITAR TURNO
    ============================================= */
@@ -992,7 +991,7 @@
 .editar-turno-container h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--text-main);
     margin-bottom: 4px;
 }
 
@@ -1003,10 +1002,12 @@
 }
 
 .editar-turno-paciente strong {
-    color: var(--text);
+    color: var(--text-main);
 }
 
-/* Selector de día editable */
+/* =============================================
+   SELECTOR DE DÍA EDITABLE
+   ============================================= */
 .editar-dia-label {
     padding: 10px 15px;
     border: 2px solid var(--border-color);
@@ -1025,7 +1026,7 @@
 
 .editar-dia-label.seleccionado {
     border-color: var(--primary);
-    background: #eff6ff;
+    background: var(--primary-light);
 }
 
 .editar-dia-label input {
@@ -1035,6 +1036,7 @@
 .editar-dia-numero {
     font-weight: 700;
     font-size: 1rem;
+    color: var(--text-main);
 }
 
 .editar-dia-mes {
@@ -1047,7 +1049,19 @@
     color: var(--text-muted);
 }
 
-/* Selector de hora editable */
+/* Hover / seleccionado: los textos también cambian */
+.editar-dia-label:hover .editar-dia-numero,
+.editar-dia-label.seleccionado .editar-dia-numero,
+.editar-dia-label:hover .editar-dia-mes,
+.editar-dia-label.seleccionado .editar-dia-mes,
+.editar-dia-label:hover .editar-dia-nombre,
+.editar-dia-label.seleccionado .editar-dia-nombre {
+    color: var(--primary-dark);
+}
+
+/* =============================================
+   SELECTOR DE HORA EDITABLE
+   ============================================= */
 .editar-hora-label {
     padding: 10px 18px;
     border: 2px solid var(--primary);
@@ -1065,16 +1079,18 @@
 }
 
 .editar-hora-label.seleccionada {
-    border-color: var(--success);
-    color: #065f46;
-    background: #f0fdf4;
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary-dark);
 }
 
 .editar-hora-label input {
     display: none;
 }
 
-/* Archivos existentes */
+/* =============================================
+   ARCHIVOS EXISTENTES
+   ============================================= */
 .editar-archivos-grid {
     display: flex;
     gap: 10px;
@@ -1105,6 +1121,7 @@
     background: var(--bg-alt);
     text-decoration: none;
     font-size: 1.5rem;
+    color: var(--text-muted);
 }
 
 /* =============================================
@@ -1646,11 +1663,11 @@
     }
 
     /* 3. Área de subir archivos */
-    .upload-zone {
+    /* .upload-zone {
         background: #0f172a !important;
         border-color: #475569 !important;
         color: #f1f5f9 !important;
-    }
+    } */
 }
 
 /* =============================================
@@ -1689,20 +1706,20 @@
     }
 
     /* 3. Área de subir archivos (Se acabó el blanco) */
-    .upload-zone {
+    /* .upload-zone {
         background: #0f172a !important;
         border-color: #475569 !important;
         color: #f1f5f9 !important;
     }
     .upload-zone i {
         color: #60a5fa !important; /* Icono azul claro sobre fondo oscuro */
-    }
+    /* }
     .upload-zone .upload-titulo {
         color: #f1f5f9 !important;
     }
     .upload-zone .upload-subtitulo {
         color: #94a3b8 !important;
-    }
+    } */ 
 
    
 
