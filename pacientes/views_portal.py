@@ -92,7 +92,10 @@ def mis_turnos(request):
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, usuario=request.user)
-    
+    hoy = date.today()
+    ahora = datetime.now()
+
+    # Cliente SaaS (tal como estaba originalmente)
     cliente_slug = request.session.get('cliente_slug')
     cliente = None
     if cliente_slug:
@@ -100,21 +103,46 @@ def mis_turnos(request):
             cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
         except ClienteSaaS.DoesNotExist:
             pass
-    
-    turnos = TurnoProfesional.objects.filter(paciente=paciente)
-    
+
+    # Base de turnos del paciente
+    turnos_qs = TurnoProfesional.objects.filter(paciente=paciente)
+
     if cliente:
         if cliente.tipo == 'consultorio':
-            turnos = turnos.filter(establecimiento=cliente.establecimiento)
+            turnos_qs = turnos_qs.filter(establecimiento=cliente.establecimiento)
         else:
-            turnos = turnos.filter(profesional=cliente.profesional)
-    
-    turnos = turnos.order_by('-fecha', '-hora_inicio')[:30]
-    
+            turnos_qs = turnos_qs.filter(profesional=cliente.profesional)
+
+    # Corregir turnos pendientes del pasado (día anterior o más)
+    turnos_pendientes_pasados = turnos_qs.filter(
+        estado='pendiente',
+        fecha__lt=hoy
+    )
+    for turno in turnos_pendientes_pasados:
+        turno.estado = 'no_asistio'
+        turno.no_asistio_automatico = True
+        # Si querés descontar sesión, podés hacerlo acá
+        turno.save()
+
+    # Volver a obtener la lista actualizada
+    turnos_qs = TurnoProfesional.objects.filter(paciente=paciente)
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            turnos_qs = turnos_qs.filter(establecimiento=cliente.establecimiento)
+        else:
+            turnos_qs = turnos_qs.filter(profesional=cliente.profesional)
+
+    # Separar próximos (hoy y futuros) de pasados
+    proximos = turnos_qs.filter(fecha__gte=hoy).order_by('fecha', 'hora_inicio')
+    pasados = turnos_qs.filter(fecha__lt=hoy).order_by('-fecha', '-hora_inicio')
+
     return render(request, 'pacientes/portal/mis_turnos.html', {
         'paciente': paciente,
-        'turnos': turnos
+        'proximos': proximos,
+        'pasados': pasados,
+        'hoy': hoy,
     })
+
 
 @login_required
 def cancelar_turno_paciente(request, turno_id):
@@ -138,6 +166,26 @@ def cancelar_turno_paciente(request, turno_id):
         messages.success(request, f'Turno del {turno.fecha.strftime("%d/%m/%Y")} a las {turno.hora_inicio.strftime("%H:%M")} cancelado.')
     
     return redirect('panel_paciente')
+
+@login_required
+def confirmar_turno_paciente(request, turno_id):
+    if request.user.rol != 'paciente':
+        return redirect('home')
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    turno = get_object_or_404(TurnoProfesional, id=turno_id, paciente=paciente)
+    
+    if turno.estado != 'pendiente':
+        messages.error(request, 'Solo podés confirmar turnos pendientes.')
+        return redirect('mis_turnos')
+    
+    if turno.fecha < date.today():
+        messages.error(request, 'No podés confirmar un turno pasado.')
+        return redirect('mis_turnos')
+    
+    turno.estado = 'confirmado'
+    turno.save()
+    messages.success(request, '✅ Turno confirmado.')
+    return redirect('mis_turnos')
 
 
 @login_required

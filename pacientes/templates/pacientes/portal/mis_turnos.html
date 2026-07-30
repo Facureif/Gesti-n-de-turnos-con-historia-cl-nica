@@ -21,8 +21,11 @@
         </div>
     </div>
 
-    <div class="portal-card">
-        {% if turnos %}
+    {% if proximos or pasados %}
+        <!-- Sección Próximos Turnos -->
+        {% if proximos %}
+        <div class="portal-card">
+            <h3 class="card-title" style="margin-top: 0;"><i class="fas fa-forward"></i> Próximos Turnos</h3>
             <div class="table-container">
                 <table class="portal-tabla">
                     <thead>
@@ -32,11 +35,11 @@
                             <th>Profesional</th>
                             <th>Consultorio</th>
                             <th>Estado</th>
-                            <th>Acción</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for turno in turnos %}
+                        {% for turno in proximos %}
                         <tr>
                             <td class="fecha-col">{{ turno.fecha|date:"d/m/Y" }}</td>
                             <td class="hora-col">{{ turno.hora_inicio|time:"H:i" }}</td>
@@ -54,12 +57,11 @@
                                 </span>
                             </td>
                             <td>
-                                {% if turno.estado == 'pendiente' or turno.estado == 'confirmado' %}
-                                    <a href="{% url 'cancelar_turno_paciente' turno.id %}" 
-                                       class="btn btn-danger btn-xs"
-                                       onclick="return confirm('¿Cancelar este turno?')">
-                                        ✕ Cancelar
-                                    </a>
+                                {% if turno.estado == 'pendiente' %}
+                                    <a href="{% url 'confirmar_turno_paciente' turno.id %}" class="btn btn-success btn-xs">✅ Confirmar</a>
+                                    <a href="{% url 'cancelar_turno_paciente' turno.id %}" class="btn btn-danger btn-xs" onclick="return confirm('¿Cancelar este turno?')">✕ Cancelar</a>
+                                {% elif turno.estado == 'confirmado' %}
+                                    <a href="{% url 'cancelar_turno_paciente' turno.id %}" class="btn btn-danger btn-xs" onclick="return confirm('¿Cancelar este turno?')">✕ Cancelar</a>
                                 {% endif %}
                             </td>
                         </tr>
@@ -67,13 +69,58 @@
                     </tbody>
                 </table>
             </div>
-        {% else %}
+        </div>
+        {% endif %}
+
+        <!-- Sección Historial -->
+        {% if pasados %}
+        <div class="portal-card" style="margin-top: 24px;">
+            <h3 class="card-title" style="margin-top: 0;"><i class="fas fa-history"></i> Historial</h3>
+            <div class="table-container">
+                <table class="portal-tabla">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Profesional</th>
+                            <th>Consultorio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for turno in pasados %}
+                        <tr>
+                            <td class="fecha-col">{{ turno.fecha|date:"d/m/Y" }}</td>
+                            <td class="hora-col">{{ turno.hora_inicio|time:"H:i" }}</td>
+                            <td>{{ turno.profesional.nombre_completo }}</td>
+                            <td>{{ turno.establecimiento.nombre|default:"—" }}</td>
+                            <td>
+                                <span class="turno-estado 
+                                    {% if turno.estado == 'confirmado' %}confirmado
+                                    {% elif turno.estado == 'pendiente' %}pendiente
+                                    {% elif turno.estado == 'completado' %}completado
+                                    {% elif turno.estado == 'cancelado' %}cancelado
+                                    {% elif turno.estado == 'no_asistio' %}no-asistio
+                                    {% endif %}">
+                                    {{ turno.get_estado_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="portal-card">
             <div class="portal-empty">
                 <p>No tenés turnos registrados.</p>
                 <a href="{% url 'sacar_turno_paciente' %}" class="btn btn-success" style="margin-top: 12px;">📅 Sacar mi primer turno</a>
             </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 
 </div>
 </div>

@@ -134,7 +134,7 @@
                             <span class="badge badge-danger">Cancelado</span>
                         {% elif turno.estado == 'no_asistio' %}
                             {% if turno.no_asistio_automatico %}
-                                <span class="badge badge-danger">No Asistió (Auto)</span>
+                                <span class="badge badge-danger">No Asistió</span>
                             {% else %}
                                 <span class="badge badge-danger">No Asistió</span>
                             {% endif %}    
@@ -175,7 +175,7 @@
                                         <i class="fas fa-pen"></i>
                                     </a>
                                 {% else %}
-                                    <span class="badge badge-gray"><i class="fas fa-user-times"></i> No Asistió</span>
+                                    <span class="badge badge-gray"><i class="fas fa-user-times"></i>  No Asistió</span>
                                     <a href="{% url 'editar_turno_pro' turno.id %}" class="btn btn-secondary btn-xs" title="Editar">
                                         <i class="fas fa-pen"></i>
                                     </a>
