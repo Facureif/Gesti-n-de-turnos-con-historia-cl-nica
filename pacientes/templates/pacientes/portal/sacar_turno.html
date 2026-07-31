@@ -22,9 +22,10 @@
 
             <!-- Consultorio -->
             {% if profesional.establecimientos.count > 1 and not cliente or cliente.tipo != 'consultorio' %}
+                <!-- Varios establecimientos y no estamos limitados a uno: mostrar select -->
                 <div class="sacar-turno-card">
                     <h3>🏥 Elegí el consultorio</h3>
-                    <select onchange="cambiarConsultorio(this.value)" class="sacar-turno-select">
+                    <select name="establecimiento" class="sacar-turno-select" onchange="this.form.submit()">
                         <option value="">Seleccioná un consultorio...</option>
                         {% for est in profesional.establecimientos.all %}
                             <option value="{{ est.id }}" {% if establecimiento_seleccionado and establecimiento_seleccionado.id == est.id %}selected{% endif %}>
@@ -33,24 +34,21 @@
                         {% endfor %}
                     </select>
                 </div>
-            {% elif establecimiento_seleccionado %}
-                <input type="hidden" name="establecimiento" value="{{ establecimiento_seleccionado.id }}">
-                <div class="sacar-turno-card">
-                    <h3>🏥 Consultorio</h3>
-                    <div class="consultorio-confirmado">
-                        <i class="fas fa-building"></i>
-                        {{ establecimiento_seleccionado.nombre }} · {{ establecimiento_seleccionado.direccion }}
+            {% else %}
+                <!-- Un solo establecimiento (o limitado por el cliente): hidden + info -->
+                {% with est=establecimiento_seleccionado|default:profesional.establecimientos.first %}
+                    {% if cliente and cliente.establecimiento %}
+                        {% with est=cliente.establecimiento %}{% endwith %}
+                    {% endif %}
+                    <input type="hidden" name="establecimiento" value="{{ est.id }}">
+                    <div class="sacar-turno-card">
+                        <h3>🏥 Consultorio</h3>
+                        <div class="consultorio-confirmado">
+                            <i class="fas fa-building"></i>
+                            {{ est.nombre }} · {{ est.direccion }}
+                        </div>
                     </div>
-                </div>
-            {% elif profesional.establecimientos.count == 1 %}
-                <input type="hidden" name="establecimiento" value="{{ profesional.establecimientos.first.id }}">
-                <div class="sacar-turno-card">
-                    <h3>🏥 Consultorio</h3>
-                    <div class="consultorio-confirmado">
-                        <i class="fas fa-building"></i>
-                        {{ profesional.establecimientos.first.nombre }} · {{ profesional.establecimientos.first.direccion }}
-                    </div>
-                </div>
+                {% endwith %}
             {% endif %}
 
             {% if dias_disponibles %}
@@ -91,14 +89,21 @@
                     <h3>3️⃣ Información adicional</h3>
                     <input type="text" name="tipo_consulta" class="sacar-turno-input" placeholder="Ej: Control, dolor, consulta...">
                 </div>
-                
-                {% include 'core_app/includes/upload_archivos.html' %}
-                
+
+                <!-- Archivo (opcional) -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">📎 Adjuntar archivo (opcional)</h3>
+                    <div class="form-group">
+                        <label>Archivo</label>
+                        <input type="file" name="archivo" class="form-input" accept=".pdf,.jpg,.jpeg,.png,.dcm">
+                    </div>
+                </div>
+
                 <!-- Botón confirmar -->
                 <button type="submit" class="btn-confirmar-turno">
                     <i class="fas fa-check-circle"></i> Confirmar Turno
                 </button>
-                
+
             {% elif establecimiento_seleccionado %}
                 <div class="sacar-turno-card sacar-turno-empty">
                     <span class="icono">📅</span>
@@ -127,22 +132,17 @@ function cambiarConsultorio(establecimientoId) {
 }
 
 function marcarDia(label, fecha) {
-    // Ocultar todos los grupos de horarios
     document.querySelectorAll('.horarios-dia-grupo').forEach(function(d) { 
         d.classList.remove('activo'); 
     });
-    
-    // Mostrar solo el del día seleccionado
     var grupo = document.querySelector('.horarios-dia-grupo[data-fecha="' + fecha + '"]');
     if (grupo) grupo.classList.add('activo');
     
-    // Marcar el día como seleccionado
     document.querySelectorAll('.dia-label-sacar').forEach(function(l) { 
         l.classList.remove('seleccionado'); 
     });
     label.classList.add('seleccionado');
     
-    // Desmarcar horario seleccionado
     document.querySelectorAll('.hora-label-sacar').forEach(function(l) { 
         l.classList.remove('seleccionada'); 
     });

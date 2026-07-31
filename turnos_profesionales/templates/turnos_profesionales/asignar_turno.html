@@ -143,7 +143,27 @@
                               placeholder="Notas visibles solo para el profesional..."></textarea>
                 </div>
                 
-                {% include 'core_app/includes/upload_archivos.html' %}
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">📎 Adjuntar archivos</h3>
+                    
+                    <div id="drop-zone" class="drop-zone"
+                        ondrop="handleDrop(event)" 
+                        ondragover="handleDragOver(event)" 
+                        onclick="document.getElementById('archivos-input').click()">
+                        📤 Subir Estudio
+                    </div>
+                    
+                    <input type="file" name="archivos" id="archivos-input" multiple accept="image/*" 
+                        style="display: none;" onchange="mostrarPrevia(this.files)">
+                    
+                    <div id="previa-container" class="previa-container"></div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <input type="text" name="descripcion_archivo" 
+                            class="form-input"
+                            placeholder="Descripción de los archivos (opcional)">
+                    </div>
+                </div>
             </div>
             
             <button type="submit" class="btn btn-success btn-lg" style="width: 100%; padding: 16px; font-size: 1.1rem; justify-content: center;">

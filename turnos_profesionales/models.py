@@ -37,7 +37,13 @@ class TurnoProfesional(ModeloBase):
         default='pendiente',
         verbose_name='Estado'
     )
-    
+
+    archivo = models.FileField(
+    upload_to='turnos/archivos/',
+    null=True,
+    blank=True,
+    verbose_name='Archivo adjunto'
+)
     # Info de la consulta
     tipo_consulta = models.CharField(
         max_length=100,

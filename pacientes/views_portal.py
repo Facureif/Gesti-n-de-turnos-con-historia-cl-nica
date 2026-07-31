@@ -343,6 +343,7 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
         
+        archivo_subido = request.FILES.get('archivo')  # toma el archivo del formulario
         TurnoProfesional.objects.create(
             profesional=profesional,
             establecimiento=establecimiento,
@@ -351,7 +352,8 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
             hora_inicio=hora,
             hora_fin=hora_fin,
             estado='pendiente',
-            tipo_consulta=tipo_consulta
+            tipo_consulta=tipo_consulta,
+            archivo=archivo_subido              # ← guardar el archivo
         )
         
         messages.success(request, f'¡Turno reservado! Tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre} con {profesional.nombre_completo}.')

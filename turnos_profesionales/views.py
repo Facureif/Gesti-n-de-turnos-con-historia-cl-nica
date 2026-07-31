@@ -785,7 +785,6 @@ def editar_turno(request, turno_id):
 
 
 # ============ CALENDARIO SEMANAL ============
-            
 @login_required
 def calendario_semanal(request):
     if request.user.rol not in ['profesional', 'secretaria']:
@@ -800,7 +799,7 @@ def calendario_semanal(request):
             profesional = Profesional.objects.filter(
                 establecimientos=request.user.establecimiento, 
                 activo=True,
-                atiende_por_orden=False  # ← Solo los que usan turnos
+                atiende_por_orden=False
             ).first()
             if not profesional:
                 messages.error(request, 'No hay profesionales con turnos programados.')
@@ -866,6 +865,7 @@ def calendario_semanal(request):
                                 turnos_en_horario = [t for t in turnos_dia if t.hora_inicio == hora_actual]
                                 if turnos_en_horario:
                                     for turno in turnos_en_horario:
+                                        archivo_url = turno.archivo.url if turno.archivo else ''
                                         slot_data = {
                                             'hora_inicio': hora_actual,
                                             'hora_fin': hora_fin_slot,
@@ -873,8 +873,8 @@ def calendario_semanal(request):
                                             'disponible': False,
                                             'lugares_restantes': 0,
                                             'puede_reactivar': False,
+                                            'archivo_url': archivo_url,
                                         }
-                                        # Solo si es no_asistio automático y está dentro de los 60 min de tolerancia
                                         if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
                                             ahora = datetime.now()
                                             fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
@@ -889,6 +889,7 @@ def calendario_semanal(request):
                                         'turno': None,
                                         'disponible': True,
                                         'lugares_restantes': agenda.pacientes_simultaneos,
+                                        'archivo_url': '',
                                     })
                         hora_actual = hora_fin_slot
         turnos_en_slots = set()
@@ -897,7 +898,7 @@ def calendario_semanal(request):
                 if s['turno']:
                     turnos_en_slots.add(s['turno'].id)
 
-        # Cualquier turno no incluido en los slots se mostrará como sobreturno
+        # Turnos fuera de slot (sobreturnos)
         turnos_fuera_de_slot = [t for t in turnos_dia if t.id not in turnos_en_slots]
         for turno in turnos_fuera_de_slot:
             est_nombre = turno.establecimiento.nombre if turno.establecimiento else 'Consultorio'
@@ -911,6 +912,7 @@ def calendario_semanal(request):
                 limite = fecha_hora_inicio + timedelta(minutes=60)
                 puede_reactivar = ahora <= limite
 
+            archivo_url = turno.archivo.url if turno.archivo else ''
             horarios_por_consultorio[est_nombre].append({
                 'hora_inicio': turno.hora_inicio,
                 'hora_fin': turno.hora_fin,
@@ -918,9 +920,9 @@ def calendario_semanal(request):
                 'disponible': False,
                 'lugares_restantes': 0,
                 'puede_reactivar': puede_reactivar,
-                'mostrar_como_sobreturno': True,   # <-- fuerza visualización como sobreturno
+                'mostrar_como_sobreturno': True,
+                'archivo_url': archivo_url,
             })
-        # Ordenar todos los slots, incluyendo los nuevos
         for est in horarios_por_consultorio:
             horarios_por_consultorio[est].sort(key=lambda x: x['hora_inicio'])
 
@@ -942,7 +944,7 @@ def calendario_semanal(request):
         profesionales_consultorio = Profesional.objects.filter(
             establecimientos=request.user.establecimiento, 
             activo=True,
-            atiende_por_orden=False  # ← Solo los que sacan turno
+            atiende_por_orden=False
         )
     
     return render(request, 'turnos_profesionales/calendario.html', {

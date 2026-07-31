@@ -103,7 +103,8 @@
                                     '{{ slot.turno.paciente.id }}',
                                     '{% if slot.turno.es_sobreturno or slot.mostrar_como_sobreturno %}si{% else %}no{% endif %}',
                                     '{{ slot.turno.no_asistio_automatico|yesno:'true,false' }}',
-                                    '{{ slot.puede_reactivar|yesno:'true,false' }}'
+                                    '{{ slot.puede_reactivar|yesno:'true,false' }}',
+                                    '{{ slot.archivo_url|default:''|escapejs }}'
                                 )
                             {% else %}
                                 mostrarModalSlot(
@@ -216,6 +217,10 @@
                 <span class="modal-info-label"><i class="fas fa-ticket-alt"></i> Sesiones:</span>
                 <span class="modal-info-value" id="modal-turno-sesiones"></span>
             </div>
+            <div class="modal-info-row" id="modal-turno-archivo" style="display:none;">
+                <span class="modal-info-label"><i class="fas fa-image"></i> Archivo:</span>
+                <span class="modal-info-value" id="modal-archivo-link"></span>
+            </div>
         </div>
         <div class="modal-footer">
             <a href="#" id="btn-confirmar" class="btn btn-success btn-xs"><i class="fas fa-check"></i> Confirmar</a>
@@ -309,13 +314,23 @@
 </div>
 
 <script>
-function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaFin, tipo, estadoDisplay, estado, sesiones, pacienteId, esSobreturno, noAsistioAutomatico, puedeReactivar) {
+function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaFin, tipo, estadoDisplay, estado, sesiones, pacienteId, esSobreturno, noAsistioAutomatico, puedeReactivar, archivoUrl) {
     document.getElementById('modal-turno-paciente').textContent = (esSobreturno === 'si' ? '🚨 ' : '') + paciente;
     document.getElementById('modal-turno-fecha').textContent = fecha;
     document.getElementById('modal-turno-horario').textContent = horaInicio + ' - ' + horaFin;
     document.getElementById('modal-turno-tipo').textContent = tipo;
     document.getElementById('modal-turno-telefono').textContent = telefono;
     document.getElementById('modal-turno-sesiones').textContent = sesiones;
+
+    var archivoRow = document.getElementById('modal-turno-archivo');
+    var archivoLink = document.getElementById('modal-archivo-link');
+    if (archivoUrl && archivoUrl !== '') {
+        archivoRow.style.display = 'flex';
+        // Suponiendo que es una imagen (ajustá si es PDF)
+        archivoLink.innerHTML = '<a href="' + archivoUrl + '" target="_blank"><img src="' + archivoUrl + '" style="max-width:150px; max-height:150px; border-radius:6px;"></a>';
+    } else {
+        archivoRow.style.display = 'none';
+    }
     
     var badge = document.getElementById('modal-turno-badge');
     badge.textContent = estadoDisplay;
