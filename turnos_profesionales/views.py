@@ -1073,43 +1073,133 @@ def bloquear_dia(request):
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
     
+    if not profesional:
+        messages.error(request, 'No hay profesionales disponibles.')
+        return redirect('home')
+    
     if request.method == 'POST':
-        fecha = request.POST.get('fecha')
-        hora_inicio = request.POST.get('hora_inicio', '')
-        hora_fin = request.POST.get('hora_fin', '')
+        fecha_str = request.POST.get('fecha')
+        hora_inicio_str = request.POST.get('hora_inicio', '')
+        hora_fin_str = request.POST.get('hora_fin', '')
         motivo = request.POST.get('motivo', '')
         dia_completo = request.POST.get('dia_completo') == 'on'
+        confirmar = request.POST.get('confirmar_bloqueo') == 'si'  # <-- nuevo
         
-        if not fecha:
+        if not fecha_str:
             messages.error(request, 'Seleccioná una fecha.')
             return redirect('calendario_semanal')
         
         try:
-            fecha_date = datetime.strptime(fecha, '%Y-%m-%d').date()
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
         except ValueError:
             messages.error(request, 'Fecha inválida.')
             return redirect('calendario_semanal')
         
-        agenda = Agenda.objects.filter(profesional=profesional, activo=True, fecha_inicio__lte=fecha_date).filter(
-            Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha_date)
+        # Obtener la agenda activa para esa fecha
+        agenda = Agenda.objects.filter(
+            profesional=profesional, activo=True,
+            fecha_inicio__lte=fecha
+        ).filter(
+            Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha)
         ).first()
         
         if not agenda:
             messages.error(request, 'No tenés agenda configurada para esa fecha.')
             return redirect('calendario_semanal')
         
+        # Determinar rango horario
+        if dia_completo:
+            hora_inicio = None
+            hora_fin = None
+        else:
+            if not hora_inicio_str or not hora_fin_str:
+                messages.error(request, 'Indicá horario de inicio y fin.')
+                return redirect('calendario_semanal')
+            try:
+                hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
+                hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
+            except ValueError:
+                messages.error(request, 'Horario inválido.')
+                return redirect('calendario_semanal')
+        
+        # 🔍 Buscar turnos que se solapen con el bloqueo
+        conflictos = TurnoProfesional.objects.filter(
+            profesional=profesional,
+            establecimiento=agenda.establecimiento,
+            fecha=fecha,
+            estado__in=['pendiente', 'confirmado']
+        )
+        if dia_completo:
+            # Todos los turnos de ese día
+            conflictos = conflictos.filter(fecha=fecha)
+        else:
+            # Turnos cuyo horario se superpone con el bloqueo
+            conflictos = conflictos.filter(
+                hora_inicio__lt=hora_fin,
+                hora_fin__gt=hora_inicio
+            )
+        
+        # Si hay conflictos y no se confirmó la cancelación
+        if conflictos.exists() and not confirmar:
+            # Mostrar página de confirmación con los turnos afectados
+            return render(request, 'turnos_profesionales/bloquear_confirmacion.html', {
+                'conflictos': conflictos,
+                'fecha': fecha,
+                'hora_inicio': hora_inicio_str,
+                'hora_fin': hora_fin_str,
+                'motivo': motivo,
+                'dia_completo': dia_completo,
+                'agenda': agenda,
+            })
+        
+        import threading
+        from django.core.mail import send_mail
+        from django.conf import settings
+
+        if conflictos.exists():
+            for turno in conflictos:
+                turno.estado = 'cancelado'
+                turno.notas_internas = (turno.notas_internas or '') + f'\nCancelado por bloqueo: {motivo}'
+                turno.save()
+
+                # Enviar notificación por email al paciente (si tiene email)
+                if turno.paciente.email:
+                    subject = f'Turno cancelado - {turno.establecimiento.nombre}'
+                    message = (
+                        f'Hola {turno.paciente.nombre_completo},\n\n'
+                        f'Tu turno del día {turno.fecha.strftime("%d/%m/%Y")} '
+                        f'a las {turno.hora_inicio.strftime("%H:%M")} con '
+                        f'{turno.profesional.nombre_completo} fue cancelado.\n'
+                        f'Motivo: {motivo}\n\n'
+                        f'Podés ingresar a tu panel para reprogramar:\n'
+                        f'http://127.0.0.1:8000/usuarios/login/\n\n'
+                        f'Saludos.'
+                    )
+                    try:
+                        # Envío asíncrono para no demorar la respuesta
+                        threading.Thread(
+                            target=send_mail,
+                            args=(subject, message, settings.DEFAULT_FROM_EMAIL, [turno.paciente.email]),
+                            kwargs={'fail_silently': True}
+                        ).start()
+                    except Exception:
+                        pass  # falla silenciosa, ya se intentó
+
+            messages.warning(request, f'Se cancelaron {conflictos.count()} turno(s) afectado(s).')
+        
+        # Crear el bloqueo
         BloqueoAgenda.objects.create(
-            agenda=agenda, fecha=fecha_date,
-            hora_inicio=datetime.strptime(hora_inicio, '%H:%M').time() if hora_inicio and not dia_completo else None,
-            hora_fin=datetime.strptime(hora_fin, '%H:%M').time() if hora_fin and not dia_completo else None,
+            agenda=agenda,
+            fecha=fecha,
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin,
             motivo=motivo if motivo else 'Día no laborable'
         )
         
-        messages.success(request, f'Día {fecha_date.strftime("%d/%m/%Y")} bloqueado.')
+        messages.success(request, f'Bloqueo aplicado el {fecha.strftime("%d/%m/%Y")}.')
         return redirect('calendario_semanal')
     
     return redirect('calendario_semanal')
-
 
 @login_required
 def desbloquear_dia(request, bloqueo_id):

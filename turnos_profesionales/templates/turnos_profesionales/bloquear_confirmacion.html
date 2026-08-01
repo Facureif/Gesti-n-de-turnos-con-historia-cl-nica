@@ -1,0 +1,40 @@
+{% extends 'core_app/base.html' %}
+{% load static %}
+
+{% block title %}Confirmar bloqueo{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1 style="color: var(--danger);">⚠️ Hay turnos en ese horario</h1> 
+    <p>Se encontraron <strong>{{ conflictos|length }} turno(s)</strong> que serán cancelados si aplicás el bloqueo.</p>
+    <ul style="background: var(--bg-alt); padding: 16px; border-radius: var(--radius);">
+        {% for turno in conflictos %}
+        Fecha: {{turno.fecha}}
+        <li style="margin-bottom: 8px;">
+            <strong>{{ turno.paciente.nombre_completo }}</strong> – 
+            {{ turno.hora_inicio|time:"H:i" }} a {{ turno.hora_fin|time:"H:i" }}
+            ({{ turno.get_estado_display }})
+        </li>
+        {% endfor %}
+    </ul>
+
+    <form method="post" action="{% url 'bloquear_dia' %}">
+        {% csrf_token %}
+        <input type="hidden" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
+        <input type="hidden" name="hora_inicio" value="{{ hora_inicio }}">
+        <input type="hidden" name="hora_fin" value="{{ hora_fin }}">
+        <input type="hidden" name="motivo" value="{{ motivo }}">
+        <input type="hidden" name="dia_completo" value="{{ dia_completo|yesno:'on,' }}">
+        <input type="hidden" name="confirmar_bloqueo" value="si">
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn btn-danger" style="flex:1;">
+                <i class="fas fa-lock"></i> Cancelar turnos y bloquear
+            </button>
+            <a href="{% url 'calendario_semanal' %}" class="btn btn-secondary" style="flex:1;">
+                Volver sin bloquear
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
