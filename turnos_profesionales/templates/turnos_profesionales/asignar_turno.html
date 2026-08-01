@@ -144,24 +144,29 @@
                 </div>
                 
                 <div class="card" style="margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 10px;">📎 Adjuntar archivos</h3>
+                    <h3 style="margin-bottom: 10px;">📎 Adjuntar archivo (opcional)</h3>
                     
+                    <!-- Zona de arrastrar y soltar (solo un archivo) -->
                     <div id="drop-zone" class="drop-zone"
                         ondrop="handleDrop(event)" 
                         ondragover="handleDragOver(event)" 
-                        onclick="document.getElementById('archivos-input').click()">
-                        📤 Subir Estudio
+                        onclick="document.getElementById('archivo-input').click()">
+                        <div style="font-size: 2em;">📤</div>
+                        <p class="drop-zone-text">Arrastrá un archivo acá o hacé clic para seleccionar</p>
+                        <p class="drop-zone-hint">Imagen (JPG, PNG, WebP) o PDF | Máx. 10 MB</p>
                     </div>
                     
-                    <input type="file" name="archivos" id="archivos-input" multiple accept="image/*" 
-                        style="display: none;" onchange="mostrarPrevia(this.files)">
+                    <!-- Input oculto que acepta un solo archivo -->
+                    <input type="file" name="archivo" id="archivo-input" accept="image/*,.pdf" 
+                        style="display: none;">
                     
+                    <!-- Previa de la imagen seleccionada -->
                     <div id="previa-container" class="previa-container"></div>
                     
                     <div style="margin-bottom: 10px;">
                         <input type="text" name="descripcion_archivo" 
                             class="form-input"
-                            placeholder="Descripción de los archivos (opcional)">
+                            placeholder="Descripción del archivo (opcional)">
                     </div>
                 </div>
             </div>
@@ -207,5 +212,69 @@ document.addEventListener('DOMContentLoaded', function() {
         if (primerDia) primerDia.classList.add('seleccionado');
     }
 });
+
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('archivo-input');
+const previewContainer = document.getElementById('previa-container');
+
+// Único lugar donde se actualiza la previsualización
+fileInput.addEventListener('change', function() {
+    mostrarPrevia(this.files);
+});
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+    
+    if (e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;               // asigna los archivos
+        fileInput.dispatchEvent(new Event('change')); // dispara el evento change (solo una vez)
+        // No llamamos a mostrarPrevia aquí para evitar duplicados
+    }
+}
+
+// Limpiar estilo al salir del drop
+dropZone.addEventListener('dragleave', function() {
+    this.classList.remove('drag-over');
+});
+
+function mostrarPrevia(files) {
+    previewContainer.innerHTML = '';   // limpia cualquier previa anterior
+    if (files.length === 0) return;
+    
+    const file = files[0];
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.className = 'previa-item';
+            div.innerHTML = `<img src="${e.target.result}" alt="preview">
+                             <button type="button" class="btn-eliminar" onclick="eliminarArchivo()">✕</button>`;
+            previewContainer.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        // Si no es imagen, mostramos el nombre
+        previewContainer.innerHTML = `<div class="previa-item" style="display:flex; align-items:center; justify-content:center; background:var(--bg-alt);">
+            <span style="font-size:0.8rem;">${file.name}</span>
+            <button type="button" class="btn-eliminar" onclick="eliminarArchivo()">✕</button>
+        </div>`;
+    }
+}
+
+function eliminarArchivo() {
+    fileInput.value = '';  // Limpiar input
+    previewContainer.innerHTML = '';
+}
 </script>
 {% endblock %}

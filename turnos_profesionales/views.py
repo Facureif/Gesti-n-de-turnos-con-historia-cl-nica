@@ -607,10 +607,9 @@ def asignar_turno(request, paciente_id):
             tipo_consulta=tipo_consulta, notas_internas=notas
         )
         
-        archivos = request.FILES.getlist('archivos')
-        descripcion_archivo = request.POST.get('descripcion_archivo', '')
-        for archivo in archivos:
-            ArchivoTurno.objects.create(turno=turno, archivo=archivo, descripcion=descripcion_archivo)
+        archivo = request.FILES.get('archivo')         
+        turno.archivo = archivo                        
+        turno.save()
         
         # Google Calendar
         try:
