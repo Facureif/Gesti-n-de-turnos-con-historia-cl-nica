@@ -20,6 +20,23 @@
     </div>
 </div>
 
+<!-- Navegación para mes o año -->
+{% if periodo == 'mes' or periodo == 'año' %}
+<div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+    {% if periodo == 'mes' %}
+        <a href="?periodo=mes&anio={% if mes_actual == 1 %}{{ anio_actual|add:'-1' }}{% else %}{{ anio_actual }}{% endif %}&mes={% if mes_actual == 1 %}12{% else %}{{ mes_actual|add:'-1' }}{% endif %}" 
+           class="btn btn-sm btn-secondary">← Mes anterior</a>
+        <span style="font-weight: 600;">{{ inicio|date:"F Y" }}</span>
+        <a href="?periodo=mes&anio={% if mes_actual == 12 %}{{ anio_actual|add:'1' }}{% else %}{{ anio_actual }}{% endif %}&mes={% if mes_actual == 12 %}1{% else %}{{ mes_actual|add:'1' }}{% endif %}" 
+           class="btn btn-sm btn-secondary">Mes siguiente →</a>
+    {% elif periodo == 'año' %}
+        <a href="?periodo=año&anio={{ anio_actual|add:'-1' }}" class="btn btn-sm btn-secondary">← Año anterior</a>
+        <span style="font-weight: 600;">Año {{ anio_actual }}</span>
+        <a href="?periodo=año&anio={{ anio_actual|add:'1' }}" class="btn btn-sm btn-secondary">Año siguiente →</a>
+    {% endif %}
+</div>
+{% endif %}
+<p class="dashboard-periodo">{{ inicio|date:"d/m/Y" }} - {{ fin|date:"d/m/Y" }}</p>
 <!-- Acciones rápidas -->
 <div class="dashboard-acciones">
     <a href="{% url 'cobranza_os' %}" class="btn btn-sm" style="background: #f59e0b; color: white;">
@@ -30,7 +47,7 @@
     </a>
 </div>
 
-<p class="dashboard-periodo">{{ inicio|date:"d/m/Y" }} - {{ fin|date:"d/m/Y" }}</p>
+
 
 <!-- Métricas principales -->
 <div class="dashboard-metricas">

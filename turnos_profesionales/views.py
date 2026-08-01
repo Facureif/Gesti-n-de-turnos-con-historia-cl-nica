@@ -1786,6 +1786,11 @@ def dashboard(request):
     
     hoy = date.today()
     periodo = request.GET.get('periodo', 'mes')
+
+    # Parámetros para navegación mensual/anual
+    mes = request.GET.get('mes')
+    anio = request.GET.get('anio')
+
     if periodo == 'hoy':
         inicio = hoy
         fin = hoy
@@ -1793,11 +1798,37 @@ def dashboard(request):
         inicio = hoy - timedelta(days=hoy.weekday())
         fin = inicio + timedelta(days=6)
     elif periodo == 'mes':
+        if mes and anio:
+            try:
+                mes_int = int(mes)
+                anio_int = int(anio)
+                inicio = date(anio_int, mes_int, 1)
+                # último día del mes
+                if mes_int == 12:
+                    fin = date(anio_int, 12, 31)
+                else:
+                    fin = date(anio_int, mes_int + 1, 1) - timedelta(days=1)
+            except (ValueError, TypeError):
+                inicio = hoy.replace(day=1)
+                fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        else:
+            inicio = hoy.replace(day=1)
+            fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    elif periodo == 'año':
+        if anio:
+            try:
+                anio_int = int(anio)
+                inicio = date(anio_int, 1, 1)
+                fin = date(anio_int, 12, 31)
+            except (ValueError, TypeError):
+                inicio = hoy.replace(month=1, day=1)
+                fin = hoy.replace(month=12, day=31)
+        else:
+            inicio = hoy.replace(month=1, day=1)
+            fin = hoy.replace(month=12, day=31)
+    else:
         inicio = hoy.replace(day=1)
         fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-    else:
-        inicio = hoy.replace(month=1, day=1)
-        fin = hoy.replace(month=12, day=31)
     
     turnos_periodo = turnos_base.filter(fecha__range=[inicio, fin])
     total_turnos = turnos_periodo.count()
@@ -1844,6 +1875,8 @@ def dashboard(request):
         'profesional_seleccionado': profesional_seleccionado,
         'total_os': total_os,
         'total_facturado': total_facturado,
+        'mes_actual': inicio.month,
+        'anio_actual': inicio.year,
     })
 
 
