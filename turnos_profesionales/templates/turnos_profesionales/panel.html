@@ -81,7 +81,9 @@
             <thead>
                 <tr>
                     <th>Hora</th>
-                    <th>Consultorio</th>
+                    {% if mostrar_consultorio %}
+                        <th>Consultorio</th>
+                    {% endif %}
                     <th>Paciente</th>
                     <th>O.S.</th>
                     <th>Sesiones</th>
@@ -96,7 +98,9 @@
                         <strong>{{ turno.hora_inicio|time:"H:i" }}</strong>
                         <span class="text-muted">- {{ turno.hora_fin|time:"H:i" }}</span>
                     </td>
-                    <td class="text-muted">{{ turno.establecimiento.nombre|default:"—" }}</td>
+                    {% if mostrar_consultorio %}
+                        <td class="text-muted">{{ turno.establecimiento.nombre|default:"—" }}</td>
+                    {% endif %}
                     <td>
                         <a href="{% url 'ficha_paciente' turno.paciente.id %}" class="paciente-link">
                             {% if turno.es_sobreturno %}🚨 {% endif %}{{ turno.paciente.nombre_completo }}
@@ -224,6 +228,11 @@
             </a>
         </div>
         {% endfor %}
+        {% if hay_mas_proximos %}
+            <div style="text-align: center; margin-top: 10px;">
+                <a href="{% url 'calendario_semanal' %}" class="btn btn-sm btn-secondary">Ver calendario completo</a>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endif %}

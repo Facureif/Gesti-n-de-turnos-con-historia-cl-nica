@@ -133,6 +133,14 @@
                     </div>
                 </div>
                 {% endif %}
+                {% if os_paciente.profesional %}
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                        👨‍⚕️ {{ os_paciente.profesional.nombre_completo }}
+                        {% if os_paciente.profesional.especialidad %}
+                            · {{ os_paciente.profesional.get_especialidad_display }}
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -151,6 +159,34 @@
         {% endif %}
     </div>
 
+    
+    <!-- Antecedentes -->
+    {% if not es_secretaria and historia %}
+    <div class="paciente-card pacientes-grid-full">
+        <div class="paciente-card-header">
+            <h3>📋 Antecedentes Clínicos</h3>
+        </div>
+        <div class="antecedentes-grid">
+            <div class="antecedente-card">
+                <h4>👤 Antecedentes Personales</h4>
+                <p>{{ historia.antecedentes_personales|default:"Sin datos" }}</p>
+            </div>
+            <div class="antecedente-card familiares">
+                <h4>👨‍👩‍👧‍👦 Antecedentes Familiares</h4>
+                <p>{{ historia.antecedentes_familiares|default:"Sin datos" }}</p>
+            </div>
+            <div class="antecedente-card alergias">
+                <h4>🚨 Alergias</h4>
+                <p>{{ historia.alergias|default:"Sin datos" }}</p>
+            </div>
+            <div class="antecedente-card medicacion">
+                <h4>💊 Medicación Habitual</h4>
+                <p>{{ historia.medicacion_habitual|default:"Sin datos" }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Próximos Turnos -->
     <div class="paciente-card pacientes-grid-full">
         <div class="paciente-card-header">
@@ -163,8 +199,12 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Hora</th>
-                        <th>Consultorio</th>
-                        <th>Profesional</th>
+                        {% if mostrar_consultorio %}
+                            <th>Consultorio</th>
+                        {% endif %}
+                        {% if mostrar_profesional %}
+                            <th>Profesional</th>
+                        {% endif %}
                         <th>Tipo</th>
                         <th>Estado</th>
                         <th></th>
@@ -175,8 +215,15 @@
                     <tr>
                         <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
                         <td>{{ t.hora_inicio|time:"H:i" }} - {{ t.hora_fin|time:"H:i" }}</td>
-                        <td class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</td>
-                        <td>{{ t.profesional.nombre_completo }}</td>
+                        {% if mostrar_consultorio %}
+                            <td class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</td>
+                        {% endif %}
+                        {% if mostrar_profesional %}
+                            <td>
+                                {{ t.profesional.nombre_completo }}
+                                <br><small class="text-muted">{{ t.profesional.get_especialidad_display }}</small>
+                            </td>
+                        {% endif %}
                         <td>{{ t.tipo_consulta|default:"—" }}</td>
                         <td>
                             {% if t.estado == 'confirmado' %}
@@ -195,6 +242,20 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <br>
+            {% if proximos_turnos.paginator.num_pages > 1 %}
+                <div class="paginacion">
+                    <span class="text-muted">Página {{ proximos_turnos.number }} de {{ proximos_turnos.paginator.num_pages }}</span>
+                    {% if proximos_turnos.has_previous %}
+                        <a href="?prox_page={{ proximos_turnos.previous_page_number }}{% if request.GET.hist_page %}&hist_page={{ request.GET.hist_page }}{% endif %}" 
+                        class="btn btn-xs btn-secondary">← Anterior</a>
+                    {% endif %}
+                    {% if proximos_turnos.has_next %}
+                        <a href="?prox_page={{ proximos_turnos.next_page_number }}{% if request.GET.hist_page %}&hist_page={{ request.GET.hist_page }}{% endif %}" 
+                        class="btn btn-xs btn-secondary">Siguiente →</a>
+                    {% endif %}
+                </div>
+                {% endif %}
         </div>
         {% else %}
         <div style="text-align: center; padding: 30px; color: var(--text-muted);">
@@ -215,7 +276,9 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Hora</th>
-                        <th>Profesional</th>
+                        {% if mostrar_profesional %}
+                            <th>Profesional</th>
+                        {% endif %}
                         <th>Motivo / Diagnóstico</th>
                         <th>Medicación</th>
                         <th>Monto</th>
@@ -229,10 +292,15 @@
                     <tr>
                         <td><strong>{{ t.fecha|date:"d/m/Y" }}</strong></td>
                         <td>{{ t.hora_inicio|time:"H:i" }}</td>
-                        <td>
-                            <div style="font-weight: 500;">{{ t.profesional.nombre_completo }}</div>
-                            <small class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</small>
-                        </td>
+                        {% if mostrar_profesional %}
+                            <td>
+                                <div style="font-weight: 500;">{{ t.profesional.nombre_completo }}</div>
+                                <small class="text-muted">{{ t.profesional.get_especialidad_display }}</small>
+                                {% if mostrar_consultorio %}
+                                    <small class="text-muted">{{ t.establecimiento.nombre|default:"—" }}</small>
+                                {% endif %}
+                            </td>
+                        {% endif %}
                         <td>
                             {% if t.evolucion %}
                                 <div style="font-weight: 500;">{{ t.evolucion.motivo_consulta|truncatechars:50 }}</div>
@@ -287,6 +355,20 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <br>
+            {% if turnos.paginator.num_pages > 1 %}
+                <div class="paginacion">
+                    <span class="text-muted">Página {{ turnos.number }} de {{ turnos.paginator.num_pages }}</span>
+                    {% if turnos.has_previous %}
+                        <a href="?hist_page={{ turnos.previous_page_number }}{% if request.GET.prox_page %}&prox_page={{ request.GET.prox_page }}{% endif %}" 
+                        class="btn btn-xs btn-secondary">← Anterior</a>
+                    {% endif %}
+                    {% if turnos.has_next %}
+                        <a href="?hist_page={{ turnos.next_page_number }}{% if request.GET.prox_page %}&prox_page={{ request.GET.prox_page }}{% endif %}" 
+                        class="btn btn-xs btn-secondary">Siguiente →</a>
+                    {% endif %}
+                </div>
+                {% endif %}
         </div>
         {% else %}
         <div style="text-align: center; padding: 30px; color: var(--text-muted);">
@@ -294,33 +376,6 @@
         </div>
         {% endif %}
     </div>
-
-    <!-- Antecedentes -->
-    {% if not es_secretaria and historia %}
-    <div class="paciente-card pacientes-grid-full">
-        <div class="paciente-card-header">
-            <h3>📋 Antecedentes Clínicos</h3>
-        </div>
-        <div class="antecedentes-grid">
-            <div class="antecedente-card">
-                <h4>👤 Antecedentes Personales</h4>
-                <p>{{ historia.antecedentes_personales|default:"Sin datos" }}</p>
-            </div>
-            <div class="antecedente-card familiares">
-                <h4>👨‍👩‍👧‍👦 Antecedentes Familiares</h4>
-                <p>{{ historia.antecedentes_familiares|default:"Sin datos" }}</p>
-            </div>
-            <div class="antecedente-card alergias">
-                <h4>🚨 Alergias</h4>
-                <p>{{ historia.alergias|default:"Sin datos" }}</p>
-            </div>
-            <div class="antecedente-card medicacion">
-                <h4>💊 Medicación Habitual</h4>
-                <p>{{ historia.medicacion_habitual|default:"Sin datos" }}</p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
     
 </div>
 {% endblock %}

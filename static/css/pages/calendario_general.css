@@ -55,7 +55,10 @@
     width: 70px;
 }
 
-/* Chip de turno */
+/* =============================================
+   CHIPS DE TURNO (mismos colores que la leyenda)
+   ============================================= */
+
 .turno-chip {
     padding: 4px 8px;
     margin-bottom: 3px;
@@ -67,6 +70,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    color: inherit; /* para que el texto herede el color del chip */
 }
 
 .turno-chip:hover {
@@ -74,24 +78,44 @@
     box-shadow: var(--shadow-sm);
 }
 
+/* Confirmado */
 .turno-chip.confirmado {
-    background: var(--success-light);
-    border-left-color: var(--success);
+    background: #bbf7d0;
+    border-left-color: #16a34a;
+    color: #14532d;
 }
 
+/* Pendiente */
 .turno-chip.pendiente {
-    background: var(--warning-light);
+    background: #fde68a;
     border-left-color: #d97706;
+    color: #78350f;
 }
 
+/* Completado */
 .turno-chip.completado {
-    background: var(--bg-alt);
-    border-left-color: var(--gray-400);
+    background: #bfdbfe;
+    border-left-color: #2563eb;
+    color: #1e3a8a;
 }
 
+/* Cancelado */
 .turno-chip.cancelado {
-    background: var(--danger-light);
-    border-left-color: var(--danger);
+    background: #fecaca;
+    border-left-color: #dc2626;
+    color: #7f1d1d;
+}
+
+.turno-chip.sobreturno {
+    background: #dd7380;
+    border-left-color: #e11d48;
+    color: #9f1239;
+}
+
+.turno-chip.no_asistio {
+    background: #e1dc44;
+    border-left-color: #d9c406;
+    color: #523309;
 }
 
 /* Punto de color del profesional */
@@ -342,3 +366,63 @@
     }
 }
 
+/* =============================================
+   CHIPS DE TURNO - MODO OSCURO
+   ============================================= */
+body.dark-mode .turno-chip.confirmado,
+[data-theme="dark"] .turno-chip.confirmado,
+.dark-theme .turno-chip.confirmado {
+    background: #064e3b;
+    border-left-color: #34d399;
+    color: #6ee7b7;
+}
+
+body.dark-mode .turno-chip.pendiente,
+[data-theme="dark"] .turno-chip.pendiente,
+.dark-theme .turno-chip.pendiente {
+    background: #78350f;
+    border-left-color: #fbbf24;
+    color: #fde047;
+}
+
+body.dark-mode .turno-chip.completado,
+[data-theme="dark"] .turno-chip.completado,
+.dark-theme .turno-chip.completado {
+    background: #1e3a8a;
+    border-left-color: #60a5fa;
+    color: #93c5fd;
+}
+
+body.dark-mode .turno-chip.cancelado,
+[data-theme="dark"] .turno-chip.cancelado,
+.dark-theme .turno-chip.cancelado {
+    background: #374151;
+    border-left-color: #9ca3af;
+    color: #9ca3af;
+}
+
+body.dark-mode .turno-chip.no-asistio,
+[data-theme="dark"] .turno-chip.no-asistio,
+.dark-theme .turno-chip.no-asistio {
+    background: #78350f; /* un tono similar al warning pero más oscuro, o podés usar #5c3d0e */
+    border-left-color: #fbbf24;
+    color: #fde047;
+}
+
+/* Sobreturno - modo oscuro */
+body.dark-mode .turno-chip.sobreturno,
+[data-theme="dark"] .turno-chip.sobreturno,
+.dark-theme .turno-chip.sobreturno {
+    background: #7f1d1d;
+    border-left-color: #f87171;
+    color: #fca5a5;
+}
+
+/* No asistió - modo oscuro */
+body.dark-mode .turno-chip.no-asistio,
+[data-theme="dark"] .turno-chip.no-asistio,
+.dark-theme .turno-chip.no-asistio {
+    background: #78350f;      /* un marrón oscuro, similar al pendiente */
+    border-left-color: #fbbf24;
+    color: #fde047;
+}

@@ -124,7 +124,6 @@ def eliminar_evento_google(turno):
 
 
 # ============ PANEL PROFESIONAL ============
-
 @login_required
 def panel_profesional(request):
     """Panel principal del profesional. Muestra turnos del día."""
@@ -181,16 +180,19 @@ def panel_profesional(request):
             turno.puede_reactivar = False
 
     manana = hoy + timedelta(days=1)
-    turnos_manana = TurnoProfesional.objects.filter(
-        profesional=profesional, fecha=manana
-    ).order_by('hora_inicio')
-    
     proxima_semana = hoy + timedelta(days=7)
     proximos_turnos = TurnoProfesional.objects.filter(
         profesional=profesional,
-        fecha__range=[manana + timedelta(days=1), proxima_semana],
+        fecha__range=[manana, proxima_semana],   # ← antes era manana + timedelta(days=1)
         estado__in=['pendiente', 'confirmado']
-    ).order_by('fecha', 'hora_inicio')
+    ).order_by('fecha', 'hora_inicio')[:10]
+
+    # Verificar si hay más próximos turnos
+    hay_mas_proximos = TurnoProfesional.objects.filter(
+        profesional=profesional,
+        fecha__range=[manana, proxima_semana],   # mismo rango
+        estado__in=['pendiente', 'confirmado']
+    ).count() > 10
 
     sesiones_por_turno = {}
     for turno in turnos_hoy:
@@ -199,22 +201,25 @@ def panel_profesional(request):
             activa=True
         ).first()
         sesiones_por_turno[turno.id] = os_paciente
+
+    # Mostrar consultorio solo si el profesional tiene más de uno
+    mostrar_consultorio = profesional.establecimientos.count() > 1
     
     contexto = {
-    'profesional': profesional,
-    'hoy': hoy,
-    'turnos_hoy': turnos_hoy,
-    'turnos_manana': turnos_manana,
-    'proximos_turnos': proximos_turnos,
-    'total_hoy': turnos_hoy_qs.count(),
-    'sesiones_por_turno': sesiones_por_turno,
-    'confirmados_hoy': turnos_hoy_qs.filter(estado='confirmado').count(),
-    'pendientes_hoy': turnos_hoy_qs.filter(estado='pendiente').count(),
-    'completados_hoy': turnos_hoy_qs.filter(estado='completado').count(),
-}
+        'profesional': profesional,
+        'hoy': hoy,
+        'turnos_hoy': turnos_hoy,
+        'proximos_turnos': proximos_turnos,
+        'hay_mas_proximos': hay_mas_proximos,
+        'total_hoy': turnos_hoy_qs.count(),
+        'sesiones_por_turno': sesiones_por_turno,
+        'confirmados_hoy': turnos_hoy_qs.filter(estado='confirmado').count(),
+        'pendientes_hoy': turnos_hoy_qs.filter(estado='pendiente').count(),
+        'completados_hoy': turnos_hoy_qs.filter(estado='completado').count(),
+        'mostrar_consultorio': mostrar_consultorio,
+    }
     
     return render(request, 'turnos_profesionales/panel.html', contexto)
-
 
 # ============ ACCIONES SOBRE TURNOS ============
 
@@ -1286,12 +1291,33 @@ def panel_secretaria(request):
             activa=True
         ).first()
         sesiones_por_turno[turno.id] = os_paciente
+
+    # Próximos turnos (para la nueva sección)
+    manana = hoy + timedelta(days=1)
+    if profesional_seleccionado:
+        proximos_turnos_qs = TurnoProfesional.objects.filter(
+            profesional=profesional_seleccionado,
+            establecimiento=establecimiento,
+            fecha__gte=manana,
+            estado__in=['pendiente', 'confirmado']
+        ).order_by('fecha', 'hora_inicio')[:10]
+    else:
+        proximos_turnos_qs = TurnoProfesional.objects.filter(
+            profesional__in=profesionales,
+            establecimiento=establecimiento,
+            fecha__gte=manana,
+            estado__in=['pendiente', 'confirmado']
+        ).order_by('fecha', 'hora_inicio')[:10]
+
+    hay_mas_proximos = proximos_turnos_qs.count() == 10  # Simplifico: si trajo 10, probablemente haya más
     
     return render(request, 'turnos_profesionales/panel_secretaria.html', {
         'profesionales': profesionales,
         'profesional_seleccionado': profesional_seleccionado,
         'profesionales_orden_llegada': profesionales_orden_llegada,
         'turnos_hoy': turnos_hoy,
+        'proximos_turnos': proximos_turnos_qs,
+        'hay_mas_proximos': hay_mas_proximos,
         'hoy': hoy,
         'total_hoy': total_hoy,
         'sesiones_por_turno': sesiones_por_turno,

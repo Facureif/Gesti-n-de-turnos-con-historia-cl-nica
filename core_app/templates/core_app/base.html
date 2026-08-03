@@ -62,7 +62,7 @@
                 {% if user.rol == 'profesional' %}
                     <li><a href="{% url 'calendario_semanal' %}" class="nav-link">Calendario</a></li>
                 {% elif user.rol == 'secretaria' %}
-                    <li><a href="{% url 'panel_secretaria' %}" class="nav-link">Panel Secretaría</a></li>
+                    <!-- <li><a href="{% url 'panel_secretaria' %}" class="nav-link">Panel Secretaría</a></li> -->
                     <li><a href="{% url 'calendario_semanal' %}" class="nav-link">Calendario</a></li>
                 {% endif %}
                 

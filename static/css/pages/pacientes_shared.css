@@ -497,7 +497,14 @@ body.dark-mode .form-group label {
     color: var(--text-main);
 }
 
-
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 8px 0;
+}
     .pacientes-header h1 {
         color: var(--text-main)  !important;
     }

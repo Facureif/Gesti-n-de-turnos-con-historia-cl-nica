@@ -7,6 +7,7 @@ from django.db.models import Q
 from .models import EstudioMedico, Paciente, PacienteObraSocial
 from usuarios.models import Usuario
 import random, string
+from django.core.paginator import Paginator
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
 from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, TratamientoOdontologico
@@ -215,35 +216,41 @@ def buscar_paciente(request):
         'pacientes': pacientes,
         'busqueda': busqueda
     })
-
 @login_required
 def ficha_paciente(request, paciente_id):
     """Ficha completa del paciente con HC y turnos."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
-    
+
     if request.user.rol == 'secretaria':
         profesional = None
         establecimiento = request.user.establecimiento
+        # La secretaria siempre ve los turnos de su único consultorio → no mostrar columna consultorio
+        mostrar_consultorio = False
+        mostrar_profesional = True   # porque puede haber varios profesionales en el consultorio
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
         establecimiento = None
+        # Mostrar consultorio solo si el profesional atiende en más de un lugar
+        mostrar_consultorio = profesional.establecimientos.count() > 1
+        mostrar_profesional = False  # el profesional ve sus propios turnos, no necesita ver su nombre
     else:
         profesional = None
         establecimiento = None
+        mostrar_consultorio = False
+        mostrar_profesional = False
 
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
-    
+
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
     evoluciones = Evolucion.objects.filter(
         historia_clinica=historia
     ).order_by('-creado') if historia else []
-    
+
     # Próximos turnos
     if request.user.rol == 'secretaria':
-        # Secretaria solo ve turnos de SU consultorio
         proximos_turnos = TurnoProfesional.objects.filter(
             paciente=paciente,
             fecha__gte=hoy,
@@ -251,7 +258,6 @@ def ficha_paciente(request, paciente_id):
             establecimiento=establecimiento
         ).order_by('fecha', 'hora_inicio')
     elif request.user.rol == 'profesional':
-        # Profesional solo ve SUS propios turnos con este paciente
         proximos_turnos = TurnoProfesional.objects.filter(
             profesional=profesional,
             paciente=paciente,
@@ -276,7 +282,23 @@ def ficha_paciente(request, paciente_id):
         ).order_by('-fecha', '-hora_inicio')[:20]
     else:
         turnos_pasados = []
-    
+
+    # Paginación de próximos turnos
+    prox_page = request.GET.get('prox_page', 1)
+    paginator_prox = Paginator(proximos_turnos, 5   )  # 5 por página
+    try:
+        proximos_turnos_paginados = paginator_prox.page(prox_page)
+    except:
+        proximos_turnos_paginados = paginator_prox.page(1)
+
+    # Paginación del historial (turnos pasados)
+    hist_page = request.GET.get('hist_page', 1)
+    paginator_hist = Paginator(turnos_pasados, 10)
+    try:
+        turnos_pasados_paginados = paginator_hist.page(hist_page)
+    except:
+        turnos_pasados_paginados = paginator_hist.page(1)        
+
     # Filtrar OS: solo las del profesional logueado (o todas si es secretaria)
     if request.user.rol == 'profesional' and profesional:
         obras_sociales_paciente = paciente.mis_obras_sociales.filter(
@@ -295,8 +317,8 @@ def ficha_paciente(request, paciente_id):
             turno_para_pagar = TurnoProfesional.objects.get(id=turno_id)
         except TurnoProfesional.DoesNotExist:
             pass
-    
-    return render(request, 'pacientes/ficha.html', {    
+
+    return render(request, 'pacientes/ficha.html', {
         'profesional': profesional,
         'paciente': paciente,
         'historia': historia,
@@ -307,8 +329,13 @@ def ficha_paciente(request, paciente_id):
         'hoy': hoy,
         'es_secretaria': request.user.rol == 'secretaria',
         'turno_para_pagar': turno_para_pagar,
+        'mostrar_consultorio': mostrar_consultorio,
+        'mostrar_profesional': mostrar_profesional,
+        'proximos_turnos': proximos_turnos_paginados,
+        'turnos': turnos_pasados_paginados,
+        'mostrar_consultorio': mostrar_consultorio,
+        'mostrar_profesional': mostrar_profesional,
     })
-
 
 @login_required
 def editar_paciente(request, paciente_id):
