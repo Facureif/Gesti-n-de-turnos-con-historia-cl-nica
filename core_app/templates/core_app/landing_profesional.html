@@ -7,13 +7,6 @@
     <link rel="stylesheet" href="{% static 'css/pages/landing_profesional.css' %}">
     
     <style>
-        /* SOLO colores principales e imagen de fondo */
-        
-        :root {
-            --primary: {{ cliente.color_primario|default:'#2563eb' }};
-            --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
-        }
-        
         .hero {
             {% if cliente.hero_imagen %}
                 background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 59, 46, 0.85)), url('{{ cliente.hero_imagen.url }}');
@@ -149,6 +142,7 @@
     {% endif %}
 
     <!-- ========== SERVICIOS Y COBERTURA ========== -->
+    {% if cliente.mostrar_precios_landing and profesional.precio_particular %}
     {% if profesional.precio_particular or profesional.obras_sociales.exists %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -165,7 +159,8 @@
                     <div class="precio-valor">${{ profesional.precio_particular }}</div>
                 </div>
                 {% endif %}
-                
+            {% endif %}
+            {% if cliente.mostrar_obras_sociales_landing and profesional.obras_sociales.exists %}
                 {% if profesional.obras_sociales.exists %}
                 <div class="info-destacada-card">
                     <span class="icono-header">🏥</span>
@@ -177,6 +172,7 @@
                     </div>
                 </div>
                 {% endif %}
+            {% endif %}    
             </div>
         </div>
     </section>
@@ -210,17 +206,18 @@
     </section>
     {% endif %}
 
-    <!-- ========== FOOTER ========== -->
-    <footer class="footer">
-        <div class="container-custom footer-content">
-            <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
-            <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
-        </div>
-    </footer>
+</div> <!-- CIERRE DEL DIV.LANDING -->
 
-</div>
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+    <div class="container-custom footer-content">
+        <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
+        <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+    </div>
+</footer>
 
-<!-- ========== SELECTOR DE TEMAS ========== -->
+<!-- ========== SELECTOR DE TEMAS (solo si está activado) ========== -->
+{% if cliente.mostrar_selector_temas %}
 <div class="theme-selector">
     <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
         data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
@@ -241,7 +238,7 @@
     <button class="theme-selector-btn theme-btn-turquesa {% if cliente.theme_css == 'turquesa' %}activo{% endif %}" 
         data-tema="Turquesa" onclick="cambiarTema('turquesa')" title="Turquesa Profesional"></button>
 </div>
-
+{% endif %}
 
 <!-- ========== BOTÓN FLOTANTE PARA SACAR TURNO (IZQUIERDA) ========== -->
 <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-flotante-turno">
@@ -257,10 +254,8 @@
 
 <script>
 function cambiarTema(theme) {
-    // 1. Cambiar el archivo CSS del tema
     document.getElementById('theme-css').href = '/static/css/themes/' + theme + '.css';
 
-    // 2. Marcar el botón activo (ya lo tenías)
     document.querySelectorAll('.theme-selector-btn').forEach(function(btn) {
         btn.classList.remove('activo');
         if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(theme) !== -1) {
@@ -268,11 +263,9 @@ function cambiarTema(theme) {
         }
     });
 
-    // 3. Guardar la preferencia
     localStorage.setItem('consultorio-theme', theme);
 
-    // 4. Activar o desactivar la clase dark-mode en el body
-    var darkThemes = ['azul_oscuro', 'verde_oscuro'];  // ¡Completá con todos tus temas oscuros!
+    var darkThemes = ['azul_oscuro', 'verde_oscuro'];
     if (darkThemes.includes(theme)) {
         document.body.classList.add('dark-mode');
     } else {

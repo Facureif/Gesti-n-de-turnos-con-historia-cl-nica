@@ -13,26 +13,41 @@
     <div class="ficha-card">
         <div class="ficha-card-header">
             <h3>📏 Datos Antropométricos</h3>
-            <button type="button" class="btn btn-primary btn-sm" onclick="calcularIMC()">🔢 Calcular IMC</button>
         </div>
         <div class="ficha-card-body">
             <div class="ficha-form-group">
+                <!-- Tipo de consulta -->
+                <div>
+                    <label class="ficha-label">Tipo de consulta</label>
+                    <select name="tipo_consulta" id="tipo-consulta" class="ficha-select">
+                        <option value="inicial">📋 Consulta inicial</option>
+                        <option value="seguimiento">🔄 Seguimiento (semanal/mensual)</option>
+                    </select>
+                </div>
+
+                <!-- Peso inicial (visible solo en consulta inicial) -->
+                <div id="peso-inicial-row">
+                    <label class="ficha-label">Peso inicial (kg)</label>
+                    <input type="number" name="peso_inicial_kg" step="0.1" class="ficha-input"
+                           value="{{ ficha_tecnica.datos_especificos.peso_inicial_kg|default:'' }}"
+                           placeholder="Ej: 75.0">
+                </div>
+
                 <div class="ficha-form-row">
                     <div>
-                        <label class="ficha-label">Peso (kg) <span class="required">*</span></label>
+                        <label class="ficha-label">Peso actual (kg) <span class="required">*</span></label>
                         <input type="number" name="peso_kg" id="peso" step="0.1" required
                                value="{{ ficha_tecnica.datos_especificos.peso_kg|default:'' }}"
-                               placeholder="Ej: 70.5" class="ficha-input"
-                               oninput="calcularIMC()">
+                               placeholder="Ej: 70.5" class="ficha-input" oninput="calcularIMC()">
                     </div>
                     <div>
                         <label class="ficha-label">Altura (cm)</label>
                         <input type="number" name="altura_cm" id="altura" step="0.1"
                                value="{{ ficha_tecnica.datos_especificos.altura_cm|default:'' }}"
-                               placeholder="Ej: 170" class="ficha-input"
-                               oninput="calcularIMC()">
+                               placeholder="Ej: 170" class="ficha-input" oninput="calcularIMC()">
                     </div>
                 </div>
+                
                 <div>
                     <label class="ficha-label">IMC</label>
                     <input type="text" name="imc" id="imc" readonly
@@ -40,13 +55,29 @@
                            class="ficha-input" style="background: var(--bg-alt);">
                     <small id="imc-clasificacion" class="ficha-imc-resultado"></small>
                 </div>
-                <div class="ficha-form-row-3">
+
+                <div class="ficha-form-row">
                     <div>
                         <label class="ficha-label">Cintura (cm)</label>
-                        <input type="number" name="perimetro_cintura_cm" step="0.1"
+                        <input type="number" name="perimetro_cintura_cm" id="cintura" step="0.1"
                                value="{{ ficha_tecnica.datos_especificos.perimetro_cintura_cm|default:'' }}"
-                               placeholder="Ej: 80" class="ficha-input">
+                               placeholder="Ej: 80" class="ficha-input" oninput="calcularICC()">
                     </div>
+                    <div>
+                        <label class="ficha-label">Cadera (cm)</label>
+                        <input type="number" name="perimetro_cadera_cm" id="cadera" step="0.1"
+                               value="{{ ficha_tecnica.datos_especificos.perimetro_cadera_cm|default:'' }}"
+                               placeholder="Ej: 100" class="ficha-input" oninput="calcularICC()">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="ficha-label">Índice Cintura/Cadera (ICC)</label>
+                    <input type="text" name="icc" id="icc" readonly class="ficha-input" style="background: var(--bg-alt);">
+                    <small id="icc-clasificacion" class="ficha-imc-resultado"></small>
+                </div>
+
+                <div class="ficha-form-row-3">
                     <div>
                         <label class="ficha-label">% Grasa</label>
                         <input type="number" name="porcentaje_grasa" step="0.1"
@@ -75,6 +106,7 @@
                     <label class="ficha-label">Fecha <span class="required">*</span></label>
                     <input type="date" name="fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
                 </div>
+                
                 <div>
                     <label class="ficha-label">Objetivo</label>
                     <select name="objetivo" class="ficha-select">
@@ -89,16 +121,37 @@
                         <option value="otro">📋 Otro</option>
                     </select>
                 </div>
+
+                <div>
+                    <label class="ficha-label">Expectativas / Metas del paciente</label>
+                    <textarea name="expectativas_metas" rows="2" class="ficha-textarea"
+                              placeholder="¿Qué espera lograr el paciente? Metas a corto/mediano plazo...">{{ ficha_tecnica.datos_especificos.expectativas_metas|default:'' }}</textarea>
+                </div>
+
                 <div>
                     <label class="ficha-label">Plan nutricional indicado</label>
                     <textarea name="plan_nutricional" rows="3" class="ficha-textarea"
-                              placeholder="Dieta, recomendaciones, calorías diarias..."></textarea>
+                              placeholder="Dieta, recomendaciones, distribución de macronutrientes, calorías diarias...">{{ ficha_tecnica.datos_especificos.plan_nutricional|default:'' }}</textarea>
                 </div>
+
                 <div>
-                    <label class="ficha-label">Observaciones</label>
-                    <textarea name="observaciones_nutricion" rows="2" class="ficha-textarea"
-                              placeholder="Notas adicionales..."></textarea>
+                    <label class="ficha-label">💊 Medicación / Suplementos que toma</label>
+                    <textarea name="medicacion_suplementos" rows="2" class="ficha-textarea"
+                              placeholder="Ej: Metformina 850mg, proteína whey, creatina, multivitamínico...">{{ ficha_tecnica.datos_especificos.medicacion_suplementos|default:'' }}</textarea>
                 </div>
+
+                <div>
+                    <label class="ficha-label">🔬 Resultados de laboratorios recientes</label>
+                    <textarea name="laboratorios" rows="2" class="ficha-textarea"
+                              placeholder="Ej: Glucemia 95 mg/dL, Colesterol total 180, TSH 2.5...">{{ ficha_tecnica.datos_especificos.laboratorios|default:'' }}</textarea>
+                </div>
+
+                <div>
+                    <label class="ficha-label">Observaciones generales</label>
+                    <textarea name="observaciones_nutricion" rows="2" class="ficha-textarea"
+                              placeholder="Notas adicionales...">{{ ficha_tecnica.datos_especificos.observaciones_nutricion|default:'' }}</textarea>
+                </div>
+
                 <div>
                     <label class="ficha-label">📎 Adjuntar archivo</label>
                     <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
@@ -126,10 +179,13 @@
                     <th>Peso</th>
                     <th>IMC</th>
                     <th>Cintura</th>
+                    <th>Cadera</th>
+                    <th>ICC</th>
                     <th>% Grasa</th>
                     <th>% Músculo</th>
                     <th>Objetivo</th>
                     <th>Plan</th>
+                    <th>Medic/Supl</th>
                     <th>Obs.</th>
                     <th></th>
                 </tr>
@@ -151,10 +207,13 @@
                         {% else %}—{% endif %}
                     </td>
                     <td>{{ c.perimetro_cintura_cm|default:"—" }}</td>
+                    <td>{{ c.perimetro_cadera_cm|default:"—" }}</td>
+                    <td>{{ c.icc|default:"—" }}</td>
                     <td>{{ c.porcentaje_grasa|default:"—" }}</td>
                     <td>{{ c.porcentaje_musculo|default:"—" }}</td>
                     <td>{{ c.get_objetivo_display|default:"—" }}</td>
                     <td>{% if c.plan_nutricional %}<span class="ficha-tooltip" data-tooltip="{{ c.plan_nutricional|escapejs }}">{{ c.plan_nutricional|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if c.medicacion_suplementos %}<span class="ficha-tooltip" data-tooltip="{{ c.medicacion_suplementos|escapejs }}">{{ c.medicacion_suplementos|truncatechars:20 }}</span>{% else %}—{% endif %}</td>
                     <td>{% if c.observaciones %}<span class="ficha-tooltip" data-tooltip="{{ c.observaciones|escapejs }}">{{ c.observaciones|truncatechars:20 }}</span>{% else %}—{% endif %}</td>
                     <td>
                         <div style="display: flex; gap: 4px;">
@@ -189,24 +248,22 @@
             <div class="ficha-grafico-item">
                 <div class="ficha-grafico-valor {% if forloop.last %}actual{% endif %}">{{ c.peso_kg }}</div>
                 <div class="ficha-grafico-barra {% if forloop.last %}actual{% endif %}" 
-                     style="height: {% widthratio c.peso_kg 150 180 %}px;"></div>
+                     style="height: {% widthratio c.peso_kg peso_max 200 %}px;"></div>
                 <div class="ficha-grafico-fecha">{{ c.fecha|date:"d/m/Y" }}</div>
             </div>
             {% endfor %}
         </div>
-        {% with first=consultas.last last=consultas.first %}
-        {% if first.peso_kg and last.peso_kg %}
+        {% if cambio_peso is not None %}
         <div class="ficha-grafico-tendencia">
-            {% if last.peso_kg < first.peso_kg %}
-                ⬇️ Tendencia: <strong style="color: #27ae60;">-{{ first.peso_kg|add:last.peso_kg|floatformat:1 }} kg</strong>
-            {% elif last.peso_kg > first.peso_kg %}
-                ⬆️ Tendencia: <strong style="color: #e74c3c;">+{{ last.peso_kg|add:first.peso_kg|floatformat:1 }} kg</strong>
+            {% if cambio_peso < 0 %}
+                ⬇️ Tendencia: <strong style="color: #27ae60;">-{{ tendencia_peso|floatformat:1 }} kg</strong>
+            {% elif cambio_peso > 0 %}
+                ⬆️ Tendencia: <strong style="color: #e74c3c;">+{{ tendencia_peso|floatformat:1 }} kg</strong>
             {% else %}
                 ➡️ Peso estable
             {% endif %}
         </div>
         {% endif %}
-        {% endwith %}
     </div>
 </div>
 {% endif %}
@@ -215,14 +272,10 @@
 function calcularIMC() {
     var peso = parseFloat(document.getElementById('peso').value);
     var altura = parseFloat(document.getElementById('altura').value);
-    var imcInput = document.getElementById('imc');
-    var clasificacion = document.getElementById('imc-clasificacion');
-    
     if (peso && altura && altura > 0) {
-        var alturaM = altura / 100;
-        var imc = (peso / (alturaM * alturaM)).toFixed(1);
-        imcInput.value = imc;
-        
+        var imc = (peso / ((altura / 100) ** 2)).toFixed(1);
+        document.getElementById('imc').value = imc;
+        var clasif = document.getElementById('imc-clasificacion');
         var texto = '', color = '';
         if (imc < 18.5) { texto = 'Bajo peso'; color = '#e67e22'; }
         else if (imc < 25) { texto = '✅ Peso normal'; color = '#27ae60'; }
@@ -230,15 +283,32 @@ function calcularIMC() {
         else if (imc < 35) { texto = '⚠️ Obesidad I'; color = '#e74c3c'; }
         else if (imc < 40) { texto = '🔴 Obesidad II'; color = '#c0392b'; }
         else { texto = '🔴 Obesidad III'; color = '#922b21'; }
-        
-        clasificacion.innerHTML = texto;
-        clasificacion.style.color = color;
-    } else {
-        imcInput.value = '';
-        clasificacion.innerHTML = '';
+        clasif.innerHTML = texto;
+        clasif.style.color = color;
     }
 }
-window.onload = function() { calcularIMC(); };
+
+function calcularICC() {
+    var cintura = parseFloat(document.getElementById('cintura').value);
+    var cadera = parseFloat(document.getElementById('cadera').value);
+    if (cintura && cadera && cadera > 0) {
+        var icc = (cintura / cadera).toFixed(2);
+        document.getElementById('icc').value = icc;
+        var clasif = document.getElementById('icc-clasificacion');
+        var texto = '', color = '';
+        if (icc < 0.85) { texto = 'Bajo riesgo'; color = '#27ae60'; }
+        else if (icc < 0.90) { texto = 'Riesgo moderado'; color = '#f39c12'; }
+        else { texto = 'Alto riesgo cardiovascular'; color = '#e74c3c'; }
+        clasif.innerHTML = texto;
+        clasif.style.color = color;
+    }
+}
+
+document.getElementById('tipo-consulta').addEventListener('change', function() {
+    document.getElementById('peso-inicial-row').style.display = this.value === 'inicial' ? 'block' : 'none';
+});
+
+window.onload = function() { calcularIMC(); calcularICC(); };
 </script>
 
 {% endblock %}

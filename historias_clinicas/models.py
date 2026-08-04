@@ -297,7 +297,6 @@ class TratamientoOdontologico(models.Model):
         return f"{self.get_tipo_tratamiento_display()} - Pieza {self.pieza_dental} - {self.fecha.strftime('%d/%m/%Y')}"    
 
 class ConsultaNutricional(models.Model):
-    """Registro de consultas nutricionales con datos antropométricos."""
     OBJETIVOS = [
         ('bajar_peso', 'Bajar de peso'),
         ('aumentar_peso', 'Aumentar de peso'),
@@ -310,15 +309,12 @@ class ConsultaNutricional(models.Model):
     ]
     
     paciente = models.ForeignKey(
-        'pacientes.Paciente',
-        on_delete=models.CASCADE,
+        'pacientes.Paciente', on_delete=models.CASCADE,
         related_name='consultas_nutricionales'
     )
     profesional = models.ForeignKey(
-        'profesionales.Profesional',
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='consultas_nutricionales_realizadas'
+        'profesionales.Profesional', on_delete=models.SET_NULL,
+        null=True, related_name='consultas_nutricionales_realizadas'
     )
     fecha = models.DateField(default=date.today)
     
@@ -327,14 +323,25 @@ class ConsultaNutricional(models.Model):
     altura_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='Altura (cm)')
     imc = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='IMC')
     perimetro_cintura_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='Cintura (cm)')
+    perimetro_cadera_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='Cadera (cm)')
+    icc = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name='Índice Cintura/Cadera')
     porcentaje_grasa = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='% Grasa corporal')
     porcentaje_musculo = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='% Masa muscular')
     
+    # Seguimiento
+    peso_inicial_kg = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='Peso inicial (kg)')
+    es_seguimiento = models.BooleanField(default=False, verbose_name='¿Es consulta de seguimiento?')
+    consulta_base = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='seguimientos', verbose_name='Consulta inicial')
+    
     # Evaluación
     objetivo = models.CharField(max_length=30, choices=OBJETIVOS, blank=True)
+    expectativas_metas = models.TextField(blank=True, verbose_name='Expectativas / Metas del paciente')
     plan_nutricional = models.TextField(blank=True, verbose_name='Plan nutricional indicado')
+    medicacion_suplementos = models.TextField(blank=True, verbose_name='Medicación / Suplementos que toma')
+    laboratorios = models.TextField(blank=True, verbose_name='Resultados de laboratorios recientes')
     observaciones = models.TextField(blank=True)
-    archivo = models.FileField(upload_to='tratamientos_odontologicos/%Y/%m/', null=True, blank=True)
+    
+    archivo = models.FileField(upload_to='consultas_nutricionales/%Y/%m/', null=True, blank=True)
     creado = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -351,10 +358,17 @@ class ConsultaNutricional(models.Model):
             return round(float(self.peso_kg) / (altura_m ** 2), 1)
         return None
     
+    def calcular_icc(self):
+        if self.perimetro_cintura_cm and self.perimetro_cadera_cm and self.perimetro_cadera_cm > 0:
+            return round(float(self.perimetro_cintura_cm) / float(self.perimetro_cadera_cm), 2)
+        return None
+    
     def save(self, *args, **kwargs):
         if not self.imc:
             self.imc = self.calcular_imc()
-        super().save(*args, **kwargs)   
+        if not self.icc:
+            self.icc = self.calcular_icc()
+        super().save(*args, **kwargs)
 
 class EvaluacionFonoaudiologica(models.Model):
     """Registro de evaluaciones y tratamientos fonoaudiológicos."""
@@ -436,3 +450,46 @@ class NotaClinica(models.Model):
     
     def __str__(self):
         return f"{self.fecha.strftime('%d/%m/%Y')} - {self.titulo}"    
+
+
+class SesionPsicologica(models.Model):
+    TIPO_SESION = [
+        ('primera', 'Primera consulta'),
+        ('seguimiento', 'Seguimiento'),
+        ('emergencia', 'Emergencia / Crisis'),
+        ('evaluacion', 'Evaluación / Test'),
+        ('cierre', 'Cierre / Alta'),
+        ('otro', 'Otro'),
+    ]
+    
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='sesiones_psicologicas'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='sesiones_psicologicas_realizadas'
+    )
+    fecha = models.DateField(default=date.today)
+    tipo_sesion = models.CharField(max_length=20, choices=TIPO_SESION, default='seguimiento')
+    motivo_consulta = models.TextField(blank=True, verbose_name='Motivo de consulta / Tema trabajado')
+    notas_sesion = models.TextField(blank=True, verbose_name='Notas de la sesión')
+    
+    # Información clínica
+    diagnostico = models.TextField(blank=True, verbose_name='Diagnóstico / Impresión diagnóstica')
+    medicacion_psiquiatrica = models.TextField(blank=True, verbose_name='Medicación psiquiátrica actual')
+    observaciones = models.TextField(blank=True)
+    
+    archivo = models.FileField(upload_to='sesiones_psicologicas/%Y/%m/', null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha', '-creado']
+        verbose_name = 'Sesión Psicológica'
+        verbose_name_plural = 'Sesiones Psicológicas'
+    
+    def __str__(self):
+        return f"Sesión {self.fecha.strftime('%d/%m/%Y')} - {self.paciente.nombre_completo}"    

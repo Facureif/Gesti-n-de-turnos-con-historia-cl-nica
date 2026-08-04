@@ -2054,33 +2054,34 @@ def reserva_multiple(request):
         paciente_id = request.POST.get('paciente_id')
         dias = request.POST.getlist('dias')
         semanas = int(request.POST.get('semanas', 4))
-        
+        tipo_consulta = request.POST.get('tipo_consulta', '').strip()  # ← nuevo
+
         paciente = get_object_or_404(Paciente, id=paciente_id)
         establecimiento = profesional.establecimientos.first()
         hoy = date.today()
-        
+
         turnos_creados = 0
-        
+
         for semana in range(semanas):
             for dia_str in dias:
                 dia = int(dia_str)
                 hora_str = request.POST.get(f'hora_{dia}')
                 hora = datetime.strptime(hora_str, '%H:%M').time()
-                
+
                 # Calcular la fecha del próximo día de la semana
                 fecha = hoy + timedelta(weeks=semana)
                 dias_hasta = (dia - fecha.weekday()) % 7
                 fecha += timedelta(days=dias_hasta)
-                
+
                 if fecha < hoy:
                     continue
-                
+
                 # Verificar duración
                 agenda = Agenda.objects.filter(
                     profesional=profesional, activo=True,
                     fecha_inicio__lte=fecha
                 ).first()
-                
+
                 duracion = 30
                 if agenda:
                     horario = HorarioAtencion.objects.filter(
@@ -2088,10 +2089,30 @@ def reserva_multiple(request):
                     ).first()
                     if horario:
                         duracion = horario.duracion_turno
-                
+
                 hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
-                
-                # Siempre creamos el turno como sobreturno, sin importar si el horario ya está ocupado
+
+                # --- Verificar si el slot está disponible ---
+                slot_disponible = False
+                if agenda:
+                    # Verificar que la hora esté dentro de algún horario de atención
+                    horario = HorarioAtencion.objects.filter(
+                        agenda=agenda, dia=fecha.weekday()
+                    ).first()
+                    if horario:
+                        # Contar turnos ya ocupados en ese mismo horario
+                        ocupados = TurnoProfesional.objects.filter(
+                            profesional=profesional,
+                            establecimiento=establecimiento,
+                            fecha=fecha,
+                            hora_inicio=hora,
+                            estado__in=['pendiente', 'confirmado']
+                        ).count()
+                        # Si no se alcanzó el máximo de pacientes simultáneos, el slot está disponible
+                        if ocupados < agenda.pacientes_simultaneos:
+                            slot_disponible = True
+
+                # Crear el turno con el flag correcto
                 TurnoProfesional.objects.create(
                     profesional=profesional,
                     establecimiento=establecimiento,
@@ -2100,11 +2121,10 @@ def reserva_multiple(request):
                     hora_inicio=hora,
                     hora_fin=hora_fin,
                     estado='pendiente',
-                    tipo_consulta='Reserva múltiple',
-                    es_sobreturno=True,
+                    tipo_consulta=tipo_consulta if tipo_consulta else 'Reserva múltiple',
+                    es_sobreturno=not slot_disponible,  # ← solo será sobreturno si no hay slot libre
                 )
                 turnos_creados += 1
-        
         messages.success(request, f'✅ {turnos_creados} turnos creados para {paciente.nombre_completo}.')
         return redirect('panel_profesional')
     

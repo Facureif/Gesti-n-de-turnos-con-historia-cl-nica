@@ -35,12 +35,6 @@
                 <a href="#profesionales" class="btn-hero-consultorio">
                     <i class="fas fa-calendar-plus"></i> Sacar Turno
                 </a>
-                <!-- {% if cliente.telefono_contacto %}
-                <a href="https://wa.me/54{{ cliente.telefono_contacto|cut:' '|cut:'-' }}?text=Hola,%20quiero%20consultar%20por%20un%20turno" 
-                   target="_blank" class="btn-hero-outline">
-                    <i class="fab fa-whatsapp"></i> Consultar por WhatsApp
-                </a>
-                {% endif %} -->
             </div>
         </div>
         <br>
@@ -51,55 +45,48 @@
     </section>
 
     <!-- ========== QUIÉNES SOMOS ========== -->
+    <!-- ✅ Imagen independiente + destacados dinámicos -->
     <section id="nosotros" class="section">
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Quiénes Somos</span>
-                <h2 class="section-title">Nuestro Consultorio</h2>
-                <p class="section-subtitle">Comprometidos con tu salud y bienestar</p>
+                <h2 class="section-title">{{ cliente.quienes_somos_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.quienes_somos_subtitulo }}</p>
             </div>
             
             <div class="nosotros-grid">
                 <div class="nosotros-texto">
-                    <p>
-                        En <strong>{{ cliente.nombre }}</strong> nos dedicamos a brindar atención médica 
-                        de calidad con un enfoque humano y personalizado. Nuestro equipo de profesionales 
-                        está altamente capacitado para ofrecerte el mejor servicio en cada consulta.
-                    </p>
-                    <p>
-                        Contamos con instalaciones modernas y equipadas para garantizar tu comodidad 
-                        y seguridad. Trabajamos con las principales obras sociales para que puedas 
-                        acceder a la atención que necesitás.
-                    </p>
+                    <p>{{ cliente.quienes_somos_texto|default:'' }}</p>
                     
                     <div class="nosotros-destacados">
                         <div class="destacado-item">
-                            <i class="fas fa-user-md"></i>
+                            <i class="{{ cliente.nosotros_destacado_1_icono }}"></i>
                             <div>
-                                <strong>Profesionales Expertos</strong>
-                                <span>Especialistas en diversas áreas de la salud</span>
+                                <strong>{{ cliente.nosotros_destacado_1_titulo }}</strong>
+                                <span>{{ cliente.nosotros_destacado_1_texto }}</span>
                             </div>
                         </div>
                         <div class="destacado-item">
-                            <i class="fas fa-clock"></i>
+                            <i class="{{ cliente.nosotros_destacado_2_icono }}"></i>
                             <div>
-                                <strong>Turnos Online</strong>
-                                <span>Reservá tu turno cuando quieras, desde donde estés</span>
+                                <strong>{{ cliente.nosotros_destacado_2_titulo }}</strong>
+                                <span>{{ cliente.nosotros_destacado_2_texto }}</span>
                             </div>
                         </div>
                         <div class="destacado-item">
-                            <i class="fas fa-shield-alt"></i>
+                            <i class="{{ cliente.nosotros_destacado_3_icono }}"></i>
                             <div>
-                                <strong>Atención Segura</strong>
-                                <span>Protocolos de higiene y bioseguridad</span>
+                                <strong>{{ cliente.nosotros_destacado_3_titulo }}</strong>
+                                <span>{{ cliente.nosotros_destacado_3_texto }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
+                <!-- ✅ Imagen de "Quiénes Somos" independiente del hero -->
                 <div class="nosotros-imagen">
-                    {% if cliente.hero_imagen %}
-                        <img src="{{ cliente.hero_imagen.url }}" alt="{{ cliente.nombre }}">
+                    {% if cliente.nosotros_imagen %}
+                        <img src="{{ cliente.nosotros_imagen.url }}" alt="{{ cliente.nombre }}">
                     {% else %}
                         <div class="nosotros-imagen-placeholder">
                             <i class="fas fa-hospital"></i>
@@ -112,12 +99,13 @@
     </section>
 
     <!-- ========== HORARIOS DE ATENCIÓN ========== -->
+    {% if cliente.mostrar_horarios %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Horarios</span>
-                <h2 class="section-title">¿Cuándo atendemos?</h2>
-                <p class="section-subtitle">Consultá nuestros horarios de atención al público</p>
+                <h2 class="section-title">{{ cliente.horarios_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.horarios_subtitulo }}</p>
             </div>
             
             <div class="horarios-atencion-grid">
@@ -126,7 +114,7 @@
                         <i class="fas fa-calendar-day"></i>
                         <span>Lunes a Viernes</span>
                     </div>
-                    <div class="horario-horas">8:00 - 20:00 hs</div>
+                    <div class="horario-horas">{{ cliente.horarios_lunes_viernes }}</div>
                     <div class="horario-tipo">Atención general</div>
                 </div>
                 
@@ -135,7 +123,7 @@
                         <i class="fas fa-calendar-day"></i>
                         <span>Sábados</span>
                     </div>
-                    <div class="horario-horas">8:00 - 13:00 hs</div>
+                    <div class="horario-horas">{{ cliente.horarios_sabados }}</div>
                     <div class="horario-tipo">Atención general</div>
                 </div>
                 
@@ -150,6 +138,7 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
     <!-- ========== PROFESIONALES ========== -->
     {% if cliente.mostrar_profesionales %}
@@ -157,8 +146,8 @@
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Equipo Profesional</span>
-                <h2 class="section-title">Nuestros Profesionales</h2>
-                <p class="section-subtitle">Filtrá por especialidad y elegí con quién querés atenderte</p>
+                <h2 class="section-title">{{ cliente.profesionales_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.profesionales_subtitulo }}</p>
             </div>
             
             <div class="filtros-especialidades" id="filtros-container">
@@ -171,12 +160,6 @@
                 </span>
                 {% endfor %}
             </div>
-            
-            <!-- <div class="sin-resultados" id="sin-resultados">
-                <i class="fas fa-search"></i>
-                <p>No hay profesionales de esta especialidad.</p>
-                <p style="font-size: 0.9rem;">Probá seleccionando otra especialidad.</p>
-            </div> -->
             
             <div class="profesionales-list" id="profesionales-list">
                 {% for prof in profesionales %}
@@ -193,11 +176,12 @@
                         <div class="profesional-info">
                             <h3>{{ prof.nombre_completo }}</h3>
                             <p class="especialidad">{{ prof.get_especialidad_display }}</p>
+                            <!-- ✅ Precios y obras sociales controlados por el flag del cliente -->
                             <div class="profesional-tags">
-                                {% if prof.precio_particular %}
+                                {% if cliente.mostrar_precios_landing and prof.precio_particular %}
                                     <span class="tag">💵 ${{ prof.precio_particular }}</span>
                                 {% endif %}
-                                {% if prof.obras_sociales.exists %}
+                                {% if cliente.mostrar_obras_sociales_landing and prof.obras_sociales.exists %}
                                     <span class="tag tag-os">🏥 Obras Sociales</span>
                                 {% endif %}
                             </div>
@@ -241,12 +225,13 @@
                             </div>
 
                             <div class="detalle-section">
-                                {% if prof.precio_particular %}
+                                <!-- ✅ Solo se muestran si el cliente lo permite -->
+                                {% if cliente.mostrar_precios_landing and prof.precio_particular %}
                                 <h4>💵 Consulta Particular</h4>
                                 <p class="precio-destacado">${{ prof.precio_particular }}</p>
                                 {% endif %}
                                 
-                                {% if prof.obras_sociales.exists %}
+                                {% if cliente.mostrar_obras_sociales_landing and prof.obras_sociales.exists %}
                                 <h4 style="margin-top: 12px;">🏥 Obras Sociales</h4>
                                 <div class="obras-sociales-list">
                                     {% for os in prof.obras_sociales.all %}
@@ -275,40 +260,48 @@
     </section>
     {% endif %}
 
-    <!-- ========== SERVICIOS ========== -->
+    <!-- ========== SERVICIOS (✅ 100% dinámicos) ========== -->
     {% if cliente.mostrar_servicios %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Servicios</span>
-                <h2 class="section-title">¿Qué ofrecemos?</h2>
-                <p class="section-subtitle">Conocé todo lo que podemos hacer por tu salud</p>
+                <h2 class="section-title">{{ cliente.servicios_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
             </div>
             
             <div class="servicios-grid">
+                {% if cliente.mostrar_servicio_1 %}
                 <div class="servicio-card">
-                    <div class="servicio-icono">🏥</div>
-                    <h3>Atención Personalizada</h3>
-                    <p>Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.</p>
+                    <div class="servicio-icono">{{ cliente.servicio_1_icono }}</div>
+                    <h3>{{ cliente.servicio_1_titulo }}</h3>
+                    <p>{{ cliente.servicio_1_descripcion }}</p>
                 </div>
-                
+                {% endif %}
+
+                {% if cliente.mostrar_servicio_2 %}
                 <div class="servicio-card">
-                    <div class="servicio-icono">📱</div>
-                    <h3>Turnos Online</h3>
-                    <p>Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.</p>
+                    <div class="servicio-icono">{{ cliente.servicio_2_icono }}</div>
+                    <h3>{{ cliente.servicio_2_titulo }}</h3>
+                    <p>{{ cliente.servicio_2_descripcion }}</p>
                 </div>
-                
+                {% endif %}
+
+                {% if cliente.mostrar_servicio_3 %}
                 <div class="servicio-card">
-                    <div class="servicio-icono">📋</div>
-                    <h3>Historia Clínica Digital</h3>
-                    <p>Accedé a tu historial médico de forma segura cuando lo necesites.</p>
+                    <div class="servicio-icono">{{ cliente.servicio_3_icono }}</div>
+                    <h3>{{ cliente.servicio_3_titulo }}</h3>
+                    <p>{{ cliente.servicio_3_descripcion }}</p>
                 </div>
-                
+                {% endif %}
+
+                {% if cliente.mostrar_servicio_4 %}
                 <div class="servicio-card">
-                    <div class="servicio-icono">🏥</div>
-                    <h3>Obras Sociales</h3>
-                    <p>Trabajamos con las principales obras sociales y prepagas.</p>
+                    <div class="servicio-icono">{{ cliente.servicio_4_icono }}</div>
+                    <h3>{{ cliente.servicio_4_titulo }}</h3>
+                    <p>{{ cliente.servicio_4_descripcion }}</p>
                 </div>
+                {% endif %}
             </div>
         </div>
     </section>
@@ -329,8 +322,8 @@
 </a>
 {% endif %}
 
-
-<!-- ========== SELECTOR DE TEMAS ========== -->
+<!-- ========== SELECTOR DE TEMAS (solo si está activado) ========== -->
+{% if cliente.mostrar_selector_temas %}
 <div class="theme-selector">
     <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
         data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
@@ -351,30 +344,26 @@
     <button class="theme-selector-btn theme-btn-turquesa {% if cliente.theme_css == 'turquesa' %}activo{% endif %}" 
         data-tema="Turquesa" onclick="cambiarTema('turquesa')" title="Turquesa Profesional"></button>
 </div>
+{% endif %}
 
-<!-- ========== FOOTER COMPLETO (FUERA DEL .LANDING Y DEL CONTAINER-CUSTOM) ========== -->
+<!-- ========== FOOTER COMPLETO ========== -->
 <footer class="footer">
     <div class="container-custom">
         <div class="footer-grid">
             
-            <!-- Columna 1: Sobre el consultorio -->
             <div class="footer-col">
                 <h4>{{ cliente.nombre }}</h4>
-                <p>Atención profesional de calidad.<br>Tu salud es nuestra prioridad.</p>
+                <p>{{ cliente.footer_texto|default:'Atención profesional de calidad.' }}</p>
             </div>
             
-            <!-- Columna 2: Enlaces rápidos -->
             <div class="footer-col">
                 <h4>Enlaces</h4>
                 <ul>
                     <li><a href="#nosotros">Quiénes Somos</a></li>
                     <li><a href="#profesionales">Profesionales</a></li>
-                    <!-- <li><a href="#servicios">Servicios</a></li>
-                    <li><a href="#profesionales">Sacar Turno</a></li> -->
                 </ul>
             </div>
             
-            <!-- Columna 3: Contacto directo con acciones -->
             <div class="footer-col">
                 <h4>Contacto</h4>
                 
@@ -414,7 +403,6 @@
             
         </div>
         
-        <!-- Línea separadora y copyright -->
         <div class="footer-bottom">
             <span>© {% now "Y" %} {{ cliente.nombre }}. Todos los derechos reservados.</span>
             <span>Desarrollado por <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
@@ -422,7 +410,6 @@
     </div>
 </footer>
 
-</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -458,10 +445,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function cambiarTema(theme) {
-    // 1. Cambiar el archivo CSS del tema
     document.getElementById('theme-css').href = '/static/css/themes/' + theme + '.css';
 
-    // 2. Marcar el botón activo (ya lo tenías)
     document.querySelectorAll('.theme-selector-btn').forEach(function(btn) {
         btn.classList.remove('activo');
         if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(theme) !== -1) {
@@ -469,11 +454,9 @@ function cambiarTema(theme) {
         }
     });
 
-    // 3. Guardar la preferencia
     localStorage.setItem('consultorio-theme', theme);
 
-    // 4. Activar o desactivar la clase dark-mode en el body
-    var darkThemes = ['azul_oscuro', 'verde_oscuro'];  // ¡Completá con todos tus temas oscuros!
+    var darkThemes = ['azul_oscuro', 'verde_oscuro'];
     if (darkThemes.includes(theme)) {
         document.body.classList.add('dark-mode');
     } else {

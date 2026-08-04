@@ -27,6 +27,7 @@ class ClienteSaaSForm(forms.ModelForm):
         }
 
 
+
 @admin.register(ClienteSaaS)
 class ClienteSaaSAdmin(admin.ModelAdmin):
     form = ClienteSaaSForm
@@ -44,12 +45,37 @@ class ClienteSaaSAdmin(admin.ModelAdmin):
             'description': 'Elegí un tema predefinido o personalizá los colores manualmente. El color pisa al del theme.'
         }),
         ('🖼️ Hero (Portada)', {
-            'fields': ('hero_imagen', 'hero_titulo', 'hero_subtitulo'),
+            'fields': ('hero_imagen', 'hero_titulo', 'hero_subtitulo', 'hero_badge_texto'),
             'description': 'Imagen de fondo y textos principales de la landing page'
         }),
+        ('📝 Textos Landing Consultorio', {
+            'fields': (
+                'quienes_somos_titulo', 'quienes_somos_subtitulo', 'quienes_somos_texto',
+                'nosotros_destacado_1_icono', 'nosotros_destacado_1_titulo', 'nosotros_destacado_1_texto',
+                'nosotros_destacado_2_icono', 'nosotros_destacado_2_titulo', 'nosotros_destacado_2_texto',
+                'nosotros_destacado_3_icono', 'nosotros_destacado_3_titulo', 'nosotros_destacado_3_texto',
+                'horarios_titulo', 'horarios_subtitulo',
+                'horarios_lunes_viernes', 'horarios_sabados',
+                'servicios_titulo', 'servicios_subtitulo',
+                'profesionales_titulo', 'profesionales_subtitulo',
+                'footer_texto',
+            ),
+            'description': 'Personalizá todos los textos que aparecen en la landing del consultorio'
+        }),
+        ('🧩 Secciones Personalizables', {
+            'fields': (
+                'servicio_1_icono', 'servicio_1_titulo', 'servicio_1_descripcion', 'mostrar_servicio_1',
+                'servicio_2_icono', 'servicio_2_titulo', 'servicio_2_descripcion', 'mostrar_servicio_2',
+                'servicio_3_icono', 'servicio_3_titulo', 'servicio_3_descripcion', 'mostrar_servicio_3',
+                'servicio_4_icono', 'servicio_4_titulo', 'servicio_4_descripcion', 'mostrar_servicio_4',
+                'mostrar_precios_landing', 'mostrar_obras_sociales_landing',
+                'nosotros_imagen',
+            ),
+            'description': 'Imagen de "Quiénes Somos", servicios editables, y control de precios'
+        }),
         ('📋 Módulos', {
-            'fields': ('mostrar_profesionales', 'mostrar_servicios'),
-            'description': 'Activá o desactivá secciones de la landing page'
+            'fields': ('mostrar_profesionales', 'mostrar_servicios', 'mostrar_horarios', 'mostrar_selector_temas'),
+            'description': 'Activá o desactivá secciones de la landing page y el selector de temas'
         }),
         ('📞 Contacto', {
             'fields': ('telefono_contacto', 'email_contacto', 'direccion'),

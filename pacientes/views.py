@@ -10,7 +10,7 @@ import random, string
 from django.core.paginator import Paginator
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
-from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, TratamientoOdontologico
+from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, SesionPsicologica, TratamientoOdontologico
 import unicodedata
 import re
 import random
@@ -416,6 +416,7 @@ def ficha_tecnica(request, paciente_id):
     'kinesiologia': 'pacientes/fichas_especialidades/kinesiologia.html',
     'nutricion': 'pacientes/fichas_especialidades/nutricion.html',    
     'fonoaudiologia': 'pacientes/fichas_especialidades/fonoaudiologia.html',  
+    'psicologia': 'pacientes/fichas_especialidades/psicologia.html',
     }
     
     especialidad = profesional.especialidad if profesional else 'general'
@@ -456,6 +457,16 @@ def ficha_tecnica(request, paciente_id):
         elif especialidad == 'nutricion':
             peso = request.POST.get('peso_kg', '').strip()
             if peso:
+                tipo_consulta = request.POST.get('tipo_consulta', 'inicial')
+                consulta_base = None
+                es_seguimiento = False
+
+                if tipo_consulta == 'seguimiento':
+                    es_seguimiento = True
+                    consulta_base = ConsultaNutricional.objects.filter(
+                        paciente=paciente, es_seguimiento=False
+                    ).order_by('-fecha').first()
+
                 consulta = ConsultaNutricional.objects.create(
                     paciente=paciente, profesional=profesional,
                     fecha=request.POST.get('fecha', date.today()),
@@ -463,11 +474,19 @@ def ficha_tecnica(request, paciente_id):
                     altura_cm=request.POST.get('altura_cm') or None,
                     imc=request.POST.get('imc') or None,
                     perimetro_cintura_cm=request.POST.get('perimetro_cintura_cm') or None,
+                    perimetro_cadera_cm=request.POST.get('perimetro_cadera_cm') or None,
+                    icc=request.POST.get('icc') or None,
                     porcentaje_grasa=request.POST.get('porcentaje_grasa') or None,
                     porcentaje_musculo=request.POST.get('porcentaje_musculo') or None,
+                    peso_inicial_kg=request.POST.get('peso_inicial_kg') or None,
                     objetivo=request.POST.get('objetivo', ''),
+                    expectativas_metas=request.POST.get('expectativas_metas', ''),
                     plan_nutricional=request.POST.get('plan_nutricional', ''),
+                    medicacion_suplementos=request.POST.get('medicacion_suplementos', ''),
+                    laboratorios=request.POST.get('laboratorios', ''),
                     observaciones=request.POST.get('observaciones_nutricion', ''),
+                    es_seguimiento=es_seguimiento,
+                    consulta_base=consulta_base,
                 )
                 archivo = request.FILES.get('nota_archivo')
                 if archivo:
@@ -493,6 +512,32 @@ def ficha_tecnica(request, paciente_id):
                 if archivo:
                     evaluacion.archivo = archivo
                     evaluacion.save()
+
+        elif especialidad == 'psicologia':
+            if request.method == 'POST':
+                fecha = request.POST.get('fecha', date.today())
+                tipo = request.POST.get('tipo_sesion', 'seguimiento')
+                motivo = request.POST.get('motivo_consulta', '')
+                notas = request.POST.get('notas_sesion', '')
+                diagnostico = request.POST.get('diagnostico', '')
+                medicacion = request.POST.get('medicacion_psiquiatrica', '')
+                observaciones = request.POST.get('observaciones', '')
+
+                sesion = SesionPsicologica.objects.create(
+                    paciente=paciente,
+                    profesional=profesional,
+                    fecha=fecha,
+                    tipo_sesion=tipo,
+                    motivo_consulta=motivo,
+                    notas_sesion=notas,
+                    diagnostico=diagnostico,
+                    medicacion_psiquiatrica=medicacion,
+                    observaciones=observaciones,
+                )
+                archivo = request.FILES.get('nota_archivo')
+                if archivo:
+                    sesion.archivo = archivo
+                    sesion.save()            
         
         # Odontología
         elif especialidad == 'odontologia':
@@ -533,16 +578,41 @@ def ficha_tecnica(request, paciente_id):
         
         messages.success(request, '✅ Ficha guardada correctamente.')
         return redirect('ficha_tecnica', paciente_id=paciente.id)
-         
+
+    
     context = {
         'paciente': paciente,
         'ficha_tecnica': ficha_tecnica,
         'profesional': profesional,
         'hoy': date.today(),
         'notas': paciente.notas_clinicas.all(),
-        'consultas': paciente.consultas_nutricionales.all() if especialidad == 'nutricion' else None,
-        'evaluaciones': paciente.evaluaciones_fonoaudiologicas.all() if especialidad == 'fonoaudiologia' else None,
+        'sesiones': paciente.sesiones_psicologicas.all() if especialidad == 'psicologia' else None,
     }
+
+    # Contexto específico según especialidad
+    if especialidad == 'nutricion':
+        consultas = paciente.consultas_nutricionales.all()
+        context['consultas'] = consultas
+        context['especialidad'] = 'nutricion'
+        
+        # Calcular tendencia y peso máximo para el gráfico
+        if consultas.count() >= 2:
+            primer_peso = consultas.last().peso_kg
+            ultimo_peso = consultas.first().peso_kg
+            if primer_peso and ultimo_peso:
+                cambio_peso = ultimo_peso - primer_peso
+                context['cambio_peso'] = cambio_peso
+                context['tendencia_peso'] = abs(cambio_peso)
+            pesos = [c.peso_kg for c in consultas if c.peso_kg]
+            if pesos:
+                context['peso_max'] = max(pesos)
+        else:
+            context['peso_max'] = 100  # valor por defecto
+
+    elif especialidad == 'fonoaudiologia':
+        context['evaluaciones'] = paciente.evaluaciones_fonoaudiologicas.all()
+        context['especialidad'] = 'fonoaudiologia'
+
     
     return render(request, template, context)
 

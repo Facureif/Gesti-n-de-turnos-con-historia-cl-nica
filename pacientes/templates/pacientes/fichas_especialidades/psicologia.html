@@ -1,0 +1,139 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
+
+{% block ficha_icon %}🧠{% endblock %}
+{% block ficha_titulo %}Ficha Psicológica{% endblock %}
+{% block ficha_especialidad %}Psicología{% endblock %}
+
+{% block ficha_contenido %}
+
+<div class="ficha-grid-2">
+    
+    <!-- Información General del Paciente -->
+    <div class="ficha-card">
+        <div class="ficha-card-header">
+            <h3>📋 Información General</h3>
+        </div>
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div>
+                    <label class="ficha-label">Diagnóstico / Impresión diagnóstica</label>
+                    <textarea name="diagnostico" rows="2" class="ficha-textarea"
+                              placeholder="Ej: Trastorno de ansiedad generalizada (F41.1)">{{ ficha_tecnica.datos_especificos.diagnostico|default:'' }}</textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">💊 Medicación psiquiátrica actual</label>
+                    <textarea name="medicacion_psiquiatrica" rows="2" class="ficha-textarea"
+                              placeholder="Ej: Sertralina 50mg/día, Clonazepam 0.5mg noche">{{ ficha_tecnica.datos_especificos.medicacion_psiquiatrica|default:'' }}</textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Antecedentes relevantes</label>
+                    <textarea name="antecedentes" rows="2" class="ficha-textarea"
+                              placeholder="Historia clínica, internaciones previas, intentos de suicidio, etc.">{{ ficha_tecnica.datos_especificos.antecedentes|default:'' }}</textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Observaciones generales</label>
+                    <textarea name="observaciones" rows="2" class="ficha-textarea"
+                              placeholder="Notas adicionales...">{{ ficha_tecnica.datos_especificos.observaciones|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrar Sesión -->
+    <div class="ficha-card borde-purpura">
+        <div class="ficha-card-header">
+            <h3>➕ Registrar Sesión</h3>
+        </div>
+        <div class="ficha-card-body">
+            <div class="ficha-form-group">
+                <div class="ficha-form-row">
+                    <div>
+                        <label class="ficha-label">Fecha <span class="required">*</span></label>
+                        <input type="date" name="fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
+                    </div>
+                    <div>
+                        <label class="ficha-label">Tipo de sesión</label>
+                        <select name="tipo_sesion" class="ficha-select">
+                            <option value="primera">Primera consulta</option>
+                            <option value="seguimiento" selected>Seguimiento</option>
+                            <option value="emergencia">Emergencia / Crisis</option>
+                            <option value="evaluacion">Evaluación / Test</option>
+                            <option value="cierre">Cierre / Alta</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="ficha-label">Motivo de consulta / Tema trabajado</label>
+                    <textarea name="motivo_consulta" rows="2" class="ficha-textarea"
+                              placeholder="¿Qué trae al paciente hoy? ¿Qué se trabajó?"></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">Notas de la sesión</label>
+                    <textarea name="notas_sesion" rows="4" class="ficha-textarea"
+                              placeholder="Registro de lo trabajado, intervenciones, evolución..."></textarea>
+                </div>
+                <div>
+                    <label class="ficha-label">📎 Adjuntar archivo</label>
+                    <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historial de Sesiones -->
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Sesiones</h3>
+        {% if sesiones %}
+        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ sesiones.count }} sesión{{ sesiones.count|pluralize:"es" }}</span>
+        {% endif %}
+    </div>
+
+    {% if sesiones %}
+    <div class="ficha-tabla-container">
+        <table class="ficha-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Motivo / Tema</th>
+                    <th>Notas</th>
+                    <th>Medicación</th>
+                    <th>Diagnóstico</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sesiones %}
+                <tr>
+                    <td class="fecha-col">{{ s.fecha|date:"d/m/Y" }}</td>
+                    <td><span class="ficha-badge ficha-badge-purpura">{{ s.get_tipo_sesion_display }}</span></td>
+                    <td>{% if s.motivo_consulta %}<span class="ficha-tooltip" data-tooltip="{{ s.motivo_consulta|escapejs }}">{{ s.motivo_consulta|truncatechars:40 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if s.notas_sesion %}<span class="ficha-tooltip" data-tooltip="{{ s.notas_sesion|escapejs }}">{{ s.notas_sesion|truncatechars:50 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if s.medicacion_psiquiatrica %}<span class="ficha-tooltip" data-tooltip="{{ s.medicacion_psiquiatrica|escapejs }}">{{ s.medicacion_psiquiatrica|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>{% if s.diagnostico %}<span class="ficha-tooltip" data-tooltip="{{ s.diagnostico|escapejs }}">{{ s.diagnostico|truncatechars:30 }}</span>{% else %}—{% endif %}</td>
+                    <td>
+                        <div style="display: flex; gap: 4px;">
+                            {% if s.archivo %}
+                            <a href="{{ s.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
+                            {% endif %}
+                            <a href="{% url 'eliminar_sesion_psicologica' s.id %}" class="btn btn-danger ficha-btn-xs"
+                               onclick="return confirm('¿Eliminar esta sesión?')">🗑️</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="ficha-empty">
+        <p>📭 Sin sesiones registradas</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

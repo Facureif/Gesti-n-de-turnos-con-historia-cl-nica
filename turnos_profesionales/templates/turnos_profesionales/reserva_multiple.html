@@ -61,6 +61,19 @@
                 <input type="number" name="semanas" value="4" min="1" max="12" class="reserva-semanas-input">
             </div>
         </div>
+
+        <!-- 👇 NUEVA CARD: Información adicional (tipo de consulta) -->
+        <div class="card" style="margin-bottom: 20px; padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 700;">✏️ Información adicional</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label class="turnos-label">Tipo de Consulta</label>
+                    <input type="text" name="tipo_consulta" class="turnos-input"
+                           placeholder="Ej: Control, sesión kinesiología..." value="Reserva múltiple">
+                </div>
+                <!-- Podés agregar más campos si querés (notas, etc.) -->
+            </div>
+        </div>
         
         <button type="submit" class="btn btn-success btn-lg" style="width: 100%; padding: 14px; font-size: 1.1rem; justify-content: center;">
             📅 Crear Reservas
