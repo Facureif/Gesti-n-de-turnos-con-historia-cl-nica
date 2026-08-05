@@ -73,7 +73,7 @@
                     <th>Fecha Subida</th>
                     <th>Título</th>
                     <th>Tipo</th>
-                    <th>Profesional</th>
+                    <th>Subido</th>
                     <th>Archivo</th>
                 </tr>
             </thead>
@@ -88,7 +88,13 @@
                         {% endif %}
                     </td>
                     <td><span class="badge badge-info">{{ estudio.get_tipo_estudio_display }}</span></td>
-                    <td>{{ estudio.profesional.nombre_completo|default:"—" }}</td>
+                    <td>
+                        {% if estudio.subido_por == 'profesional' %}
+                            {{ estudio.profesional.nombre_completo|default:"—" }}
+                        {% else %}
+                            <span class="badge badge-info">Paciente</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <div class="flex gap-2">
                             <a href="{{ estudio.archivo.url }}" class="btn btn-sm btn-primary" target="_blank">

@@ -9,7 +9,7 @@ from core_app.models import ClienteSaaS, ConfiguracionSistema
 from historias_clinicas.models import Evolucion
 from obras_sociales.models import ObraSocial, Plan
 
-from .models import Paciente, PacienteObraSocial
+from .models import EstudioMedico, Paciente, PacienteObraSocial
 from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
 from agendas.models import Agenda, BloqueoAgenda, HorarioAtencion
@@ -523,16 +523,15 @@ def editar_mi_ficha(request):
         'obras_sociales_paciente': obras_sociales_paciente,
     })
 
-
 @login_required
 def mis_estudios(request):
-    """El paciente ve sus estudios médicos."""
     if request.user.rol != 'paciente':
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
-    
+
     paciente = get_object_or_404(Paciente, usuario=request.user)
-    
+
+    # Cliente SaaS
     cliente_slug = request.session.get('cliente_slug')
     cliente = None
     if cliente_slug:
@@ -540,19 +539,68 @@ def mis_estudios(request):
             cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
         except ClienteSaaS.DoesNotExist:
             pass
-    
+
+    # Obtener profesionales disponibles para el paciente según el cliente
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            profesionales_disponibles = Profesional.objects.filter(
+                establecimientos=cliente.establecimiento,
+                activo=True,
+                atiende_por_orden=False,   # solo los que gestionan turnos
+            )
+        else:  # profesional independiente
+            profesionales_disponibles = Profesional.objects.filter(
+                id=cliente.profesional.id,
+                activo=True,
+            )
+    else:
+        # sin cliente, todos los profesionales activos (o podrías mostrar ninguno)
+        profesionales_disponibles = Profesional.objects.filter(activo=True)
+
+    # Procesar subida de archivo
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        tipo_estudio = request.POST.get('tipo_estudio', 'otro')
+        fecha_estudio = request.POST.get('fecha_estudio') or None
+        archivo = request.FILES.get('archivo')
+        profesional_id = request.POST.get('profesional')
+
+        if not titulo or not archivo:
+            messages.error(request, 'El título y el archivo son obligatorios.')
+            return redirect('mis_estudios')
+
+        profesional = None
+        if profesional_id:
+            profesional = get_object_or_404(Profesional, id=profesional_id)
+
+        EstudioMedico.objects.create(
+            paciente=paciente,
+            profesional=profesional,
+            titulo=titulo,
+            tipo_estudio=tipo_estudio,
+            fecha_estudio=fecha_estudio,
+            archivo=archivo,
+            subido_por='paciente',
+        )
+
+        messages.success(request, f'Estudio "{titulo}" subido correctamente.')
+        return redirect('mis_estudios')
+
+    # GET
     estudios = paciente.estudios_medicos.all()
-    
+
     # Filtrar según cliente
     if cliente:
         if cliente.tipo == 'consultorio':
             estudios = estudios.filter(profesional__establecimientos=cliente.establecimiento)
         else:
             estudios = estudios.filter(profesional=cliente.profesional)
-    
+
     return render(request, 'pacientes/portal/mis_estudios.html', {
         'paciente': paciente,
         'estudios': estudios,
+        'tipos_estudio': EstudioMedico._meta.get_field('tipo_estudio').choices,
+        'profesionales_disponibles': profesionales_disponibles,
     })
 
 from django.contrib.auth import update_session_auth_hash

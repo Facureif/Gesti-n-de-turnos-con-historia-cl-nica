@@ -40,8 +40,10 @@
                     <div class="meta">
                         {{ estudio.get_tipo_estudio_display }} • 
                         Subido el {{ estudio.creado|date:"d/m/Y" }}
-                        {% if estudio.profesional %}
+                        {% if estudio.subido_por == 'profesional' and estudio.profesional %}
                             por Dr/a. {{ estudio.profesional.nombre_completo }}
+                        {% elif estudio.subido_por == 'paciente' %}
+                            por vos
                         {% endif %}
                     </div>
                 </div>
@@ -63,7 +65,46 @@
         </div>
     </div>
     {% endif %}
-
-</div>
+    <!-- Subir nuevo estudio -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h3>📤 Subir un estudio propio</h3>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div>
+                    <label class="portal-form-label">Título <span class="required">*</span></label>
+                    <input type="text" name="titulo" class="portal-form-input" required placeholder="Ej: Radiografía de tórax">
+                </div>
+                <div>
+                    <label class="portal-form-label">Profesional <span class="required">*</span></label>
+                    <select name="profesional" class="portal-form-select" required>
+                        <option value="">Seleccionar profesional...</option>
+                        {% for prof in profesionales_disponibles %}
+                            <option value="{{ prof.id }}">{{ prof.nombre_completo }} · {{ prof.get_especialidad_display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="portal-form-label">Tipo de Estudio</label>
+                    <select name="tipo_estudio" class="portal-form-select">
+                        {% for tipo_id, tipo_nombre in tipos_estudio %}
+                            <option value="{{ tipo_id }}">{{ tipo_nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="portal-form-label">Fecha del Estudio</label>
+                    <input type="date" name="fecha_estudio" class="portal-form-input">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label class="portal-form-label">Archivo <span class="required">*</span></label>
+                    <input type="file" name="archivo" class="portal-form-input" required accept=".pdf,.jpg,.jpeg,.png,.dcm">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">📤 Subir Estudio</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

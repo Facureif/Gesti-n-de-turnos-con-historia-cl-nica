@@ -125,7 +125,13 @@ class EstudioMedico(models.Model):
     )
     fecha_estudio = models.DateField(null=True, blank=True)
     creado = models.DateTimeField(auto_now_add=True)
-    
+    # En pacientes/models.py, dentro de EstudioMedico
+    subido_por = models.CharField(
+        max_length=15,
+        choices=[('profesional', 'Profesional'), ('paciente', 'Paciente')],
+        default='profesional',
+        verbose_name='Subido por'
+    )
     class Meta:
         ordering = ['-creado']
         verbose_name = 'Estudio Médico'

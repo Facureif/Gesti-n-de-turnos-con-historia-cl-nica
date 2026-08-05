@@ -616,25 +616,26 @@ def ficha_tecnica(request, paciente_id):
     
     return render(request, template, context)
 
-
 @login_required
 def estudios_paciente(request, paciente_id):
-    """Ver y subir estudios de un paciente (vista profesional)."""
+    """Ver y subir estudios de un paciente (vista profesional/secretaria)."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
     
+    # Determinar profesional según el rol
     if request.user.rol == 'secretaria':
-        profesional = None
+        profesional = None   # la secretaria puede ver todos los estudios del paciente
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
     else:
         profesional = None
     
+    # Subida de archivo (POST)
     if request.method == 'POST':
-        titulo = request.POST.get('titulo')
+        titulo = request.POST.get('titulo', '').strip()
         descripcion = request.POST.get('descripcion', '')
         tipo_estudio = request.POST.get('tipo_estudio', 'otro')
         fecha_estudio = request.POST.get('fecha_estudio') or None
@@ -644,27 +645,39 @@ def estudios_paciente(request, paciente_id):
             messages.error(request, 'El título y el archivo son obligatorios.')
             return redirect('estudios_paciente', paciente_id=paciente.id)
         
+        # La secretaria podría elegir un profesional o dejarlo sin asignar; 
+        # para simplificar, si es secretaria, profesional = None (aunque puede seleccionarse si se desea).
         EstudioMedico.objects.create(
             paciente=paciente,
-            profesional=profesional,
+            profesional=profesional,   # None para secretaria, o el profesional logueado
             titulo=titulo,
             descripcion=descripcion,
             tipo_estudio=tipo_estudio,
             fecha_estudio=fecha_estudio,
-            archivo=archivo
+            archivo=archivo,
+            subido_por='profesional',  # siempre será subido por el profesional en esta vista
         )
         
         messages.success(request, f'Estudio "{titulo}" subido correctamente.')
         return redirect('estudios_paciente', paciente_id=paciente.id)
     
+    # GET – Mostrar estudios
     estudios = paciente.estudios_medicos.all()
     
+    # Filtrar según privacidad
+    if profesional:   # si es un profesional, solo ve los estudios que le corresponden
+        estudios = estudios.filter(
+            Q(profesional=profesional) |      # estudios que él subió
+            Q(subido_por='paciente', profesional=profesional)   # estudios que el paciente le envió a él
+        )
+    # Si es secretaria, ve todos los estudios del paciente (sin filtro adicional)
+
     return render(request, 'pacientes/estudios.html', {
         'paciente': paciente,
         'estudios': estudios,
         'tipos_estudio': EstudioMedico._meta.get_field('tipo_estudio').choices,
         'profesional': profesional,
-        'es_secretaria': request.user.rol == 'secretaria'
+        'es_secretaria': request.user.rol == 'secretaria',
     })
 
 from historias_clinicas.models import Lesion
