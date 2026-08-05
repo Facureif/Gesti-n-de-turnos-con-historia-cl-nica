@@ -136,6 +136,8 @@
                             <span class="badge badge-gray">Completado</span>
                         {% elif turno.estado == 'cancelado' %}
                             <span class="badge badge-danger">Cancelado</span>
+                        {% elif turno.estado == 'en_sala' %}
+                            <span class="badge badge-info">En Sala</span>    
                         {% elif turno.estado == 'no_asistio' %}
                             {% if turno.no_asistio_automatico %}
                                 <span class="badge badge-danger">No Asistió</span>
@@ -170,6 +172,13 @@
                                 <span class="badge badge-success"><i class="fas fa-check"></i> Atendido</span>
                             {% elif turno.estado == 'cancelado' %}
                                 <span class="badge badge-danger"><i class="fas fa-ban"></i> Cancelado</span>
+                            {% elif turno.estado == 'en_sala' %}
+                                <a href="{% url 'completar_turno_pro' turno.id %}" class="btn btn-success btn-xs">
+                                    <i class="fas fa-stethoscope"></i> Atender
+                                </a>
+                                <a href="{% url 'no_asistio_pro' turno.id %}" class="btn btn-danger btn-xs">
+                                    <i class="fas fa-user-slash"></i> No Asistió
+                                </a>    
                             {% elif turno.estado == 'no_asistio' %}
                                 {% if turno.no_asistio_automatico and turno.puede_reactivar %}
                                     <a href="{% url 'atender_igual_turno' turno.id %}" class="btn btn-warning btn-xs">

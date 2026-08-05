@@ -85,7 +85,6 @@ def panel_paciente(request):
         'estudios_paciente': estudios,
     })
 
-
 @login_required
 def mis_turnos(request):
     if request.user.rol != 'paciente':
@@ -95,7 +94,7 @@ def mis_turnos(request):
     hoy = date.today()
     ahora = datetime.now()
 
-    # Cliente SaaS (tal como estaba originalmente)
+    # Cliente SaaS
     cliente_slug = request.session.get('cliente_slug')
     cliente = None
     if cliente_slug:
@@ -113,7 +112,7 @@ def mis_turnos(request):
         else:
             turnos_qs = turnos_qs.filter(profesional=cliente.profesional)
 
-    # Corregir turnos pendientes del pasado (día anterior o más)
+    # 1. Marcar pendientes vencidos (ya existente)
     turnos_pendientes_pasados = turnos_qs.filter(
         estado='pendiente',
         fecha__lt=hoy
@@ -121,7 +120,35 @@ def mis_turnos(request):
     for turno in turnos_pendientes_pasados:
         turno.estado = 'no_asistio'
         turno.no_asistio_automatico = True
-        # Descontar sesión si no se había hecho antes
+        if not turno.sesion_descontada:
+            os_paciente = PacienteObraSocial.objects.filter(
+                paciente=turno.paciente,
+                activa=True,
+                profesional=turno.profesional,
+                sesiones_restantes__gt=0,
+            ).first()
+            if os_paciente:
+                os_paciente.sesiones_restantes -= 1
+                os_paciente.save()
+                turno.sesion_descontada = True
+        turno.save()
+
+    # 2. Marcar confirmados que ya pasaron como completados automáticamente
+    turnos_confirmados_pasados = turnos_qs.filter(
+        estado='confirmado',
+        fecha__lt=hoy
+    )
+    # También incluir los de hoy si la hora ya pasó
+    turnos_confirmados_hoy = turnos_qs.filter(
+        estado='confirmado',
+        fecha=hoy,
+        hora_inicio__lt=ahora.time()
+    )
+    turnos_a_completar = turnos_confirmados_pasados | turnos_confirmados_hoy
+
+    for turno in turnos_a_completar:
+        turno.estado = 'completado'
+        # Opcional: podrías registrar que fue completado automáticamente
         if not turno.sesion_descontada:
             os_paciente = PacienteObraSocial.objects.filter(
                 paciente=turno.paciente,
