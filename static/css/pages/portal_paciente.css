@@ -173,8 +173,8 @@
     display: flex;
     gap: 24px;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px dashed var(--border-color);
+    padding: 14px 0;
+    border-bottom: 2px solid #d1d5db;   /* línea sólida, visible en tema claro */
 }
 
 .sesion-item:last-child {
@@ -334,7 +334,8 @@ body.dark-mode .portal-aviso,
    ============================================= */
 .visita-item {
     padding: 16px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid #d1d5db;   /* línea más gruesa */
+    margin-bottom: 8px;
 }
 
 .visita-item:last-child {
@@ -375,45 +376,48 @@ body.dark-mode .portal-aviso,
     color: var(--text-muted);
 }
 
-/* Bloques de información */
+/* --- Estilo profesional con barras laterales --- */
 .visita-diagnostico {
-    background: var(--diagnostic-bg, #f0fdf4);
-    border: 1px solid var(--diagnostic-border, #bbf7d0);
-    color: var(--diagnostic-text, #166534);
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    padding: 10px 0 10px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid #10b981;     /* verde médico */
     font-size: 0.9rem;
-    box-shadow: var(--shadow-sm);
+    color: var(--text-main);
+    background: none;
+    box-shadow: none;
 }
-
 .visita-diagnostico strong {
-    color: var(--diagnostic-text-strong, #15803d);
+    color: #047857;
 }
 
 .visita-tratamiento {
+    padding: 10px 0 10px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid #3b82f6;     /* azul profesional */
     font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
+    color: var(--text-main);
+}
+.visita-tratamiento strong {
+    color: #1e40af;
 }
 
 .visita-medicacion {
-    background: var(--medication-bg, #fef3c7);
-    border: 1px solid var(--medication-border, #fde68a);
-    color: var(--medication-text, #78350f);
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    padding: 10px 0 10px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid #f59e0b;     /* ámbar */
     font-size: 0.9rem;
-    box-shadow: var(--shadow-sm);
+    color: var(--text-main);
+    background: none;
+    box-shadow: none;
 }
-
+.visita-medicacion strong {
+    color: #b45309;
+}
 .visita-medicacion .indicaciones {
-    color: var(--medication-text-strong, #92400e);
     margin-top: 4px;
     font-size: 0.85rem;
+    color: var(--text-secondary);
 }
-
 .visita-medicacion .nota {
     display: block;
     margin-top: 4px;
@@ -1190,7 +1194,7 @@ body.dark-mode .portal-form-select,
 .dark-theme .sacar-turno-input,
 .dark-theme .portal-form-input,
 .dark-theme .portal-form-select {
-    background: var(--bg-card);      /* se adapta según el tema oscuro */
+    background: var(--bg-card);
     color: var(--text-main);
     border-color: var(--border-color);
 }
@@ -1233,4 +1237,36 @@ body.dark-mode .consultorio-confirmado,
     background: var(--success-light);
     color: var(--success);
     border-color: var(--success);
+}
+
+/* ================================================================
+   MODO OSCURO – Separadores y visitas
+   ================================================================ */
+body.dark-mode .sesion-item {
+    border-bottom-color: #4b5563;
+}
+
+body.dark-mode .visita-item {
+    border-bottom-color: #4b5563;
+}
+
+body.dark-mode .visita-diagnostico {
+    border-left-color: #34d399;
+}
+body.dark-mode .visita-diagnostico strong {
+    color: #6ee7b7;
+}
+
+body.dark-mode .visita-tratamiento {
+    border-left-color: #60a5fa;
+}
+body.dark-mode .visita-tratamiento strong {
+    color: #93c5fd;
+}
+
+body.dark-mode .visita-medicacion {
+    border-left-color: #fbbf24;
+}
+body.dark-mode .visita-medicacion strong {
+    color: #fde047;
 }

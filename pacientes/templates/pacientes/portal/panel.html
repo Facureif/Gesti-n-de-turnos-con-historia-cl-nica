@@ -148,16 +148,16 @@
                 
                 {% if turno.evolucion.tratamiento_realizado %}
                 <div class="visita-tratamiento">
-                    <strong>💪 Tratamiento:</strong> {{ turno.evolucion.tratamiento_realizado|truncatechars:80 }}
+                    <strong>Tratamiento:</strong> {{ turno.evolucion.tratamiento_realizado|truncatechars:80 }}
                 </div>
                 {% endif %}
                 
                 {% if turno.evolucion.medicacion_recetada %}
                 <div class="visita-medicacion">
-                    <strong>💊 Medicación recetada:</strong> {{ turno.evolucion.medicacion_recetada|truncatechars:60 }}
+                    <strong>Medicación recetada:</strong> {{ turno.evolucion.medicacion_recetada|truncatechars:60 }}
                     {% if turno.evolucion.indicaciones %}
                     <div class="indicaciones">
-                        <strong>📝 Indicaciones:</strong> {{ turno.evolucion.indicaciones }}
+                        <strong>Indicaciones:</strong> {{ turno.evolucion.indicaciones }}
                     </div>
                     {% endif %}
                     <small class="nota">Solicitá la receta firmada a tu profesional para presentar en la farmacia.</small>

@@ -437,18 +437,68 @@
 }
 
 @media (max-width: 768px) {
+    /* Apilar los días en una sola columna */
     .calendario-grid {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 1px;
+        grid-template-columns: 1fr;      /* una columna */
+        gap: 16px;                      /* separación entre días */
     }
-    
+
+    .calendario-dia {
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+    }
+
+    /* Encabezado del día un poco más compacto */
     .calendario-dia-header {
-        padding: 8px 6px;
+        padding: 10px 12px;
     }
-    
+
     .calendario-dia-header .dia-numero {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
+
+    /* Eliminamos el límite de altura de los slots */
+    .calendario-slots {
+        max-height: none;
+    }
+
+    /* Slots con un poco más de padding para tocar con el dedo */
+    .calendario-slot {
+        padding: 12px 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Ocultar la leyenda en móvil o mostrarla más compacta */
+    .calendario-leyenda {
+        flex-wrap: wrap;
+        gap: 6px;
+        font-size: 0.75rem;
+    }
+
+    .calendario-leyenda .badge {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+    }
+
+    /* Selector de profesional dentro de una card */
+.secretaria-profesional-card {
+    padding: 16px;               /* aire interior */
+    overflow: hidden;            /* nada se sale */
+}
+
+.secretaria-profesional-card .secretaria-selector {
+    flex-direction: column;      /* label arriba, select abajo */
+    align-items: stretch;
+    gap: 10px;
+}
+
+.secretaria-profesional-card select {
+    width: 100%;                 /* ocupa todo el ancho */
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+}
 }
 
 /* =============================================

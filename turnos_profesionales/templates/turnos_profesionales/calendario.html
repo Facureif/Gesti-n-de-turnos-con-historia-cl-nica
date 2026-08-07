@@ -37,7 +37,7 @@
 
 <!-- Selector de profesional para secretarias -->
 {% if request.user.rol == 'secretaria' and profesionales_consultorio %}
-<div class="card mb-4">
+<div class="card secretaria-profesional-card">
     <form method="get" class="flex items-center gap-3">
         <label style="font-weight: 600; white-space: nowrap;">
             <i class="fas fa-user-md text-primary"></i> Profesional:

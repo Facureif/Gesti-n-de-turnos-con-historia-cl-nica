@@ -1625,6 +1625,153 @@
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .stats-grid {
+    grid-template-columns: 1fr 1fr;     /* 2 columnas en vez de una por fila */
+    gap: 12px;
+}
+
+.stat-card {
+    padding: 16px 12px;
+}
+
+.stat-icon {
+    font-size: 1.2rem;                 /* icono más chico */
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 1.5rem;                 /* número reducido */
+}
+
+.stat-label {
+    font-size: 0.75rem;
+}
+
+.table-container {
+    overflow-x: auto;                 /* habilita scroll horizontal */
+    -webkit-overflow-scrolling: touch;/* suavidad en iOS */
+    margin-bottom: 16px;
+}
+
+/* Asegurate de que la tabla tenga un ancho mínimo para forzar el scroll */
+.table-container table {
+    min-width: 600px;                 /* podés ajustar según cuántas columnas tengas */
+}
+
+/* Botones de acción más compactos en la celda */
+td .btn-xs {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+.proximo-turno-item {
+    flex-direction: row;              /* volvemos a fila para aprovechar el ancho */
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.proximo-turno-fecha {
+    min-width: 50px;                  /* un poco más chico */
+}
+
+.proximo-turno-fecha .dia {
+    font-size: 1rem;
+}
+
+.proximo-turno-fecha .mes {
+    font-size: 0.7rem;
+}
+
+.proximo-turno-separador {
+    display: none;                    /* ocultamos el separador vertical */
+}
+
+.proximo-turno-info {
+    flex: 1;
+    min-width: 0;                     /* evita desbordes */
+}
+
+.proximo-turno-info .paciente {
+    font-size: 0.9rem;
+}
+
+.proximo-turno-info .hora {
+    font-size: 0.8rem;
+}
+
+/* Badge y botón de reprogramar se ajustan */
+.proximo-turno-item .badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.proximo-turno-item .btn-xs {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.panel-pro-acciones,
+.secretaria-acciones {
+    gap: 6px;                          /* menos separación vertical */
+    width: 100%;
+}
+
+.panel-pro-btn,
+.secretaria-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+}
+
+.secretaria-selector {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.secretaria-selector select {
+    width: 100%;
+}
+
+/* Dentro de @media (max-width: 768px) */
+
+/* Próximo control */
+.proximo-control-card {
+    padding: 16px;                        /* un poco menos de aire */
+}
+
+.proximo-control-card .flex {
+    flex-direction: column;              /* campos en columna */
+    align-items: stretch !important;     /* que ocupen todo el ancho */
+    gap: 12px;
+}
+
+.proximo-control-card .flex > div {
+    width: 100% !important;              /* anula el width fijo de 130px */
+    flex: none !important;
+}
+
+.proximo-control-card input[type="date"],
+.proximo-control-card input[type="time"] {
+    width: 100%;                         /* inputs a ancho completo */
+}
+
+.proximo-control-card .nota {
+    margin-top: 12px;
+    font-size: 0.8rem;
+}
+
+.reserva-dia-fila {
+    flex-direction: row;        /* volvemos a la disposición horizontal */
+    align-items: center;        /* alineados verticalmente */
+    gap: 10px;                  /* espacio suficiente para que no se pisen */
+    flex-wrap: nowrap;          /* evitamos que el input salte debajo */
+}
 }
 
 /* =============================================
@@ -2114,3 +2261,5 @@ body.dark-mode .badge-info,
     color: #93c5fd !important;
     border-color: #2563eb !important;
 }
+
+

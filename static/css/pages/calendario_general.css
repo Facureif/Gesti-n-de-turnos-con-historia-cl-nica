@@ -426,3 +426,53 @@ body.dark-mode .turno-chip.no-asistio,
     border-left-color: #fbbf24;
     color: #fde047;
 }
+
+/* =============================================
+   CARD CONTENEDORA DEL CALENDARIO GENERAL
+   ============================================= */
+.calendario-general-card {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* =============================================
+   RESPONSIVE – MÓVIL
+   ============================================= */
+@media (max-width: 768px) {
+    .calendario-general-card {
+        padding: 12px;                 /* menos padding */
+    }
+
+    /* Leyenda de profesionales más compacta */
+    .profesional-leyenda {
+        flex-direction: column;        /* apilar en columna */
+        gap: 8px;
+        padding: 12px;
+        font-size: 0.85rem;
+    }
+
+    /* Scroll horizontal controlado */
+    .calendario-general-container {
+        border-radius: var(--radius);
+        border: 1px solid var(--border-color);
+    }
+
+    /* Chips de turno más grandes y legibles */
+    .turno-chip {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        gap: 6px;
+        white-space: nowrap;           /* evitar que el texto se parta */
+    }
+
+    /* Mostrar el nombre del profesional dentro del chip en móvil */
+    .turno-chip::after {
+        content: attr(title);          /* en móvil no sirve attr() con saltos, pero al menos agrega más contexto visual */
+        display: none;                 /* mejor no usemos attr(), mejor ampliamos el tooltip visual */
+    }
+    /* Alternativa: agrandar el punto y que el apellido sea más visible */
+    .turno-chip .profesional-dot {
+        width: 10px;
+        height: 10px;
+    }
+}

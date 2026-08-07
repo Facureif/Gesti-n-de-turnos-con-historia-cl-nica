@@ -646,6 +646,133 @@
     .footer-contacto-link { justify-content: center; }
     .footer-col ul li { display: inline-block; margin: 0 10px; }
     .footer-bottom { flex-direction: column; text-align: center; }
+
+    
+/* Dentro de @media (max-width: 768px) */
+
+.horarios-atencion-grid {
+    grid-template-columns: 1fr;          /* una sola columna */
+    gap: 12px;
+}
+
+.horario-card {
+    padding: 20px 16px;
+    text-align: center;
+}
+
+.horario-dia {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.horario-horas {
+    font-size: 1.5rem;                   /* antes 2rem */
+    margin-bottom: 2px;
+}
+
+.horario-tipo {
+    font-size: 0.8rem;
+}
+
+/* Dentro de @media (max-width: 768px) */
+
+.profesional-header {
+    flex-wrap: wrap;          /* permite que los elementos salten de línea */
+    gap: 12px;
+    padding: 20px;
+}
+
+.profesional-avatar,
+.profesional-avatar-placeholder {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+}
+
+.profesional-info {
+    flex: 1 1 60%;            /* ocupa la mayor parte del ancho */
+    min-width: 0;             /* evita desbordes */
+}
+
+.profesional-actions {
+    flex: 1 1 100%;           /* se va a la siguiente línea completa */
+    justify-content: space-between;
+    margin-top: 8px;
+    gap: 10px;
+}
+
+.btn-sacar-turno {
+    flex: 1;                  /* ocupa todo el espacio disponible */
+    max-width: none;          /* eliminá la restricción de 220px si existe */
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+}
+
+.btn-orden-llegada {
+    flex: 1;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+}
+
+/* La flecha de expandir se mantiene a la derecha sin agrandarse */
+.btn-expand {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+}
+
+
+/* Dentro de @media (max-width: 768px) */
+
+.profesional-detalle.active {
+    padding: 0 16px 20px;    /* márgenes más contenidos */
+}
+
+.detalle-grid {
+    grid-template-columns: 1fr;   /* una sola columna */
+    gap: 20px 0;
+    padding-top: 16px;
+}
+
+.detalle-section h4 {
+    font-size: 0.7rem;         /* se mantiene compacto */
+}
+
+.obras-sociales-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.os-badge {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    white-space: nowrap;
+}
+
+.precio-destacado {
+    font-size: 1.2rem;
+}
+
+/* Asegurá que los enlaces de contacto no se corten */
+.contacto-linea {
+    font-size: 0.9rem;
+    gap: 8px;
+}
+
+
+.hero-scroll {
+    margin-bottom: 30px;
+}
+
+/* Si el selector de temas tapa contenido en móvil, podés ocultarlo o moverlo */
+.theme-selector {
+    /* Ocultan en móvil o lo dejás, pero con estos estilos no interfiere */
+}
 }
 
 .profesional-actions {
@@ -678,6 +805,8 @@
     filter: brightness(0.85);
     transform: translateY(-1px);
 }
+
+
 
 /* La flecha se mantiene sin cambios */
 .btn-expand {
@@ -902,3 +1031,4 @@
         background: var(--bg-alt) !important;
     }
 }
+

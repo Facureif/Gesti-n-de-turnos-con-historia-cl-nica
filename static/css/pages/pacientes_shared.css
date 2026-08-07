@@ -397,28 +397,93 @@
 /* =============================================
    RESPONSIVE
    ============================================= */
-@media (max-width: 768px) {
-    .pacientes-grid-2 {
-        grid-template-columns: 1fr;
-        padding: 0;
-    }
-    
-    .antecedentes-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .sesiones-stats-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-    
-    .sesiones-stat-numero {
-        font-size: 1.5rem;
-    }
-    
-    .acciones-header {
-        flex-direction: column;
-    }
+/* ==========================================
+   FICHA PACIENTE – MÓVIL (Cards sin overflow)
+   ========================================== */
+
+/* Contenedor general */
+.pacientes-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 100%;
+    overflow-x: hidden;            /* evita scroll lateral del grid */
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+/* Cards con ancho controlado */
+.paciente-card {
+    max-width: 100%;
+    overflow: hidden;              /* corta cualquier hijo que se desborde */
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* Filas de datos: evitar que se salgan */
+.dato-fila {
+    flex-wrap: wrap;               /* permite que el texto baje si es muy largo */
+    gap: 4px;
+}
+
+.dato-valor {
+    word-break: break-word;        /* corta palabras largas (emails, teléfonos) */
+    max-width: 100%;
+}
+
+/* Nombre grande */
+.paciente-nombre-grande {
+    word-break: break-word;
+}
+
+/* Obra Social */
+.os-card {
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.os-card-header {
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.sesiones-stats {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.8rem;
+}
+
+.sesiones-stats .separador {
+    display: none;                /* para que no moleste en varias líneas */
+}
+
+/* Tablas con scroll propio */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 12px;
+}
+
+.table-container table {
+    min-width: 600px;             /* scroll cuando haya muchas columnas */
+    font-size: 0.85rem;
+}
+
+/* Ajustes extra por si los botones de la cabecera causan overflow */
+.acciones-header {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.btn-accion-header,
+.acciones-header .btn {
+    flex: 1 0 auto;
+    max-width: 48%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 10px;
+    font-size: 0.78rem;
 }
 
 @media (max-width: 480px) {
