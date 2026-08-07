@@ -10,7 +10,7 @@ import random, string
 from django.core.paginator import Paginator
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
-from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, SesionPsicologica, TratamientoOdontologico
+from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, ParametroLaboratorio, ResultadoLaboratorio, SesionPsicologica, TratamientoOdontologico
 import unicodedata
 import re
 import random
@@ -90,6 +90,7 @@ def registrar_paciente(request):
             messages.error(request, 'Ya existe un paciente con ese DNI.')
             return redirect('registrar_paciente')
         
+        genero = request.POST.get('genero', '').strip()
         paciente = Paciente.objects.create(
             nombre=nombre,
             apellido=apellido,
@@ -99,6 +100,7 @@ def registrar_paciente(request):
             email=email,
             direccion=direccion,
             numero_afiliado=numero_afiliado,
+            genero=genero,
         )
 
         # Generar username limpio (sin acentos, conserva ñ)
@@ -417,6 +419,7 @@ def ficha_tecnica(request, paciente_id):
     'nutricion': 'pacientes/fichas_especialidades/nutricion.html',    
     'fonoaudiologia': 'pacientes/fichas_especialidades/fonoaudiologia.html',  
     'psicologia': 'pacientes/fichas_especialidades/psicologia.html',
+    'laboratorio': 'pacientes/fichas_especialidades/laboratorio.html',
     }
     
     especialidad = profesional.especialidad if profesional else 'general'
@@ -513,6 +516,7 @@ def ficha_tecnica(request, paciente_id):
                     evaluacion.archivo = archivo
                     evaluacion.save()
 
+        # Psocología
         elif especialidad == 'psicologia':
             if request.method == 'POST':
                 fecha = request.POST.get('fecha', date.today())
@@ -558,6 +562,80 @@ def ficha_tecnica(request, paciente_id):
                 if archivo:
                     tratamiento.archivo = archivo
                     tratamiento.save()
+
+        # Laboratorio
+        elif especialidad == 'laboratorio':
+            fecha = request.POST.get('fecha', date.today())
+            tipo = request.POST.get('tipo_estudio', 'sangre')
+            nombre = request.POST.get('nombre_estudio', '').strip()
+            conclusion = request.POST.get('conclusion', '')
+
+            if nombre:
+                resultado = ResultadoLaboratorio.objects.create(
+                    paciente=paciente,
+                    profesional=profesional,
+                    fecha_estudio=fecha,
+                    tipo_estudio=tipo,
+                    nombre_estudio=nombre,
+                    conclusion=conclusion,
+                    metodo=request.POST.get('metodo', ''),
+                )
+
+                # Procesar parámetros dinámicos
+                nombres = request.POST.getlist('param_nombre[]')
+                valores = request.POST.getlist('param_valor[]')
+                unidades = request.POST.getlist('param_unidad[]')
+                referencias = request.POST.getlist('param_ref[]')
+
+                for i in range(len(nombres)):
+                    if nombres[i].strip():
+                        # Verificar si el checkbox de esta fila fue marcado
+                        normal = request.POST.get(f'param_normal_{i}') == 'on'
+                        ParametroLaboratorio.objects.create(
+                            resultado=resultado,
+                            nombre=nombres[i].strip(),
+                            valor=valores[i].strip() if i < len(valores) else '',
+                            unidad=unidades[i].strip() if i < len(unidades) else '',
+                            valor_referencia=referencias[i].strip() if i < len(referencias) else '',
+                            normal=normal,
+                        )
+
+                # Si el profesional adjuntó un archivo manual, lo usamos; si no, generamos PDF
+                archivo_manual = request.FILES.get('nota_archivo')
+                if archivo_manual:
+                    resultado.archivo = archivo_manual
+                    resultado.save()
+                    # También lo agregamos como estudio para el paciente
+                    # Al guardar el estudio asociado
+                    # Generar PDF y asociarlo al resultado
+                    pdf_content = generar_pdf_laboratorio(resultado)
+                    resultado.archivo.save(f"resultado_{resultado.id}.pdf", pdf_content)
+
+                    # Crear automáticamente un EstudioMedico para el paciente con descripción única
+                    EstudioMedico.objects.create(
+                        paciente=paciente,
+                        profesional=profesional,
+                        titulo=f"{nombre}",
+                        tipo_estudio=tipo,
+                        fecha_estudio=fecha,
+                        archivo=pdf_content,
+                        subido_por='profesional',
+                        descripcion=f"Resultado de laboratorio #{resultado.id}",
+                    )
+                else:
+                    # Generar PDF automático
+                    pdf_content = generar_pdf_laboratorio(resultado)
+                    resultado.archivo.save(f"resultado_{resultado.id}.pdf", pdf_content)
+                    # Crear automáticamente un EstudioMedico para el paciente
+                    EstudioMedico.objects.create(
+                        paciente=paciente,
+                        profesional=profesional,
+                        titulo=nombre,
+                        tipo_estudio=tipo,
+                        fecha_estudio=fecha,
+                        archivo=pdf_content,
+                        subido_por='profesional',
+                    )
         
         # Nota clínica (todas las especialidades)
         titulo_nota = request.POST.get('nota_titulo', '').strip()
@@ -589,6 +667,8 @@ def ficha_tecnica(request, paciente_id):
         'sesiones': paciente.sesiones_psicologicas.all() if especialidad == 'psicologia' else None,
     }
 
+    if especialidad == 'laboratorio':
+        context['resultados_lab'] = paciente.resultados_laboratorio.all()
     # Contexto específico según especialidad
     if especialidad == 'nutricion':
         consultas = paciente.consultas_nutricionales.all()
@@ -1002,3 +1082,136 @@ def gestionar_obras_sociales(request, paciente_id):
     }
     
     return render(request, 'pacientes/gestionar_obras_sociales.html', context)
+
+
+from historias_clinicas.models import ResultadoLaboratorio
+
+def eliminar_resultado_laboratorio(request, resultado_id):
+    resultado = get_object_or_404(ResultadoLaboratorio, id=resultado_id)
+    if request.user.rol in ['profesional', 'secretaria']:
+        # Buscar el estudio asociado por la descripción única
+        estudio = EstudioMedico.objects.filter(
+            paciente=resultado.paciente,
+            descripcion=f"Resultado de laboratorio #{resultado.id}"
+        ).first()
+        if estudio:
+            estudio.delete()
+        
+        resultado.delete()
+        messages.success(request, 'Resultado y estudio del paciente eliminados.')
+        return redirect('ficha_tecnica', paciente_id=resultado.paciente.id)
+    
+    messages.error(request, 'No tenés permiso.')
+    return redirect('home')
+
+from datetime import datetime
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from io import BytesIO
+from django.core.files.base import ContentFile
+
+
+def generar_pdf_laboratorio(resultado):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    story = []
+    styles = getSampleStyleSheet()
+
+    # ─── ENCABEZADO ──────────────────────────────────
+    # Título principal
+    title_style = ParagraphStyle('Title', parent=styles['Title'], fontSize=16, spaceAfter=6, alignment=1)
+    story.append(Paragraph("INFORME DE LABORATORIO", title_style))
+    story.append(Spacer(1, 0.3*cm))
+
+    # Número de orden
+    order_style = ParagraphStyle('Order', parent=styles['Normal'], fontSize=10, alignment=1)
+    story.append(Paragraph(f"ORDEN No. {resultado.id:07d}", order_style))
+    story.append(Spacer(1, 0.5*cm))
+
+    # ─── DATOS DEL PACIENTE ──────────────────────────
+    paciente = resultado.paciente
+    edad = None
+    if paciente.fecha_nacimiento:
+        hoy = date.today()
+        edad = hoy.year - paciente.fecha_nacimiento.year - ((hoy.month, hoy.day) < (paciente.fecha_nacimiento.month, paciente.fecha_nacimiento.day))
+
+    patient_style = ParagraphStyle('Patient', parent=styles['Normal'], fontSize=9)
+    patient_data = [
+        [Paragraph('<b>Paciente:</b>', patient_style), paciente.nombre_completo],
+        [Paragraph('<b>DNI:</b>', patient_style), paciente.dni],
+        [Paragraph('<b>Fecha de Nacimiento:</b>', patient_style), paciente.fecha_nacimiento.strftime('%d/%m/%Y') if paciente.fecha_nacimiento else '—'],
+        [Paragraph('<b>Edad:</b>', patient_style), f"{edad} años" if edad else '—'],
+        [Paragraph('<b>Sexo:</b>', patient_style), paciente.sexo if hasattr(paciente, 'sexo') else '—'],
+        [Paragraph('<b>Fecha de Ingreso:</b>', patient_style), resultado.fecha_estudio.strftime('%d/%m/%Y %H:%M') if isinstance(resultado.fecha_estudio, date) else str(resultado.fecha_estudio)],
+    ]
+    patient_table = Table(patient_data, colWidths=[4*cm, 12*cm])
+    patient_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ]))
+    story.append(patient_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    # ─── EXAMEN ──────────────────────────────────────
+    story.append(Paragraph('<b>EXAMEN</b>', styles['Normal']))
+    story.append(Paragraph(f"{resultado.nombre_estudio}", styles['Normal']))
+    if resultado.metodo:
+        story.append(Paragraph(f"Método: {resultado.metodo}", styles['Normal']))
+    story.append(Spacer(1, 0.5*cm))
+
+    # ─── RESULTADOS ──────────────────────────────────
+    story.append(Paragraph('<b>RESULTADOS</b>', styles['Normal']))
+    story.append(Spacer(1, 0.2*cm))
+
+    # Tabla de parámetros
+    if resultado.parametros.exists():
+        headers = ['Parámetro', 'Resultado', 'Unidad', 'V. Referencia', 'Estado']
+        data = [headers]
+        for p in resultado.parametros.all():
+            data.append([
+                p.nombre,
+                p.valor,
+                p.unidad,
+                p.valor_referencia,
+                Paragraph(
+                    '<font color="green"><b>Normal</b></font>' if p.normal else '<font color="red"><b>Alterado</b></font>',
+                    styles['Normal']
+                )
+            ])
+        param_table = Table(data, colWidths=[5*cm, 3*cm, 3*cm, 3.5*cm, 2.5*cm])
+        param_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2c3e50')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f6fa')]),
+        ]))
+        story.append(param_table)
+        story.append(Spacer(1, 0.5*cm))
+    else:
+        story.append(Paragraph('<i>No se registraron parámetros.</i>', styles['Normal']))
+        story.append(Spacer(1, 0.5*cm))
+
+    # ─── CONCLUSIÓN ──────────────────────────────────
+    if resultado.conclusion:
+        story.append(Paragraph('<b>Conclusión:</b>', styles['Normal']))
+        story.append(Paragraph(resultado.conclusion, styles['Normal']))
+        story.append(Spacer(1, 0.5*cm))
+
+    # ─── FIRMA DEL PROFESIONAL ───────────────────────
+    story.append(Spacer(1, 1.5*cm))
+    if resultado.profesional:
+        firma_style = ParagraphStyle('Firma', parent=styles['Normal'], fontSize=9, alignment=1)
+        story.append(Paragraph(f"_________________________________________", firma_style))
+        story.append(Paragraph(f"<b>{resultado.profesional.nombre_completo}</b>", firma_style))
+        story.append(Paragraph(f"M.N. {resultado.profesional.matricula}", firma_style))
+        story.append(Paragraph(f"{resultado.profesional.get_especialidad_display()}", firma_style))
+
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return ContentFile(pdf_bytes, name=f"laboratorio_{resultado.id}.pdf")

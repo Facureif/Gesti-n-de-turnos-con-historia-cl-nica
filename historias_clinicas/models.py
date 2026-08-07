@@ -493,3 +493,69 @@ class SesionPsicologica(models.Model):
     
     def __str__(self):
         return f"Sesión {self.fecha.strftime('%d/%m/%Y')} - {self.paciente.nombre_completo}"    
+
+
+class ResultadoLaboratorio(models.Model):
+    TIPOS_ESTUDIO = [
+        ('sangre', 'Análisis de sangre'),
+        ('orina', 'Análisis de orina'),
+        ('heces', 'Análisis de heces'),
+        ('cultivo', 'Cultivo'),
+        ('biopsia', 'Biopsia'),
+        ('serologia', 'Serología'),
+        ('hormonas', 'Perfil hormonal'),
+        ('imagenes', 'Diagnóstico por imágenes'),
+        ('otro', 'Otro'),
+    ]
+    
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='resultados_laboratorio'
+    )
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='resultados_laboratorio_cargados'
+    )
+    fecha_estudio = models.DateField(verbose_name='Fecha del estudio')
+    tipo_estudio = models.CharField(max_length=20, choices=TIPOS_ESTUDIO, default='sangre')
+    nombre_estudio = models.CharField(max_length=200, verbose_name='Nombre del estudio')
+    resultados = models.TextField(blank=True, verbose_name='Resultados (texto libre)')
+    unidad = models.CharField(max_length=50, blank=True, verbose_name='Unidad')
+    valores_referencia = models.TextField(blank=True, verbose_name='Valores de referencia')
+    conclusion = models.TextField(blank=True, verbose_name='Conclusión')
+    archivo = models.FileField(upload_to='resultados_laboratorio/%Y/%m/', null=True, blank=True)
+    notas = models.TextField(blank=True, verbose_name='Notas adicionales')
+    creado = models.DateTimeField(auto_now_add=True)
+    metodo = models.CharField(max_length=200, blank=True, verbose_name='Método')
+    
+    class Meta:
+        ordering = ['-fecha_estudio']
+        verbose_name = 'Resultado de Laboratorio'
+        verbose_name_plural = 'Resultados de Laboratorio'
+    
+    def __str__(self):
+        return f"{self.nombre_estudio} - {self.paciente} ({self.fecha_estudio})"
+
+class ParametroLaboratorio(models.Model):
+    resultado = models.ForeignKey(
+        'ResultadoLaboratorio',
+        on_delete=models.CASCADE,
+        related_name='parametros'
+    )
+    nombre = models.CharField(max_length=200, verbose_name='Parámetro')
+    valor = models.CharField(max_length=100, verbose_name='Resultado')
+    unidad = models.CharField(max_length=50, blank=True, verbose_name='Unidad')
+    valor_referencia = models.CharField(max_length=100, blank=True, verbose_name='Valor de referencia')
+    normal = models.BooleanField(default=True, verbose_name='¿Valor normal?')
+    
+    class Meta:
+        verbose_name = 'Parámetro de Laboratorio'
+        verbose_name_plural = 'Parámetros de Laboratorio'
+        ordering = ['nombre']
+    
+    def __str__(self):
+        return f"{self.nombre}: {self.valor} {self.unidad}"        
+    

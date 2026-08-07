@@ -1,0 +1,191 @@
+{% extends 'pacientes/fichas_especialidades/base_ficha_tecnica.html' %}
+{% load static %}
+
+{% block ficha_icon %}🔬{% endblock %}
+{% block ficha_titulo %}Resultados de Laboratorio{% endblock %}
+{% block ficha_especialidad %}Laboratorio{% endblock %}
+
+{% block ficha_contenido %}
+
+<!-- Aviso informativo (ancho completo) -->
+<div class="aviso">
+    <p style="margin: 0;">
+        ℹ️ <strong>Referencia rápida:</strong> Agregá cada parámetro del análisis por separado. Si el valor está fuera del rango de referencia, desmarcá la casilla "Normal". El paciente podrá verlos ordenados.
+    </p>
+</div>
+
+<!-- Tarjeta de carga (ancho completo) -->
+<div class="ficha-card borde-primario">
+    <div class="ficha-card-header">
+        <h3>➕ Cargar Resultado</h3>
+    </div>
+    <div class="ficha-card-body">
+        <div class="ficha-form-group">
+            <div class="ficha-form-row">
+                <div>
+                    <label class="ficha-label">Fecha del estudio <span class="required">*</span></label>
+                    <input type="date" name="fecha" required value="{% now 'Y-m-d' %}" class="ficha-input">
+                </div>
+                <div>
+                    <label class="ficha-label">Tipo de estudio</label>
+                    
+                    <select name="tipo_estudio" class="ficha-select">
+                        <option value="sangre">Análisis de sangre</option>
+                        <option value="orina">Análisis de orina</option>
+                        <option value="heces">Análisis de heces</option>
+                        <option value="cultivo">Cultivo</option>
+                        <option value="biopsia">Biopsia</option>
+                        <option value="serologia">Serología</option>
+                        <option value="hormonas">Perfil hormonal</option>
+                        <option value="imagenes">Diagnóstico por imágenes</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                        <label class="ficha-label">Método</label>
+                        <input type="text" name="metodo" class="ficha-input" placeholder="Ej: Fotometría Automatizada, ELISA, Quimioluminiscencia...">
+                    </div>
+            </div>
+            <div>
+                <label class="ficha-label">Nombre del estudio <span class="required">*</span></label>
+                <input type="text" name="nombre_estudio" required class="ficha-input" placeholder="Ej: Hemograma completo, Glucemia...">
+            </div>
+            
+            <!-- Tabla de parámetros -->
+            <h4 style="margin-top: 16px;">📊 Parámetros</h4>
+            <div style="overflow-x: auto;">
+                <table id="tabla-parametros" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-alt);">
+                            <th style="text-align: left; padding: 8px;">Parámetro</th>
+                            <th style="text-align: left; padding: 8px;">Resultado</th>
+                            <th style="text-align: left; padding: 8px;">Unidad</th>
+                            <th style="text-align: left; padding: 8px;">Valor ref.</th>
+                            <th style="text-align: center; padding: 8px;">Normal</th>
+                            <th style="text-align: center; padding: 8px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" name="param_nombre[]" class="ficha-input" placeholder="Ej: Glóbulos blancos"></td>
+                            <td><input type="text" name="param_valor[]" class="ficha-input" placeholder="Ej: 7.500"></td>
+                            <td><input type="text" name="param_unidad[]" class="ficha-input" placeholder="Ej: /mm³"></td>
+                            <td><input type="text" name="param_ref[]" class="ficha-input" placeholder="Ej: 4.500-11.000"></td>
+                            <td style="text-align: center;">
+                                <input type="checkbox" name="param_normal_0" checked>
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" onclick="eliminarFila(this)" style="color: var(--danger); background: none; border: none; cursor: pointer;">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" onclick="agregarFila()" class="btn btn-secondary btn-sm" style="margin-top: 8px;">➕ Agregar parámetro</button>
+
+            <div style="margin-top: 16px;">
+                <label class="ficha-label">Conclusión</label>
+                <textarea name="conclusion" rows="2" class="ficha-textarea" placeholder="Interpretación general..."></textarea>
+            </div>
+            <!-- <div>
+                <label class="ficha-label">📎 Adjuntar archivo (PDF, imagen)</label>
+                <input type="file" name="nota_archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="ficha-file-input">
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- Historial de resultados -->
+<div class="ficha-card" style="margin-top: 24px;">
+    <div class="ficha-card-header">
+        <h3>📜 Historial de Resultados</h3>
+        {% if resultados_lab %}
+        <span style="color: var(--text-muted); font-size: 0.9rem;">{{ resultados_lab.count }} resultado{{ resultados_lab.count|pluralize:"s" }}</span>
+        {% endif %}
+    </div>
+
+    {% if resultados_lab %}
+    <div class="ficha-tabla-container">
+        <table class="ficha-tabla">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Estudio</th>
+                    <th>Parámetros</th>
+                    <th>Conclusión</th>
+                    <th>Archivo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in resultados_lab %}
+                <tr>
+                    <td class="fecha-col">{{ r.fecha_estudio|date:"d/m/Y" }}</td>
+                    <td><span class="ficha-badge ficha-badge-info">{{ r.get_tipo_estudio_display }}</span></td>
+                    <td>{{ r.nombre_estudio }}</td>
+                    <td>
+                        {% if r.parametros.all %}
+                            <ul style="margin: 0; padding-left: 16px;">
+                                {% for p in r.parametros.all %}
+                                    <li>
+                                        {{ p.nombre }}: {{ p.valor }} {{ p.unidad }}
+                                        {% if not p.normal %}<span style="color: var(--danger);">⚠️</span>{% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{% if r.conclusion %}<span class="ficha-tooltip" data-tooltip="{{ r.conclusion|escapejs }}">{{ r.conclusion|truncatechars:40 }}</span>{% else %}—{% endif %}</td>
+                    <td>
+                        {% if r.archivo %}
+                            <a href="{{ r.archivo.url }}" class="btn btn-info ficha-btn-xs" target="_blank" title="Ver archivo">📎</a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'eliminar_resultado_laboratorio' r.id %}" class="btn btn-danger ficha-btn-xs"
+                           onclick="return confirm('¿Eliminar este resultado?')">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="ficha-empty">
+        <p>📭 Sin resultados cargados</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+let paramRowCount = 1;    
+function agregarFila() {
+    const tbody = document.querySelector('#tabla-parametros tbody');
+    const row = document.createElement('tr');
+    const currentIndex = paramRowCount;   // este será el índice de la nueva fila
+    row.innerHTML = `
+        <td><input type="text" name="param_nombre[]" class="ficha-input" placeholder="Ej: Hemoglobina"></td>
+        <td><input type="text" name="param_valor[]" class="ficha-input" placeholder="Ej: 14.5"></td>
+        <td><input type="text" name="param_unidad[]" class="ficha-input" placeholder="Ej: g/dL"></td>
+        <td><input type="text" name="param_ref[]" class="ficha-input" placeholder="Ej: 12.0-16.0"></td>
+        <td style="text-align: center;">
+            <input type="checkbox" name="param_normal_${currentIndex}" checked>
+        </td>
+        <td style="text-align: center;">
+            <button type="button" onclick="eliminarFila(this)" style="color: var(--danger); background: none; border: none; cursor: pointer;">🗑️</button>
+        </td>
+    `;
+    tbody.appendChild(row);
+    paramRowCount++;   // incrementar para la próxima fila
+}
+
+function eliminarFila(btn) {
+    const row = btn.closest('tr');
+    if (document.querySelectorAll('#tabla-parametros tbody tr').length > 1) {
+        row.remove();
+    }
+}
+</script>
+
+{% endblock %}

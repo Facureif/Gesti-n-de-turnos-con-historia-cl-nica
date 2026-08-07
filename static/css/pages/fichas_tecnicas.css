@@ -701,3 +701,22 @@ body.dark-mode .ficha-checkbox-label input[type="checkbox"],
 .dark-theme .ficha-checkbox-label input[type="checkbox"] {
     accent-color: var(--primary) !important;
 }
+
+
+/* =============================================
+   AVISO INFORMATIVO (usado en laboratorio y otros)
+   ============================================= */
+.aviso {
+    background: var(--warning-light, #fef3c7);
+    border: 1px solid var(--warning, #d97706);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.aviso strong {
+    color: var(--warning-text, #92400e);
+}

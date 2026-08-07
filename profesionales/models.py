@@ -16,6 +16,7 @@ class Profesional(Persona):
         ('traumatologia', 'Traumatología'),
         ('veterinaria', 'Veterinaria'),
         ('fonoaudiologia', 'Fonoaudiologia'),
+        ('laboratorio', 'Laboratorio'),
         ('otro', 'Otro'),
     ]
     

@@ -23,5 +23,6 @@ urlpatterns = [
     path('evaluacion-fono/<int:evaluacion_id>/eliminar/', views.eliminar_evaluacion_fono, name='eliminar_evaluacion_fono'),
     path('nota-clinica/<int:nota_id>/eliminar/', views.eliminar_nota_clinica, name='eliminar_nota_clinica'),
     path('<int:paciente_id>/gestionar-obras-sociales/', views.gestionar_obras_sociales, name='gestionar_obras_sociales'),
+    path('eliminar-resultado-laboratorio/<int:resultado_id>/', views.eliminar_resultado_laboratorio, name='eliminar_resultado_laboratorio'),
 
 ]
