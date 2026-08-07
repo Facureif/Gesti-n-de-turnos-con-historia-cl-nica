@@ -30,7 +30,7 @@
     margin: 0;
 }
 
-/* Grid de 2 columnas para layout */
+/* Grid de 2 columnas para layout (ESCRITORIO) */
 .pacientes-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -274,8 +274,8 @@
 .sigla-badge {
     display: inline-block;
     padding: 2px 8px;
-    background: var(--info-light);
-    color: #155e75;
+    background: var(--info);
+    color: white;
     border-radius: var(--radius-full);
     font-size: 0.8rem;
     font-weight: 600;
@@ -328,15 +328,6 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-}
-.sigla-badge {
-    display: inline-block;
-    color: var(--warning-bg);
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 2px 8px;
-    background: var(--info);
-    border-radius: var(--radius-full);
 }
 
 /* =============================================
@@ -395,95 +386,93 @@
 }
 
 /* =============================================
-   RESPONSIVE
+   RESPONSIVE – MÓVIL
    ============================================= */
-/* ==========================================
-   FICHA PACIENTE – MÓVIL (Cards sin overflow)
-   ========================================== */
+@media (max-width: 768px) {
 
-/* Contenedor general */
-.pacientes-grid-2 {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    max-width: 100%;
-    overflow-x: hidden;            /* evita scroll lateral del grid */
-    padding: 0 12px;
-    box-sizing: border-box;
-}
+    /* Grid principal → una columna */
+    .pacientes-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        max-width: 100%;
+        overflow-x: hidden;            /* evita scroll lateral */
+        padding: 0 12px;
+        box-sizing: border-box;
+    }
 
-/* Cards con ancho controlado */
-.paciente-card {
-    max-width: 100%;
-    overflow: hidden;              /* corta cualquier hijo que se desborde */
-    padding: 16px;
-    box-sizing: border-box;
-}
+    /* Cards con ancho controlado */
+    .paciente-card {
+        max-width: 100%;
+        overflow: hidden;
+        padding: 16px;
+        box-sizing: border-box;
+    }
 
-/* Filas de datos: evitar que se salgan */
-.dato-fila {
-    flex-wrap: wrap;               /* permite que el texto baje si es muy largo */
-    gap: 4px;
-}
+    /* Filas de datos más flexibles */
+    .dato-fila {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
 
-.dato-valor {
-    word-break: break-word;        /* corta palabras largas (emails, teléfonos) */
-    max-width: 100%;
-}
+    .dato-valor {
+        word-break: break-word;
+        max-width: 100%;
+    }
 
-/* Nombre grande */
-.paciente-nombre-grande {
-    word-break: break-word;
-}
+    .paciente-nombre-grande {
+        word-break: break-word;
+    }
 
-/* Obra Social */
-.os-card {
-    max-width: 100%;
-    overflow: hidden;
-    box-sizing: border-box;
-}
+    /* Obra Social */
+    .os-card {
+        max-width: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
 
-.os-card-header {
-    flex-wrap: wrap;
-    gap: 4px;
-}
+    .os-card-header {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
 
-.sesiones-stats {
-    flex-wrap: wrap;
-    gap: 8px;
-    font-size: 0.8rem;
-}
+    .sesiones-stats {
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.8rem;
+    }
 
-.sesiones-stats .separador {
-    display: none;                /* para que no moleste en varias líneas */
-}
+    .sesiones-stats .separador {
+        display: none;
+    }
 
-/* Tablas con scroll propio */
-.table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 12px;
-}
+    /* Tablas con scroll propio */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 12px;
+    }
 
-.table-container table {
-    min-width: 600px;             /* scroll cuando haya muchas columnas */
-    font-size: 0.85rem;
-}
+    .table-container table {
+        min-width: 600px;
+        font-size: 0.85rem;
+    }
 
-/* Ajustes extra por si los botones de la cabecera causan overflow */
-.acciones-header {
-    flex-wrap: wrap;
-    gap: 6px;
-}
+    /* Botones de la cabecera más compactos */
+    .acciones-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
 
-.btn-accion-header,
-.acciones-header .btn {
-    flex: 1 0 auto;
-    max-width: 48%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 8px 10px;
-    font-size: 0.78rem;
+    .btn-accion-header,
+    .acciones-header .btn {
+        flex: 1 0 auto;
+        max-width: 48%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 8px 10px;
+        font-size: 0.78rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -498,12 +487,9 @@
 }
 
 /* =============================================
-   CORRECCIÓN MODO OSCURO - ESTUDIOS MÉDICOS Y EDITAR PACIENTE
+   MODO OSCURO (compartido)
    ============================================= */
-
 @media (prefers-color-scheme: dark) {
-
-    /* 1. Inputs, Textareas y Selects (Fondo azul oscuro como el login) */
     .form-input,
     .form-select,
     .form-textarea {
@@ -512,78 +498,54 @@
         border-color: #334155 !important;
     }
     
-    /* Placeholders de los inputs (Gris tenue) */
     .form-input::placeholder,
     .form-textarea::placeholder {
         color: #94a3b8 !important;
     }
 
-/* Tema claro */
-.form-group label {
-    color: #0c0f11 !important;
-}
-
-/* Tema oscuro */
-body.dark-mode .form-group label {
-    color: #f1f5f9 !important;
-}
-
-
-
-.form-input[type="file"] {
-    background: var(--bg-card);      /* o var(--bg-card), según prefieras */
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-}
-
-
-    /* 4. Input type="date" (Calendario nativo en Estudios y Editar) */
-    .form-input[type="date"] {
-        color-scheme: dark !important; /* Hace que el ícono del calendario nativo sea oscuro */
+    body.dark-mode .form-group label {
+        color: #f1f5f9 !important;
     }
 
-    /* 5. Texto de ayuda (El small de la tabla de estudios) */
+    .form-input[type="file"] {
+        background: var(--bg-card);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+    }
+
+    .form-input[type="date"] {
+        color-scheme: dark !important;
+    }
+
     .text-muted, small.text-muted {
         color: #94a3b8 !important;
     }
 
-    /* 6. El asterisco de los campos requeridos */
     .required {
-        color: #f87171 !important; /* Un rojo claro pastel para que se vea sobre fondo oscuro */
+        color: #f87171 !important;
     }
 
-    /* 7. Cards y encabezados para que todo sea uniforme */
     .card-header {
         background: #1e293b !important;
         border-color: #334155 !important;
     }
     
-.card-header h3 {
-    color: var(--text-main);
-}
+    .card-header h3 {
+        color: var(--text-main);
+    }
 
-.paginacion {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin-top: 12px;
-    padding: 8px 0;
-}
     .pacientes-header h1 {
-        color: var(--text-main)  !important;
+        color: var(--text-main) !important;
     }
     .pacientes-header p {
         color: #94a3b8 !important;
     }
 
-    /* 8. Badge de Tipo de Estudio */
     .badge-info {
-        background: #1e3a8a !important; /* Azul oscuro */
-        color: #93c5fd !important;      /* Azul claro */
+        background: #1e3a8a !important;
+        color: #93c5fd !important;
     }
 
-    /* 9. Tabla del listado de estudios */
     table thead th {
         background: #1e293b !important;
         color: #94a3b8 !important;
@@ -596,21 +558,11 @@ body.dark-mode .form-group label {
     table tbody tr:hover {
         background: #1e293b !important;
     }
-    
-    /* 10. Texto descriptivo dentro de la tabla */
     table tbody td strong {
         color: var(--text-main) !important;
     }
-}
 
-/* ================================================================
-   SÚPER PARCHE GLOBAL MODO OSCURO - 100% DINÁMICO CON VARIABLES
-   ================================================================ */
-
-@media (prefers-color-scheme: dark) {
-
-    /* =============== 1. CABECERAS, CARDS Y TEXTOS GENERALES =============== */
-    
+    /* ========== Parche global oscuro ========== */
     .card, .paciente-card, .perfil-card, .ficha-card, .slot-info-card, .modal-dialog {
         background: var(--bg-card) !important;
         border-color: var(--border-color) !important;
@@ -635,23 +587,17 @@ body.dark-mode .form-group label {
         border-bottom: 1px solid var(--border-color) !important;
     }
 
-    /* =============== 2. INPUTS, SELECTS, TEXTAREAS Y FECHAS =============== */
-
     .turnos-input, .turnos-textarea, .turnos-select, .turnos-busqueda-input,
     .ficha-input, .ficha-textarea, .ficha-select, .ficha-file-input,
     .perfil-input, .perfil-select, .perfil-textarea,
     .form-input, .form-select, .form-textarea,
     input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="password"], input[type="file"],
     textarea, select {
-        background: var(--bg-input) !important; /* Fondo oscuro profundo del sistema */
+        background: var(--bg-input) !important;
         color: var(--text-main) !important;
         border: 1px solid var(--border-color) !important;
     }
 
-    .turnos-input::placeholder, .turnos-textarea::placeholder,
-    .ficha-input::placeholder, .ficha-textarea::placeholder,
-    .perfil-input::placeholder, .perfil-textarea::placeholder,
-    .form-input::placeholder, .form-textarea::placeholder,
     input::placeholder, textarea::placeholder {
         color: var(--text-muted) !important;
     }
@@ -666,164 +612,22 @@ body.dark-mode .form-group label {
         color: var(--text-main) !important;
     }
 
-    /* =============== 3. CALENDARIO SEMANAL =============== */
+    /* Calendario semanal (heredado) */
+    .calendario-dia-header.inactivo { background: var(--bg-alt) !important; color: var(--text-muted) !important; }
+    .calendario-dia-header.activo { background: var(--primary) !important; color: #ffffff !important; }
+    .calendario-slots { background: var(--bg-card) !important; }
+    .calendario-slot { border-bottom: 1px solid var(--border-color) !important; }
+    .calendario-slot-hora { color: var(--text-main) !important; }
+    .calendario-slot-paciente { color: var(--text-main) !important; }
+    .calendario-slot.vacio { color: var(--text-muted) !important; }
+    .calendario-slot.vacio:hover { background: var(--bg-alt) !important; color: var(--primary) !important; }
+    /* etc. */
 
-    .calendario-dia-header.inactivo {
-        background: var(--bg-alt) !important;
-        color: var(--text-muted) !important;
-    }
-    .calendario-dia-header.activo {
-        background: var(--primary) !important; /* Toma el color primario del tema */
-        color: #ffffff !important;
-    }
-
-    .calendario-slots {
-        background: var(--bg-card) !important;
-    }
-    .calendario-slot {
-        border-bottom: 1px solid var(--border-color) !important;
-    }
-    .calendario-slot-hora {
-        color: var(--text-main) !important;
-    }
-    .calendario-slot-paciente {
-        color: var(--text-main) !important;
-    }
-    
-    .calendario-slot.vacio {
-        color: var(--text-muted) !important;
-    }
-    .calendario-slot.vacio:hover {
-        background: var(--bg-alt) !important;
-        color: var(--primary) !important;
-    }
-
-    .calendario-slot.pendiente {
-        background: var(--warning-bg) !important;
-        border-left-color: var(--warning) !important;
-    }
-    .calendario-slot.pendiente .calendario-slot-paciente {
-        color: var(--warning-text) !important;
-    }
-    
-    .calendario-slot.confirmado {
-        background: var(--success-bg) !important;
-        border-left-color: var(--success) !important;
-    }
-    .calendario-slot.confirmado .calendario-slot-paciente {
-        color: var(--success-text) !important;
-    }
-    
-    .calendario-slot.sobreturno {
-        background: var(--danger-bg) !important;
-        border-left-color: var(--danger) !important;
-    }
-    .calendario-slot.sobreturno .calendario-slot-paciente {
-        color: var(--danger-text) !important;
-    }
-
-    .consultorio-separador {
-        background: var(--bg-alt) !important;
-        color: var(--text-main) !important;
-        border-bottom: 1px solid var(--border-color) !important;
-    }
-
-    .calendario-dia-footer {
-        background: var(--bg-card) !important;
-        border-top: 1px solid var(--border-color) !important;
-    }
-    .calendario-dia-footer a {
-        color: var(--text-muted) !important;
-    }
-    .calendario-dia-footer a:hover {
-        color: var(--danger) !important;
-    }
-
-    .modal-info-row {
-        border-color: var(--border-color) !important;
-    }
-    .modal-info-value {
-        color: var(--text-main) !important;
-    }
-
-
-    /* =============== 4. BADGES Y ETIQUETAS =============== */
-
-    .badge-info, .badge-info.paciente-option-badge,
-    .ficha-badge-info, .sesiones-badge {
-        background: var(--info-bg) !important;
-        color: var(--info-text) !important;
-    }
-    .badge-success, .ficha-badge-success {
-        background: var(--success-bg) !important;
-        color: var(--success-text) !important;
-    }
-    .badge-warning, .ficha-badge-warning {
-        background: var(--warning-bg) !important;
-        color: var(--warning-text) !important;
-    }
-    .badge-danger, .ficha-badge-danger {
-        background: var(--danger-bg) !important;
-        color: var(--danger-text) !important;
-    }
-    .badge-gray, .ficha-badge-gray {
-        background: var(--bg-alt) !important;
-        color: var(--text-muted) !important;
-    }
-
-    .paciente-option-detalle {
-        color: var(--text-muted) !important;
-    }
-    .paciente-option-detalle strong {
-        color: var(--text-main) !important;
-    }
-    .paciente-option-info .paciente-option-nombre {
-        color: var(--text-main) !important;
-    }
-    .paciente-option {
-        border-color: var(--border-color) !important;
-        background: var(--bg-card) !important;
-    }
-    .paciente-option:hover {
-        border-color: var(--primary) !important;
-    }
-    .paciente-option.seleccionado {
-        border-color: var(--success) !important;
-        background: var(--success-bg) !important;
-    }
-
-
-    /* =============== 5. CHECKBOXES (Fichas y Formularios) =============== */
-    .ficha-checkbox-label, .perfil-checkbox-label {
-        color: var(--text-main) !important;
-    }
-    .ficha-checkbox-label input[type="checkbox"],
-    .perfil-checkbox-label input[type="checkbox"] {
-        accent-color: var(--primary) !important; /* Aplica el color primario del tema */
-    }
-
-
-    /* =============== 6. ESTADOS VACÍOS Y TABLAS =============== */
-    .empty-state p, .perfil-vacio, .ficha-empty p, .portal-empty p {
-        color: var(--text-muted) !important;
-    }
-    
-    table thead th {
-        background: var(--bg-alt) !important;
-        color: var(--text-muted) !important;
-        border-color: var(--border-color) !important;
-    }
-    table tbody td {
-        color: var(--text-main) !important;
-        border-color: var(--border-color) !important;
-    }
-    table tbody tr:hover {
-        background: var(--bg-alt) !important;
-    }
+    .empty-state p, .perfil-vacio, .ficha-empty p, .portal-empty p { color: var(--text-muted) !important; }
 }
 
 /* =============================================
-   ZONA DE DROP PARA ARCHIVOS (dinámica)
+   ZONA DE DROP PARA ARCHIVOS
    ============================================= */
 .drop-zone {
     border: 2px dashed var(--border-color);
@@ -852,7 +656,6 @@ body.dark-mode .form-group label {
     font-size: 0.85em;
 }
 
-/* Previa de imágenes */
 .previa-container {
     display: flex;
     gap: 10px;

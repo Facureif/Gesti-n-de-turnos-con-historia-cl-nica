@@ -156,25 +156,25 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div class="form-group">
-                        <label>Obra Social <span class="required">*</span></label>
-                        <select name="obra_social" required class="form-select">
-                            <option value="">Seleccionar...</option>
-                            {% for os in obras_sociales_disponibles %}
-                            <option value="{{ os.id }}">{{ os.nombre }} ({{ os.sigla }})</option>
+                    <label>Obra Social <span class="required">*</span></label>
+                    <select name="obra_social" id="select-obra-social" required class="form-select" onchange="filtrarPlanes()">
+                        <option value="">Seleccionar...</option>
+                        {% for os in obras_sociales_disponibles %}
+                        <option value="{{ os.id }}">{{ os.nombre }} ({{ os.sigla }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Plan</label>
+                    <select name="plan" id="select-plan" class="form-select">
+                        <option value="">— Primero elegí una obra social —</option>
+                        {% for os in obras_sociales_disponibles %}
+                            {% for plan in os.planes.all %}
+                            <option value="{{ plan.id }}" data-os="{{ os.id }}" style="display:none;">{{ os.nombre }} - {{ plan.nombre }}</option>
                             {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Plan</label>
-                        <select name="plan" class="form-select">
-                            <option value="">— Seleccionar plan —</option>
-                            {% for os in obras_sociales_disponibles %}
-                                {% for plan in os.planes.all %}
-                                <option value="{{ plan.id }}">{{ os.nombre }} - {{ plan.nombre }}</option>
-                                {% endfor %}
-                            {% endfor %}
-                        </select>
-                    </div>
+                        {% endfor %}
+                    </select>
+                </div>
                     <div class="form-group">
                         <label>N° de Afiliado</label>
                         <input type="text" name="numero_afiliado" placeholder="Ej: 123456" class="form-input">
@@ -190,4 +190,41 @@
     </div>
     
 </div>
+
+<script>
+function filtrarPlanes() {
+    const obraSocialId = document.getElementById('select-obra-social').value;
+    const planSelect = document.getElementById('select-plan');
+    const opciones = planSelect.querySelectorAll('option');
+
+    // Ocultar todas las opciones menos la primera ("placeholder")
+    for (let i = 1; i < opciones.length; i++) {
+        opciones[i].style.display = 'none';
+    }
+
+    if (obraSocialId) {
+        // Mostrar solo las opciones que correspondan a la obra social elegida
+        for (let i = 1; i < opciones.length; i++) {
+            if (opciones[i].dataset.os === obraSocialId) {
+                opciones[i].style.display = '';
+            }
+        }
+        // Cambiar el placeholder
+        planSelect.options[0].text = '— Seleccionar plan —';
+    } else {
+        // Si no hay obra social seleccionada, volver al texto original
+        planSelect.options[0].text = '— Primero elegí una obra social —';
+    }
+    // Resetear la selección
+    planSelect.value = '';
+}
+function toggleFormOS() {
+    var form = document.getElementById('form-agregar-os');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}
