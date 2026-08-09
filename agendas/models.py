@@ -15,7 +15,16 @@ class Agenda(ModeloBase):
     fecha_fin = models.DateField(null=True, blank=True, verbose_name='Fecha de Fin')
     acepta_sobreturnos = models.BooleanField(default=False, verbose_name='Acepta Sobreturnos')
     tiempo_entre_turnos = models.IntegerField(default=0, verbose_name='Minutos entre turnos')
-    
+    precio_particular = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True,
+        verbose_name='Precio consulta particular (en este consultorio)'
+    )
+    obras_sociales = models.ManyToManyField(
+        'obras_sociales.ObraSocial',
+        blank=True,
+        related_name='agendas',
+        verbose_name='Obras Sociales (en este consultorio)'
+    )
     establecimiento = models.ForeignKey(
         'establecimientos.Establecimiento',
         on_delete=models.CASCADE,

@@ -66,7 +66,11 @@
     <div class="dashboard-metrica facturado">
         <div class="metrica-valor">${{ total_facturado|floatformat:0 }}</div>
         <div class="metrica-etiqueta">Total Facturado</div>
-        <div class="metrica-sub">💰 Coseguros: ${{ total_coseguros|floatformat:0 }} · 🏥 OS: ${{ total_os|floatformat:0 }}</div>
+        <div class="metrica-sub">
+            💰 Coseguros: ${{ total_coseguros|floatformat:0 }} · 
+            🏥 OS: ${{ total_os|floatformat:0 }} · 
+            👤 Particulares: ${{ total_particulares|floatformat:0 }}
+        </div>
     </div>
 </div>
 

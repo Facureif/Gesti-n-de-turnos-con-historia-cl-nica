@@ -100,40 +100,57 @@ def portal(request, cliente_slug):
         'nutricion': '🥗',
         'medicina_general': '🩺',
         'cardiologia': '❤️',
-        'dermatologia': '🔬',
+        'dermatologia': '👨🏻‍⚕️​',
+        'laboratorio': '🔬',
         'pediatria': '👶',
         'traumatologia': '🦴',
         'otra': '👨‍⚕️',
     }
     
     if cliente.tipo == 'consultorio':
-        profesionales = Profesional.objects.filter(
+        # Obtenemos los profesionales de este consultorio
+        profesionales_qs = Profesional.objects.filter(
             establecimientos=cliente.establecimiento, activo=True
-        ).prefetch_related('agenda_set__horarios')
-        
+        ).prefetch_related('agenda_set__horarios', 'agenda_set__obras_sociales')
+
+        profesionales = []
+        for prof in profesionales_qs:
+            # Buscar la agenda específica de este profesional en el establecimiento del cliente
+            agenda = prof.agenda_set.filter(
+                establecimiento=cliente.establecimiento, activo=True
+            ).first()
+            profesionales.append({
+                'profesional': prof,
+                'agenda': agenda,
+                # Si la agenda tiene precio configurado lo usamos, sino el genérico del profesional
+                'precio_particular': agenda.precio_particular if agenda else prof.precio_particular,
+                'obras_sociales': agenda.obras_sociales.all() if agenda else prof.obras_sociales.all(),
+            })
+
+        # Construir especialidades para los filtros (basado en los profesionales únicos)
         especialidades_disponibles = []
         especialidades_vistas = set()
-        
-        for prof in profesionales:
+        for item in profesionales:
+            prof = item['profesional']
             codigo = prof.especialidad
             if codigo and codigo not in especialidades_vistas:
                 especialidades_vistas.add(codigo)
-                total = sum(1 for p in profesionales if p.especialidad == codigo)
+                total = sum(1 for it in profesionales if it['profesional'].especialidad == codigo)
                 especialidades_disponibles.append({
                     'codigo': codigo,
                     'nombre': prof.get_especialidad_display(),
                     'icono': ICONOS_ESPECIALIDAD.get(codigo, '👨‍⚕️'),
                     'total': total,
                 })
-        
         especialidades_disponibles.sort(key=lambda x: x['nombre'])
-        
+
         return render(request, 'core_app/landing_consultorio.html', {
             'cliente': cliente,
-            'profesionales': profesionales,
+            'profesionales': profesionales,          # lista de diccionarios
             'especialidades_disponibles': especialidades_disponibles,
         })
     else:
+        # Para tipo 'profesional' (sin cambios)
         profesional = cliente.profesional
         consultorios = profesional.establecimientos.all()
         for est in consultorios:

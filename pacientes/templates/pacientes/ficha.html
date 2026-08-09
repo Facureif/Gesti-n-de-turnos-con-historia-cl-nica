@@ -340,7 +340,9 @@
                                 {% else %}
                                     <span class="badge badge-warning" style="font-size: 0.7em;">⏳ Pendiente</span>
                                 {% endif %}
-                            {% else %}<span class="text-muted">—</span>{% endif %}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if t.evolucion and t.evolucion.archivos.all %}

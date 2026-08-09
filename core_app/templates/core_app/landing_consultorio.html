@@ -45,7 +45,6 @@
     </section>
 
     <!-- ========== QUIÉNES SOMOS ========== -->
-    <!-- ✅ Imagen independiente + destacados dinámicos -->
     <section id="nosotros" class="section">
         <div class="container-custom">
             <div class="section-header">
@@ -83,7 +82,6 @@
                     </div>
                 </div>
                 
-                <!-- ✅ Imagen de "Quiénes Somos" independiente del hero -->
                 <div class="nosotros-imagen">
                     {% if cliente.nosotros_imagen %}
                         <img src="{{ cliente.nosotros_imagen.url }}" alt="{{ cliente.nombre }}">
@@ -162,7 +160,8 @@
             </div>
             
             <div class="profesionales-list" id="profesionales-list">
-                {% for prof in profesionales %}
+                {% for item in profesionales %}
+                {% with prof=item.profesional agenda=item.agenda %}
                 <div class="profesional-card" data-especialidad="{{ prof.especialidad }}">
                     <div class="profesional-header" onclick="toggleFicha('ficha-{{ prof.id }}', this)">
                         {% if prof.foto %}
@@ -176,12 +175,11 @@
                         <div class="profesional-info">
                             <h3>{{ prof.nombre_completo }}</h3>
                             <p class="especialidad">{{ prof.get_especialidad_display }}</p>
-                            <!-- ✅ Precios y obras sociales controlados por el flag del cliente -->
                             <div class="profesional-tags">
-                                {% if cliente.mostrar_precios_landing and prof.precio_particular %}
-                                    <span class="tag">💵 ${{ prof.precio_particular }}</span>
+                                {% if cliente.mostrar_precios_landing and item.precio_particular %}
+                                    <span class="tag">💵 ${{ item.precio_particular }}</span>
                                 {% endif %}
-                                {% if cliente.mostrar_obras_sociales_landing and prof.obras_sociales.exists %}
+                                {% if cliente.mostrar_obras_sociales_landing and item.obras_sociales %}
                                     <span class="tag tag-os">🏥 Obras Sociales</span>
                                 {% endif %}
                             </div>
@@ -213,28 +211,25 @@
 
                             <div class="detalle-section">
                                 <h4>⏰ Horarios de Atención</h4>
-                                {% with agenda=prof.agenda_set.first %}
-                                    {% if agenda %}
-                                        {% for h in agenda.horarios.all %}
-                                            <p><strong>{{ h.get_dia_display }}:</strong> {{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</p>
-                                        {% endfor %}
-                                    {% else %}
-                                        <p style="color: var(--text-muted); font-style: italic;">Consultar horarios disponibles</p>
-                                    {% endif %}
-                                {% endwith %}
+                                {% if agenda %}
+                                    {% for h in agenda.horarios.all %}
+                                        <p><strong>{{ h.get_dia_display }}:</strong> {{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</p>
+                                    {% endfor %}
+                                {% else %}
+                                    <p style="color: var(--text-muted); font-style: italic;">Consultar horarios disponibles</p>
+                                {% endif %}
                             </div>
 
                             <div class="detalle-section">
-                                <!-- ✅ Solo se muestran si el cliente lo permite -->
-                                {% if cliente.mostrar_precios_landing and prof.precio_particular %}
+                                {% if cliente.mostrar_precios_landing and item.precio_particular %}
                                 <h4>💵 Consulta Particular</h4>
-                                <p class="precio-destacado">${{ prof.precio_particular }}</p>
+                                <p class="precio-destacado">${{ item.precio_particular }}</p>
                                 {% endif %}
                                 
-                                {% if cliente.mostrar_obras_sociales_landing and prof.obras_sociales.exists %}
+                                {% if cliente.mostrar_obras_sociales_landing and item.obras_sociales %}
                                 <h4 style="margin-top: 12px;">🏥 Obras Sociales</h4>
                                 <div class="obras-sociales-list">
-                                    {% for os in prof.obras_sociales.all %}
+                                    {% for os in item.obras_sociales %}
                                         <span class="os-badge">{{ os.nombre }}</span>
                                     {% endfor %}
                                 </div>
@@ -254,13 +249,14 @@
                         </div>
                     </div>
                 </div>
+                {% endwith %}
                 {% endfor %}
             </div>
         </div>
     </section>
     {% endif %}
 
-    <!-- ========== SERVICIOS (✅ 100% dinámicos) ========== -->
+    <!-- ========== SERVICIOS ========== -->
     {% if cliente.mostrar_servicios %}
     <section class="section section-alt">
         <div class="container-custom">
@@ -307,9 +303,9 @@
     </section>
     {% endif %}
 
-</div> <!-- CIERRE DEL DIV.LANDING -->
+</div>
 
-<!-- ========== WHATSAPP FLOTANTE (DERECHA) ========== -->
+<!-- ========== WHATSAPP FLOTANTE ========== -->
 {% if cliente.telefono_contacto %}
 <a href="https://wa.me/54{{ cliente.telefono_contacto|cut:' '|cut:'-' }}?text=Hola,%20vengo%20de%20la%20web%20y%20quiero%20consultar%20por%20un%20turno" 
    target="_blank" class="whatsapp-flotante">
@@ -322,7 +318,7 @@
 </a>
 {% endif %}
 
-<!-- ========== SELECTOR DE TEMAS (solo si está activado) ========== -->
+<!-- ========== SELECTOR DE TEMAS ========== -->
 {% if cliente.mostrar_selector_temas %}
 <div class="theme-selector">
     <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
@@ -350,23 +346,13 @@
 <footer class="footer">
     <div class="container-custom">
         <div class="footer-grid">
-            
             <div class="footer-col">
                 <h4>{{ cliente.nombre }}</h4>
                 <p>{{ cliente.footer_texto|default:'Atención profesional de calidad.' }}</p>
             </div>
-            
-            <div class="footer-col">
-                <!-- <h4>Enlaces</h4>
-                <ul>
-                    <li><a href="#nosotros">Quiénes Somos</a></li>
-                    <li><a href="#profesionales">Profesionales</a></li>
-                </ul> -->
-            </div>
-            
+            <div class="footer-col"></div>
             <div class="footer-col">
                 <h4>Contacto</h4>
-                
                 {% if cliente.establecimiento.direccion %}
                 <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.establecimiento.direccion|urlencode }}" 
                    target="_blank" class="footer-contacto-link">
@@ -374,7 +360,6 @@
                     <span>{{ cliente.establecimiento.direccion }}</span>
                 </a>
                 {% endif %}
-                
                 {% if cliente.telefono_contacto %}
                 <a href="https://wa.me/54{{ cliente.telefono_contacto|cut:' '|cut:'-' }}?text=Hola,%20quiero%20consultar%20por%20un%20turno" 
                    target="_blank" class="footer-contacto-link">
@@ -387,7 +372,6 @@
                     <span>{{ cliente.establecimiento.telefono }}</span>
                 </a>
                 {% endif %}
-                
                 {% if cliente.email_contacto %}
                 <a href="mailto:{{ cliente.email_contacto }}" class="footer-contacto-link">
                     <i class="fas fa-envelope"></i>
@@ -400,9 +384,7 @@
                 </a>
                 {% endif %}
             </div>
-            
         </div>
-        
         <div class="footer-bottom">
             <span>© {% now "Y" %} {{ cliente.nombre }}. Todos los derechos reservados.</span>
             <span>Desarrollado por <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>

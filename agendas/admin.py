@@ -1,4 +1,3 @@
-# agendas/admin.py
 from django.contrib import admin
 from .models import Agenda, HorarioAtencion, BloqueoAgenda
 
@@ -18,7 +17,7 @@ class BloqueoAgendaInline(admin.TabularInline):
 @admin.register(Agenda)
 class AgendaAdmin(admin.ModelAdmin):
     list_display = ('profesional', 'establecimiento', 'fecha_inicio', 'fecha_fin', 
-                    'pacientes_simultaneos', 'cantidad_horarios', 'activo')
+                    'pacientes_simultaneos', 'precio_particular', 'cantidad_horarios', 'activo')
     list_filter = ('establecimiento', 'profesional__especialidad', 'activo')
     search_fields = ('profesional__nombre', 'profesional__apellido', 'establecimiento__nombre')
     inlines = [HorarioAtencionInline, BloqueoAgendaInline]
@@ -30,7 +29,12 @@ class AgendaAdmin(admin.ModelAdmin):
         ('Configuración', {
             'fields': ('acepta_sobreturnos', 'tiempo_entre_turnos', 'activo')
         }),
+        ('Precio y Obras Sociales (por consultorio)', {
+            'fields': ('precio_particular', 'obras_sociales'),
+            'description': 'Estos valores son específicos para este profesional en este consultorio.'
+        }),
     )
+    filter_horizontal = ('obras_sociales',)  # Facilita la selección múltiple
     
     def cantidad_horarios(self, obj):
         return obj.horarios.count()
