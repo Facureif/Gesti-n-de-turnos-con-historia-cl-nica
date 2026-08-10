@@ -324,7 +324,11 @@
                                 <div class="monto-destacado">${{ t.monto_total|floatformat:0 }}</div>
                                 {% if t.monto_os %}<div class="monto-os">🏥 OS: ${{ t.monto_os|floatformat:0 }}</div>{% endif %}
                                 {% if t.monto_coseguro %}<div class="monto-coseguro">💰 Coseguro: ${{ t.monto_coseguro|floatformat:0 }}</div>{% endif %}
-                            {% else %}<span class="text-muted">—</span>{% endif %}
+                            {% elif t.estado == 'completado' %}
+                                <a href="{% url 'cobrar_turno' t.id %}" class="btn btn-success btn-xs">💰 Pagar</a>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if t.estado == 'completado' %}<span class="badge badge-gray">✔️ Completado</span>

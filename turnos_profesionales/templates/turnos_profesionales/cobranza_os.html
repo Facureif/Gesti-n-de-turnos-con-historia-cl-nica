@@ -1,7 +1,7 @@
 {% extends 'core_app/base.html' %}
 {% load static %}
 
-{% block title %}Cobranza Obras Sociales{% endblock %}
+{% block title %}Registro de Cobros{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
@@ -12,7 +12,7 @@
 
     <!-- Header -->
     <div class="cobranza-header">
-        <h1>🏥 Cobranza a Obras Sociales</h1>
+        <h1>💰 Registro de Cobros</h1>
         <div class="cobranza-navegacion">
             <a href="?mes={{ mes_anterior }}" class="btn btn-secondary btn-sm">← Mes Anterior</a>
             <a href="?mes={{ mes_siguiente }}" class="btn btn-secondary btn-sm">Mes Siguiente →</a>
@@ -24,23 +24,27 @@
     <!-- Resumen del mes -->
     <div class="cobranza-stats">
         <div class="cobranza-stat facturado">
-            <div class="stat-etiqueta">Total Facturado a OS</div>
-            <div class="stat-valor">${{ total_facturado|floatformat:0 }}</div>
+            <div class="stat-etiqueta">Facturado a OS</div>
+            <div class="stat-valor">${{ total_facturado_os|floatformat:0 }}</div>
         </div>
         <div class="cobranza-stat cobrado">
             <div class="stat-etiqueta">Cobrado a OS</div>
-            <div class="stat-valor">${{ total_cobrado|floatformat:0 }}</div>
+            <div class="stat-valor">${{ total_cobrado_os|floatformat:0 }}</div>
         </div>
         <div class="cobranza-stat pendiente">
-            <div class="stat-etiqueta">Pendiente de Cobro</div>
-            <div class="stat-valor">${{ total_pendiente|floatformat:0 }}</div>
+            <div class="stat-etiqueta">Pendiente OS</div>
+            <div class="stat-valor">${{ total_pendiente_os|floatformat:0 }}</div>
+        </div>
+        <div class="cobranza-stat" style="background: #e0f2fe; border-color: #7dd3fc;">
+            <div class="stat-etiqueta" style="color: #0369a1;">Particulares Cobrados</div>
+            <div class="stat-valor" style="color: #0369a1;">${{ total_facturado_particulares|floatformat:0 }}</div>
         </div>
     </div>
 
-    <!-- Tabla de turnos con OS -->
+    <!-- Tabla de turnos con cobros -->
     <div class="card">
         <div class="card-header flex-between">
-            <h3 class="card-title">📋 Turnos con Obra Social</h3>
+            <h3 class="card-title">📋 Cobros del Mes</h3>
             <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">← Volver al Dashboard</a>
         </div>
         
@@ -51,11 +55,11 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Paciente</th>
-                        <th>Obra Social</th>
+                        <th>Tipo</th>
                         <th>Total</th>
                         <th>Cubre OS</th>
                         <th>Coseguro</th>
-                        <th>¿Cobrado a OS?</th>
+                        <th>Estado</th>
                         <th>Fecha Cobro</th>
                         <th></th>
                     </tr>
@@ -70,31 +74,38 @@
                             </a>
                         </td>
                         <td>
-                            {% if t.paciente.obra_social %}
-                                <span class="badge badge-info">{{ t.paciente.obra_social.sigla }}</span>
-                                {{ t.paciente.obra_social.nombre }}
-                            {% else %}—{% endif %}
+                            {% if t.monto_os %}
+                                <span class="badge badge-info">{{ t.paciente.obra_social.nombre|default:"OS" }}</span>
+                            {% else %}
+                                <span class="badge badge-gray">👤 Particular</span>
+                            {% endif %}
                         </td>
                         <td class="monto-total">${{ t.monto_total|floatformat:0|default:"—" }}</td>
-                        <td class="monto-os">${{ t.monto_os|floatformat:0|default:"—" }}</td>
-                        <td class="monto-coseguro">${{ t.monto_coseguro|floatformat:0|default:"—" }}</td>
+                        <td class="monto-os">{% if t.monto_os %}${{ t.monto_os|floatformat:0 }}{% else %}—{% endif %}</td>
+                        <td class="monto-coseguro">{% if t.monto_coseguro %}${{ t.monto_coseguro|floatformat:0 }}{% else %}—{% endif %}</td>
                         <td>
-                            {% if t.os_cobrado %}
-                                <span class="badge badge-success">✅ Cobrado</span>
+                            {% if t.monto_os %}
+                                {% if t.os_cobrado %}
+                                    <span class="badge badge-success">✅ Cobrado a OS</span>
+                                {% else %}
+                                    <span class="badge badge-warning">⏳ Pendiente OS</span>
+                                {% endif %}
                             {% else %}
-                                <span class="badge badge-warning">⏳ Pendiente</span>
+                                <span class="badge badge-success">✅ Cobrado</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if t.fecha_cobro_os %}
                                 {{ t.fecha_cobro_os|date:"d/m/Y" }}
+                            {% elif not t.monto_os %}
+                                {{ t.fecha|date:"d/m/Y" }}  <!-- asumimos que el pago particular fue en la fecha del turno -->
                             {% else %}—{% endif %}
                         </td>
                         <td>
-                            {% if not t.os_cobrado and t.monto_os %}
+                            {% if t.monto_os and not t.os_cobrado %}
                             <form method="post" action="{% url 'marcar_cobrado_os' t.id %}" style="display: inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-success btn-xs">💰 Marcar Cobrado</button>
+                                <button type="submit" class="btn btn-success btn-xs">💰 Marcar Cobrado OS</button>
                             </form>
                             {% endif %}
                         </td>
@@ -105,7 +116,7 @@
         </div>
         {% else %}
         <div style="text-align: center; padding: 30px; color: var(--text-muted);">
-            <p>No hay turnos con obra social este mes.</p>
+            <p>No hay cobros registrados este mes.</p>
         </div>
         {% endif %}
     </div>

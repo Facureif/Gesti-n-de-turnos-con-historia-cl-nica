@@ -18,10 +18,12 @@
             <div class="nombre">{{ paciente.nombre_completo }}</div>
             <div class="detalle">{{ turno.fecha|date:"d/m/Y" }} · {{ turno.hora_inicio|time:"H:i" }}</div>
         </div>
-        <div class="cobro-plan-badge">
-            {% if plan %}
-                <span class="badge badge-info">{{ plan.obra_social.sigla }}</span>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ plan.nombre }}</div>
+        <div class="cobro-plan-badge" id="badge-os-actual">
+            {% if paciente.obra_social %}
+                <span class="badge badge-info">{{ paciente.obra_social.sigla }}</span>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ paciente.plan_obra_social.nombre|default:"Sin plan" }}
+                </div>
             {% else %}
                 <span class="badge badge-gray">Particular</span>
             {% endif %}
@@ -31,6 +33,28 @@
     <div class="card">
         <form method="post" id="form-cobro" style="padding: 20px;">
             {% csrf_token %}
+            
+            <!-- ===== Selector de obra social ===== -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--text);">
+                    🏥 Obra Social para este cobro
+                </label>
+                <select name="obra_social" id="select-os" class="cobro-monto-input" onchange="actualizarOS()">
+                    <option value="">— Particular —</option>
+                    {% for os_pac in obras_sociales_activas %}
+                        <option value="{{ os_pac.id }}" 
+                            data-sigla="{{ os_pac.obra_social.sigla }}"
+                            data-nombre="{{ os_pac.obra_social.nombre }}"
+                            data-plan-id="{{ os_pac.plan.id|default:'' }}"
+                            data-plan-nombre="{{ os_pac.plan.nombre|default:'Sin plan' }}"
+                            data-coseguro-fijo="{{ os_pac.plan.coseguro_fijo|default:'' }}"
+                            data-coseguro-porcentaje="{{ os_pac.plan.coseguro_porcentaje|default:'' }}"
+                            {% if os_pac == obra_social_activa_default %}selected{% endif %}>
+                            {{ os_pac.obra_social.sigla }} - {{ os_pac.obra_social.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
             
             <!-- Monto total -->
             <div style="margin-bottom: 20px;">
@@ -44,27 +68,22 @@
                        oninput="calcularCoseguro()">
             </div>
             
-            {% if plan %}
-            <div class="cobro-os-block">
-                <label>🏥 Cubre {{ plan.obra_social.nombre }}</label>
-                <input type="number" name="monto_os" id="monto_os" step="0.01" min="0"
-                       class="cobro-os-input"
-                       placeholder="Monto que cubre la OS"
-                       oninput="calcularCoseguro()">
+            <!-- Bloque OS (se muestra si se selecciona una OS) -->
+            <div id="bloque-os" style="display: none;">
+                <div class="cobro-os-block">
+                    <label id="label-os">🏥 Cubre </label>
+                    <input type="number" name="monto_os" id="monto_os" step="0.01" min="0"
+                           class="cobro-os-input"
+                           placeholder="Monto que cubre la OS"
+                           oninput="calcularCoseguro()">
+                </div>
             </div>
-            {% endif %}
             
-            <!-- Coseguro -->
-            <div class="cobro-coseguro-block {% if plan %}con-os{% else %}sin-os{% endif %}">
-                {% if plan %}
-                <div class="cobro-coseguro-etiqueta">💰 COBRAR AL PACIENTE AHORA</div>
-                {% else %}
-                <div class="cobro-coseguro-etiqueta">👤 PACIENTE PARTICULAR · COBRAR TOTAL</div>
-                {% endif %}
-                
+            <!-- Coseguro (siempre visible, pero cambia el texto) -->
+            <div class="cobro-coseguro-block" id="bloque-coseguro">
+                <div class="cobro-coseguro-etiqueta" id="coseguro-etiqueta">👤 PACIENTE PARTICULAR · COBRAR TOTAL</div>
                 <div class="cobro-coseguro-monto" id="coseguro-mostrado">$0.00</div>
                 <input type="hidden" name="monto_coseguro" id="monto_coseguro" value="">
-                
                 <div class="cobro-coseguro-detalle" id="detalle-calculo"></div>
             </div>
             
@@ -80,22 +99,93 @@
 </div>
 
 <script>
-function calcularCoseguro() {
-    var total = parseFloat(document.getElementById('monto_total').value) || 0;
-    var os = parseFloat(document.getElementById('monto_os').value) || 0;
+// Variable global para guardar datos de la OS seleccionada
+var osData = {};
+
+function actualizarOS() {
+    var select = document.getElementById('select-os');
+    var bloqueOS = document.getElementById('bloque-os');
+    var etiqueta = document.getElementById('coseguro-etiqueta');
+    var badge = document.getElementById('badge-os-actual');
+    var labelOS = document.getElementById('label-os');
+    var montoOS = document.getElementById('monto_os');
     
-    {% if plan %}
-        var coseguro = total - os;
-        document.getElementById('monto_coseguro').value = coseguro > 0 ? coseguro.toFixed(2) : '0.00';
-        document.getElementById('coseguro-mostrado').textContent = '$' + (coseguro > 0 ? coseguro.toLocaleString('es-AR', {minimumFractionDigits: 2}) : '0,00');
-        document.getElementById('detalle-calculo').textContent = 'Total: $' + total.toLocaleString('es-AR') + ' - OS: $' + os.toLocaleString('es-AR');
-    {% else %}
-        document.getElementById('monto_coseguro').value = total.toFixed(2);
-        document.getElementById('coseguro-mostrado').textContent = '$' + total.toLocaleString('es-AR', {minimumFractionDigits: 2});
-        document.getElementById('detalle-calculo').textContent = 'El paciente paga el total de la consulta';
-    {% endif %}
+    if (select.value) {
+        // Se seleccionó una obra social
+        var option = select.options[select.selectedIndex];
+        osData = {
+            sigla: option.dataset.sigla,
+            nombre: option.dataset.nombre,
+            planNombre: option.dataset.planNombre,
+            coseguroFijo: option.dataset.coseguroFijo ? parseFloat(option.dataset.coseguroFijo) : null,
+            coseguroPorcentaje: option.dataset.coseguroPorcentaje ? parseFloat(option.dataset.coseguroPorcentaje) : null
+        };
+        
+        // Mostrar bloque OS
+        bloqueOS.style.display = 'block';
+        labelOS.textContent = '🏥 Cubre ' + osData.nombre + ' (' + osData.sigla + ')';
+        
+        // Cambiar etiqueta del coseguro
+        etiqueta.textContent = '💰 COBRAR AL PACIENTE AHORA';
+        document.getElementById('bloque-coseguro').className = 'cobro-coseguro-block con-os';
+        
+        // Actualizar badge superior
+        badge.innerHTML = '<span class="badge badge-info">' + osData.sigla + '</span>' +
+                          '<div style="font-size: 0.8rem; color: var(--text-muted);">' + osData.planNombre + '</div>';
+        
+        // Si el plan tiene coseguro fijo, calcular automáticamente el monto OS
+        if (osData.coseguroFijo) {
+            // El coseguro fijo es lo que paga el paciente, el resto lo cubre la OS
+            // Pero necesitamos el monto total para calcularlo, eso se hará en calcularCoseguro()
+        }
+    } else {
+        // Particular
+        osData = {};
+        bloqueOS.style.display = 'none';
+        etiqueta.textContent = '👤 PACIENTE PARTICULAR · COBRAR TOTAL';
+        document.getElementById('bloque-coseguro').className = 'cobro-coseguro-block sin-os';
+        montoOS.value = '';
+        badge.innerHTML = '<span class="badge badge-gray">Particular</span>';
+    }
+    
+    calcularCoseguro();
 }
 
-window.onload = function() { calcularCoseguro(); };
+function calcularCoseguro() {
+    var total = parseFloat(document.getElementById('monto_total').value) || 0;
+    var montoOS = parseFloat(document.getElementById('monto_os').value) || 0;
+    var coseguroInput = document.getElementById('monto_coseguro');
+    var mostrado = document.getElementById('coseguro-mostrado');
+    var detalle = document.getElementById('detalle-calculo');
+    
+    if (document.getElementById('select-os').value) {
+        // Con obra social
+        var coseguro = total - montoOS;
+        if (osData.coseguroFijo) {
+            // Si hay coseguro fijo, el monto OS = total - coseguro fijo
+            montoOS = total - osData.coseguroFijo;
+            document.getElementById('monto_os').value = montoOS.toFixed(2);
+            coseguro = osData.coseguroFijo;
+        } else if (osData.coseguroPorcentaje) {
+            // Porcentaje: coseguro = total * porcentaje / 100
+            coseguro = total * osData.coseguroPorcentaje / 100;
+            montoOS = total - coseguro;
+            document.getElementById('monto_os').value = montoOS.toFixed(2);
+        }
+        coseguroInput.value = coseguro > 0 ? coseguro.toFixed(2) : '0.00';
+        mostrado.textContent = '$' + (coseguro > 0 ? coseguro.toLocaleString('es-AR', {minimumFractionDigits: 2}) : '0,00');
+        detalle.textContent = 'Total: $' + total.toLocaleString('es-AR') + ' - OS: $' + montoOS.toLocaleString('es-AR');
+    } else {
+        // Particular
+        coseguroInput.value = '';   // no se envía coseguro
+        mostrado.textContent = '$' + total.toLocaleString('es-AR', {minimumFractionDigits: 2});
+        detalle.textContent = 'El paciente paga el total de la consulta';
+    }
+}
+
+window.onload = function() {
+    actualizarOS();   // para que cargue el estado inicial (si hay OS seleccionada por defecto)
+    calcularCoseguro();
+};
 </script>
 {% endblock %}

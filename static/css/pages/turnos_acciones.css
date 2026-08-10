@@ -374,14 +374,14 @@
    ============================================= */
 .cobranza-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(4, 1fr);   /* ← antes era 3 */
+    gap: 12px;                               /* reducimos un poco la separación */
     margin-bottom: 24px;
 }
 
 .cobranza-stat {
     text-align: center;
-    padding: 20px;
+    padding: 16px 12px;                      /* un poco menos de relleno */
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
 }
@@ -402,7 +402,7 @@
 }
 
 .cobranza-stat .stat-etiqueta {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -414,7 +414,7 @@
 .cobranza-stat.pendiente .stat-etiqueta { color: #991b1b; }
 
 .cobranza-stat .stat-valor {
-    font-size: 1.8rem;
+    font-size: 1.5rem;                       /* un poco más chico que 1.8rem */
     font-weight: 700;
 }
 

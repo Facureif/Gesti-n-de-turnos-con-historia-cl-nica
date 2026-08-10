@@ -77,16 +77,16 @@
                     
                     {% for slot in slots %}
                     <div class="calendario-slot 
-                        {% if slot.turno %}
-                            {% if slot.turno.es_sobreturno or slot.mostrar_como_sobreturno %}sobreturno
-                            {% elif slot.turno.estado == 'confirmado' %}confirmado
-                            {% elif slot.turno.estado == 'pendiente' %}pendiente
-                            {% elif slot.turno.estado == 'completado' %}completado
-                            {% elif slot.turno.estado == 'cancelado' %}cancelado
-                            {% elif slot.turno.estado == 'no_asistio' %}no_asistio
-                            {% endif %}
-                        {% else %}vacio
-                        {% endif %}" 
+                            {% if slot.turno %}
+                                {% if slot.turno.estado == 'no_asistio' %}no_asistio
+                                {% elif slot.turno.estado == 'cancelado' %}cancelado
+                                {% elif slot.turno.estado == 'completado' %}completado
+                                {% elif slot.turno.es_sobreturno or slot.mostrar_como_sobreturno %}sobreturno
+                                {% elif slot.turno.estado == 'confirmado' %}confirmado
+                                {% elif slot.turno.estado == 'pendiente' %}pendiente
+                                {% endif %}
+                            {% else %}vacio
+                            {% endif %}"
                         onclick="
                             {% if slot.turno %}
                                 mostrarModalTurno(

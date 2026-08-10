@@ -39,25 +39,44 @@ def _get_establecimiento_activo(request, profesional):
 
 
 def marcar_turnos_vencidos(profesional=None):
-    """Marca como 'no_asistio' los turnos de hoy que ya pasaron 30 minutos de su hora de inicio."""
+    """
+    Marca como 'no_asistio' los turnos de hoy que ya pasaron 30 min de su hora de inicio,
+    y también cualquier turno de días anteriores que haya quedado pendiente/confirmado.
+    """
     ahora = datetime.now()
     hoy = ahora.date()
     hora_limite = (ahora - timedelta(minutes=30)).time()
 
-    filtro = {
+    # 1. Turnos de HOY que vencieron
+    filtro_hoy = {
         'fecha': hoy,
         'estado__in': ['pendiente', 'confirmado'],
         'hora_inicio__lte': hora_limite,
         'no_asistio_automatico': False,
     }
     if profesional:
-        filtro['profesional'] = profesional
+        filtro_hoy['profesional'] = profesional
 
-    turnos_vencidos = TurnoProfesional.objects.filter(**filtro)
+    # 2. Turnos de días ANTERIORES que todavía están pendientes/confirmados
+    filtro_pasados = {
+        'fecha__lt': hoy,
+        'estado__in': ['pendiente', 'confirmado'],
+        'no_asistio_automatico': False,
+    }
+    if profesional:
+        filtro_pasados['profesional'] = profesional
+
+    # Unimos los dos conjuntos de turnos
+    from django.db.models import Q
+    turnos_vencidos = TurnoProfesional.objects.filter(
+        Q(**filtro_hoy) | Q(**filtro_pasados)
+    )
+
     for turno in turnos_vencidos:
         turno.estado = 'no_asistio'
         turno.no_asistio_automatico = True
 
+        # Descontar sesión de OS si corresponde
         os_paciente = PacienteObraSocial.objects.filter(
             paciente=turno.paciente, activa=True,
             profesional=turno.profesional, sesiones_restantes__gt=0
@@ -324,41 +343,77 @@ def cobrar_turno(request, turno_id):
         return redirect('home')
     
     paciente = turno.paciente
-    plan = paciente.plan_obra_social
     
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
     else:
         profesional = None
-    
+
+    # Obtener todas las obras sociales activas del paciente para este profesional
+    obras_sociales_activas = PacienteObraSocial.objects.filter(
+        paciente=paciente,
+        activa=True,
+        profesional=profesional  # se filtra por el profesional que está cobrando
+    ).select_related('obra_social', 'plan')
+
+    # Por defecto, seleccionamos la primera OS activa (o ninguna)
+    obra_social_seleccionada = None
+    plan_seleccionado = None
+
     if request.method == 'POST':
         monto_total = request.POST.get('monto_total', '')
         monto_os = request.POST.get('monto_os', '')
         monto_coseguro = request.POST.get('monto_coseguro', '')
-        
+        os_id = request.POST.get('obra_social')           # ID de PacienteObraSocial
+        plan_id = request.POST.get('plan')                # ID de Plan (opcional)
+
+        # Guardar montos
         if monto_total:
             turno.monto_total = Decimal(monto_total)
         if monto_os:
             turno.monto_os = Decimal(monto_os)
-        if monto_coseguro:
+        
+        # Solo guardamos coseguro si se seleccionó una OS
+        if os_id and monto_coseguro:
             turno.monto_coseguro = Decimal(monto_coseguro)
-        
+        else:
+            turno.monto_coseguro = None
+
+        # Asociar la obra social elegida al turno (campo existente)
+        if os_id:
+            try:
+                os_paciente = PacienteObraSocial.objects.get(id=os_id, paciente=paciente)
+                turno.obra_social = os_paciente.obra_social
+                # Si se eligió un plan, podemos guardarlo en el paciente o usarlo para cálculos
+                if plan_id:
+                    plan = Plan.objects.get(id=plan_id, obra_social=os_paciente.obra_social)
+                    paciente.plan_obra_social = plan
+                    paciente.save()
+            except PacienteObraSocial.DoesNotExist:
+                pass
+        else:
+            turno.obra_social = None
+            paciente.plan_obra_social = None
+            paciente.save()
+
         turno.save()
-        
-        # Calcular coseguro automático
-        if turno.monto_total and turno.monto_os and not turno.monto_coseguro:
+
+        # Calcular coseguro automático si hay OS y no se especificó coseguro
+        if turno.obra_social and turno.monto_total and turno.monto_os and not turno.monto_coseguro:
             turno.monto_coseguro = turno.monto_total - turno.monto_os
             turno.save()
-        
+
         messages.success(request, '✅ Cobro registrado correctamente.')
         return redirect('panel_profesional')
-    
-    return render(request, 'turnos_profesionales/cobrar_turno.html', {
+
+    # GET
+    context = {
         'turno': turno,
         'paciente': paciente,
-        'plan': plan,
         'profesional': profesional,
-    })
+        'obras_sociales_activas': obras_sociales_activas,   # lista de PacienteObraSocial
+    }
+    return render(request, 'turnos_profesionales/cobrar_turno.html', context)
 
 @login_required
 def no_asistio_turno(request, turno_id):
@@ -927,7 +982,7 @@ def calendario_semanal(request):
                 'disponible': False,
                 'lugares_restantes': 0,
                 'puede_reactivar': puede_reactivar,
-                'mostrar_como_sobreturno': True,
+                'mostrar_como_sobreturno': turno.estado not in ['no_asistio', 'completado', 'cancelado'],
                 'archivo_url': archivo_url,
             })
 
@@ -2012,19 +2067,29 @@ def cobranza_os(request):
         inicio = hoy.replace(day=1)
     fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     
+    # Todos los turnos completados que tienen algún monto registrado
     turnos = TurnoProfesional.objects.filter(
         profesional=profesional,
         fecha__range=[inicio, fin],
         estado='completado',
-        monto_os__gt=0
+    ).filter(
+        Q(monto_os__gt=0) | Q(monto_total__isnull=False)
     )
     if establecimiento_filtro:
         turnos = turnos.filter(establecimiento=establecimiento_filtro)
     turnos = turnos.order_by('-fecha')
     
-    total_facturado = turnos.aggregate(Sum('monto_os'))['monto_os__sum'] or 0
-    total_cobrado = turnos.filter(os_cobrado=True).aggregate(Sum('monto_os'))['monto_os__sum'] or 0
-    total_pendiente = total_facturado - total_cobrado
+    # Totales de OS
+    turnos_os = turnos.filter(monto_os__gt=0)
+    total_facturado_os = turnos_os.aggregate(Sum('monto_os'))['monto_os__sum'] or 0
+    total_cobrado_os = turnos_os.filter(os_cobrado=True).aggregate(Sum('monto_os'))['monto_os__sum'] or 0
+    total_pendiente_os = total_facturado_os - total_cobrado_os
+
+    # Totales de particulares
+    turnos_particulares = turnos.filter(monto_os__isnull=True) | turnos.filter(monto_os=0)
+    total_facturado_particulares = turnos_particulares.aggregate(Sum('monto_total'))['monto_total__sum'] or 0
+    # En particulares se asume que están cobrados al momento, por lo que coinciden facturado y cobrado
+    total_cobrado_particulares = total_facturado_particulares
     
     mes_anterior = (inicio - timedelta(days=1)).strftime('%Y-%m')
     mes_siguiente = (inicio + timedelta(days=32)).strftime('%Y-%m')
@@ -2032,9 +2097,11 @@ def cobranza_os(request):
     return render(request, 'turnos_profesionales/cobranza_os.html', {
         'turnos': turnos,
         'inicio': inicio, 'fin': fin,
-        'total_facturado': total_facturado,
-        'total_cobrado': total_cobrado,
-        'total_pendiente': total_pendiente,
+        'total_facturado_os': total_facturado_os,
+        'total_cobrado_os': total_cobrado_os,
+        'total_pendiente_os': total_pendiente_os,
+        'total_facturado_particulares': total_facturado_particulares,
+        'total_cobrado_particulares': total_cobrado_particulares,
         'mes_anterior': mes_anterior,
         'mes_siguiente': mes_siguiente,
     })
