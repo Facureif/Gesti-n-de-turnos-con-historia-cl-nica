@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import A5
 from reportlab.lib.units import cm
 from openpyxl import Workbook
 from establecimientos.models import Establecimiento
+from obras_sociales.models import Plan
 from .models import TurnoProfesional, ArchivoTurno
 from profesionales.models import Profesional
 from pacientes.models import Paciente, PacienteObraSocial
@@ -931,32 +932,41 @@ def calendario_semanal(request):
                             )
                             if not slot_bloqueado:
                                 turnos_en_horario = [t for t in turnos_dia if t.hora_inicio == hora_actual]
-                                if turnos_en_horario:
-                                    for turno in turnos_en_horario:
-                                        archivo_url = turno.archivo.url if turno.archivo else ''
-                                        slot_data = {
-                                            'hora_inicio': hora_actual,
-                                            'hora_fin': hora_fin_slot,
-                                            'turno': turno,
-                                            'disponible': False,
-                                            'lugares_restantes': 0,
-                                            'puede_reactivar': False,
-                                            'archivo_url': archivo_url,
-                                        }
-                                        if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
-                                            ahora = datetime.now()
-                                            fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
-                                            limite = fecha_hora_inicio + timedelta(minutes=60)
-                                            if ahora <= limite:
-                                                slot_data['puede_reactivar'] = True
-                                        horarios_por_consultorio[est_nombre].append(slot_data)
-                                else:
+                                # Contamos cuántos están activos (pendiente/confirmado)
+                                activos = [t for t in turnos_en_horario if t.estado in ['pendiente', 'confirmado']]
+                                cantidad_ocupados = len(activos)
+                                capacidad = agenda.pacientes_simultaneos
+
+                                # 1) Agregar los slots ocupados (solo los activos o también los no activos?)
+                                # Normalmente mostramos todos los turnos, incluso los completados/cancelados
+                                for turno in turnos_en_horario:
+                                    archivo_url = turno.archivo.url if turno.archivo else ''
+                                    slot_data = {
+                                        'hora_inicio': hora_actual,
+                                        'hora_fin': hora_fin_slot,
+                                        'turno': turno,
+                                        'disponible': False,
+                                        'lugares_restantes': 0,
+                                        'puede_reactivar': False,
+                                        'archivo_url': archivo_url,
+                                    }
+                                    if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
+                                        ahora = datetime.now()
+                                        fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
+                                        limite = fecha_hora_inicio + timedelta(minutes=60)
+                                        if ahora <= limite:
+                                            slot_data['puede_reactivar'] = True
+                                    horarios_por_consultorio[est_nombre].append(slot_data)
+
+                                # 2) Si todavía hay lugares libres, agregar slot vacío
+                                if cantidad_ocupados < capacidad:
+                                    lugares_libres = capacidad - cantidad_ocupados
                                     horarios_por_consultorio[est_nombre].append({
                                         'hora_inicio': hora_actual,
                                         'hora_fin': hora_fin_slot,
                                         'turno': None,
                                         'disponible': True,
-                                        'lugares_restantes': agenda.pacientes_simultaneos,
+                                        'lugares_restantes': lugares_libres,
                                         'archivo_url': '',
                                     })
                         hora_actual = hora_fin_slot

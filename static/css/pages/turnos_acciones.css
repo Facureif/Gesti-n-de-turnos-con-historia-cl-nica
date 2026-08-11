@@ -1,6 +1,10 @@
 /* =============================================
    TURNOS - Asignar, evolución, cobranza
    ============================================= */
+.container{
+    padding-top: 15px;
+}
+
 
 /* Contenedor */
 .turnos-container {
