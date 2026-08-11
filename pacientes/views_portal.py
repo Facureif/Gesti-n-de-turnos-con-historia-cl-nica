@@ -8,6 +8,7 @@ from establecimientos.models import Establecimiento
 from core_app.models import ClienteSaaS, ConfiguracionSistema
 from historias_clinicas.models import Evolucion
 from obras_sociales.models import ObraSocial, Plan
+from turnos.models import Turno
 
 from .models import EstudioMedico, Paciente, PacienteObraSocial
 from profesionales.models import Profesional
@@ -371,7 +372,7 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
         
         archivo_subido = request.FILES.get('archivo')  # toma el archivo del formulario
-        TurnoProfesional.objects.create(
+        turno = TurnoProfesional.objects.create(
             profesional=profesional,
             establecimiento=establecimiento,
             paciente=paciente,
@@ -380,8 +381,14 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
             hora_fin=hora_fin,
             estado='pendiente',
             tipo_consulta=tipo_consulta,
-            archivo=archivo_subido              # ← guardar el archivo
+            archivo=archivo_subido            
         )
+
+        # Guardar comprobante de pago
+        comprobante = request.FILES.get('comprobante')
+        if comprobante:
+            turno.comprobante_pago = comprobante   
+            turno.save()                           
         
         messages.success(request, f'¡Turno reservado! Tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre} con {profesional.nombre_completo}.')
         return redirect('panel_paciente')
@@ -465,7 +472,34 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
                             'nombre_dia': fecha.strftime('%A'),
                             'slots': slots
                         })
-    
+
+    # Obtener alias de pago (ya lo tenés en el modelo Profesional)
+    alias_pago = profesional.alias_pago if profesional.alias_pago else None
+
+    # Obtener precio particular según la agenda activa del establecimiento
+    precio_particular = None
+    if establecimiento_seleccionado:
+        agenda_activa = Agenda.objects.filter(
+            profesional=profesional,
+            establecimiento=establecimiento_seleccionado,
+            activo=True
+        ).first()
+        if agenda_activa and agenda_activa.precio_particular:
+            precio_particular = agenda_activa.precio_particular
+    elif cliente and cliente.tipo == 'consultorio':
+        agenda_activa = Agenda.objects.filter(
+            profesional=profesional,
+            establecimiento=cliente.establecimiento,
+            activo=True
+        ).first()
+        if agenda_activa and agenda_activa.precio_particular:
+            precio_particular = agenda_activa.precio_particular
+
+    # Si no hay precio en la agenda, usar el genérico del profesional (opcional)
+    if not precio_particular:
+        precio_particular = profesional.precio_particular
+
+    # Agregar al contexto existente
     return render(request, 'pacientes/portal/sacar_turno.html', {
         'paciente': paciente,
         'profesional': profesional,
@@ -473,7 +507,10 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         'hoy': hoy,
         'establecimiento_seleccionado': establecimiento_seleccionado,
         'cliente': cliente,
+        'alias_pago': alias_pago,                 
+        'precio_particular': precio_particular,   
     })
+
 
 @login_required
 def editar_mi_ficha(request):

@@ -44,6 +44,12 @@ class TurnoProfesional(ModeloBase):
     blank=True,
     verbose_name='Archivo adjunto'
 )
+
+    comprobante_pago = models.FileField(
+        upload_to='turnos/comprobantes/',
+        null=True, blank=True,
+        verbose_name='Comprobante de pago'
+    )
     # Info de la consulta
     tipo_consulta = models.CharField(
         max_length=100,

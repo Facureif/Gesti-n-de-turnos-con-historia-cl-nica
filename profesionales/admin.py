@@ -12,11 +12,11 @@ class ProfesionalAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Datos Personales', {
             'fields': ('nombre', 'apellido', 'dni', 'fecha_nacimiento', 
-                      'telefono', 'email')
+                    'telefono', 'email')
         }),
         ('Datos Profesionales', {
             'fields': ('usuario', 'especialidad', 'matricula', 
-                      'color_calendario', 'descripcion')
+                    'color_calendario', 'descripcion')
         }),
         ('Configuración', {
             'fields': ('acepta_obra_social', 'activo')
@@ -26,7 +26,7 @@ class ProfesionalAdmin(admin.ModelAdmin):
         }),
         ('Información para el Portal', {
             'fields': ('frase_destacada', 'precio_particular', 'obras_sociales_texto', 
-                    'servicios_destacados', 'especializaciones')
+                    'servicios_destacados', 'especializaciones', 'alias_pago')
         }),
     )
     

@@ -48,6 +48,8 @@ class Profesional(Persona):
         blank=True,
         verbose_name='Descripción Profesional'
     )
+
+    alias_pago = models.CharField(max_length=200, blank=True, verbose_name='Alias para transferencia')
     
     foto = models.ImageField(
     upload_to='profesionales/',

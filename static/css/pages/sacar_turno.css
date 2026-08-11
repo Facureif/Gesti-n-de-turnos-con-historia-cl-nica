@@ -342,9 +342,9 @@
     .ficha-input, .ficha-textarea, .ficha-select, .ficha-file-input,
     .perfil-input, .perfil-select, .perfil-textarea,
     .form-input, .form-select, .form-textarea,
-    input[type="date"], input[type="time"], input[type="text"], input[type="email"], input[type="password"], input[type="file"],
+    input[type="date"], input[type="time"], input[type="text"], input[type="tel"], input[type="email"], input[type="password"], input[type="file"],
     textarea, select {
-        background: var(--bg-input) !important; /* Fondo oscuro profundo del sistema */
+        background: var(--bg-input) !important;
         color: var(--text-main) !important;
         border: 1px solid var(--border-color) !important;
     }

@@ -26,7 +26,7 @@
     </div>
 
     <div class="container-custom">
-        <form method="post" id="form-turno">
+        <form method="post" id="form-turno" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- ========== 1° CONSULTORIO ========== -->
@@ -89,7 +89,7 @@
                     <h3>👤 Tus Datos</h3>
                     
                     <input type="text" name="nombre" placeholder="Nombre completo" required class="input-field">
-                    <input type="text" name="dni" placeholder="DNI (opcional)" class="input-field">
+                    <input type="text" name="dni" placeholder="DNI" class="input-field">
                     
                     <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">
                         Fecha de nacimiento
@@ -97,7 +97,7 @@
                     <input type="date" name="fecha_nacimiento" class="input-field">
                     
                     <input type="tel" name="telefono" placeholder="Teléfono/Celular" required class="input-field">
-                    <input type="email" name="email" placeholder="Email (opcional)" class="input-field">
+                    <input type="email" name="email" placeholder="Email" class="input-field">
                     
                     <h3 style="margin-top: 16px;">🏥 Obra Social (opcional)</h3>
                     
@@ -125,6 +125,29 @@
                     <h3>📝 Información adicional</h3>
                     <input type="text" name="tipo_consulta" placeholder="Motivo de consulta (opcional)" class="input-field">
                 </div>
+
+                <!-- ========== PAGO ADELANTADO ========== -->
+                {% if alias_pago %}
+                <div class="sacar-turno-card">
+                    <h3>💳 Pago adelantado</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                        Para confirmar tu turno, realizá una transferencia al siguiente alias y subí el comprobante.
+                        {% if precio_particular %}
+                            <br><strong>Tarifa a pagar:</strong> ${{ precio_particular }}
+                        {% endif %}
+                    </p>
+                    <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 8px; padding: 14px; margin-bottom: 16px; text-align: center; font-size: 1.2rem; font-weight: 700; color: #065f46; word-break: break-all;">
+                        💸 {{ alias_pago }}
+                    </div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">
+                        Subí el comprobante (imagen JPG o PNG)
+                    </label>
+                    <input type="file" name="comprobante" accept="image/*" class="input-field" style="padding: 8px;">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+                        El profesional revisará el comprobante antes de confirmar el turno.
+                    </p>
+                </div>
+                {% endif %}
                 
                 <button type="submit" class="btn-confirmar">
                     <i class="fas fa-check-circle"></i> Confirmar Turno

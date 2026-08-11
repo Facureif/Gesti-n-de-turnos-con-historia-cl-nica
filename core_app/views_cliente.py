@@ -350,7 +350,13 @@ def sacar_turno(request, cliente_slug, profesional_id):
             paciente=paciente, fecha=fecha, hora_inicio=hora,
             hora_fin=hora_fin, estado='pendiente', tipo_consulta=tipo_consulta
         )
-        
+
+        #comprobante de pago 
+        comprobante = request.FILES.get('comprobante')
+        if comprobante:
+            turno.comprobante_pago = comprobante
+            turno.save()
+
         try:
             import threading
             from turnos_profesionales.views import crear_evento_google
@@ -403,10 +409,32 @@ def sacar_turno(request, cliente_slug, profesional_id):
         obras_sociales = profesional.obras_sociales.filter(activo=True).prefetch_related('planes')
     else:
         obras_sociales = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
-    
+
+    # Obtener alias de pago
+    alias_pago = profesional.alias_pago if hasattr(profesional, 'alias_pago') else ''
+
+    # Calcular precio particular según el contexto
+    precio_particular = None
+    if cliente.tipo == 'consultorio':
+        # Solo un establecimiento
+        agenda = Agenda.objects.filter(
+            profesional=profesional,
+            establecimiento=cliente.establecimiento,
+            activo=True
+        ).first()
+        if agenda and agenda.precio_particular:
+            precio_particular = agenda.precio_particular
+        elif profesional.precio_particular:
+            precio_particular = profesional.precio_particular
+    else:
+        # Profesional independiente
+        precio_particular = profesional.precio_particular
+
     return render(request, 'core_app/publico/sacar_turno.html', {
         'cliente': cliente,
         'profesional': profesional,
         'consultorios': consultorios_disponibles,
         'obras_sociales': obras_sociales,
+        'alias_pago': alias_pago,
+        'precio_particular': precio_particular,   # ← nuevo
     })

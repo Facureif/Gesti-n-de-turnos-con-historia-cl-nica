@@ -99,6 +99,29 @@
                     </div>
                 </div>
 
+                <!-- ========== NUEVO: PAGO ADELANTADO ========== -->
+                {% if alias_pago %}
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">💳 Pago adelantado</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                        Para confirmar tu turno, realizá una transferencia al siguiente alias y subí el comprobante.
+                        {% if precio_particular %}
+                            <br><strong>Tarifa a pagar:</strong> ${{ precio_particular }}
+                        {% endif %}
+                    </p>
+                    <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 8px; padding: 14px; margin-bottom: 16px; text-align: center; font-size: 1.2rem; font-weight: 700; color: #065f46; word-break: break-all;">
+                        {{ alias_pago }}
+                    </div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">
+                        Subí el comprobante (imagen JPG o PNG)
+                    </label>
+                    <input type="file" name="comprobante" accept="image/*" class="form-input" style="padding: 8px;">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+                        El profesional revisará el comprobante antes de confirmar el turno.
+                    </p>
+                </div>
+                {% endif %}
+
                 <!-- Botón confirmar -->
                 <button type="submit" class="btn-confirmar-turno">
                     <i class="fas fa-check-circle"></i> Confirmar Turno
