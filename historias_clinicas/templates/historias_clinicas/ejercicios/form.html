@@ -1,0 +1,50 @@
+{% extends 'core_app/base.html' %}
+{% load static %}
+
+{% block title %}{% if ejercicio %}Editar{% else %}Nuevo{% endif %} Ejercicio{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/ejercicios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ejercicios-container">
+    <div class="ejercicio-form-card">
+        <h2>{% if ejercicio %}✏️ Editar Ejercicio{% else %}➕ Nuevo Ejercicio{% endif %}</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">Nombre del ejercicio *</label>
+                <input type="text" name="nombre" class="ejercicio-form-input" value="{{ ejercicio.nombre|default:'' }}" required>
+            </div>
+            <div class="ejercicio-form-row">
+                <div class="ejercicio-form-group">
+                    <label class="ejercicio-form-label">Series</label>
+                    <input type="number" name="series" class="ejercicio-form-input" value="{{ ejercicio.series|default:3 }}" min="1">
+                </div>
+                <div class="ejercicio-form-group">
+                    <label class="ejercicio-form-label">Repeticiones</label>
+                    <input type="number" name="repeticiones" class="ejercicio-form-input" value="{{ ejercicio.repeticiones|default:10 }}" min="1">
+                </div>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">Descripción / Notas</label>
+                <textarea name="descripcion" class="ejercicio-form-textarea" rows="3">{{ ejercicio.descripcion|default:'' }}</textarea>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">Link de YouTube</label>
+                <input type="url" name="link_video" class="ejercicio-form-input" value="{{ ejercicio.link_video|default:'' }}">
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">🖼️ Imágenes</label>
+                <input type="file" name="imagenes" id="imagenes" multiple accept="image/*" class="ejercicio-form-input">
+                <small class="text-muted">Podés seleccionar varias imágenes (JPG, PNG)</small>
+            </div>
+            <div class="ejercicio-form-botones">
+                <button type="submit" class="btn-guardar-ejercicio">💾 Guardar</button>
+                <a href="{% url 'ejercicios_paciente' paciente.id %}" class="btn-cancelar-ejercicio">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

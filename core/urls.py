@@ -15,7 +15,7 @@ urlpatterns = [
     path('consultorio/<str:nombre>/', include('core_app.urls_consultorio')),
     path('profesional-ind/<str:username>/', include('core_app.urls_profesional')),
     path('<slug:cliente_slug>/', include('core_app.urls_cliente')),
-
+    path('historias_clinicas/', include('historias_clinicas.urls')),
 
 ]
 

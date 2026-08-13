@@ -61,3 +61,12 @@ class ArchivoClinicoAdmin(admin.ModelAdmin):
     list_display = ('descripcion', 'tipo', 'evolucion', 'creado')
     list_filter = ('tipo', 'creado')
     search_fields = ('descripcion',)
+
+
+from .models import Ejercicio
+
+@admin.register(Ejercicio)
+class EjercicioAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'paciente', 'profesional', 'series', 'repeticiones', 'fecha')
+    list_filter = ('profesional', 'paciente')
+    search_fields = ('nombre', 'paciente__nombre', 'paciente__apellido', 'profesional__nombre')

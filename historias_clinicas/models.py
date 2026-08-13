@@ -559,3 +559,46 @@ class ParametroLaboratorio(models.Model):
     def __str__(self):
         return f"{self.nombre}: {self.valor} {self.unidad}"        
     
+
+class Ejercicio(ModeloBase):
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.CASCADE,
+        verbose_name='Profesional'
+    )
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='ejercicios',
+        verbose_name='Paciente'
+    )
+    fecha = models.DateField(default=date.today, verbose_name='Fecha')
+    nombre = models.CharField(max_length=200, verbose_name='Nombre del ejercicio')
+    series = models.PositiveIntegerField(default=3, verbose_name='Series')
+    repeticiones = models.PositiveIntegerField(default=10, verbose_name='Repeticiones')
+    descripcion = models.TextField(blank=True, verbose_name='Descripción / Notas')
+    link_video = models.URLField(blank=True, verbose_name='Link de YouTube')
+
+    class Meta:
+        verbose_name = 'Ejercicio'
+        verbose_name_plural = 'Ejercicios'
+        ordering = ['-fecha', 'nombre']
+
+    def __str__(self):
+        return f"{self.nombre} ({self.series}x{self.repeticiones}) - {self.paciente.nombre_completo}"    
+
+class ImagenEjercicio(ModeloBase):
+    ejercicio = models.ForeignKey(
+        Ejercicio,
+        on_delete=models.CASCADE,
+        related_name='imagenes',
+        verbose_name='Ejercicio'
+    )
+    imagen = models.ImageField(upload_to='ejercicios/', verbose_name='Imagen')
+
+    class Meta:
+        verbose_name = 'Imagen de ejercicio'
+        verbose_name_plural = 'Imágenes de ejercicios'
+
+    def __str__(self):
+        return f"Imagen de {self.ejercicio.nombre}"        

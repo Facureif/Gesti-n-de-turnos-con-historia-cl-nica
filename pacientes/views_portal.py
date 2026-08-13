@@ -707,3 +707,17 @@ def ver_receta_paciente(request, evolucion_id):
     # Reutilizar la misma lógica de generar_receta pero devolviendo el PDF
     from turnos_profesionales.views import generar_receta
     return generar_receta(request, evolucion_id)
+
+
+from historias_clinicas.models import Ejercicio
+
+@login_required
+def mis_ejercicios(request):
+    if request.user.rol != 'paciente':
+        return redirect('home')
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    ejercicios = Ejercicio.objects.filter(paciente=paciente, activo=True).order_by('-fecha')
+    return render(request, 'pacientes/portal/mis_ejercicios.html', {
+        'paciente': paciente,
+        'ejercicios': ejercicios,
+    })

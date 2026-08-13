@@ -1,0 +1,349 @@
+/* =============================================
+   EJERCICIOS - Profesional y Paciente
+   ============================================= */
+
+/* Contenedor principal */
+.ejercicios-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    box-sizing: border-box;
+    padding-top: 15px;
+}
+
+/* Título de la página */
+.ejercicios-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ejercicios-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+/* Botón "Agregar" */
+.btn-agregar-ejercicio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--success);
+    color: white;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-agregar-ejercicio:hover {
+    background: #047857;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+/* Tarjeta individual de ejercicio */
+.ejercicio-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+}
+
+.ejercicio-card:hover {
+    box-shadow: var(--shadow);
+}
+
+.ejercicio-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.ejercicio-nombre {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.ejercicio-detalle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Acciones (editar, eliminar) */
+.ejercicio-acciones {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.ejercicio-acciones a,
+.ejercicio-acciones button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.15s ease;
+    border: none;
+    cursor: pointer;
+    color: white;
+    background: var(--gray-400);
+}
+
+.ejercicio-acciones a:hover,
+.ejercicio-acciones button:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+.btn-editar-ejercicio {
+    background: var(--info);
+}
+
+.btn-eliminar-ejercicio {
+    background: var(--danger);
+}
+
+/* Descripción */
+.ejercicio-descripcion {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 8px 0;
+}
+
+/* Video */
+.ejercicio-video {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--danger-light);
+    color: var(--danger);
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.ejercicio-video:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* Galería de imágenes */
+.ejercicio-imagenes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.ejercicio-imagen-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.ejercicio-imagen-wrapper img {
+    display: block;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+}
+
+.ejercicio-imagen-wrapper:hover img {
+    transform: scale(1.05);
+}
+
+.ejercicio-imagen-wrapper a {
+    text-decoration: none;
+}
+
+.ejercicio-imagen-eliminar {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    background: rgba(220, 38, 38, 0.9);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.ejercicio-imagen-eliminar:hover {
+    background: #b91c1c;
+}
+
+/* Formulario */
+.ejercicio-form-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.ejercicio-form-card h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 20px 0;
+}
+
+.ejercicio-form-group {
+    margin-bottom: 16px;
+}
+
+.ejercicio-form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.ejercicio-form-input,
+.ejercicio-form-textarea,
+.ejercicio-form-select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.ejercicio-form-input:focus,
+.ejercicio-form-textarea:focus,
+.ejercicio-form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ejercicio-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Botones del formulario */
+.ejercicio-form-botones {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.btn-guardar-ejercicio {
+    flex: 1;
+    padding: 12px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+}
+
+.btn-guardar-ejercicio:hover {
+    background: #047857;
+}
+
+.btn-cancelar-ejercicio {
+    flex: 1;
+    padding: 12px;
+    background: var(--gray-200);
+    color: var(--text-main);
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.btn-cancelar-ejercicio:hover {
+    background: var(--gray-300);
+}
+
+/* Estado vacío */
+.ejercicios-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.ejercicios-empty i {
+    font-size: 3rem;
+    opacity: 0.4;
+    margin-bottom: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ejercicios-container {
+        padding: 0 16px 32px;
+    }
+    
+    .ejercicios-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .btn-agregar-ejercicio {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .ejercicio-form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .ejercicio-card-header {
+        flex-direction: column;
+    }
+    
+    .ejercicio-acciones {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

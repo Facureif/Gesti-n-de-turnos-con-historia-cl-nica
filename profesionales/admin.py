@@ -19,7 +19,7 @@ class ProfesionalAdmin(admin.ModelAdmin):
                     'color_calendario', 'descripcion')
         }),
         ('Configuración', {
-            'fields': ('acepta_obra_social', 'activo')
+            'fields': ('acepta_obra_social', 'permite_ejercicios', 'activo')
         }),
         ('Consultorio', {
             'fields': ('establecimientos',)

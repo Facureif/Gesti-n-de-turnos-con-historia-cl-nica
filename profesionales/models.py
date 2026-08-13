@@ -85,6 +85,11 @@ class Profesional(Persona):
         verbose_name='Planes'
     )
 
+    permite_ejercicios = models.BooleanField(
+    default=False,
+    verbose_name='Activar sección de ejercicios'
+)
+
     class Meta:
         verbose_name = 'Profesional'
         verbose_name_plural = 'Profesionales'

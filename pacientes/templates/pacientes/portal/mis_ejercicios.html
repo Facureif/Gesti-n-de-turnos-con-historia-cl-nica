@@ -1,0 +1,44 @@
+{% extends 'core_app/base.html' %}
+{% load static %}
+
+{% block title %}Mis Ejercicios{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/ejercicios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="portal-paciente-container">
+    <div class="ejercicios-header">
+        <h1>💪 Mis Ejercicios</h1>
+    </div>
+    {% if ejercicios %}
+        {% for e in ejercicios %}
+        <div class="ejercicio-card">
+            <div class="ejercicio-card-header">
+                <h3 class="ejercicio-nombre">{{ e.nombre }} <small class="text-muted">({{ e.series }}x{{ e.repeticiones }})</small></h3>
+            </div>
+            <p class="ejercicio-descripcion">{{ e.descripcion|default:'' }}</p>
+            {% if e.link_video %}
+                <a href="{{ e.link_video }}" target="_blank" class="ejercicio-video">▶ Ver video en YouTube</a>
+            {% endif %}
+            {% if e.imagenes.all %}
+                <div class="ejercicio-imagenes">
+                    {% for img in e.imagenes.all %}
+                    <a href="{{ img.imagen.url }}" target="_blank" class="ejercicio-imagen-wrapper">
+                        <img src="{{ img.imagen.url }}" alt="">
+                    </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="text-muted small mt-2">Asignado el {{ e.fecha|date:"d/m/Y" }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="ejercicios-empty">
+            <i class="far fa-clipboard"></i>
+            <p>No tenés ejercicios asignados todavía.</p>
+        </div>
+    {% endif %}
+    <a href="{% url 'panel_paciente' %}" class="btn btn-secondary">← Volver al panel</a>
+</div>
+{% endblock %}
