@@ -602,3 +602,53 @@ class ImagenEjercicio(ModeloBase):
 
     def __str__(self):
         return f"Imagen de {self.ejercicio.nombre}"        
+
+
+class PlanAlimentacion(ModeloBase):
+    profesional = models.ForeignKey(
+        'profesionales.Profesional',
+        on_delete=models.CASCADE,
+        verbose_name='Profesional'
+    )
+    paciente = models.ForeignKey(
+        'pacientes.Paciente',
+        on_delete=models.CASCADE,
+        related_name='planes_alimentacion',
+        verbose_name='Paciente'
+    )
+    fecha = models.DateField(default=date.today, verbose_name='Fecha')
+    calorias_objetivo = models.PositiveIntegerField(
+        null=True, blank=True,
+        verbose_name='Calorías objetivo'
+    )
+    desayuno = models.TextField(blank=True, verbose_name='Desayuno')
+    almuerzo = models.TextField(blank=True, verbose_name='Almuerzo')
+    merienda = models.TextField(blank=True, verbose_name='Merienda')
+    cena = models.TextField(blank=True, verbose_name='Cena')
+    observaciones = models.TextField(blank=True, verbose_name='Observaciones')
+    link_video = models.URLField(blank=True, verbose_name='Link de YouTube')
+
+    class Meta:
+        verbose_name = 'Plan de alimentación'
+        verbose_name_plural = 'Planes de alimentación'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"Plan de {self.paciente.nombre_completo} - {self.fecha}"
+
+
+class ImagenPlanAlimentacion(ModeloBase):
+    plan = models.ForeignKey(
+        PlanAlimentacion,
+        on_delete=models.CASCADE,
+        related_name='imagenes',
+        verbose_name='Plan de alimentación'
+    )
+    imagen = models.ImageField(upload_to='planes_alimentacion/', verbose_name='Imagen')
+
+    class Meta:
+        verbose_name = 'Imagen de plan de alimentación'
+        verbose_name_plural = 'Imágenes de planes de alimentación'
+
+    def __str__(self):
+        return f"Imagen de {self.plan}"

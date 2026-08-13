@@ -346,4 +346,18 @@
         width: 100%;
         justify-content: flex-end;
     }
+    /* Evitar desbordes de texto */
+.ejercicio-descripcion,
+.ejercicio-nombre,
+.ejercicio-detalle {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+/* Para el contenedor de la tarjeta, asegurar que nada se salga */
+.ejercicio-card {
+    overflow: hidden;
+    box-sizing: border-box;
+}
 }

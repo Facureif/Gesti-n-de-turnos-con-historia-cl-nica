@@ -1,0 +1,52 @@
+{% extends 'core_app/base.html' %}
+{% load static %}
+{% block title %}{% if plan %}Editar Plan{% else %}Nuevo Plan{% endif %}{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/ejercicios.css' %}">
+{% endblock %}
+{% block content %}
+<div class="ejercicios-container">
+    <div class="ejercicio-form-card">
+        <h2>{% if plan %}✏️ Editar Plan{% else %}🥗 Nuevo Plan{% endif %}</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">Calorías objetivo (kcal)</label>
+                <input type="number" name="calorias_objetivo" class="ejercicio-form-input" value="{{ plan.calorias_objetivo|default:'' }}">
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">🍳 Desayuno</label>
+                <textarea name="desayuno" class="ejercicio-form-textarea" rows="2">{{ plan.desayuno|default:'' }}</textarea>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">🍗 Almuerzo</label>
+                <textarea name="almuerzo" class="ejercicio-form-textarea" rows="2">{{ plan.almuerzo|default:'' }}</textarea>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">☕ Merienda</label>
+                <textarea name="merienda" class="ejercicio-form-textarea" rows="2">{{ plan.merienda|default:'' }}</textarea>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">🌙 Cena</label>
+                <textarea name="cena" class="ejercicio-form-textarea" rows="2">{{ plan.cena|default:'' }}</textarea>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">Observaciones</label>
+                <textarea name="observaciones" class="ejercicio-form-textarea" rows="3">{{ plan.observaciones|default:'' }}</textarea>
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">Link de YouTube</label>
+                <input type="url" name="link_video" class="ejercicio-form-input" value="{{ plan.link_video|default:'' }}">
+            </div>
+            <div class="ejercicio-form-group">
+                <label class="ejercicio-form-label">🖼️ Imágenes</label>
+                <input type="file" name="imagenes" multiple accept="image/*" class="ejercicio-form-input">
+            </div>
+            <div class="ejercicio-form-botones">
+                <button type="submit" class="btn-guardar-ejercicio">💾 Guardar Plan</button>
+                <a href="{% url 'planes_alimentacion_paciente' paciente.id %}" class="btn-cancelar-ejercicio">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

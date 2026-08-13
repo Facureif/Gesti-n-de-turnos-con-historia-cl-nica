@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count, Sum
 from datetime import date, timedelta, datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A5
 from reportlab.lib.units import cm
@@ -581,6 +581,80 @@ def cargar_evolucion(request, turno_id):
         'profesional': profesional, 'turno': turno, 'historia': historia
     })
 
+
+@login_required
+def api_calendario_proximo_control(request, turno_id):
+    turno = get_object_or_404(TurnoProfesional, id=turno_id)
+    profesional = turno.profesional
+    establecimiento = turno.establecimiento
+
+    establecimiento = turno.establecimiento
+    if not establecimiento:
+        establecimiento = profesional.establecimientos.first()
+    if not establecimiento:
+        return JsonResponse({'dias': []})
+
+    # Verificar que el profesional logueado sea el dueño del turno
+    if request.user.rol != 'profesional' or request.user != profesional.usuario:
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+
+    hoy = date.today()
+    agenda = Agenda.objects.filter(
+        profesional=profesional,
+        establecimiento=establecimiento,
+        activo=True
+    ).first()
+
+    if not agenda:
+        return JsonResponse({'dias': []})
+
+    max_simultaneos = agenda.pacientes_simultaneos if agenda.pacientes_simultaneos else 1
+    bloqueos = BloqueoAgenda.objects.filter(agenda=agenda, activo=True)
+    dias = []
+
+    for i in range(30):
+        fecha = hoy + timedelta(days=i)
+        dia_semana = fecha.weekday()
+        horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
+        if not horario:
+            continue
+
+        # Día completamente bloqueado
+        dia_bloqueado = bloqueos.filter(
+            fecha=fecha, hora_inicio__isnull=True, hora_fin__isnull=True
+        ).exists()
+        if dia_bloqueado:
+            continue
+
+        slots = []
+        hora_actual = horario.hora_inicio
+        while hora_actual < horario.hora_fin:
+            hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
+            if hora_fin_slot <= horario.hora_fin:
+                slot_bloqueado = bloqueos.filter(
+                    fecha=fecha,
+                    hora_inicio__lte=hora_actual,
+                    hora_fin__gte=hora_fin_slot
+                ).exists()
+                if not slot_bloqueado:
+                    ocupados = TurnoProfesional.objects.filter(
+                        profesional=profesional,
+                        establecimiento=establecimiento,
+                        fecha=fecha,
+                        hora_inicio=hora_actual,
+                        estado__in=['pendiente', 'confirmado']
+                    ).count()
+                    if ocupados < max_simultaneos:
+                        slots.append(hora_actual.strftime('%H:%M'))
+            hora_actual = hora_fin_slot
+
+        if slots:
+            dias.append({
+                'fecha_str': fecha.strftime('%Y-%m-%d'),
+                'slots': slots
+            })
+
+    return JsonResponse({'dias': dias})
 
 # ============ ASIGNAR TURNO ============
 @login_required

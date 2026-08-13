@@ -1,0 +1,84 @@
+{% extends 'core_app/base.html' %}
+{% load static %}
+{% block title %}Indicaciones{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/ejercicios.css' %}">
+{% endblock %}
+{% block content %}
+<div class="portal-paciente-container">
+    <div class="ejercicios-header">
+        <h1>📋 Mis Indicaciones</h1>
+    </div>
+
+    <!-- Ejercicios -->
+    <h3 class="mb-3">💪 Ejercicios</h3>
+    <br>
+    {% if ejercicios %}
+        {% for e in ejercicios %}
+        <div class="ejercicio-card">
+            <div class="ejercicio-card-header">
+                <h3 class="ejercicio-nombre">{{ e.nombre }} <small class="text-muted">({{ e.series }}x{{ e.repeticiones }})</small></h3>
+            </div>
+            <p class="ejercicio-descripcion">{{ e.descripcion|default:'' }}</p>
+            {% if e.link_video %}
+                <a href="{{ e.link_video }}" target="_blank" class="ejercicio-video">▶ Ver video</a>
+            {% endif %}
+            {% if e.imagenes.all %}
+                <div class="ejercicio-imagenes">
+                    {% for img in e.imagenes.all %}
+                        <a href="{{ img.imagen.url }}" target="_blank" class="ejercicio-imagen-wrapper">
+                            <img src="{{ img.imagen.url }}" alt="">
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="ejercicios-empty">
+            <i class="far fa-clipboard"></i>
+            <p>No tenés ejercicios asignados.</p>
+        </div>
+    {% endif %}
+
+    <!-- Planes de alimentación -->
+    <h3 class="mt-4 mb-3">🥗 Planes de Alimentación</h3>
+    <br>
+    {% if planes %}
+        {% for plan in planes %}
+        <div class="ejercicio-card">
+            <div class="ejercicio-card-header">
+                <h3 class="ejercicio-nombre">
+                    Plan del {{ plan.fecha|date:"d/m/Y" }}
+                    {% if plan.calorias_objetivo %}<small class="text-muted">({{ plan.calorias_objetivo }} kcal)</small>{% endif %}
+                </h3>
+            </div>
+            {% if plan.desayuno %}<p><strong>🥐 Desayuno:</strong> {{ plan.desayuno }}</p>{% endif %}
+            {% if plan.almuerzo %}<p><strong>🍗 Almuerzo:</strong> {{ plan.almuerzo }}</p>{% endif %}
+            {% if plan.merienda %}<p><strong>☕ Merienda:</strong> {{ plan.merienda }}</p>{% endif %}
+            {% if plan.cena %}<p><strong>🍝​ Cena:</strong> {{ plan.cena }}</p>{% endif %}
+            {% if plan.observaciones %}<p class="ejercicio-descripcion">{{ plan.observaciones }}</p>{% endif %}
+            {% if plan.link_video %}
+                <a href="{{ plan.link_video }}" target="_blank" class="ejercicio-video">▶ Ver video</a>
+            {% endif %}
+            {% if plan.imagenes.all %}
+                <div class="ejercicio-imagenes">
+                    {% for img in plan.imagenes.all %}
+                        <a href="{{ img.imagen.url }}" target="_blank" class="ejercicio-imagen-wrapper">
+                            <img src="{{ img.imagen.url }}" alt="">
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="ejercicios-empty">
+            <i class="far fa-clipboard"></i>
+            <p>No tenés planes de alimentación.</p>
+        </div>
+    {% endif %}
+
+    <a href="{% url 'panel_paciente' %}" class="btn btn-secondary">← Volver al panel</a>
+</div>
+{% endblock %}

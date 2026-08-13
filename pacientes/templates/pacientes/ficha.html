@@ -28,7 +28,10 @@
         {% endif %}
         <a href="{% url 'estudios_paciente' paciente.id %}" class="btn-accion-header btn-estudios">📁 Estudios</a>
         {% if profesional and profesional.permite_ejercicios %}
-            <a href="{% url 'ejercicios_paciente' paciente.id %}" class="btn-accion-header btn-ejercicios">💪 Ejercicios</a>
+            <a href="{% url 'ejercicios_paciente' paciente.id %}" class="btn-accion-header" style="background:#a855f7;">💪 Ejercicios</a>
+        {% endif %}
+        {% if profesional and profesional.permite_planes_alimentacion %}
+            <a href="{% url 'planes_alimentacion_paciente' paciente.id %}" class="btn-accion-header" style="background:#16a34a;">🥗 Plan Alimenticio</a>
         {% endif %}
         {% if not es_secretaria %}
             <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
@@ -284,12 +287,16 @@
                         {% if mostrar_profesional %}
                             <th>Profesional</th>
                         {% endif %}
-                        <th>Motivo / Diagnóstico</th>
-                        <th>Medicación</th>
+                        {% if not es_secretaria %}
+                            <th>Motivo / Diagnóstico</th>
+                            <th>Medicación</th>
+                        {% endif %}
                         <th>Monto</th>
                         <th>Estado</th>
                         <th>OS</th>
-                        <th>Archivos</th>
+                        {% if not es_secretaria %}
+                            <th>Archivos</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -306,39 +313,45 @@
                                 {% endif %}
                             </td>
                         {% endif %}
-                        <td>
-                            {% if t.evolucion %}
-                                <div style="font-weight: 500;">{{ t.evolucion.motivo_consulta|truncatechars:50 }}</div>
-                                {% if t.evolucion.diagnostico %}
-                                    <small class="text-muted">🩺 {{ t.evolucion.diagnostico|truncatechars:60 }}</small>
+
+                        {% if not es_secretaria %}
+                            <td>
+                                {% if t.evolucion %}
+                                    <div style="font-weight: 500;">{{ t.evolucion.motivo_consulta|truncatechars:50 }}</div>
+                                    {% if t.evolucion.diagnostico %}
+                                        <small class="text-muted">🩺 {{ t.evolucion.diagnostico|truncatechars:60 }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Sin evolución</span>
                                 {% endif %}
-                            {% else %}
-                                <span class="text-muted">Sin evolución</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if t.evolucion and t.evolucion.medicacion_recetada %}
-                                {{ t.evolucion.medicacion_recetada|truncatechars:40 }}<br>
-                                <a href="{% url 'generar_receta' t.evolucion.id %}" class="btn btn-xs" style="background: #3b82f6; color: white;">📄 Receta</a>
-                            {% else %}—{% endif %}
-                        </td>
+                            </td>
+                            <td>
+                                {% if t.evolucion and t.evolucion.medicacion_recetada %}
+                                    {{ t.evolucion.medicacion_recetada|truncatechars:40 }}<br>
+                                    <a href="{% url 'generar_receta' t.evolucion.id %}" class="btn btn-xs" style="background: #3b82f6; color: white;">📄 Receta</a>
+                                {% else %}—{% endif %}
+                            </td>
+                        {% endif %}
+
                         <td>
                             {% if t.monto_total %}
                                 <div class="monto-destacado">${{ t.monto_total|floatformat:0 }}</div>
                                 {% if t.monto_os %}<div class="monto-os">🏥 OS: ${{ t.monto_os|floatformat:0 }}</div>{% endif %}
                                 {% if t.monto_coseguro %}<div class="monto-coseguro">💰 Coseguro: ${{ t.monto_coseguro|floatformat:0 }}</div>{% endif %}
-                            {% elif t.estado == 'completado' %}
+                            {% elif t.estado == 'completado' and not es_secretaria %}
                                 <a href="{% url 'cobrar_turno' t.id %}" class="btn btn-success btn-xs">💰 Pagar</a>
                             {% else %}
                                 <span class="text-muted">—</span>
                             {% endif %}
                         </td>
+
                         <td>
                             {% if t.estado == 'completado' %}<span class="badge badge-gray">✔️ Completado</span>
                             {% elif t.estado == 'cancelado' %}<span class="badge badge-danger">❌ Cancelado</span>
                             {% elif t.estado == 'no_asistio' %}<span class="badge badge-danger">🚫 No Asistió</span>
                             {% else %}<span class="badge badge-info">{{ t.get_estado_display }}</span>{% endif %}
                         </td>
+
                         <td>
                             {% if t.monto_os %}
                                 {% if t.os_cobrado %}
@@ -347,21 +360,22 @@
                                 {% else %}
                                     <span class="badge badge-warning" style="font-size: 0.7em;">⏳ Pendiente</span>
                                 {% endif %}
-                            {% else %}
-                                <span class="text-muted">—</span>
-                            {% endif %}
+                            {% else %}<span class="text-muted">—</span>{% endif %}
                         </td>
-                        <td>
-                            {% if t.evolucion and t.evolucion.archivos.all %}
-                                <div class="flex gap-2">
-                                    {% for a in t.evolucion.archivos.all %}
-                                        <a href="{{ a.archivo.url }}" target="_blank">
-                                            <img src="{{ a.archivo.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
-                                        </a>
-                                    {% endfor %}
-                                </div>
-                            {% else %}—{% endif %}
-                        </td>
+
+                        {% if not es_secretaria %}
+                            <td>
+                                {% if t.evolucion and t.evolucion.archivos.all %}
+                                    <div class="flex gap-2">
+                                        {% for a in t.evolucion.archivos.all %}
+                                            <a href="{{ a.archivo.url }}" target="_blank">
+                                                <img src="{{ a.archivo.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}—{% endif %}
+                            </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

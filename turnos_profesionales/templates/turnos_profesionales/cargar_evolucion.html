@@ -5,6 +5,37 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+
+    <style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+.modal-overlay.activo { display: flex; }
+.modal-dialog {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    width: 700px; max-width: 95%;
+    box-shadow: var(--shadow-lg);
+}
+.modal-header, .modal-footer {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-footer { border-top: 1px solid var(--border-color); border-bottom: none; }
+.modal-close {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);
+}
+.modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -93,10 +124,15 @@
                             <label class="turnos-label">Hora</label>
                             <input type="time" name="proximo_control_hora" id="proximo-control-hora" value="09:00" class="turnos-input">
                         </div>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="abrirModalCalendario()">
+                                📅 Ver calendario
+                            </button>
+                        </div>
                     </div>
                     <p class="nota">
                         <i class="fas fa-info-circle"></i> 
-                        Si completás la fecha, se generará un turno automáticamente en el primer horario libre.
+                        También podés elegir el turno desde el calendario.
                     </p>
                 </div>
             </div>
@@ -131,7 +167,28 @@
             <i class="fas fa-save"></i> Guardar Evolución
         </button>
     </form>
-    
+
+
+    <!-- Modal para seleccionar próximo control -->
+    <div class="modal-overlay" id="modal-control">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3>📅 Seleccionar próximo control</h3>
+                <button onclick="cerrarModalControl()" class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                Dias disponibles
+                <div id="control-dias-container" class="d-flex flex-wrap gap-2"></div>
+                <br>
+                <hr>
+                Horarios disponibles
+                <div id="control-horas-container" class="d-flex flex-wrap gap-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="cerrarModalControl()" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -150,5 +207,77 @@ function mostrarPreviaEvo(fileList) {
         reader.readAsDataURL(file);
     });
 }
+
+let modalControl = document.getElementById('modal-control');
+let diasContainer = document.getElementById('control-dias-container');
+let horasContainer = document.getElementById('control-horas-container');
+let fechaSeleccionada = null;
+
+function abrirModalCalendario() {
+    modalControl.classList.add('activo');
+    cargarDiasControl();
+}
+
+function cerrarModalControl() {
+    modalControl.classList.remove('activo');
+}
+
+function cargarDiasControl() {
+    const turnoId = "{{ turno.id }}";
+    const url = `/profesional/api/calendario-control/${turnoId}/`;
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            diasContainer.innerHTML = '';
+            horasContainer.innerHTML = '';
+            if (data.dias && data.dias.length > 0) {
+                data.dias.forEach((dia, index) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-sm ' + (index === 0 ? 'btn-primary' : 'btn-outline-secondary');
+                    btn.textContent = dia.fecha_str.split('-').reverse().join('/');
+                    btn.onclick = () => seleccionarDiaControl(dia);
+                    diasContainer.appendChild(btn);
+                });
+                // Seleccionar el primer día automáticamente
+                seleccionarDiaControl(data.dias[0]);
+            } else {
+                diasContainer.innerHTML = '<p class="text-muted">No hay días disponibles en los próximos 30 días.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            diasContainer.innerHTML = '<p class="text-danger">Error al cargar el calendario.</p>';
+        });
+}
+
+function seleccionarDiaControl(dia) {
+    // Marcar visualmente el día seleccionado
+    const botonesDias = diasContainer.querySelectorAll('button');
+    botonesDias.forEach(btn => btn.classList.remove('btn-primary'));
+    // El botón que disparó la acción no lo conocemos directamente,
+    // pero podemos agregar la clase al botón correspondiente al día clickeado.
+    // Por simplicidad, no marcamos visualmente o lo manejamos de otra manera.
+    // Podemos omitir el resaltado si no es esencial.
+
+    fechaSeleccionada = dia.fecha_str;
+    horasContainer.innerHTML = '';
+    dia.slots.forEach(slot => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm btn-outline-primary';
+        btn.textContent = slot;
+        btn.onclick = () => seleccionarHoraControl(slot);
+        horasContainer.appendChild(btn);
+    });
+}
+
+function seleccionarHoraControl(hora) {
+    if (!fechaSeleccionada) return;
+    document.getElementById('proximo-control-fecha').value = fechaSeleccionada;
+    document.getElementById('proximo-control-hora').value = hora;
+    cerrarModalControl();
+}
+
 </script>
 {% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'core_app/base.html' %}
+{% load static %}
+{% block title %}Planes de {{ paciente.nombre_completo }}{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/ejercicios.css' %}">
+{% endblock %}
+{% block content %}
+<div class="ejercicios-container">
+    <div class="ejercicios-header">
+        <h1>🥗 Planes de Alimentación de {{ paciente.nombre_completo }}</h1>
+        {% if puede_ver_planes %}
+            <a href="{% url 'agregar_plan_alimentacion' paciente.id %}" class="btn-agregar-ejercicio">➕ Nuevo Plan</a>
+        {% endif %}
+    </div>
+
+    {% if planes %}
+        {% for plan in planes %}
+        <div class="ejercicio-card">
+            <div class="ejercicio-card-header">
+                <div>
+                    <h3 class="ejercicio-nombre">
+                        Plan del {{ plan.fecha|date:"d/m/Y" }}
+                        {% if plan.calorias_objetivo %}
+                            <small class="text-muted">({{ plan.calorias_objetivo }} kcal)</small>
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="ejercicio-acciones">
+                    <a href="{% url 'editar_plan_alimentacion' plan.id %}" class="btn-editar-ejercicio">✏️</a>
+                    <a href="{% url 'eliminar_plan_alimentacion' plan.id %}" class="btn-eliminar-ejercicio" onclick="return confirm('¿Eliminar?')">🗑️</a>
+                </div>
+            </div>
+
+            {% if plan.desayuno %}<p><strong>🍳 Desayuno:</strong> {{ plan.desayuno }}</p>{% endif %}
+            {% if plan.almuerzo %}<p><strong>🍗 Almuerzo:</strong> {{ plan.almuerzo }}</p>{% endif %}
+            {% if plan.merienda %}<p><strong>☕ Merienda:</strong> {{ plan.merienda }}</p>{% endif %}
+            {% if plan.cena %}<p><strong>🌙 Cena:</strong> {{ plan.cena }}</p>{% endif %}
+            {% if plan.observaciones %}<p class="ejercicio-descripcion">{{ plan.observaciones }}</p>{% endif %}
+
+            {% if plan.link_video %}
+                <a href="{{ plan.link_video }}" target="_blank" class="ejercicio-video">▶ Ver video</a>
+            {% endif %}
+
+            {% if plan.imagenes.all %}
+                <div class="ejercicio-imagenes">
+                    {% for img in plan.imagenes.all %}
+                        <div class="ejercicio-imagen-wrapper">
+                            <a href="{{ img.imagen.url }}" target="_blank">
+                                <img src="{{ img.imagen.url }}" alt="">
+                            </a>
+                            <a href="{% url 'eliminar_imagen_plan' img.id %}" class="ejercicio-imagen-eliminar" onclick="return confirm('¿Eliminar esta imagen?')">✕</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="ejercicios-empty">
+            <i class="far fa-clipboard"></i>
+            <p>No hay planes de alimentación.</p>
+        </div>
+    {% endif %}
+
+    <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary mt-3">← Volver a la ficha</a>
+</div>
+{% endblock %}

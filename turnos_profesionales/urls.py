@@ -28,4 +28,5 @@ urlpatterns = [
     path('turno/<int:turno_id>/cobrado-os/', views.marcar_cobrado_os, name='marcar_cobrado_os'),  
     path('exportar-excel/', views.exportar_excel, name='exportar_excel'),
     path('reserva-multiple/', views.reserva_multiple, name='reserva_multiple'),
+    path('api/calendario-control/<int:turno_id>/', views.api_calendario_proximo_control, name='api_calendario_control'),
 ]

@@ -721,3 +721,18 @@ def mis_ejercicios(request):
         'paciente': paciente,
         'ejercicios': ejercicios,
     })
+
+from historias_clinicas.models import Ejercicio, PlanAlimentacion
+
+@login_required
+def mis_indicaciones(request):
+    if request.user.rol != 'paciente':
+        return redirect('home')
+    paciente = get_object_or_404(Paciente, usuario=request.user)
+    ejercicios = Ejercicio.objects.filter(paciente=paciente).order_by('-fecha')
+    planes = PlanAlimentacion.objects.filter(paciente=paciente).order_by('-fecha')
+    return render(request, 'pacientes/portal/mis_indicaciones.html', {
+        'paciente': paciente,
+        'ejercicios': ejercicios,
+        'planes': planes,
+    })

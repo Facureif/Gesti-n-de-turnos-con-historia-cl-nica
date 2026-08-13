@@ -90,6 +90,11 @@ class Profesional(Persona):
     verbose_name='Activar sección de ejercicios'
 )
 
+    permite_planes_alimentacion = models.BooleanField(
+        default=False,
+        verbose_name='Activar planes de alimentación'
+    )
+
     class Meta:
         verbose_name = 'Profesional'
         verbose_name_plural = 'Profesionales'
