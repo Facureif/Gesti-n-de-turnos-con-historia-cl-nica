@@ -159,8 +159,7 @@
                 {% endfor %}
             </div>
             
-            <div class="profesionales-list" id="profesionales-list">
-                {% for item in profesionales %}
+            <div class="profesionales-list {% if profesionales|length > 10 %}modo-grid{% endif %}" id="profesionales-list">                {% for item in profesionales %}
                 {% with prof=item.profesional agenda=item.agenda %}
                 <div class="profesional-card" data-especialidad="{{ prof.especialidad }}">
                     <div class="profesional-header" onclick="toggleFicha('ficha-{{ prof.id }}', this)">
@@ -446,22 +445,27 @@ function cambiarTema(theme) {
     }
 }
 
+
+
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);
-    const flecha = document.getElementById('flecha-' + id.split('-')[1]);
+    const card = header.closest('.profesional-card');
     const isOpen = ficha.classList.contains('active');
     
+    // Cerrar todas las demás
     document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
     document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
+    document.querySelectorAll('.profesional-card.expandida').forEach(c => c.classList.remove('expandida'));
     
     if (!isOpen) {
         ficha.classList.add('active');
-        flecha.classList.add('open');
+        header.querySelector('.btn-expand').classList.add('open');
+        card.classList.add('expandida');   // 👈 en modo grid, esta card pasa a ser full width
         
         setTimeout(() => {
-            const cardRect = header.closest('.profesional-card').getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
             if (cardRect.top < 0 || cardRect.bottom > window.innerHeight) {
-                header.closest('.profesional-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }, 200);
     }

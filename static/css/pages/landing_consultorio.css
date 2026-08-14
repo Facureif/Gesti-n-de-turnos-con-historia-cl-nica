@@ -338,8 +338,8 @@
     background: var(--bg-alt);
 }
 .profesional-avatar {
-    width: 72px;
-    height: 72px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--primary-light);
@@ -647,7 +647,9 @@
     .footer-col ul li { display: inline-block; margin: 0 10px; }
     .footer-bottom { flex-direction: column; text-align: center; }
 
-    
+.profesionales-list.modo-grid .profesional-card.expandida {
+    grid-column: 1;
+}
 /* Dentro de @media (max-width: 768px) */
 
 .horarios-atencion-grid {
@@ -1032,3 +1034,175 @@
     }
 }
 
+.btn-orden-llegada {
+    white-space: nowrap;
+}
+
+/* =============================================
+   MODO GRID para muchos profesionales
+   ============================================= */
+.profesionales-list.modo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.profesionales-list.modo-grid .profesional-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.profesionales-list.modo-grid .profesional-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    padding: 20px 16px;
+}
+
+.profesionales-list.modo-grid .profesional-avatar,
+.profesionales-list.modo-grid .profesional-avatar-placeholder {
+    width: 90px;
+    height: 90px;
+    font-size: 1.7rem;
+}
+
+.profesionales-list.modo-grid .profesional-info {
+    width: 100%;
+}
+
+.profesionales-list.modo-grid .profesional-actions {
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profesionales-list.modo-grid .profesional-detalle {
+    padding: 0 16px 16px;
+}
+
+.profesionales-list.modo-grid .profesional-card.expandida {
+    grid-column: 1 / -1;
+}
+
+.profesionales-list.modo-grid .profesional-card.expandida .profesional-header {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 20px;
+}
+
+.profesionales-list.modo-grid .profesional-card.expandida .profesional-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.profesionales-list.modo-grid .profesional-card.expandida .detalle-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 40px;
+}
+
+.profesionales-list.modo-grid .btn-sacar-turno,
+.profesionales-list.modo-grid .btn-orden-llegada {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    width: 100%;
+    max-width: 200px;
+    flex: 0 0 auto;
+    justify-content: center;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.profesionales-list.modo-grid .profesional-card.expandida .btn-sacar-turno,
+.profesionales-list.modo-grid .profesional-card.expandida .btn-orden-llegada {
+    width: auto;
+    max-width: none;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   MODO GRID EN MÓVIL (unificado)
+   ============================================= */
+@media (max-width: 768px) {
+    .profesionales-list.modo-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-card {
+        width: 100% !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-header {
+        flex-direction: row !important;
+        align-items: center !important;
+        text-align: left !important;
+        gap: 12px !important;
+        padding: 16px !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-avatar,
+    .profesionales-list.modo-grid .profesional-avatar-placeholder {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.2rem !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-info {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-actions {
+        flex-direction: row !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        width: auto !important;
+        margin-top: 0 !important;
+        gap: 8px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .profesionales-list.modo-grid .btn-sacar-turno,
+    .profesionales-list.modo-grid .btn-orden-llegada {
+        display: inline-flex !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        flex: 0 0 auto !important;
+        padding: 8px 12px !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    .profesionales-list.modo-grid .btn-expand {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-card.expandida {
+        grid-column: auto !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-card.expandida .profesional-header {
+        flex-direction: row !important;
+        align-items: center !important;
+        text-align: left !important;
+    }
+
+    .profesionales-list.modo-grid .profesional-card.expandida .profesional-actions {
+        flex-direction: row !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        width: auto !important;
+    }
+}

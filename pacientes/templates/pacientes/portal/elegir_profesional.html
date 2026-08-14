@@ -29,9 +29,19 @@
                 </div>
                 <h3>{{ prof.nombre_completo }}</h3>
                 <p class="especialidad">{{ prof.get_especialidad_display }}</p>
-                {% if prof.descripcion %}
-                    <p class="descripcion">{{ prof.descripcion|truncatechars:80 }}</p>
+
+                {% if prof.precio_particular %}
+                    <span class="precio-portal">💵 ${{ prof.precio_particular }}</span>
                 {% endif %}
+
+                {% if prof.obras_sociales.exists %}
+                    <div class="obras-sociales-badges">
+                        {% for os in prof.obras_sociales.all %}
+                            <span class="os-badge-mini">{{ os.sigla }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <div class="consultorio-tags">
                     {% if cliente and cliente.tipo == 'consultorio' %}
                         <span class="consultorio-tag">{{ cliente.establecimiento.nombre }}</span>
@@ -41,7 +51,7 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-                
+
                 {% if prof.atiende_por_orden %}
                     <button class="btn-orden-llegada-portal" onclick="abrirModal('{{ prof.nombre_completo|escapejs }}', '{{ prof.get_especialidad_display|escapejs }}', {{ prof.id }})">
                         Orden de Llegada
