@@ -255,6 +255,65 @@
     </section>
     {% endif %}
 
+    <!-- ========== EQUIPAMIENTO / TÉCNICAS ========== -->
+    {% if cliente.mostrar_equipamientos %}
+    <section class="section">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">Tecnología y Equipamiento</span>
+                <h2 class="section-title">{{ cliente.equipamientos_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.equipamientos_subtitulo }}</p>
+            </div>
+            
+            {% with equipamientos=cliente.equipamientos.all %}
+                {% if equipamientos %}
+                    {% if equipamientos|length <= 3 %}
+                        <!-- Modo lista alternada (imagen-texto) -->
+                        <div class="equipamientos-list">
+                            {% for equipo in equipamientos %}
+                            <div class="equipamiento-item {% cycle '' 'reverse' %}">
+                                <div class="equipamiento-media">
+                                    {% if equipo.imagen %}
+                                        <img src="{{ equipo.imagen.url }}" alt="{{ equipo.nombre }}" class="equipamiento-imagen-list">
+                                    {% else %}
+                                        <div class="equipamiento-icono-list">{{ equipo.icono|default:'🩺' }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="equipamiento-info">
+                                    <h3>{{ equipo.nombre }}</h3>
+                                    {% if equipo.descripcion %}
+                                        <p>{{ equipo.descripcion }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <!-- Modo grilla de cards (más de 3) -->
+                        <div class="equipamientos-grid">
+                            {% for equipo in equipamientos %}
+                            <div class="equipamiento-card">
+                                {% if equipo.imagen %}
+                                    <img src="{{ equipo.imagen.url }}" alt="{{ equipo.nombre }}" class="equipamiento-imagen">
+                                {% else %}
+                                    <div class="equipamiento-icono">{{ equipo.icono|default:'🩺' }}</div>
+                                {% endif %}
+                                <h3>{{ equipo.nombre }}</h3>
+                                {% if equipo.descripcion %}
+                                    <p>{{ equipo.descripcion }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p style="text-align:center; color: var(--text-muted);">No hay equipamientos cargados.</p>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- ========== SERVICIOS ========== -->
     {% if cliente.mostrar_servicios %}
     <section class="section section-alt">

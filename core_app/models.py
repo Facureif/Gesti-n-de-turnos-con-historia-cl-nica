@@ -185,9 +185,50 @@ class ClienteSaaS(ModeloBase):
     # Control de visibilidad de precios y obras sociales en la landing
     mostrar_precios_landing = models.BooleanField(default=True, verbose_name='Mostrar precios en la landing')
     mostrar_obras_sociales_landing = models.BooleanField(default=True, verbose_name='Mostrar obras sociales en la landing')
+
+    mostrar_equipamientos = models.BooleanField(default=True, verbose_name='Mostrar sección de equipamientos')
+    equipamientos_titulo = models.CharField(max_length=200, default='Nuestros Equipos')
+    equipamientos_subtitulo = models.CharField(max_length=200, default='Contamos con tecnología de última generación')
     class Meta:
         verbose_name = 'Cliente SaaS'
         verbose_name_plural = 'Clientes SaaS'
     
     def __str__(self):
         return f"{self.nombre} ({self.get_tipo_display()})"
+
+
+class Equipamiento(ModeloBase):
+    """
+    Instrumentos, equipos o técnicas que el consultorio quiere destacar.
+    Ej: Botas de compresión, crioterapia, tomógrafo, etc.
+    """
+    cliente = models.ForeignKey(
+        ClienteSaaS,
+        on_delete=models.CASCADE,
+        related_name='equipamientos',
+        verbose_name='Cliente'
+    )
+    nombre = models.CharField(max_length=200, verbose_name='Nombre')
+    descripcion = models.TextField(blank=True, verbose_name='Descripción')
+    icono = models.CharField(
+        max_length=30,
+        blank=True,
+        default='🩺',
+        verbose_name='Icono (emoji o clase FontAwesome)',
+        help_text='Podés usar un emoji (🩺) o una clase de FontAwesome (fas fa-x-ray)'
+    )
+    imagen = models.ImageField(
+        upload_to='equipamientos/',
+        blank=True,
+        null=True,
+        verbose_name='Imagen (opcional)'
+    )
+    orden = models.PositiveIntegerField(default=0, verbose_name='Orden')
+
+    class Meta:
+        verbose_name = 'Equipamiento / Técnica'
+        verbose_name_plural = 'Equipamientos / Técnicas'
+        ordering = ['orden', 'id']
+
+    def __str__(self):
+        return f"{self.nombre} ({self.cliente.nombre})"

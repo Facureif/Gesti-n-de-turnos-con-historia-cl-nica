@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib import admin
-from .models import ClienteSaaS, ConfiguracionSistema
+from .models import ClienteSaaS, ConfiguracionSistema, Equipamiento
 
 # =============================================
 # CONFIGURACIÓN DEL SISTEMA
@@ -12,6 +12,15 @@ class ConfiguracionSistemaAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return not ConfiguracionSistema.objects.exists()
 
+
+# Inline para equipamientos
+class EquipamientoInline(admin.TabularInline):
+    model = Equipamiento
+    extra = 1  # Muestra un formulario vacío para agregar
+    fields = ('nombre', 'descripcion', 'icono', 'imagen', 'orden', 'activo')
+    ordering = ('orden', 'id')
+    verbose_name = 'Equipamiento / Técnica'
+    verbose_name_plural = 'Equipamientos / Técnicas'
 
 # =============================================
 # CLIENTE SAAS
@@ -31,7 +40,7 @@ class ClienteSaaSForm(forms.ModelForm):
 @admin.register(ClienteSaaS)
 class ClienteSaaSAdmin(admin.ModelAdmin):
     form = ClienteSaaSForm
-    
+    inlines = [EquipamientoInline] 
     fieldsets = (
         ('📋 Información Básica', {
             'fields': ('slug', 'tipo', 'nombre', 'activo')
@@ -74,7 +83,7 @@ class ClienteSaaSAdmin(admin.ModelAdmin):
             'description': 'Imagen de "Quiénes Somos", servicios editables, y control de precios'
         }),
         ('📋 Módulos', {
-            'fields': ('mostrar_profesionales', 'mostrar_servicios', 'mostrar_horarios', 'mostrar_selector_temas'),
+            'fields': ('mostrar_profesionales', 'mostrar_servicios', 'mostrar_horarios', 'mostrar_equipamientos', 'mostrar_selector_temas'),
             'description': 'Activá o desactivá secciones de la landing page y el selector de temas'
         }),
         ('📞 Contacto', {
