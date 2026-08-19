@@ -1167,6 +1167,13 @@
     }
 }
 
+.footer-social a {
+    transition: transform 0.2s ease;
+}
+
+.footer-social a:hover {
+    transform: scale(1.1);
+}
 /* =============================================
    MODO GRID para muchos profesionales
    ============================================= */

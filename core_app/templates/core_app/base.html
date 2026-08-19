@@ -17,6 +17,13 @@
     
     <!-- CSS del sistema -->
     <link rel="stylesheet" href="{% static 'css/core/base.css' %}">
+
+    <title>{{ cliente.nombre }} - Gestión de Turnos Online</title>
+    {% if cliente.favicon %}
+        <link rel="icon" type="image/x-icon" href="{{ cliente.favicon.url }}">
+    {% else %}
+        <link rel="icon" type="image/x-icon" href="{% static 'img/default-favicon.ico' %}">
+    {% endif %}
     
     <!-- Theme CSS: si cliente tiene colores personalizados, los pasamos como variables CSS -->
     {% if cliente %}

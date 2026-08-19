@@ -18,6 +18,44 @@
                 background-position: center;
             {% endif %}
         }
+        
+        /* Estilos para la sección de Servicios */
+        .servicios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 16px;
+        }
+        .servicio-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        .servicio-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        .servicio-card .icono {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .servicio-card h4 {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .servicio-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
     </style>
 {% endblock %}
 
@@ -30,17 +68,17 @@
             {% if profesional.foto %}
                 <img src="{{ profesional.foto.url }}" alt="{{ profesional.nombre_completo }}" class="hero-avatar">
             {% else %}
-                <div class="hero-avatar-placeholder">
+                <div class="hero-avatar-placeholder" style="display: flex; align-items: center; justify-content: center;">
                     {{ profesional.nombre_completo|slice:":1" }}{{ profesional.apellido|slice:":1" }}
                 </div>
             {% endif %}
 
             <div class="hero-badge">
-                <i class="fas fa-calendar-check"></i> Turnos Online 24/7
+                <i class="fas fa-calendar-check"></i> {{ cliente.hero_badge_texto|default:"Turnos Online 24/7" }}
             </div>
             
             <h1>{{ profesional.nombre_completo }}</h1>
-            <p class="especialidad-hero">{{ profesional.get_especialidad_display }}</p>
+            <p class="especialidad-hero">{{ cliente.hero_subtitulo|default:profesional.get_especialidad_display }}</p>
             
             <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-hero">
                 <i class="fas fa-calendar-plus"></i> Sacar Turno Ahora
@@ -53,46 +91,105 @@
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Profesional</span>
-                <h2 class="section-title">Sobre Mí</h2>
+                <h2 class="section-title">{{ cliente.quienes_somos_titulo|default:"Sobre Mí" }}</h2>
+                <p class="section-subtitle">{{ cliente.quienes_somos_subtitulo }}</p>
             </div>
             
-            <div class="sobre-mi-content">
-                {% if profesional.descripcion %}
-                    <p class="descripcion">{{ profesional.descripcion }}</p>
-                {% endif %}
-                
-                <div class="info-cajas-grid">
-                    {% if profesional.get_especializaciones_list %}
-                    <div class="info-caja">
-                        <div class="icono-grande">🎯</div>
-                        <h4>Especializaciones</h4>
-                        <ul>
-                            {% for esp in profesional.get_especializaciones_list %}
-                                <li>✓ {{ esp }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+            <div class="sobre-mi-grid">
+                <div class="sobre-mi-texto">
+                    {% if cliente.quienes_somos_texto %}
+                        <p class="descripcion">{{ cliente.quienes_somos_texto }}</p>
+                    {% else %}
+                        <p class="descripcion">{{ profesional.descripcion }}</p>
                     {% endif %}
                     
-                    {% if profesional.get_servicios_list %}
-                    <div class="info-caja">
-                        <div class="icono-grande">⭐</div>
-                        <h4>Servicios</h4>
-                        <ul>
-                            {% for servicio in profesional.get_servicios_list %}
-                                <li>✓ {{ servicio }}</li>
-                            {% endfor %}
-                        </ul>
+                    <div class="sobre-mi-destacados">
+                        {% if profesional.get_especializaciones_list %}
+                        <div class="destacado-item">
+                            <i class="fas fa-bullseye"></i>
+                            <div>
+                                <strong>Especializaciones</strong>
+                                <span>{{ profesional.get_especializaciones_list|join:", " }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if profesional.get_servicios_list %}
+                        <div class="destacado-item">
+                            <i class="fas fa-star"></i>
+                            <div>
+                                <strong>Servicios</strong>
+                                <span>{{ profesional.get_servicios_list|join:", " }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
+                </div>
+                
+                <div class="sobre-mi-imagen">
+                    {% if cliente.nosotros_imagen %}
+                        <img src="{{ cliente.nosotros_imagen.url }}" alt="{{ profesional.nombre_completo }}">
+                    {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-user-md"></i>
+                            <span>{{ profesional.nombre_completo }}</span>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ========== SERVICIOS (Control global agregado) ========== -->
+    {% if cliente.mostrar_servicios %}
+    <section class="section section-alt">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">Nuestros Servicios</span>
+                <h2 class="section-title">{{ cliente.servicios_titulo|default:"¿Qué ofrecemos?" }}</h2>
+                <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
+            </div>
+            
+            <div class="servicios-grid">
+                {% if cliente.mostrar_servicio_1 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_1_icono }}</span>
+                    <h4>{{ cliente.servicio_1_titulo }}</h4>
+                    <p>{{ cliente.servicio_1_descripcion }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cliente.mostrar_servicio_2 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_2_icono }}</span>
+                    <h4>{{ cliente.servicio_2_titulo }}</h4>
+                    <p>{{ cliente.servicio_2_descripcion }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cliente.mostrar_servicio_3 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_3_icono }}</span>
+                    <h4>{{ cliente.servicio_3_titulo }}</h4>
+                    <p>{{ cliente.servicio_3_descripcion }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cliente.mostrar_servicio_4 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_4_icono }}</span>
+                    <h4>{{ cliente.servicio_4_titulo }}</h4>
+                    <p>{{ cliente.servicio_4_descripcion }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
     <!-- ========== DONDE ATIENDO ========== -->
     {% if consultorios %}
-    <section class="section section-alt">
+    <section class="section">
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Ubicaciones</span>
@@ -125,7 +222,7 @@
                     
                     {% if est.agenda %}
                     <div class="horarios-lista">
-                        <h4><i class="far fa-clock"></i> Horarios</h4>
+                        <h4><i class="far fa-clock"></i> Días y Horarios</h4>
                         {% for h in est.agenda.horarios.all %}
                         <div class="horario-item">
                             <span class="horario-dia">{{ h.get_dia_display }}</span>
@@ -141,111 +238,167 @@
     </section>
     {% endif %}
 
-    <!-- ========== SERVICIOS Y COBERTURA ========== -->
-    {% if cliente.mostrar_precios_landing and profesional.precio_particular %}
-    {% if profesional.precio_particular or profesional.obras_sociales.exists %}
+    <!-- ========== COBERTURA (Precios y Obras Sociales) ========== -->
+    {% if cliente.mostrar_cobertura %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
                 <span class="section-label">Cobertura</span>
-                <h2 class="section-title">Precios y Obras Sociales</h2>
+                <h2 class="section-title">{{ cliente.cobertura_titulo|default:"Precios y Obras Sociales" }}</h2>
+                <p class="section-subtitle">{{ cliente.cobertura_subtitulo }}</p>
             </div>
             
-            <div class="info-destacada-grid">
-                {% if profesional.precio_particular %}
-                <div class="info-destacada-card">
-                    <span class="icono-header">💵</span>
-                    <div class="precio-label">Consulta Particular</div>
-                    <div class="precio-valor">${{ profesional.precio_particular }}</div>
+            <div class="cobertura-resumen">
+                {% if cliente.mostrar_precios_landing and profesional.precio_particular %}
+                <div class="cobertura-precio">
+                    <span class="cobertura-icono">💵</span>
+                    <div>
+                        <span class="cobertura-label">Consulta Particular</span>
+                        <span class="cobertura-valor">${{ profesional.precio_particular }}</span>
+                    </div>
                 </div>
                 {% endif %}
-            {% endif %}
-            {% if cliente.mostrar_obras_sociales_landing and profesional.obras_sociales.exists %}
-                {% if profesional.obras_sociales.exists %}
-                <div class="info-destacada-card">
-                    <span class="icono-header">🏥</span>
-                    <div class="precio-label">Obras Sociales que acepto</div>
-                    <div class="obras-sociales-grid">
+                
+                {% if cliente.mostrar_obras_sociales_landing and profesional.obras_sociales.exists %}
+                <div class="cobertura-obras">
+                    <span class="cobertura-icono">🏥</span>
+                    <div class="obras-sociales-tags">
                         {% for os in profesional.obras_sociales.all %}
                             <span class="os-tag">{{ os.nombre }}</span>
                         {% endfor %}
                     </div>
                 </div>
                 {% endif %}
-            {% endif %}    
             </div>
         </div>
     </section>
     {% endif %}
 
-    <!-- ========== CONTACTO ========== -->
-    {% if profesional.telefono or profesional.email %}
+    <!-- ========== EQUIPAMIENTO / TÉCNICAS ========== -->
+    {% if cliente.mostrar_equipamientos %}
     <section class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Contacto</span>
-                <h2 class="section-title">¿Necesitás ayuda?</h2>
+                <span class="section-label">Tecnología y Equipamiento</span>
+                <h2 class="section-title">{{ cliente.equipamientos_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.equipamientos_subtitulo }}</p>
             </div>
             
-            <div class="contacto-grid">
-                {% if profesional.telefono %}
-                <a href="https://wa.me/54{{ profesional.telefono|cut:' '|cut:'-'|cut:'+' }}" target="_blank" class="contacto-item">
-                    <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i>
-                    <span>Chatear por WhatsApp</span>
-                </a>
+            {% with equipamientos=cliente.equipamientos.all %}
+                {% if equipamientos %}
+                    <div class="equipamientos-slider">
+                        {% for equipo in equipamientos %}
+                        <div class="equipamiento-slide">
+                            <div class="equipamiento-slide-media">
+                                {% if equipo.imagen %}
+                                    <img src="{{ equipo.imagen.url }}" alt="{{ equipo.nombre }}">
+                                {% else %}
+                                    <div style="font-size: 6rem; text-align:center; color: var(--primary);">{{ equipo.icono|default:'🩺' }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="equipamiento-slide-info">
+                                <h3>{{ equipo.nombre }}</h3>
+                                <p>{{ equipo.descripcion }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p style="text-align:center; color: var(--text-muted); margin-top: 16px; font-size: 0.85rem;">
+                        <i class="fas fa-arrow-left"></i> Deslizá para ver más equipos <i class="fas fa-arrow-right"></i>
+                    </p>
+                {% else %}
+                    <p style="text-align:center; color: var(--text-muted);">No hay equipamientos cargados.</p>
                 {% endif %}
-                
-                {% if profesional.email %}
-                <a href="mailto:{{ profesional.email }}" class="contacto-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>{{ profesional.email }}</span>
-                </a>
-                {% endif %}
-            </div>
+            {% endwith %}
         </div>
     </section>
     {% endif %}
 
-</div> <!-- CIERRE DEL DIV.LANDING -->
+</div> 
 
-<!-- ========== FOOTER ========== -->
+<!-- ========== FOOTER COMPLETO ========== -->
 <footer class="footer">
-    <div class="container-custom footer-content">
-        <span>© {% now "Y" %} {{ profesional.nombre_completo }}</span>
-        <span>Desarrollo: <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+    <div class="container-custom">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>{{ profesional.nombre_completo }}</h4>
+                <p>{{ cliente.footer_texto|default:'Atención profesional de calidad.' }}</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Horarios</h4>
+                {% if cliente.mostrar_horarios_footer %}
+                    <p><strong>Lunes a Viernes:</strong> {{ cliente.horarios_lunes_viernes }}</p>
+                    <p><strong>Sábados:</strong> {{ cliente.horarios_sabados }}</p>
+                {% else %}
+                    <p>Consultar disponibilidad</p>
+                {% endif %}
+                <p><strong>Turnos Online:</strong> 24/7</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                {% if cliente.direccion %}
+                    <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.direccion|urlencode }}" target="_blank">
+                        <i class="fas fa-map-marker-alt"></i> {{ cliente.direccion }}
+                    </a>
+                {% elif profesional.telefono %}
+                    <a href="tel:{{ profesional.telefono }}">
+                        <i class="fas fa-phone"></i> {{ profesional.telefono }}
+                    </a>
+                {% endif %}
+                
+                {% if cliente.email_contacto %}
+                    <a href="mailto:{{ cliente.email_contacto }}">
+                        <i class="fas fa-envelope"></i> {{ cliente.email_contacto }}
+                    </a>
+                {% endif %}
+                
+                {% if cliente.instagram_url or cliente.facebook_url %}
+                <div class="footer-social">
+                    {% if cliente.instagram_url %}
+                    <a href="{{ cliente.instagram_url }}" target="_blank" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    {% endif %}
+                    {% if cliente.facebook_url %}
+                    <a href="{{ cliente.facebook_url }}" target="_blank" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <span>© {% now "Y" %} {{ profesional.nombre_completo }}.</span>
+            <span>Desarrollado por <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+        </div>
     </div>
 </footer>
 
-<!-- ========== SELECTOR DE TEMAS (solo si está activado) ========== -->
+<!-- ========== SELECTOR DE TEMAS ========== -->
 {% if cliente.mostrar_selector_temas %}
 <div class="theme-selector">
-    <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" 
-        data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
-    <button class="theme-selector-btn theme-btn-dorado {% if cliente.theme_css == 'azul_oscuro' %}activo{% endif %}" 
-        data-tema="Azul Oscuro" onclick="cambiarTema('azul_oscuro')" title="Azul Oscuro Premium"></button>
-    <button class="theme-selector-btn theme-btn-verde-oscuro {% if cliente.theme_css == 'verde_oscuro' %}activo{% endif %}" 
-        data-tema="Verde Oscuro" onclick="cambiarTema('verde_oscuro')" title="Verde Médico Clásico"></button>
-    <button class="theme-selector-btn theme-btn-bn {% if cliente.theme_css == 'blanco_negro' %}activo{% endif %}" 
-        data-tema="Blanco & Negro" onclick="cambiarTema('blanco_negro')" title="Minimalista"></button>
-    <button class="theme-selector-btn theme-btn-azulclaro {% if cliente.theme_css == 'azul_claro' %}activo{% endif %}" 
-        data-tema="Azul Claro" onclick="cambiarTema('azul_claro')" title="Azul Claro Profesional"></button>
-    <button class="theme-selector-btn theme-btn-grisclasico {% if cliente.theme_css == 'gris_clasico' %}activo{% endif %}" 
-        data-tema="Gris Clásico" onclick="cambiarTema('gris_clasico')" title="Gris Clásico Elegante"></button>  
-    <button class="theme-selector-btn theme-btn-lavanda {% if cliente.theme_css == 'lavanda' %}activo{% endif %}" 
-        data-tema="Lavanda" onclick="cambiarTema('lavanda')" title="Lavanda Profesional"></button>
-    <button class="theme-selector-btn theme-btn-tierracalido {% if cliente.theme_css == 'tierra_calidoo' %}activo{% endif %}" 
-        data-tema="Tierra calido" onclick="cambiarTema('tierra_calido')" title="Tierra calido Elegante"></button>  
-    <button class="theme-selector-btn theme-btn-turquesa {% if cliente.theme_css == 'turquesa' %}activo{% endif %}" 
-        data-tema="Turquesa" onclick="cambiarTema('turquesa')" title="Turquesa Profesional"></button>
+    <button class="theme-selector-btn theme-btn-default {% if cliente.theme_css == 'default' or not cliente.theme_css %}activo{% endif %}" data-tema="Default" onclick="cambiarTema('default')" title="Blanco Profesional"></button>
+    <button class="theme-selector-btn theme-btn-dorado {% if cliente.theme_css == 'azul_oscuro' %}activo{% endif %}" data-tema="Azul Oscuro" onclick="cambiarTema('azul_oscuro')" title="Azul Oscuro Premium"></button>
+    <button class="theme-selector-btn theme-btn-verde-oscuro {% if cliente.theme_css == 'verde_oscuro' %}activo{% endif %}" data-tema="Verde Oscuro" onclick="cambiarTema('verde_oscuro')" title="Verde Médico Clásico"></button>
+    <button class="theme-selector-btn theme-btn-bn {% if cliente.theme_css == 'blanco_negro' %}activo{% endif %}" data-tema="Blanco & Negro" onclick="cambiarTema('blanco_negro')" title="Minimalista"></button>
+    <button class="theme-selector-btn theme-btn-azulclaro {% if cliente.theme_css == 'azul_claro' %}activo{% endif %}" data-tema="Azul Claro" onclick="cambiarTema('azul_claro')" title="Azul Claro Profesional"></button>
+    <button class="theme-selector-btn theme-btn-grisclasico {% if cliente.theme_css == 'gris_clasico' %}activo{% endif %}" data-tema="Gris Clásico" onclick="cambiarTema('gris_clasico')" title="Gris Clásico Elegante"></button>  
+    <button class="theme-selector-btn theme-btn-lavanda {% if cliente.theme_css == 'lavanda' %}activo{% endif %}" data-tema="Lavanda" onclick="cambiarTema('lavanda')" title="Lavanda Profesional"></button>
+    <button class="theme-selector-btn theme-btn-tierracalido {% if cliente.theme_css == 'tierra_calido' %}activo{% endif %}" data-tema="Tierra calido" onclick="cambiarTema('tierra_calido')" title="Tierra calido Elegante"></button>  
+    <button class="theme-selector-btn theme-btn-turquesa {% if cliente.theme_css == 'turquesa' %}activo{% endif %}" data-tema="Turquesa" onclick="cambiarTema('turquesa')" title="Turquesa Profesional"></button>
 </div>
 {% endif %}
 
-<!-- ========== BOTÓN FLOTANTE PARA SACAR TURNO (IZQUIERDA) ========== -->
+<!-- ========== BOTÓN FLOTANTE ========== -->
 <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-flotante-turno">
     <i class="fas fa-calendar-plus"></i> Sacar Turno
 </a>
 
-<!-- ========== WHATSAPP FLOTANTE (DERECHA) ========== -->
+<!-- ========== WHATSAPP FLOTANTE ========== -->
 {% if profesional.telefono %}
 <a href="https://wa.me/54{{ profesional.telefono|cut:' '|cut:'-'|cut:'+' }}" target="_blank" class="whatsapp-flotante">
     <i class="fab fa-whatsapp"></i>
@@ -255,22 +408,13 @@
 <script>
 function cambiarTema(theme) {
     document.getElementById('theme-css').href = '/static/css/themes/' + theme + '.css';
-
     document.querySelectorAll('.theme-selector-btn').forEach(function(btn) {
         btn.classList.remove('activo');
         if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(theme) !== -1) {
             btn.classList.add('activo');
         }
     });
-
     localStorage.setItem('consultorio-theme', theme);
-
-    var darkThemes = ['azul_oscuro', 'verde_oscuro'];
-    if (darkThemes.includes(theme)) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
 }
 </script>
 

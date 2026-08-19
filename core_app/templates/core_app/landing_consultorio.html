@@ -404,11 +404,23 @@
 <footer class="footer">
     <div class="container-custom">
         <div class="footer-grid">
+            <!-- Columna 1: Nombre -->
             <div class="footer-col">
                 <h4>{{ cliente.nombre }}</h4>
                 <p>{{ cliente.footer_texto|default:'Atención profesional de calidad.' }}</p>
             </div>
-            <div class="footer-col"></div>
+
+            <!-- Columna 2: Horarios -->
+            {% if cliente.mostrar_horarios_footer %}
+            <div class="footer-col">
+                <h4>Horarios</h4>
+                <p><strong>Lunes a Viernes:</strong> {{ cliente.horarios_lunes_viernes }}</p>
+                <p><strong>Sábados:</strong> {{ cliente.horarios_sabados }}</p>
+                <p><strong>Turnos Online:</strong> 24/7</p>
+            </div>
+            {% endif %}
+
+            <!-- Columna 3: Contacto y redes -->
             <div class="footer-col">
                 <h4>Contacto</h4>
                 {% if cliente.establecimiento.direccion %}
@@ -418,6 +430,7 @@
                     <span>{{ cliente.establecimiento.direccion }}</span>
                 </a>
                 {% endif %}
+
                 {% if cliente.telefono_contacto %}
                 <a href="https://wa.me/54{{ cliente.telefono_contacto|cut:' '|cut:'-' }}?text=Hola,%20quiero%20consultar%20por%20un%20turno" 
                    target="_blank" class="footer-contacto-link">
@@ -430,6 +443,7 @@
                     <span>{{ cliente.establecimiento.telefono }}</span>
                 </a>
                 {% endif %}
+
                 {% if cliente.email_contacto %}
                 <a href="mailto:{{ cliente.email_contacto }}" class="footer-contacto-link">
                     <i class="fas fa-envelope"></i>
@@ -441,8 +455,27 @@
                     <span>{{ cliente.establecimiento.email }}</span>
                 </a>
                 {% endif %}
+
+                <!-- Redes sociales -->
+                {% if cliente.instagram_url or cliente.facebook_url %}
+                <div class="footer-social" style="margin-top: 12px; display: flex; gap: 12px;">
+                    {% if cliente.instagram_url %}
+                    <a href="{{ cliente.instagram_url }}" target="_blank" aria-label="Instagram" 
+                       style="color: #E1306C; font-size: 1.5rem;">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    {% endif %}
+                    {% if cliente.facebook_url %}
+                    <a href="{{ cliente.facebook_url }}" target="_blank" aria-label="Facebook" 
+                       style="color: #1877F2; font-size: 1.5rem;">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
+
         <div class="footer-bottom">
             <span>© {% now "Y" %} {{ cliente.nombre }}. Todos los derechos reservados.</span>
             <span>Desarrollado por <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>

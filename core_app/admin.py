@@ -16,14 +16,15 @@ class ConfiguracionSistemaAdmin(admin.ModelAdmin):
 # Inline para equipamientos
 class EquipamientoInline(admin.TabularInline):
     model = Equipamiento
-    extra = 1  # Muestra un formulario vacío para agregar
+    extra = 1
     fields = ('nombre', 'descripcion', 'icono', 'imagen', 'orden', 'activo')
     ordering = ('orden', 'id')
     verbose_name = 'Equipamiento / Técnica'
     verbose_name_plural = 'Equipamientos / Técnicas'
 
+
 # =============================================
-# CLIENTE SAAS
+# CLIENTE SAAS - ADMIN REORGANIZADO POR SECCIONES
 # =============================================
 class ClienteSaaSForm(forms.ModelForm):
     class Meta:
@@ -36,59 +37,90 @@ class ClienteSaaSForm(forms.ModelForm):
         }
 
 
-
 @admin.register(ClienteSaaS)
 class ClienteSaaSAdmin(admin.ModelAdmin):
     form = ClienteSaaSForm
-    inlines = [EquipamientoInline] 
+    inlines = [EquipamientoInline]
+    
     fieldsets = (
-        ('📋 Información Básica', {
-            'fields': ('slug', 'tipo', 'nombre', 'activo')
+        # --- 1. DATOS GENERALES Y DISEÑO ---
+        ('📋 Configuración General', {
+            'fields': ('layout_estilo', 'favicon', 'slug', 'tipo', 'nombre', 'activo'),
+            'description': 'Configuración básica de identidad y diseño del sitio web.'
         }),
         ('🔗 Vinculación', {
             'fields': ('establecimiento', 'profesional'),
-            'description': 'Vinculá este cliente con un establecimiento (consultorio) o un profesional independiente'
+            'description': 'Vinculá este cliente con un establecimiento o un profesional independiente.'
         }),
-        ('🎨 Tema y Colores', {
+        ('🎨 Tema Visual', {
             'fields': ('theme_css', 'color_primario', 'color_secundario'),
-            'description': 'Elegí un tema predefinido o personalizá los colores manualmente. El color pisa al del theme.'
+            'description': 'Elegí un tema predefinido o personalizá los colores manualmente.'
         }),
+
+        # --- 2. PORTADA (HERO) ---
         ('🖼️ Hero (Portada)', {
             'fields': ('hero_imagen', 'hero_titulo', 'hero_subtitulo', 'hero_badge_texto'),
-            'description': 'Imagen de fondo y textos principales de la landing page'
+            'description': 'Imagen de fondo y textos principales de la portada.'
         }),
-        ('📝 Textos Landing Consultorio', {
+
+        # --- 3. SOBRE MÍ ---
+        ('🧑‍⚕️ Sección "Sobre Mí"', {
             'fields': (
                 'quienes_somos_titulo', 'quienes_somos_subtitulo', 'quienes_somos_texto',
+                'nosotros_imagen',
                 'nosotros_destacado_1_icono', 'nosotros_destacado_1_titulo', 'nosotros_destacado_1_texto',
                 'nosotros_destacado_2_icono', 'nosotros_destacado_2_titulo', 'nosotros_destacado_2_texto',
                 'nosotros_destacado_3_icono', 'nosotros_destacado_3_titulo', 'nosotros_destacado_3_texto',
-                'horarios_titulo', 'horarios_subtitulo',
-                'horarios_lunes_viernes', 'horarios_sabados',
-                'servicios_titulo', 'servicios_subtitulo',
-                'profesionales_titulo', 'profesionales_subtitulo',
-                'footer_texto',
             ),
-            'description': 'Personalizá todos los textos que aparecen en la landing del consultorio'
+            'description': 'Texto biográfico y las 3 tarjetas destacadas (ej: Expertos, Turnos Online, Seguridad).'
         }),
-        ('🧩 Secciones Personalizables', {
+
+        # --- 4. SERVICIOS (Títulos + Checkbox) ---
+        ('⚙️ Sección "Servicios"', {
             'fields': (
+                'mostrar_servicios', 'servicios_titulo', 'servicios_subtitulo',
                 'servicio_1_icono', 'servicio_1_titulo', 'servicio_1_descripcion', 'mostrar_servicio_1',
                 'servicio_2_icono', 'servicio_2_titulo', 'servicio_2_descripcion', 'mostrar_servicio_2',
                 'servicio_3_icono', 'servicio_3_titulo', 'servicio_3_descripcion', 'mostrar_servicio_3',
                 'servicio_4_icono', 'servicio_4_titulo', 'servicio_4_descripcion', 'mostrar_servicio_4',
-                'mostrar_precios_landing', 'mostrar_obras_sociales_landing',
-                'nosotros_imagen',
             ),
-            'description': 'Imagen de "Quiénes Somos", servicios editables, y control de precios'
+            'description': 'Activá/Desactivá el bloque completo y editá cada una de las 4 tarjetas de servicio.'
         }),
-        ('📋 Módulos', {
-            'fields': ('mostrar_profesionales', 'mostrar_servicios', 'mostrar_horarios', 'mostrar_equipamientos', 'mostrar_selector_temas'),
-            'description': 'Activá o desactivá secciones de la landing page y el selector de temas'
+
+        # --- 5. HORARIOS Y UBICACIÓN ---
+        ('📍 Sección "Horarios y Ubicación"', {
+            'fields': ('mostrar_horarios', 'horarios_titulo', 'horarios_subtitulo'),
+            'description': 'Títulos del bloque de horarios (los horarios reales se cargan en la sección Establecimientos).'
         }),
-        ('📞 Contacto', {
-            'fields': ('telefono_contacto', 'email_contacto', 'direccion'),
-            'description': 'Estos datos aparecerán en el footer con links directos (WhatsApp, mail, maps)'
+
+        # --- 6. COBERTURA Y PRECIOS ---
+        ('💰 Sección "Cobertura"', {
+            'fields': (
+                'mostrar_cobertura', 'cobertura_titulo', 'cobertura_subtitulo',
+                'mostrar_precios_landing', 'mostrar_obras_sociales_landing'
+            ),
+            'description': 'Controlá la visibilidad de los aranceles y las obras sociales en la página.'
+        }),
+
+        # --- 7. EQUIPAMIENTOS ---
+        ('🛠️ Sección "Equipamientos"', {
+            'fields': ('mostrar_equipamientos', 'equipamientos_titulo', 'equipamientos_subtitulo'),
+            'description': 'Títulos de la sección. Los equipos/imágenes se cargan en el Inline (tabla) ubicado abajo.'
+        }),
+
+        # --- 8. FOOTER Y CONTACTO ---
+        ('📞 Footer y Contacto', {
+            'fields': (
+                'footer_texto', 'telefono_contacto', 'email_contacto', 'direccion',
+                'instagram_url', 'facebook_url', 'mostrar_horarios_footer'
+            ),
+            'description': 'Datos de contacto, redes sociales y texto resumido para el pie de página.'
+        }),
+
+        # --- 9. MÓDULOS AVANZADOS ---
+        ('🔧 Módulos Avanzados', {
+            'fields': ('mostrar_profesionales', 'mostrar_selector_temas'),
+            'description': 'Opciones extra como el selector de temas flotante (para demos o personalización).'
         }),
     )
     

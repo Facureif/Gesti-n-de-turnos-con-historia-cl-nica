@@ -189,6 +189,48 @@ class ClienteSaaS(ModeloBase):
     mostrar_equipamientos = models.BooleanField(default=True, verbose_name='Mostrar sección de equipamientos')
     equipamientos_titulo = models.CharField(max_length=200, default='Nuestros Equipos')
     equipamientos_subtitulo = models.CharField(max_length=200, default='Contamos con tecnología de última generación')
+
+    # 📱 Redes sociales
+    instagram_url = models.URLField(blank=True, verbose_name='Instagram')
+    facebook_url = models.URLField(blank=True, verbose_name='Facebook')
+
+    # 🕒 Horarios en footer
+    mostrar_horarios_footer = models.BooleanField(default=True, verbose_name='Mostrar horarios en el footer')
+
+    LAYOUT_ESTILOS = [
+        ('consultorio', 'Consultorio (Grid completo, múltiples profesionales)'),
+        ('profesional_compact', 'Profesional Independiente (Compacto y centrado)'),
+    ]
+    layout_estilo = models.CharField(
+        max_length=30, 
+        choices=LAYOUT_ESTILOS, 
+        default='consultorio', 
+        verbose_name='Estilo de Layout'
+    )
+    
+    favicon = models.ImageField(
+        upload_to='landing/favicons/', 
+        blank=True, 
+        null=True, 
+        verbose_name='Favicon (icono de pestaña)'
+    )
+
+    cobertura_titulo = models.CharField(
+        max_length=200, 
+        default='Precios y Obras Sociales', 
+        verbose_name='Título de la sección Cobertura'
+    )
+    cobertura_subtitulo = models.CharField(
+        max_length=200, 
+        blank=True, 
+        default='Consultá los aranceles y coberturas disponibles', 
+        verbose_name='Subtítulo de Cobertura'
+    )
+    mostrar_cobertura = models.BooleanField(
+        default=True, 
+        verbose_name='Mostrar sección de Cobertura'
+    )
+
     class Meta:
         verbose_name = 'Cliente SaaS'
         verbose_name_plural = 'Clientes SaaS'
@@ -232,3 +274,7 @@ class Equipamiento(ModeloBase):
 
     def __str__(self):
         return f"{self.nombre} ({self.cliente.nombre})"
+
+
+
+
