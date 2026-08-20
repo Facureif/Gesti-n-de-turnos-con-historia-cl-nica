@@ -59,68 +59,92 @@ class ClienteSaaSAdmin(admin.ModelAdmin):
 
         # --- 2. PORTADA (HERO) ---
         ('🖼️ Hero (Portada)', {
-            'fields': ('hero_imagen', 'hero_titulo', 'hero_subtitulo', 'hero_badge_texto'),
-            'description': 'Imagen de fondo y textos principales de la portada.'
+            'fields': (
+                'hero_imagen', 'hero_titulo', 'hero_subtitulo', 'hero_badge_texto',
+                'hero_boton_texto', 'hero_scroll_texto'
+            ),
+            'description': 'Imagen de fondo, textos principales y botón de la portada.'
         }),
 
-        # --- 3. SOBRE MÍ ---
+        # --- 3. SOBRE MÍ / QUIÉNES SOMOS ---
         ('🧑‍⚕️ Sección "Sobre Mí"', {
             'fields': (
+                'sobre_mi_label',
                 'quienes_somos_titulo', 'quienes_somos_subtitulo', 'quienes_somos_texto',
                 'nosotros_imagen',
                 'nosotros_destacado_1_icono', 'nosotros_destacado_1_titulo', 'nosotros_destacado_1_texto',
                 'nosotros_destacado_2_icono', 'nosotros_destacado_2_titulo', 'nosotros_destacado_2_texto',
                 'nosotros_destacado_3_icono', 'nosotros_destacado_3_titulo', 'nosotros_destacado_3_texto',
             ),
-            'description': 'Texto biográfico y las 3 tarjetas destacadas (ej: Expertos, Turnos Online, Seguridad).'
+            'description': 'Etiqueta, título, subtítulo, texto e imagen de la sección Sobre Mí, junto con los 3 destacados.'
         }),
 
-        # --- 4. SERVICIOS (Títulos + Checkbox) ---
+        # --- 4. SERVICIOS ---
         ('⚙️ Sección "Servicios"', {
             'fields': (
-                'mostrar_servicios', 'servicios_titulo', 'servicios_subtitulo',
+                'mostrar_servicios', 'servicios_label', 'servicios_titulo', 'servicios_subtitulo',
                 'servicio_1_icono', 'servicio_1_titulo', 'servicio_1_descripcion', 'mostrar_servicio_1',
                 'servicio_2_icono', 'servicio_2_titulo', 'servicio_2_descripcion', 'mostrar_servicio_2',
                 'servicio_3_icono', 'servicio_3_titulo', 'servicio_3_descripcion', 'mostrar_servicio_3',
                 'servicio_4_icono', 'servicio_4_titulo', 'servicio_4_descripcion', 'mostrar_servicio_4',
             ),
-            'description': 'Activá/Desactivá el bloque completo y editá cada una de las 4 tarjetas de servicio.'
+            'description': 'Activá/Desactivá el bloque completo y editá etiqueta, título, subtítulo y cada tarjeta.'
         }),
 
         # --- 5. HORARIOS Y UBICACIÓN ---
         ('📍 Sección "Horarios y Ubicación"', {
-            'fields': ('mostrar_horarios', 'horarios_titulo', 'horarios_subtitulo'),
-            'description': 'Títulos del bloque de horarios (los horarios reales se cargan en la sección Establecimientos).'
+            'fields': (
+                'mostrar_horarios', 'horarios_seccion_label', 'horarios_titulo', 'horarios_subtitulo',
+                'horario_lunes_viernes_titulo', 'horario_sabados_titulo',
+                'horario_tipo_general', 'horario_online_titulo', 'horario_online_descripcion',
+                'ubicaciones_label', 'ubicaciones_titulo', 'ubicaciones_subtitulo',
+                'horarios_label', 'mostrar_mapa_horarios',
+            ),
+            'description': 'Etiquetas, títulos y textos de las tarjetas de horarios y ubicaciones.'
         }),
 
-        # --- 6. COBERTURA Y PRECIOS ---
+        # --- 6. PROFESIONALES ---
+        ('👨‍⚕️ Sección "Profesionales"', {
+            'fields': (
+                'mostrar_profesionales', 'profesionales_label', 'profesionales_titulo', 'profesionales_subtitulo',
+                'boton_orden_llegada_texto', 'texto_whatsapp', 'texto_horarios_no_disponibles',
+            ),
+            'description': 'Etiqueta, título, subtítulo y textos de la sección de profesionales.'
+        }),
+
+        # --- 7. COBERTURA Y PRECIOS ---
         ('💰 Sección "Cobertura"', {
             'fields': (
-                'mostrar_cobertura', 'cobertura_titulo', 'cobertura_subtitulo',
+                'mostrar_cobertura', 'cobertura_label', 'cobertura_titulo', 'cobertura_subtitulo',
                 'mostrar_precios_landing', 'mostrar_obras_sociales_landing'
             ),
-            'description': 'Controlá la visibilidad de los aranceles y las obras sociales en la página.'
+            'description': 'Etiqueta, título y subtítulo de la sección Cobertura. Controlá la visibilidad de aranceles y obras sociales.'
         }),
 
-        # --- 7. EQUIPAMIENTOS ---
+        # --- 8. EQUIPAMIENTOS ---
         ('🛠️ Sección "Equipamientos"', {
-            'fields': ('mostrar_equipamientos', 'equipamientos_titulo', 'equipamientos_subtitulo'),
-            'description': 'Títulos de la sección. Los equipos/imágenes se cargan en el Inline (tabla) ubicado abajo.'
+            'fields': (
+                'mostrar_equipamientos', 'equipamientos_label', 'equipamientos_titulo', 'equipamientos_subtitulo',
+                'texto_no_equipamientos',
+            ),
+            'description': 'Etiqueta, título, subtítulo y texto cuando no hay equipos. Los equipos se cargan en el Inline debajo.'
         }),
 
-        # --- 8. FOOTER Y CONTACTO ---
+        # --- 9. FOOTER Y CONTACTO ---
         ('📞 Footer y Contacto', {
             'fields': (
                 'footer_texto', 'telefono_contacto', 'email_contacto', 'direccion',
-                'instagram_url', 'facebook_url', 'mostrar_horarios_footer'
+                'instagram_url', 'facebook_url', 'mostrar_horarios_footer',
+                'footer_horarios_titulo', 'footer_contacto_titulo',
+                'footer_desarrollado_texto', 'footer_turnos_online_texto',
             ),
-            'description': 'Datos de contacto, redes sociales y texto resumido para el pie de página.'
+            'description': 'Datos de contacto, redes sociales, textos y títulos del pie de página.'
         }),
 
-        # --- 9. MÓDULOS AVANZADOS ---
+        # --- 10. MÓDULOS AVANZADOS ---
         ('🔧 Módulos Avanzados', {
-            'fields': ('mostrar_profesionales', 'mostrar_selector_temas'),
-            'description': 'Opciones extra como el selector de temas flotante (para demos o personalización).'
+            'fields': ('mostrar_selector_temas', 'boton_flotante_texto'),
+            'description': 'Opciones extra como el selector de temas flotante y texto del botón flotante.'
         }),
     )
     

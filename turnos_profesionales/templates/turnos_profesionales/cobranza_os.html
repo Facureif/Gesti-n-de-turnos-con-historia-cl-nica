@@ -1,4 +1,5 @@
 {% extends 'core_app/base.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Registro de Cobros{% endblock %}
@@ -17,6 +18,7 @@
             <a href="?mes={{ mes_anterior }}" class="btn btn-secondary btn-sm">← Mes Anterior</a>
             <a href="?mes={{ mes_siguiente }}" class="btn btn-secondary btn-sm">Mes Siguiente →</a>
         </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">← Volver al Dashboard</a>
     </div>
 
     <p class="cobranza-mes">{{ inicio|date:"F Y" }}</p>
@@ -25,19 +27,19 @@
     <div class="cobranza-stats">
         <div class="cobranza-stat facturado">
             <div class="stat-etiqueta">Facturado a OS</div>
-            <div class="stat-valor">${{ total_facturado_os|floatformat:0 }}</div>
+            <div class="stat-valor">${{ total_facturado_os|floatformat:0|intcomma }}</div>
         </div>
         <div class="cobranza-stat cobrado">
             <div class="stat-etiqueta">Cobrado a OS</div>
-            <div class="stat-valor">${{ total_cobrado_os|floatformat:0 }}</div>
+            <div class="stat-valor">${{ total_cobrado_os|floatformat:0|intcomma }}</div>
         </div>
         <div class="cobranza-stat pendiente">
             <div class="stat-etiqueta">Pendiente OS</div>
-            <div class="stat-valor">${{ total_pendiente_os|floatformat:0 }}</div>
+            <div class="stat-valor">${{ total_pendiente_os|floatformat:0|intcomma }}</div>
         </div>
         <div class="cobranza-stat" style="background: #e0f2fe; border-color: #7dd3fc;">
             <div class="stat-etiqueta" style="color: #0369a1;">Particulares Cobrados</div>
-            <div class="stat-valor" style="color: #0369a1;">${{ total_facturado_particulares|floatformat:0 }}</div>
+            <div class="stat-valor" style="color: #0369a1;">${{ total_facturado_particulares|floatformat:0|intcomma }}</div>
         </div>
     </div>
 
@@ -45,7 +47,6 @@
     <div class="card">
         <div class="card-header flex-between">
             <h3 class="card-title">📋 Cobros del Mes</h3>
-            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">← Volver al Dashboard</a>
         </div>
         
         {% if turnos %}
@@ -80,9 +81,9 @@
                                 <span class="badge badge-gray">👤 Particular</span>
                             {% endif %}
                         </td>
-                        <td class="monto-total">${{ t.monto_total|floatformat:0|default:"—" }}</td>
-                        <td class="monto-os">{% if t.monto_os %}${{ t.monto_os|floatformat:0 }}{% else %}—{% endif %}</td>
-                        <td class="monto-coseguro">{% if t.monto_coseguro %}${{ t.monto_coseguro|floatformat:0 }}{% else %}—{% endif %}</td>
+                        <td class="monto-total">${{ t.monto_total|floatformat:0|intcomma|default:"—" }}</td>
+                        <td class="monto-os">{% if t.monto_os %}${{ t.monto_os|floatformat:0|intcomma }}{% else %}—{% endif %}</td>
+                        <td class="monto-coseguro">{% if t.monto_coseguro %}${{ t.monto_coseguro|floatformat:0|intcomma}}{% else %}—{% endif %}</td>
                         <td>
                             {% if t.monto_os %}
                                 {% if t.os_cobrado %}

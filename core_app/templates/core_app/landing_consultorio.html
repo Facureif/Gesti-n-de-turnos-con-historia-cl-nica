@@ -1,4 +1,5 @@
 {% extends 'core_app/base.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}{{ cliente.nombre }} | Turnos Online{% endblock %}
@@ -33,13 +34,13 @@
             <p>{{ cliente.hero_subtitulo|default:'Atención profesional de calidad. Reservá tu turno en segundos, sin llamadas ni esperas.' }}</p>
             <div class="hero-buttons">
                 <a href="#profesionales" class="btn-hero-consultorio">
-                    <i class="fas fa-calendar-plus"></i> Sacar Turno
+                    <i class="fas fa-calendar-plus"></i> {{ cliente.hero_boton_texto }}
                 </a>
             </div>
         </div>
         <br>
         <div class="hero-scroll">
-            <span>Conocenos</span>
+            <span>{{ cliente.hero_scroll_texto }}</span>
             <i class="fas fa-chevron-down"></i>
         </div>
     </section>
@@ -48,7 +49,7 @@
     <section id="nosotros" class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Quiénes Somos</span>
+                <span class="section-label">{{ cliente.sobre_mi_label }}</span>
                 <h2 class="section-title">{{ cliente.quienes_somos_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.quienes_somos_subtitulo }}</p>
             </div>
@@ -96,54 +97,83 @@
         </div>
     </section>
 
-    <!-- ========== HORARIOS DE ATENCIÓN ========== -->
-    {% if cliente.mostrar_horarios %}
+    <!-- ========== UBICACION Y HORARIOS ========== -->
+       {% if cliente.mostrar_horarios %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Horarios</span>
+                <span class="section-label">{{ cliente.horarios_seccion_label }}</span>
                 <h2 class="section-title">{{ cliente.horarios_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.horarios_subtitulo }}</p>
             </div>
             
-            <div class="horarios-atencion-grid">
-                <div class="horario-card">
-                    <div class="horario-dia">
-                        <i class="fas fa-calendar-day"></i>
-                        <span>Lunes a Viernes</span>
+            <div class="horarios-mapa-wrapper">
+                <!-- Columna izquierda: 3 cards de horarios -->
+                <div class="horarios-info">
+                    <div class="horario-card">
+                        <div class="horario-dia">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>{{ cliente.horario_lunes_viernes_titulo }}</span>
+                        </div>
+                        <div class="horario-horas">{{ cliente.horarios_lunes_viernes }}</div>
+                        <div class="horario-tipo">{{ cliente.horario_tipo_general }}</div>
                     </div>
-                    <div class="horario-horas">{{ cliente.horarios_lunes_viernes }}</div>
-                    <div class="horario-tipo">Atención general</div>
+                    
+                    <div class="horario-card">
+                        <div class="horario-dia">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>{{ cliente.horario_sabados_titulo }}</span>
+                        </div>
+                        <div class="horario-horas">{{ cliente.horarios_sabados }}</div>
+                        <div class="horario-tipo">{{ cliente.horario_tipo_general }}</div>
+                    </div>
+                    
+                    <div class="horario-card destacado">
+                        <div class="horario-dia">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ cliente.horario_online_titulo }}</span>
+                        </div>
+                        <div class="horario-horas">24/7</div>
+                        <div class="horario-tipo">{{ cliente.horario_online_descripcion }}</div>
+                    </div>
                 </div>
                 
-                <div class="horario-card">
-                    <div class="horario-dia">
-                        <i class="fas fa-calendar-day"></i>
-                        <span>Sábados</span>
+                <!-- Columna derecha: card de dirección y mapa -->
+                <div class="horarios-derecha">
+                    {% if cliente.establecimiento.direccion %}
+                    <div class="horario-card ubicacion-card">
+                        <div class="horario-dia">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ cliente.establecimiento.direccion }}</span>
+                        </div>
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.establecimiento.direccion|urlencode }}" 
+                           target="_blank" class="btn-como-llegar">Cómo llegar</a>
                     </div>
-                    <div class="horario-horas">{{ cliente.horarios_sabados }}</div>
-                    <div class="horario-tipo">Atención general</div>
-                </div>
-                
-                <div class="horario-card destacado">
-                    <div class="horario-dia">
-                        <i class="fas fa-clock"></i>
-                        <span>Turnos Online</span>
+                    {% endif %}
+                    
+                    {% if cliente.mostrar_mapa_horarios and cliente.establecimiento.direccion %}
+                    <div class="horarios-mapa">
+                        <iframe 
+                            src="https://www.google.com/maps?q={{ cliente.establecimiento.direccion|urlencode }}&output=embed" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Mapa de {{ cliente.nombre }}">
+                        </iframe>
                     </div>
-                    <div class="horario-horas">24/7</div>
-                    <div class="horario-tipo">Reservá cuando quieras</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </section>
     {% endif %}
 
+
     <!-- ========== PROFESIONALES ========== -->
     {% if cliente.mostrar_profesionales %}
     <section id="profesionales" class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Equipo Profesional</span>
+                <span class="section-label">{{ cliente.profesionales_label }}</span>
                 <h2 class="section-title">{{ cliente.profesionales_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.profesionales_subtitulo }}</p>
             </div>
@@ -159,7 +189,8 @@
                 {% endfor %}
             </div>
             
-            <div class="profesionales-list {% if profesionales|length > 10 %}modo-grid{% endif %}" id="profesionales-list">                {% for item in profesionales %}
+            <div class="profesionales-list {% if profesionales|length > 10 %}modo-grid{% endif %}" id="profesionales-list">
+                {% for item in profesionales %}
                 {% with prof=item.profesional agenda=item.agenda %}
                 <div class="profesional-card" data-especialidad="{{ prof.especialidad }}">
                     <div class="profesional-header" onclick="toggleFicha('ficha-{{ prof.id }}', this)">
@@ -176,7 +207,7 @@
                             <p class="especialidad">{{ prof.get_especialidad_display }}</p>
                             <div class="profesional-tags">
                                 {% if cliente.mostrar_precios_landing and item.precio_particular %}
-                                    <span class="tag">💵 ${{ item.precio_particular }}</span>
+                                    <span class="tag">💵 ${{ item.precio_particular|floatformat:0|intcomma }}</span>
                                 {% endif %}
                                 {% if cliente.mostrar_obras_sociales_landing and item.obras_sociales %}
                                     <span class="tag tag-os">🏥 Obras Sociales</span>
@@ -186,11 +217,11 @@
                         
                         <div class="profesional-actions">
                             {% if prof.atiende_por_orden %}
-                                <span class="btn-orden-llegada">Orden de Llegada</span>
+                                <span class="btn-orden-llegada">{{ cliente.boton_orden_llegada_texto }}</span>
                             {% else %}
                                 <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=prof.id %}" 
                                    class="btn-sacar-turno" onclick="event.stopPropagation();">
-                                    <i class="fas fa-calendar-plus"></i> Sacar Turno
+                                    <i class="fas fa-calendar-plus"></i> {{ cliente.hero_boton_texto }}
                                 </a>
                             {% endif %}
                             <span class="btn-expand" id="flecha-{{ prof.id }}">
@@ -215,14 +246,14 @@
                                         <p><strong>{{ h.get_dia_display }}:</strong> {{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</p>
                                     {% endfor %}
                                 {% else %}
-                                    <p style="color: var(--text-muted); font-style: italic;">Consultar horarios disponibles</p>
+                                    <p style="color: var(--text-muted); font-style: italic;">{{ cliente.texto_horarios_no_disponibles }}</p>
                                 {% endif %}
                             </div>
 
                             <div class="detalle-section">
                                 {% if cliente.mostrar_precios_landing and item.precio_particular %}
                                 <h4>💵 Consulta Particular</h4>
-                                <p class="precio-destacado">${{ item.precio_particular }}</p>
+                                <p class="precio-destacado">${{ item.precio_particular|floatformat:0|intcomma }}</p>
                                 {% endif %}
                                 
                                 {% if cliente.mostrar_obras_sociales_landing and item.obras_sociales %}
@@ -241,7 +272,7 @@
                                     <a href="https://wa.me/54{{ prof.telefono|cut:' '|cut:'-' }}" 
                                        target="_blank" class="contacto-linea">
                                         <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.1rem;"></i> 
-                                        Chatear por WhatsApp
+                                        {{ cliente.texto_whatsapp }}
                                     </a>
                                 {% endif %}
                             </div>
@@ -260,7 +291,7 @@
     <section class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Tecnología y Equipamiento</span>
+                <span class="section-label">{{ cliente.equipamientos_label }}</span>
                 <h2 class="section-title">{{ cliente.equipamientos_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.equipamientos_subtitulo }}</p>
             </div>
@@ -307,7 +338,7 @@
                         </div>
                     {% endif %}
                 {% else %}
-                    <p style="text-align:center; color: var(--text-muted);">No hay equipamientos cargados.</p>
+                    <p style="text-align:center; color: var(--text-muted);">{{ cliente.texto_no_equipamientos }}</p>
                 {% endif %}
             {% endwith %}
         </div>
@@ -319,7 +350,7 @@
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Servicios</span>
+                <span class="section-label">{{ cliente.servicios_label }}</span>
                 <h2 class="section-title">{{ cliente.servicios_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
             </div>
@@ -393,7 +424,7 @@
         data-tema="Gris Clásico" onclick="cambiarTema('gris_clasico')" title="Gris Clásico Elegante"></button>  
     <button class="theme-selector-btn theme-btn-lavanda {% if cliente.theme_css == 'lavanda' %}activo{% endif %}" 
         data-tema="Lavanda" onclick="cambiarTema('lavanda')" title="Lavanda Profesional"></button>
-    <button class="theme-selector-btn theme-btn-tierracalido {% if cliente.theme_css == 'tierra_calidoo' %}activo{% endif %}" 
+    <button class="theme-selector-btn theme-btn-tierracalido {% if cliente.theme_css == 'tierra_calido' %}activo{% endif %}" 
         data-tema="Tierra calido" onclick="cambiarTema('tierra_calido')" title="Tierra calido Elegante"></button>  
     <button class="theme-selector-btn theme-btn-turquesa {% if cliente.theme_css == 'turquesa' %}activo{% endif %}" 
         data-tema="Turquesa" onclick="cambiarTema('turquesa')" title="Turquesa Profesional"></button>
@@ -413,16 +444,16 @@
             <!-- Columna 2: Horarios -->
             {% if cliente.mostrar_horarios_footer %}
             <div class="footer-col">
-                <h4>Horarios</h4>
-                <p><strong>Lunes a Viernes:</strong> {{ cliente.horarios_lunes_viernes }}</p>
-                <p><strong>Sábados:</strong> {{ cliente.horarios_sabados }}</p>
-                <p><strong>Turnos Online:</strong> 24/7</p>
+                <h4>{{ cliente.footer_horarios_titulo }}</h4>
+                <p><strong>{{ cliente.horario_lunes_viernes_titulo }}:</strong> {{ cliente.horarios_lunes_viernes }}</p>
+                <p><strong>{{ cliente.horario_sabados_titulo }}:</strong> {{ cliente.horarios_sabados }}</p>
+                <p><strong>{{ cliente.footer_turnos_online_texto }}</strong></p>
             </div>
             {% endif %}
 
             <!-- Columna 3: Contacto y redes -->
             <div class="footer-col">
-                <h4>Contacto</h4>
+                <h4>{{ cliente.footer_contacto_titulo }}</h4>
                 {% if cliente.establecimiento.direccion %}
                 <a href="https://www.google.com/maps/search/?api=1&query={{ cliente.establecimiento.direccion|urlencode }}" 
                    target="_blank" class="footer-contacto-link">
@@ -477,8 +508,8 @@
         </div>
 
         <div class="footer-bottom">
-            <span>© {% now "Y" %} {{ cliente.nombre }}. Todos los derechos reservados.</span>
-            <span>Desarrollado por <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
+            <span>© {% now "Y" %} {{ cliente.nombre }}. </span>
+            <span>{{ cliente.footer_desarrollado_texto }} <a href="https://facureif.github.io" target="_blank">Facundo Reifenberg</a></span>
         </div>
     </div>
 </footer>
@@ -509,7 +540,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            sinResultados.classList.toggle('visible', visibleCount === 0);
+            if (sinResultados) {
+                sinResultados.classList.toggle('visible', visibleCount === 0);
+            }
             
             document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
@@ -537,8 +570,6 @@ function cambiarTema(theme) {
     }
 }
 
-
-
 function toggleFicha(id, header) {
     const ficha = document.getElementById(id);
     const card = header.closest('.profesional-card');
@@ -552,7 +583,7 @@ function toggleFicha(id, header) {
     if (!isOpen) {
         ficha.classList.add('active');
         header.querySelector('.btn-expand').classList.add('open');
-        card.classList.add('expandida');   // 👈 en modo grid, esta card pasa a ser full width
+        card.classList.add('expandida');
         
         setTimeout(() => {
             const cardRect = card.getBoundingClientRect();

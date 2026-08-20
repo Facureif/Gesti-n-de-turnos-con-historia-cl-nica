@@ -48,6 +48,51 @@ class Agenda(ModeloBase):
         est = self.establecimiento.nombre if self.establecimiento else "Sin consultorio"
         return f"{self.profesional} - {est}"
 
+    def horarios_agrupados(self):
+        """
+        Devuelve una lista de strings con los horarios agrupados por días consecutivos
+        que comparten el mismo horario de inicio y fin.
+        Ejemplo: ['Lunes a Viernes: 09:00 - 18:00', 'Sábado: 09:00 - 12:00']
+        """
+        # Obtener horarios ordenados por día
+        horarios = list(self.horarios.order_by('dia'))
+        if not horarios:
+            return []
+
+        # Mapeo de los días para mostrarlos
+        # Ajustá según tu modelo. Si usás choices, podés usar get_dia_display.
+        from collections import OrderedDict
+        dias_semana = {0: 'Lunes', 1: 'Martes', 2: 'Miércoles', 3: 'Jueves', 4: 'Viernes', 5: 'Sábado', 6: 'Domingo'}
+
+        # Agrupar
+        grupos = []
+        grupo_actual = [horarios[0]]
+
+        for actual, siguiente in zip(horarios, horarios[1:]):
+            mismo_horario = (actual.hora_inicio == siguiente.hora_inicio and 
+                             actual.hora_fin == siguiente.hora_fin)
+            dia_consecutivo = (siguiente.dia - actual.dia == 1)
+
+            if mismo_horario and dia_consecutivo:
+                grupo_actual.append(siguiente)
+            else:
+                grupos.append(grupo_actual)
+                grupo_actual = [siguiente]
+        grupos.append(grupo_actual)  # último grupo
+
+        # Formatear cada grupo
+        resultado = []
+        for grupo in grupos:
+            if len(grupo) == 1:
+                dia = dias_semana.get(grupo[0].dia, str(grupo[0].dia))
+                resultado.append(f"{dia}: {grupo[0].hora_inicio.strftime('%H:%M')} - {grupo[0].hora_fin.strftime('%H:%M')}")
+            else:
+                dia_inicio = dias_semana.get(grupo[0].dia, str(grupo[0].dia))
+                dia_fin = dias_semana.get(grupo[-1].dia, str(grupo[-1].dia))
+                resultado.append(f"{dia_inicio} a {dia_fin}: {grupo[0].hora_inicio.strftime('%H:%M')} - {grupo[0].hora_fin.strftime('%H:%M')}")
+
+        return resultado
+
 class HorarioAtencion(ModeloBase):
     """Bloques horarios para cada día de la semana"""
     DIAS = [

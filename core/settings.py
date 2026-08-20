@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'historias_clinicas',
     'recordatorios',
     'reportes',
-    'turnos_profesionales.apps.TurnosProfesionalesConfig',  
+    'turnos_profesionales.apps.TurnosProfesionalesConfig',
+    'django.contrib.humanize',  
 ]
 
 MIDDLEWARE = [

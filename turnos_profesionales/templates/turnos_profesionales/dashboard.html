@@ -1,10 +1,12 @@
 {% extends 'core_app/base.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/pages/turnos_acciones.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -64,12 +66,12 @@
         <div class="metrica-etiqueta">Pacientes Únicos</div>
     </div>
     <div class="dashboard-metrica facturado">
-        <div class="metrica-valor">${{ total_facturado|floatformat:0 }}</div>
+        <div class="metrica-valor">${{ total_facturado|floatformat:0|intcomma }}</div>
         <div class="metrica-etiqueta">Total Facturado</div>
         <div class="metrica-sub">
-            💰 Coseguros: ${{ total_coseguros|floatformat:0 }} · 
-            🏥 OS: ${{ total_os|floatformat:0 }} · 
-            👤 Particulares: ${{ total_particulares|floatformat:0 }}
+            💰 Coseguros: ${{ total_coseguros|floatformat:0|intcomma }} · 
+            🏥 OS: ${{ total_os|floatformat:0|intcomma }} · 
+            👤 Particulares: ${{ total_particulares|floatformat:0|intcomma }}
         </div>
     </div>
 </div>

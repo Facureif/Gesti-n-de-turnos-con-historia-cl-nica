@@ -231,6 +231,98 @@ class ClienteSaaS(ModeloBase):
         verbose_name='Mostrar sección de Cobertura'
     )
 
+    sobre_mi_label = models.CharField(
+        max_length=50,
+        default='Profesional',
+        verbose_name='Etiqueta sección Sobre Mí'
+    )
+    servicios_label = models.CharField(
+        max_length=50,
+        default='Nuestros Servicios',
+        verbose_name='Etiqueta sección Servicios'
+    )
+    ubicaciones_label = models.CharField(
+        max_length=50,
+        default='Ubicaciones',
+        verbose_name='Etiqueta sección Ubicaciones'
+    )
+
+    mostrar_mapa_horarios = models.BooleanField(
+    default=True,
+    verbose_name='Mostrar mapa en sección de horarios',
+    help_text='Activar para mostrar un mapa embebido junto a los horarios.'
+)
+    ubicaciones_titulo = models.CharField(
+        max_length=200,
+        default='Donde Atiendo',
+        verbose_name='Título sección Ubicaciones'
+    )
+    ubicaciones_subtitulo = models.CharField(
+        max_length=200,
+        default='Consultorios y centros de atención.',
+        verbose_name='Subtítulo sección Ubicaciones'
+    )
+    cobertura_label = models.CharField(
+        max_length=50,
+        default='Cobertura',
+        verbose_name='Etiqueta sección Cobertura'
+    )
+    equipamientos_label = models.CharField(
+        max_length=50,
+        default='Técnicas y Equipamiento',
+        verbose_name='Etiqueta sección Equipamiento'
+    )
+    horarios_label = models.CharField(
+        max_length=50,
+        default='Días y Horarios',
+        verbose_name='Etiqueta interna de horarios en tarjetas'
+    )
+    hero_boton_texto = models.CharField(
+        max_length=100,
+        default='Sacar Turno Ahora',
+        verbose_name='Texto botón hero'
+    )
+    boton_flotante_texto = models.CharField(
+        max_length=100,
+        default='Sacar Turno',
+        verbose_name='Texto botón flotante'
+    )
+
+    hero_boton_texto = models.CharField(max_length=100, default='Sacar Turno', verbose_name='Texto botón hero')
+    boton_flotante_texto = models.CharField(max_length=100, default='Sacar Turno', verbose_name='Texto botón flotante')
+    hero_scroll_texto = models.CharField(max_length=100, default='Conocenos', verbose_name='Texto scroll hero')
+
+    # ========== LABELS DE SECCIÓN ==========
+    sobre_mi_label = models.CharField(max_length=50, default='Quiénes Somos', verbose_name='Etiqueta sección Quiénes Somos')
+    servicios_label = models.CharField(max_length=50, default='Servicios', verbose_name='Etiqueta sección Servicios')
+    profesionales_label = models.CharField(max_length=50, default='Equipo Profesional', verbose_name='Etiqueta sección Profesionales')
+    horarios_seccion_label = models.CharField(max_length=50, default='Horarios', verbose_name='Etiqueta sección Horarios')
+    horarios_label = models.CharField(max_length=50, default='Días y Horarios', verbose_name='Etiqueta interna de horarios en tarjetas')
+    ubicaciones_label = models.CharField(max_length=50, default='Ubicaciones', verbose_name='Etiqueta sección Ubicaciones')
+    ubicaciones_titulo = models.CharField(max_length=200, default='Donde Atiendo', verbose_name='Título sección Ubicaciones')
+    ubicaciones_subtitulo = models.CharField(max_length=200, default='Consultorios y centros de atención.', verbose_name='Subtítulo sección Ubicaciones')
+    cobertura_label = models.CharField(max_length=50, default='Cobertura', verbose_name='Etiqueta sección Cobertura')
+    equipamientos_label = models.CharField(max_length=50, default='Técnicas y Equipamiento', verbose_name='Etiqueta sección Equipamiento')
+
+    # ========== TEXTOS DE HORARIOS ==========
+    horario_lunes_viernes_titulo = models.CharField(max_length=50, default='Lunes a Viernes', verbose_name='Texto Lunes a Viernes')
+    horario_sabados_titulo = models.CharField(max_length=50, default='Sábados', verbose_name='Texto Sábados')
+    horario_tipo_general = models.CharField(max_length=50, default='Atención general', verbose_name='Tipo horario general')
+    horario_online_titulo = models.CharField(max_length=50, default='Turnos Online', verbose_name='Título horario online')
+    horario_online_descripcion = models.CharField(max_length=50, default='Reservá cuando quieras', verbose_name='Descripción horario online')
+
+    # ========== TEXTOS VARIOS ==========
+    boton_orden_llegada_texto = models.CharField(max_length=50, default='Orden de Llegada', verbose_name='Texto botón orden de llegada')
+    texto_whatsapp = models.CharField(max_length=100, default='Chatear por WhatsApp', verbose_name='Texto enlace WhatsApp')
+    texto_horarios_no_disponibles = models.CharField(max_length=100, default='Consultar horarios disponibles', verbose_name='Texto horarios no disponibles')
+    texto_no_equipamientos = models.CharField(max_length=100, default='No hay equipamientos cargados.', verbose_name='Texto sin equipamientos')
+
+    # ========== FOOTER ==========
+    footer_horarios_titulo = models.CharField(max_length=50, default='Horarios', verbose_name='Título columna horarios footer')
+    footer_contacto_titulo = models.CharField(max_length=50, default='Contacto', verbose_name='Título columna contacto footer')
+    footer_desarrollado_texto = models.CharField(max_length=100, default='Desarrollado por', verbose_name='Texto desarrollado por')
+    footer_turnos_online_texto = models.CharField(max_length=100, default='Turnos Online: 24/7', verbose_name='Texto turnos online footer')
+
     class Meta:
         verbose_name = 'Cliente SaaS'
         verbose_name_plural = 'Clientes SaaS'

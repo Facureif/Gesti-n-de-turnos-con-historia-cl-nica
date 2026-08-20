@@ -1,4 +1,5 @@
 {% extends 'core_app/base.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}{{ profesional.nombre_completo }} - {{ profesional.get_especialidad_display }} | Turnos Online{% endblock %}
@@ -56,6 +57,32 @@
             margin: 0;
             line-height: 1.5;
         }
+        
+        /* ========== NUEVO: Ubicación con mapa ========== */
+        .ubicacion-con-mapa {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .ubicacion-mapa iframe {
+            width: 100%;
+            height: 400px;
+            border: 0;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+        @media (max-width: 768px) {
+            .ubicacion-con-mapa {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .ubicacion-mapa iframe {
+                height: 250px;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -81,7 +108,7 @@
             <p class="especialidad-hero">{{ cliente.hero_subtitulo|default:profesional.get_especialidad_display }}</p>
             
             <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-hero">
-                <i class="fas fa-calendar-plus"></i> Sacar Turno Ahora
+                <i class="fas fa-calendar-plus"></i> {{ cliente.hero_boton_texto|default:"Sacar Turno Ahora" }}
             </a>
         </div>
     </section>
@@ -90,7 +117,7 @@
     <section class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Profesional</span>
+                <span class="section-label">{{ cliente.sobre_mi_label }}</span>
                 <h2 class="section-title">{{ cliente.quienes_somos_titulo|default:"Sobre Mí" }}</h2>
                 <p class="section-subtitle">{{ cliente.quienes_somos_subtitulo }}</p>
             </div>
@@ -140,12 +167,12 @@
         </div>
     </section>
 
-    <!-- ========== SERVICIOS (Control global agregado) ========== -->
+    <!-- ========== SERVICIOS ========== -->
     {% if cliente.mostrar_servicios %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Nuestros Servicios</span>
+                <span class="section-label">{{ cliente.servicios_label }}</span>
                 <h2 class="section-title">{{ cliente.servicios_titulo|default:"¿Qué ofrecemos?" }}</h2>
                 <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
             </div>
@@ -192,58 +219,113 @@
     <section class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Ubicaciones</span>
-                <h2 class="section-title">Donde Atiendo</h2>
-                <p class="section-subtitle">Consultorios y centros de atención.</p>
+                <span class="section-label">{{ cliente.ubicaciones_label }}</span>
+                <h2 class="section-title">{{ cliente.ubicaciones_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.ubicaciones_subtitulo }}</p>
             </div>
             
-            <div class="consultorios-grid">
-                {% for est in consultorios %}
-                <div class="consultorio-card">
-                    <h3><i class="fas fa-clinic-medical"></i> {{ est.nombre }}</h3>
-                    
-                    {% if est.direccion %}
-                    <div class="dato">
-                        <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>{{ est.direccion }}</span>
-                        </a>
-                    </div>
-                    {% endif %}
-                    
-                    {% if est.telefono %}
-                    <div class="dato">
-                        <a href="tel:{{ est.telefono }}">
-                            <i class="fas fa-phone"></i>
-                            <span>{{ est.telefono }}</span>
-                        </a>
-                    </div>
-                    {% endif %}
-                    
-                    {% if est.agenda %}
-                    <div class="horarios-lista">
-                        <h4><i class="far fa-clock"></i> Días y Horarios</h4>
-                        {% for h in est.agenda.horarios.all %}
-                        <div class="horario-item">
-                            <span class="horario-dia">{{ h.get_dia_display }}</span>
-                            <span>{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+            {% if consultorios|length == 1 %}
+                {% with est=consultorios.0 %}
+                <div class="ubicacion-con-mapa">
+                    <!-- Columna izquierda: información del consultorio -->
+                    <div class="ubicacion-info">
+                        <div class="consultorio-card">
+                            <h3><i class="fas fa-clinic-medical"></i> {{ est.nombre }}</h3>
+                            
+                            {% if est.direccion %}
+                            <div class="dato">
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ est.direccion }}</span>
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if est.telefono %}
+                            <div class="dato">
+                                <a href="tel:{{ est.telefono }}">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ est.telefono }}</span>
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if est.agenda %}
+                            <div class="horarios-lista">
+                                <h4><i class="far fa-clock"></i> {{ cliente.horarios_label }}</h4>
+                                {% for h in est.agenda.horarios.all %}
+                                <div class="horario-item">
+                                    <span class="horario-dia">{{ h.get_dia_display }}</span>
+                                    <span>{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endfor %}
                     </div>
-                    {% endif %}
+                    
+                    <!-- Columna derecha: mapa -->
+                    <div class="ubicacion-mapa">
+                        {% if est.direccion %}
+                            <iframe 
+                                src="https://www.google.com/maps?q={{ est.direccion|urlencode }}&output=embed" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Mapa de {{ est.nombre }}">
+                            </iframe>
+                        {% endif %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
+                {% endwith %}
+            {% else %}
+                <div class="consultorios-grid">
+                    {% for est in consultorios %}
+                    <div class="consultorio-card">
+                        <h3><i class="fas fa-clinic-medical"></i> {{ est.nombre }}</h3>
+                        
+                        {% if est.direccion %}
+                        <div class="dato">
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ est.direccion }}</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if est.telefono %}
+                        <div class="dato">
+                            <a href="tel:{{ est.telefono }}">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ est.telefono }}</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if est.agenda %}
+                        <div class="horarios-lista">
+                            <h4><i class="far fa-clock"></i> {{ cliente.horarios_label }}</h4>
+                            {% for h in est.agenda.horarios.all %}
+                            <div class="horario-item">
+                                <span class="horario-dia">{{ h.get_dia_display }}</span>
+                                <span>{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </section>
     {% endif %}
 
-    <!-- ========== COBERTURA (Precios y Obras Sociales) ========== -->
+    <!-- ========== COBERTURA ========== -->
     {% if cliente.mostrar_cobertura %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Cobertura</span>
+                <span class="section-label">{{ cliente.cobertura_label }}</span>
                 <h2 class="section-title">{{ cliente.cobertura_titulo|default:"Precios y Obras Sociales" }}</h2>
                 <p class="section-subtitle">{{ cliente.cobertura_subtitulo }}</p>
             </div>
@@ -254,7 +336,7 @@
                     <span class="cobertura-icono">💵</span>
                     <div>
                         <span class="cobertura-label">Consulta Particular</span>
-                        <span class="cobertura-valor">${{ profesional.precio_particular }}</span>
+                        <span class="cobertura-valor">${{ profesional.precio_particular|floatformat:0|intcomma }}</span>
                     </div>
                 </div>
                 {% endif %}
@@ -279,7 +361,7 @@
     <section class="section">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">Tecnología y Equipamiento</span>
+                <span class="section-label">{{ cliente.equipamientos_label }}</span>
                 <h2 class="section-title">{{ cliente.equipamientos_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.equipamientos_subtitulo }}</p>
             </div>
@@ -328,8 +410,20 @@
             <div class="footer-col">
                 <h4>Horarios</h4>
                 {% if cliente.mostrar_horarios_footer %}
-                    <p><strong>Lunes a Viernes:</strong> {{ cliente.horarios_lunes_viernes }}</p>
-                    <p><strong>Sábados:</strong> {{ cliente.horarios_sabados }}</p>
+                    {% if consultorios %}
+                        {% for est in consultorios %}
+                            {% if est.agenda %}
+                                <p><strong>{{ est.nombre }}:</strong></p>
+                                <ul class="footer-horarios-list">
+                                    {% for linea in est.agenda.horarios_agrupados %}
+                                        <li>{{ linea }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p>Consultar disponibilidad</p>
+                    {% endif %}
                 {% else %}
                     <p>Consultar disponibilidad</p>
                 {% endif %}
@@ -395,7 +489,7 @@
 
 <!-- ========== BOTÓN FLOTANTE ========== -->
 <a href="{% url 'sacar_turno_cliente' cliente_slug=cliente.slug profesional_id=profesional.id %}" class="btn-flotante-turno">
-    <i class="fas fa-calendar-plus"></i> Sacar Turno
+    <i class="fas fa-calendar-plus"></i> {{ cliente.boton_flotante_texto|default:"Sacar Turno" }}
 </a>
 
 <!-- ========== WHATSAPP FLOTANTE ========== -->

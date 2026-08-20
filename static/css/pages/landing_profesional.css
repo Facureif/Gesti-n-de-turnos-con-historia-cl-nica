@@ -650,7 +650,7 @@
 
 /* Colores de los botones */
 .theme-btn-default { background: #2563eb; }
-.theme-btn-dorado { background: linear-gradient(135deg, #0b1120 60%, #2687b8 40%); }
+.theme-btn-dorado { background: linear-gradient(135deg, #0b1120 60%, #e0900e 40%); }
 .theme-btn-verde-oscuro { background: linear-gradient(135deg, #061712 60%, #10b981 40%); }
 .theme-btn-bn { background: linear-gradient(135deg, #111827 50%, #ffffff 50%); border: 1px solid #d1d5db; }
 .theme-btn-azulclaro { background: linear-gradient(135deg, #e0f2fe 40%, #0284c7 60%); }
@@ -697,6 +697,9 @@
         grid-template-columns: 1fr;
     }
 
+    .footer-social{
+            justify-content: center;
+    }
     .info-destacada-grid,
     .cobertura-resumen {
         grid-template-columns: 1fr;

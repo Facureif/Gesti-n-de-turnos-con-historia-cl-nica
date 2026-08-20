@@ -1,4 +1,5 @@
 {% extends 'core_app/base.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Ficha - {{ paciente.nombre_completo }}{% endblock %}
@@ -335,9 +336,9 @@
 
                         <td>
                             {% if t.monto_total %}
-                                <div class="monto-destacado">${{ t.monto_total|floatformat:0 }}</div>
-                                {% if t.monto_os %}<div class="monto-os">🏥 OS: ${{ t.monto_os|floatformat:0 }}</div>{% endif %}
-                                {% if t.monto_coseguro %}<div class="monto-coseguro">💰 Coseguro: ${{ t.monto_coseguro|floatformat:0 }}</div>{% endif %}
+                                <div class="monto-destacado">${{ t.monto_total|floatformat:0|intcomma }}</div>
+                                {% if t.monto_os %}<div class="monto-os">🏥 OS: ${{ t.monto_os|floatformat:0|intcomma}}</div>{% endif %}
+                                {% if t.monto_coseguro %}<div class="monto-coseguro">💰 Coseguro: ${{ t.monto_coseguro|floatformat:0|intcomma}}</div>{% endif %}
                             {% elif t.estado == 'completado' and not es_secretaria %}
                                 <a href="{% url 'cobrar_turno' t.id %}" class="btn btn-success btn-xs">💰 Pagar</a>
                             {% else %}
