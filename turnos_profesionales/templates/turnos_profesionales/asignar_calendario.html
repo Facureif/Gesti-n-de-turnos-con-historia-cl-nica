@@ -34,17 +34,15 @@
         </div>
     </div>
     
-    <!-- Consultorio si hay varios -->
-    {% if profesional.establecimientos.count > 1 %}
+    <!-- Consultorio activo (solo lectura) -->
+    {% if establecimiento_activo %}
     <div class="card">
         <div class="card-header">
             <h3 class="card-title"><i class="fas fa-building text-primary"></i> Consultorio</h3>
         </div>
-        <select name="establecimiento" class="turnos-select">
-            {% for est in profesional.establecimientos.all %}
-                <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
-            {% endfor %}
-        </select>
+        <p class="form-control-static" style="padding: 12px;">
+            {{ establecimiento_activo.nombre }} - {{ establecimiento_activo.direccion }}
+        </p>
     </div>
     {% endif %}
     
@@ -74,6 +72,7 @@
     {% if pacientes %}
     <form method="post">
         {% csrf_token %}
+        <input type="hidden" name="establecimiento" value="{{ establecimiento_activo.id }}">
         <input type="hidden" name="fecha" value="{{ fecha_str }}">
         <input type="hidden" name="hora" value="{{ hora_str }}">
         

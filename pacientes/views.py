@@ -175,49 +175,58 @@ def actualizar_sesiones(request, paciente_id):
     
     return redirect('ficha_paciente', paciente_id=paciente.id)
 
+from core_app.utils import get_establecimiento_activo
+
 @login_required
 def buscar_paciente(request):
-    """Buscar pacientes por nombre, apellido o DNI."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
-    
+
+    profesional = None
+
     if request.user.rol == 'secretaria':
-        profesional = None
         establecimiento = request.user.establecimiento
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        # Agarrar el primer establecimiento donde atiende
-        establecimiento = profesional.establecimientos.first()
+        establecimiento = get_establecimiento_activo(request, profesional)
+
+        # Si tiene varios consultorios y no hay uno activo, forzar selección
+        if not establecimiento and profesional.establecimientos.count() > 1:
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
+
+        # Si tiene uno solo, usar ese
+        if not establecimiento:
+            establecimiento = profesional.establecimientos.first()
     else:
-        profesional = None
         establecimiento = None
 
     pacientes = []
-    busqueda = ''
-    
-    if request.GET.get('q'):
-        busqueda = request.GET.get('q')
-        
+    busqueda = request.GET.get('q', '').strip()
+
+    if busqueda:
         pacientes = Paciente.objects.filter(
             Q(nombre__icontains=busqueda) |
             Q(apellido__icontains=busqueda) |
             Q(dni__icontains=busqueda)
         )
-        
-        # Ambos (secretaria y profesional) filtran por el mismo consultorio
+
+        # Filtrar por el consultorio activo
         if establecimiento:
             pacientes = pacientes.filter(
                 turnoprofesional__establecimiento=establecimiento
             ).distinct()
-        
+
         pacientes = pacientes[:20]
-    
+
     return render(request, 'pacientes/buscar.html', {
         'profesional': profesional,
         'pacientes': pacientes,
-        'busqueda': busqueda
+        'busqueda': busqueda,
     })
+
+
 @login_required
 def ficha_paciente(request, paciente_id):
     """Ficha completa del paciente con HC y turnos."""

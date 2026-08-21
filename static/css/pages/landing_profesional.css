@@ -649,7 +649,7 @@
 }
 
 /* Colores de los botones */
-.theme-btn-default { background: #2563eb; }
+.theme-btn-default { background: linear-gradient(135deg, #fafafa 60%,  #2563eb 40%); }
 .theme-btn-dorado { background: linear-gradient(135deg, #0b1120 60%, #e0900e 40%); }
 .theme-btn-verde-oscuro { background: linear-gradient(135deg, #061712 60%, #10b981 40%); }
 .theme-btn-bn { background: linear-gradient(135deg, #111827 50%, #ffffff 50%); border: 1px solid #d1d5db; }

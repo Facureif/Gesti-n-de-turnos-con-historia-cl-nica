@@ -1,4 +1,5 @@
 {% extends 'core_app/base.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block title %}Sacar Turno - Elegir Profesional{% endblock %}
@@ -31,7 +32,7 @@
                 <p class="especialidad">{{ prof.get_especialidad_display }}</p>
 
                 {% if prof.precio_particular %}
-                    <span class="precio-portal">💵 ${{ prof.precio_particular }}</span>
+                    <span class="precio-portal">💵 ${{ prof.precio_particular|floatformat:0|intcomma }}</span>
                 {% endif %}
 
                 {% if prof.obras_sociales.exists %}

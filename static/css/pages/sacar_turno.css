@@ -138,7 +138,6 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    justify-content: space-evenly;
 }
 
 .dia-label {
