@@ -167,46 +167,35 @@
         </div>
     </section>
 
-    <!-- ========== SERVICIOS ========== -->
-    {% if cliente.mostrar_servicios %}
+    <!-- ========== COBERTURA ========== -->
+    {% if cliente.mostrar_cobertura %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">{{ cliente.servicios_label }}</span>
-                <h2 class="section-title">{{ cliente.servicios_titulo|default:"¿Qué ofrecemos?" }}</h2>
-                <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
+                <span class="section-label">{{ cliente.cobertura_label }}</span>
+                <h2 class="section-title">{{ cliente.cobertura_titulo|default:"Precios y Obras Sociales" }}</h2>
+                <p class="section-subtitle">{{ cliente.cobertura_subtitulo }}</p>
             </div>
             
-            <div class="servicios-grid">
-                {% if cliente.mostrar_servicio_1 %}
-                <div class="servicio-card">
-                    <span class="icono">{{ cliente.servicio_1_icono }}</span>
-                    <h4>{{ cliente.servicio_1_titulo }}</h4>
-                    <p>{{ cliente.servicio_1_descripcion }}</p>
+            <div class="cobertura-resumen">
+                {% if cliente.mostrar_precios_landing and profesional.precio_particular %}
+                <div class="cobertura-precio">
+                    <span class="cobertura-icono">💵</span>
+                    <div>
+                        <span class="cobertura-label">Consulta Particular</span>
+                        <span class="cobertura-valor">${{ profesional.precio_particular|floatformat:0|intcomma }}</span>
+                    </div>
                 </div>
                 {% endif %}
                 
-                {% if cliente.mostrar_servicio_2 %}
-                <div class="servicio-card">
-                    <span class="icono">{{ cliente.servicio_2_icono }}</span>
-                    <h4>{{ cliente.servicio_2_titulo }}</h4>
-                    <p>{{ cliente.servicio_2_descripcion }}</p>
-                </div>
-                {% endif %}
-                
-                {% if cliente.mostrar_servicio_3 %}
-                <div class="servicio-card">
-                    <span class="icono">{{ cliente.servicio_3_icono }}</span>
-                    <h4>{{ cliente.servicio_3_titulo }}</h4>
-                    <p>{{ cliente.servicio_3_descripcion }}</p>
-                </div>
-                {% endif %}
-                
-                {% if cliente.mostrar_servicio_4 %}
-                <div class="servicio-card">
-                    <span class="icono">{{ cliente.servicio_4_icono }}</span>
-                    <h4>{{ cliente.servicio_4_titulo }}</h4>
-                    <p>{{ cliente.servicio_4_descripcion }}</p>
+                {% if cliente.mostrar_obras_sociales_landing and profesional.obras_sociales.exists %}
+                <div class="cobertura-obras">
+                    <span class="cobertura-icono">🏥</span>
+                    <div class="obras-sociales-tags">
+                        {% for os in profesional.obras_sociales.all %}
+                            <span class="os-tag">{{ os.nombre }}</span>
+                        {% endfor %}
+                    </div>
                 </div>
                 {% endif %}
             </div>
@@ -320,35 +309,46 @@
     </section>
     {% endif %}
 
-    <!-- ========== COBERTURA ========== -->
-    {% if cliente.mostrar_cobertura %}
+    <!-- ========== SERVICIOS ========== -->
+    {% if cliente.mostrar_servicios %}
     <section class="section section-alt">
         <div class="container-custom">
             <div class="section-header">
-                <span class="section-label">{{ cliente.cobertura_label }}</span>
-                <h2 class="section-title">{{ cliente.cobertura_titulo|default:"Precios y Obras Sociales" }}</h2>
-                <p class="section-subtitle">{{ cliente.cobertura_subtitulo }}</p>
+                <span class="section-label">{{ cliente.servicios_label }}</span>
+                <h2 class="section-title">{{ cliente.servicios_titulo|default:"¿Qué ofrecemos?" }}</h2>
+                <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
             </div>
             
-            <div class="cobertura-resumen">
-                {% if cliente.mostrar_precios_landing and profesional.precio_particular %}
-                <div class="cobertura-precio">
-                    <span class="cobertura-icono">💵</span>
-                    <div>
-                        <span class="cobertura-label">Consulta Particular</span>
-                        <span class="cobertura-valor">${{ profesional.precio_particular|floatformat:0|intcomma }}</span>
-                    </div>
+            <div class="servicios-grid">
+                {% if cliente.mostrar_servicio_1 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_1_icono }}</span>
+                    <h4>{{ cliente.servicio_1_titulo }}</h4>
+                    <p>{{ cliente.servicio_1_descripcion }}</p>
                 </div>
                 {% endif %}
                 
-                {% if cliente.mostrar_obras_sociales_landing and profesional.obras_sociales.exists %}
-                <div class="cobertura-obras">
-                    <span class="cobertura-icono">🏥</span>
-                    <div class="obras-sociales-tags">
-                        {% for os in profesional.obras_sociales.all %}
-                            <span class="os-tag">{{ os.nombre }}</span>
-                        {% endfor %}
-                    </div>
+                {% if cliente.mostrar_servicio_2 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_2_icono }}</span>
+                    <h4>{{ cliente.servicio_2_titulo }}</h4>
+                    <p>{{ cliente.servicio_2_descripcion }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cliente.mostrar_servicio_3 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_3_icono }}</span>
+                    <h4>{{ cliente.servicio_3_titulo }}</h4>
+                    <p>{{ cliente.servicio_3_descripcion }}</p>
+                </div>
+                {% endif %}
+                
+                {% if cliente.mostrar_servicio_4 %}
+                <div class="servicio-card">
+                    <span class="icono">{{ cliente.servicio_4_icono }}</span>
+                    <h4>{{ cliente.servicio_4_titulo }}</h4>
+                    <p>{{ cliente.servicio_4_descripcion }}</p>
                 </div>
                 {% endif %}
             </div>

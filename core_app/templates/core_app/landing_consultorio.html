@@ -286,6 +286,54 @@
     </section>
     {% endif %}
 
+        <!-- ========== SERVICIOS ========== -->
+    {% if cliente.mostrar_servicios %}
+    <section class="section section-alt">
+        <div class="container-custom">
+            <div class="section-header">
+                <span class="section-label">{{ cliente.servicios_label }}</span>
+                <h2 class="section-title">{{ cliente.servicios_titulo }}</h2>
+                <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
+            </div>
+            
+            <div class="servicios-grid">
+                {% if cliente.mostrar_servicio_1 %}
+                <div class="servicio-card">
+                    <div class="servicio-icono">{{ cliente.servicio_1_icono }}</div>
+                    <h3>{{ cliente.servicio_1_titulo }}</h3>
+                    <p>{{ cliente.servicio_1_descripcion }}</p>
+                </div>
+                {% endif %}
+
+                {% if cliente.mostrar_servicio_2 %}
+                <div class="servicio-card">
+                    <div class="servicio-icono">{{ cliente.servicio_2_icono }}</div>
+                    <h3>{{ cliente.servicio_2_titulo }}</h3>
+                    <p>{{ cliente.servicio_2_descripcion }}</p>
+                </div>
+                {% endif %}
+
+                {% if cliente.mostrar_servicio_3 %}
+                <div class="servicio-card">
+                    <div class="servicio-icono">{{ cliente.servicio_3_icono }}</div>
+                    <h3>{{ cliente.servicio_3_titulo }}</h3>
+                    <p>{{ cliente.servicio_3_descripcion }}</p>
+                </div>
+                {% endif %}
+
+                {% if cliente.mostrar_servicio_4 %}
+                <div class="servicio-card">
+                    <div class="servicio-icono">{{ cliente.servicio_4_icono }}</div>
+                    <h3>{{ cliente.servicio_4_titulo }}</h3>
+                    <p>{{ cliente.servicio_4_descripcion }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+
     <!-- ========== EQUIPAMIENTO / TÉCNICAS ========== -->
     {% if cliente.mostrar_equipamientos %}
     <section class="section">
@@ -341,53 +389,6 @@
                     <p style="text-align:center; color: var(--text-muted);">{{ cliente.texto_no_equipamientos }}</p>
                 {% endif %}
             {% endwith %}
-        </div>
-    </section>
-    {% endif %}
-
-    <!-- ========== SERVICIOS ========== -->
-    {% if cliente.mostrar_servicios %}
-    <section class="section section-alt">
-        <div class="container-custom">
-            <div class="section-header">
-                <span class="section-label">{{ cliente.servicios_label }}</span>
-                <h2 class="section-title">{{ cliente.servicios_titulo }}</h2>
-                <p class="section-subtitle">{{ cliente.servicios_subtitulo }}</p>
-            </div>
-            
-            <div class="servicios-grid">
-                {% if cliente.mostrar_servicio_1 %}
-                <div class="servicio-card">
-                    <div class="servicio-icono">{{ cliente.servicio_1_icono }}</div>
-                    <h3>{{ cliente.servicio_1_titulo }}</h3>
-                    <p>{{ cliente.servicio_1_descripcion }}</p>
-                </div>
-                {% endif %}
-
-                {% if cliente.mostrar_servicio_2 %}
-                <div class="servicio-card">
-                    <div class="servicio-icono">{{ cliente.servicio_2_icono }}</div>
-                    <h3>{{ cliente.servicio_2_titulo }}</h3>
-                    <p>{{ cliente.servicio_2_descripcion }}</p>
-                </div>
-                {% endif %}
-
-                {% if cliente.mostrar_servicio_3 %}
-                <div class="servicio-card">
-                    <div class="servicio-icono">{{ cliente.servicio_3_icono }}</div>
-                    <h3>{{ cliente.servicio_3_titulo }}</h3>
-                    <p>{{ cliente.servicio_3_descripcion }}</p>
-                </div>
-                {% endif %}
-
-                {% if cliente.mostrar_servicio_4 %}
-                <div class="servicio-card">
-                    <div class="servicio-icono">{{ cliente.servicio_4_icono }}</div>
-                    <h3>{{ cliente.servicio_4_titulo }}</h3>
-                    <p>{{ cliente.servicio_4_descripcion }}</p>
-                </div>
-                {% endif %}
-            </div>
         </div>
     </section>
     {% endif %}

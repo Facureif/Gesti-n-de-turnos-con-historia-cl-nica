@@ -11,7 +11,7 @@ class ProfesionalAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Datos Personales', {
-            'fields': ('nombre', 'apellido', 'dni', 'fecha_nacimiento', 
+            'fields': ('nombre', 'apellido', 'dni', 'fecha_nacimiento', 'foto',
                     'telefono', 'email')
         }),
         ('Datos Profesionales', {
