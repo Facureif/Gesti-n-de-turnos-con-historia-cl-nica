@@ -178,15 +178,35 @@
                 <p class="section-subtitle">{{ cliente.profesionales_subtitulo }}</p>
             </div>
             
-            <div class="filtros-especialidades" id="filtros-container">
-                <span class="filtro-pildora active" data-especialidad="todas">
-                    Todos <span class="count">({{ profesionales|length }})</span>
-                </span>
-                {% for esp in especialidades_disponibles %}
-                <span class="filtro-pildora" data-especialidad="{{ esp.codigo }}">
-                    {{ esp.icono }} {{ esp.nombre }} <span class="count">({{ esp.total }})</span>
-                </span>
-                {% endfor %}
+           <!-- Contenedor de filtros  -->
+            <div class="filtros-especialidades {% if especialidades_disponibles|length > 5 %}modo-dropdown{% endif %}" id="filtros-container">
+                
+                <!-- PÍLDORAS  -->
+                <div class="filtros-pildoras">
+                    <span class="filtro-pildora active" data-especialidad="todas">
+                        Todos <span class="count">({{ profesionales|length }})</span>
+                    </span>
+                    {% for esp in especialidades_disponibles %}
+                    <span class="filtro-pildora" data-especialidad="{{ esp.codigo }}">
+                        {{ esp.icono }} {{ esp.nombre }} <span class="count">({{ esp.total }})</span>
+                    </span>
+                    {% endfor %}
+                </div>
+
+                <!-- DROPDOWN -->
+                <div class="filtros-dropdown">
+                    <div class="dropdown-wrapper">
+                        <i class="fas fa-filter"></i>
+                        <span class="dropdown-label">Filtrar por:</span>
+                        <select id="select-especialidad" class="form-select">
+                            <option value="todas">Todas las especialidades ({{ profesionales|length }})</option>
+                            {% for esp in especialidades_disponibles %}
+                            <option value="{{ esp.codigo }}">{{ esp.icono }} {{ esp.nombre }} ({{ esp.total }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
             </div>
             
             <div class="profesionales-list {% if profesionales|length > 10 %}modo-grid{% endif %}" id="profesionales-list">
@@ -594,5 +614,60 @@ function toggleFicha(id, header) {
         }, 200);
     }
 }
+document.addEventListener('DOMContentLoaded', function() {
+    const filtros = document.querySelectorAll('.filtro-pildora');
+    const select = document.getElementById('select-especialidad');
+    const cards = document.querySelectorAll('.profesional-card');
+    const sinResultados = document.getElementById('sin-resultados');
+
+    // Función central para filtrar
+    function filtrarEspecialidad(especialidadSeleccionada) {
+        filtros.forEach(f => f.classList.remove('active'));
+        
+        // Si el filtro viene de las píldoras, actualizar su clase
+        filtros.forEach(f => {
+            if (f.dataset.especialidad === especialidadSeleccionada) {
+                f.classList.add('active');
+            }
+        });
+
+        // Sincronizar el select si existe
+        if (select) {
+            select.value = especialidadSeleccionada;
+        }
+
+        let visibleCount = 0;
+        cards.forEach(card => {
+            if (especialidadSeleccionada === 'todas' || card.dataset.especialidad === especialidadSeleccionada) {
+                card.classList.remove('oculto');
+                visibleCount++;
+            } else {
+                card.classList.add('oculto');
+            }
+        });
+
+        if (sinResultados) {
+            sinResultados.classList.toggle('visible', visibleCount === 0);
+        }
+        
+        // Cerrar las fichas abiertas al filtrar
+        document.querySelectorAll('.profesional-detalle').forEach(f => f.classList.remove('active'));
+        document.querySelectorAll('.btn-expand').forEach(f => f.classList.remove('open'));
+    }
+
+    // Listener para píldoras (Desktop)
+    filtros.forEach(filtro => {
+        filtro.addEventListener('click', function() {
+            filtrarEspecialidad(this.dataset.especialidad);
+        });
+    });
+
+    // Listener para dropdown (Móvil y >10 especialidades)
+    if (select) {
+        select.addEventListener('change', function() {
+            filtrarEspecialidad(this.value);
+        });
+    }
+});
 </script>
 {% endblock %}

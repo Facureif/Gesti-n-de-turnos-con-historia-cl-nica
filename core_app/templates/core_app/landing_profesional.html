@@ -416,7 +416,7 @@
                                 <p><strong>{{ est.nombre }}:</strong></p>
                                 <ul class="footer-horarios-list">
                                     {% for linea in est.agenda.horarios_agrupados %}
-                                        <li>{{ linea }}</li>
+                                        {{ linea }}
                                     {% endfor %}
                                 </ul>
                             {% endif %}
