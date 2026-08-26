@@ -280,6 +280,9 @@ def cancelar_turno(request, turno_id):
     
     turno.estado = 'cancelado'
     turno.save()
+
+    from .notificaciones import notificar_cancelacion_turno
+    notificar_cancelacion_turno(turno, cancelado_por='profesional')
     
     # Eliminar evento de Google Calendar
     try:
@@ -327,7 +330,10 @@ def completar_turno(request, turno_id):
             turno.monto_coseguro = 0
     
     turno.save()
-    
+
+
+    from .notificaciones import notificar_turno_completado
+    notificar_turno_completado(turno)
     # Eliminar evento de Google Calendar
     try:
         threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
@@ -440,6 +446,9 @@ def no_asistio_turno(request, turno_id):
             turno.sesion_descontada = True
 
     turno.save()
+
+    from .notificaciones import notificar_no_asistio
+    notificar_no_asistio(turno)
 
     # Eliminar evento de Google Calendar
     try:
@@ -753,6 +762,9 @@ def asignar_turno(request, paciente_id):
             threading.Thread(target=crear_evento_google, args=(turno,)).start()
         except:
             pass
+
+        from .notificaciones import notificar_turno_asignado
+        notificar_turno_asignado(turno)
         
         messages.success(request, f'Turno asignado a {paciente.nombre_completo} el {fecha.strftime("%d/%m/%Y")} a las {hora_str}.')
         
@@ -1361,28 +1373,32 @@ def bloquear_dia(request):
                 turno.notas_internas = (turno.notas_internas or '') + f'\nCancelado por bloqueo: {motivo}'
                 turno.save()
 
+                from .notificaciones import notificar_cancelacion_turno
+                # En el loop:
+                notificar_cancelacion_turno(turno, cancelado_por='sistema', motivo=motivo)
+
                 # Enviar notificación por email al paciente (si tiene email)
-                if turno.paciente.email:
-                    subject = f'Turno cancelado - {turno.establecimiento.nombre}'
-                    message = (
-                        f'Hola {turno.paciente.nombre_completo},\n\n'
-                        f'Tu turno del día {turno.fecha.strftime("%d/%m/%Y")} '
-                        f'a las {turno.hora_inicio.strftime("%H:%M")} con '
-                        f'{turno.profesional.nombre_completo} fue cancelado.\n'
-                        f'Motivo: {motivo}\n\n'
-                        f'Podés ingresar a tu panel para reprogramar:\n'
-                        f'http://127.0.0.1:8000/usuarios/login/\n\n'
-                        f'Saludos.'
-                    )
-                    try:
+                # if turno.paciente.email:
+                #     subject = f'Turno cancelado - {turno.establecimiento.nombre}'
+                #     message = (
+                #         f'Hola {turno.paciente.nombre_completo},\n\n'
+                #         f'Tu turno del día {turno.fecha.strftime("%d/%m/%Y")} '
+                #         f'a las {turno.hora_inicio.strftime("%H:%M")} con '
+                #         f'{turno.profesional.nombre_completo} fue cancelado.\n'
+                #         f'Motivo: {motivo}\n\n'
+                #         f'Podés ingresar a tu panel para reprogramar:\n'
+                #         f'http://127.0.0.1:8000/usuarios/login/\n\n'
+                #         f'Saludos.'
+                #     )
+                    # try:
                         # Envío asíncrono para no demorar la respuesta
-                        threading.Thread(
-                            target=send_mail,
-                            args=(subject, message, settings.DEFAULT_FROM_EMAIL, [turno.paciente.email]),
-                            kwargs={'fail_silently': True}
-                        ).start()
-                    except Exception:
-                        pass  # falla silenciosa, ya se intentó
+                    #     threading.Thread(
+                    #         target=send_mail,
+                    #         args=(subject, message, settings.DEFAULT_FROM_EMAIL, [turno.paciente.email]),
+                    #         kwargs={'fail_silently': True}
+                    #     ).start()
+                    # except Exception:
+                    #     pass 
 
             messages.warning(request, f'Se cancelaron {conflictos.count()} turno(s) afectado(s).')
         
@@ -1619,6 +1635,8 @@ def reprogramar_turno(request, turno_id):
             messages.error(request, 'Fecha u hora inválida.')
             return redirect('reprogramar_turno', turno_id=turno.id)
         
+        turno_original = TurnoProfesional.objects.get(pk=turno.pk)
+
         if nueva_fecha < hoy:
             messages.error(request, 'No podés reprogramar a una fecha pasada.')
             return redirect('reprogramar_turno', turno_id=turno.id)
@@ -1658,6 +1676,9 @@ def reprogramar_turno(request, turno_id):
         
         turno.hora_fin = (datetime.combine(nueva_fecha, nueva_hora) + timedelta(minutes=duracion)).time()
         turno.save()
+
+        from .notificaciones import notificar_reprogramacion_turno
+        notificar_reprogramacion_turno(turno_original, turno)
         
         try:
             threading.Thread(target=eliminar_evento_google, args=(turno,)).start()

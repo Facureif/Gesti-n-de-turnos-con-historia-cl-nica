@@ -59,12 +59,11 @@ class GoogleCalendarManager:
                 'timeZone': timezone,
             },
             'reminders': {
-                'useDefault': False,
-                'overrides': [
-                    {'method': 'email', 'minutes': 24 * 60},  # 24 horas antes
-                    {'method': 'popup', 'minutes': 60},       # 1 hora antes
-                ],
-            },
+            'useDefault': False,
+            'overrides': [
+                {'method': 'popup', 'minutes': 60},       # 1 hora antes (solo popup, sin email)
+            ],
+        },
         }
 
         if attendees:
@@ -80,7 +79,7 @@ class GoogleCalendarManager:
             created_event = self.service.events().insert(
                 calendarId="primary", 
                 body=event,
-                sendUpdates="all"
+                sendUpdates="none"
             ).execute()
             print(f"✅ Evento creado: {created_event.get('htmlLink')}")
             return created_event
@@ -95,7 +94,7 @@ class GoogleCalendarManager:
             self.service.events().delete(
                 calendarId='primary', 
                 eventId=event_id,
-                sendUpdates="all"
+                sendUpdates="none"
             ).execute()
             print(f"✅ Evento eliminado: {event_id}")
             return True

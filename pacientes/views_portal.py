@@ -198,6 +198,9 @@ def cancelar_turno_paciente(request, turno_id):
     
     turno.estado = 'cancelado'
     turno.save()
+
+    from turnos_profesionales.notificaciones import notificar_cancelacion_turno
+    notificar_cancelacion_turno(turno, cancelado_por='paciente')
     
     if horas_restantes < 24:
         messages.warning(request, f'Turno cancelado con menos de 24hs. Se descontará una sesión de obra social si corresponde.')
@@ -223,6 +226,9 @@ def confirmar_turno_paciente(request, turno_id):
     
     turno.estado = 'confirmado'
     turno.save()
+
+    from turnos_profesionales.notificaciones import notificar_turno_confirmado_por_paciente
+    notificar_turno_confirmado_por_paciente(turno)
     messages.success(request, '✅ Turno confirmado.')
     return redirect('mis_turnos')
 

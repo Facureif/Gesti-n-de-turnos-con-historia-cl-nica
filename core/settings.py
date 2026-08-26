@@ -170,3 +170,7 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Sistema de Turnos <facundourc98@gmail.com>')
 
+# URLs para usar en correos
+URL_SITIO = 'http://127.0.0.1:8000'
+URL_LOGIN = f'{URL_SITIO}/usuarios/login/'
+URL_PANEL_PACIENTE = f'{URL_SITIO}/pacientes/panel/'

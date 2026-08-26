@@ -131,6 +131,8 @@ def registrar_paciente(request):
         )
         paciente.usuario = usuario
         paciente.save()
+        from turnos_profesionales.notificaciones import notificar_creacion_cuenta
+        notificar_creacion_cuenta(paciente, username, password)
 
         messages.success(request, 
             f'✅ Paciente {paciente.nombre_completo} registrado correctamente.\n'

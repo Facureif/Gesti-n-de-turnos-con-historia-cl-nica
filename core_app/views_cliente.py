@@ -364,39 +364,46 @@ def sacar_turno(request, cliente_slug, profesional_id):
         except:
             pass
         
-        if credenciales and email:
-            try:
-                from django.core.mail import send_mail
-                send_mail(
-                    subject=f'Turno confirmado - {cliente.nombre}',
-                    message=(
-                        f'Hola {nombre}!\n\n'
-                        f'Tu turno fue reservado correctamente:\n'
-                        f'📅 Fecha: {fecha.strftime("%d/%m/%Y")}\n'
-                        f'⏰ Hora: {hora_str}\n'
-                        f'🏥 Consultorio: {establecimiento.nombre}\n'
-                        f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n\n'
-                        f'Podés gestionar tus turnos desde tu panel personal:\n'
-                        f'🔑 Usuario: {credenciales[0]}\n'
-                        f'🔒 Contraseña: {credenciales[1]}\n\n'
-                        f'Ingresá en: http://127.0.0.1:8000/usuarios/login/\n\n'
-                        f'¡Gracias por confiar en nosotros!'
-                    ),
-                    from_email=None,
-                    recipient_list=[email],
-                    fail_silently=True,
-                )
-            except:
-                pass
+        # if credenciales and email:
+        #     try:
+        #         from django.core.mail import send_mail
+        #         send_mail(
+        #             subject=f'Turno confirmado - {cliente.nombre}',
+        #             message=(
+        #                 f'Hola {nombre}!\n\n'
+        #                 f'Tu turno fue reservado correctamente:\n'
+        #                 f'📅 Fecha: {fecha.strftime("%d/%m/%Y")}\n'
+        #                 f'⏰ Hora: {hora_str}\n'
+        #                 f'🏥 Consultorio: {establecimiento.nombre}\n'
+        #                 f'👨‍⚕️ Profesional: {profesional.nombre_completo}\n\n'
+        #                 f'Podés gestionar tus turnos desde tu panel personal:\n'
+        #                 f'🔑 Usuario: {credenciales[0]}\n'
+        #                 f'🔒 Contraseña: {credenciales[1]}\n\n'
+        #                 f'Ingresá en: http://127.0.0.1:8000/usuarios/login/\n\n'
+        #                 f'¡Gracias por confiar en nosotros!'
+        #             ),
+        #             from_email=None,
+        #             recipient_list=[email],
+        #             fail_silently=True,
+        #         )
+        #     except:
+        #         pass
         
+        from turnos_profesionales.notificaciones import notificar_creacion_cuenta, notificar_turno_asignado
+
+        # Si es paciente nuevo, enviar correo de cuenta
         if credenciales:
+            notificar_creacion_cuenta(paciente, credenciales[0], credenciales[1])
+
+            # Notificar turno asignado (incluye credenciales si es nuevo)
+            notificar_turno_asignado(turno, es_nuevo_paciente=bool(credenciales), credenciales=credenciales)
             messages.success(request, 
-                f'¡Turno reservado!\n\n'
-                f'{nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.\n\n'
-                f'📱 Te enviamos un email con tus datos de acceso a {email}.\n'
-                f'🔑 Usuario: {credenciales[0]}\n'
-                f'🔒 Contraseña: {credenciales[1]}'
-            )
+                    f'¡Turno reservado!\n\n'
+                    f'{nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.\n\n'
+                    f'📱 Te enviamos un email con tus datos de acceso a {email}.\n'
+                    f'🔑 Usuario: {credenciales[0]}\n'
+                    f'🔒 Contraseña: {credenciales[1]}'
+                )
         else:
             messages.success(request, 
                 f'¡Turno reservado! {nombre}, tu turno es el {fecha.strftime("%d/%m/%Y")} a las {hora_str} en {establecimiento.nombre}.'
