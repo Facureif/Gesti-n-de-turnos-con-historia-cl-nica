@@ -40,9 +40,10 @@
         <div class="card-header">
             <h3 class="card-title"><i class="fas fa-building text-primary"></i> Consultorio</h3>
         </div>
-        <p class="form-control-static" style="padding: 12px;">
-            {{ establecimiento_activo.nombre }} - {{ establecimiento_activo.direccion }}
-        </p>
+        <div class="card-body">
+            <p class="form-control-static">{{ establecimiento_activo.nombre }} - {{ establecimiento_activo.direccion }}</p>
+            <input type="hidden" name="establecimiento" value="{{ establecimiento_activo.id }}">
+        </div>
     </div>
     {% endif %}
     

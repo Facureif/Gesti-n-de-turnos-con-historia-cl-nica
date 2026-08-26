@@ -15,7 +15,8 @@ import unicodedata
 import re
 import random
 import string
-
+from core_app.utils import get_establecimiento_activo
+from .utils import tiene_acceso, puede_editar
 
 
 def generar_username(nombre, apellido, dni):
@@ -65,12 +66,14 @@ def registrar_paciente(request):
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
+    profesional = None
+    establecimiento_activo = None
+
     if request.user.rol == 'secretaria':
-        profesional = None
+        establecimiento_activo = request.user.establecimiento
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-    else:
-        profesional = None
+        establecimiento_activo = get_establecimiento_activo(request, profesional)
     
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -101,23 +104,20 @@ def registrar_paciente(request):
             direccion=direccion,
             numero_afiliado=numero_afiliado,
             genero=genero,
+            creado_por=profesional,
         )
 
-        # Generar username limpio (sin acentos, conserva ñ)
         base_username = generar_username(nombre, apellido, dni)
         username = base_username
         
-        # Si ya existe, agregar últimos 4 dígitos del DNI
         if Usuario.objects.filter(username=username).exists():
             username = f"{base_username}{dni[-4:]}"
         
-        # Si todavía existe (muy raro), agregar número incremental
         contador = 1
         while Usuario.objects.filter(username=username).exists():
             username = f"{base_username}{dni[-4:]}{contador}"
             contador += 1
 
-        # Contraseña: DNI sin puntos ni espacios
         password = dni.replace('.', '').replace(' ', '')
 
         usuario = Usuario.objects.create_user(
@@ -140,7 +140,6 @@ def registrar_paciente(request):
             f'📋 Historia Clínica: HC-{paciente.id:06d}'
         )    
             
-        # Crear historia clínica
         HistoriaClinica.objects.create(
             paciente=paciente,
             numero_historia=f"HC-{paciente.id:06d}"
@@ -150,6 +149,7 @@ def registrar_paciente(request):
 
     return render(request, 'pacientes/registrar.html', {
         'profesional': profesional,
+        'establecimiento_activo': establecimiento_activo,
     })
 
 @login_required
@@ -178,6 +178,8 @@ def actualizar_sesiones(request, paciente_id):
     return redirect('ficha_paciente', paciente_id=paciente.id)
 
 from core_app.utils import get_establecimiento_activo
+from .models import PacienteCompartido
+from .utils import tiene_acceso
 
 @login_required
 def buscar_paciente(request):
@@ -186,6 +188,7 @@ def buscar_paciente(request):
         return redirect('home')
 
     profesional = None
+    establecimiento = None
 
     if request.user.rol == 'secretaria':
         establecimiento = request.user.establecimiento
@@ -193,30 +196,32 @@ def buscar_paciente(request):
         profesional = get_object_or_404(Profesional, usuario=request.user)
         establecimiento = get_establecimiento_activo(request, profesional)
 
-        # Si tiene varios consultorios y no hay uno activo, forzar selección
-        if not establecimiento and profesional.establecimientos.count() > 1:
-            messages.error(request, 'Seleccioná tu consultorio activo.')
-            return redirect('seleccionar_consultorio')
-
-        # Si tiene uno solo, usar ese
         if not establecimiento:
-            establecimiento = profesional.establecimientos.first()
-    else:
-        establecimiento = None
+            if profesional.establecimientos.count() == 1:
+                establecimiento = profesional.establecimientos.first()
+            else:
+                messages.error(request, 'Seleccioná tu consultorio activo.')
+                return redirect('seleccionar_consultorio')
 
     pacientes = []
     busqueda = request.GET.get('q', '').strip()
 
     if busqueda:
-        pacientes = Paciente.objects.filter(
-            Q(nombre__icontains=busqueda) |
-            Q(apellido__icontains=busqueda) |
-            Q(dni__icontains=busqueda)
-        )
+        query = Q(nombre__icontains=busqueda) | Q(apellido__icontains=busqueda) | Q(dni__icontains=busqueda)
+        pacientes_base = Paciente.objects.filter(query)
 
-        # Filtrar por el consultorio activo
-        if establecimiento:
-            pacientes = pacientes.filter(
+        if request.user.rol == 'profesional':
+            con_turnos = pacientes_base.filter(
+                turnoprofesional__profesional=profesional,
+                turnoprofesional__establecimiento=establecimiento
+            ).distinct()
+            compartidos = pacientes_base.filter(
+                compartidos__profesional_destino=profesional
+            ).distinct()
+            creados = pacientes_base.filter(creado_por=profesional).distinct()
+            pacientes = (con_turnos | compartidos | creados).distinct()
+        elif request.user.rol == 'secretaria':
+            pacientes = pacientes_base.filter(
                 turnoprofesional__establecimiento=establecimiento
             ).distinct()
 
@@ -229,40 +234,55 @@ def buscar_paciente(request):
     })
 
 
+
+from core_app.utils import get_establecimiento_activo
+from .utils import tiene_acceso, puede_editar
+
 @login_required
 def ficha_paciente(request, paciente_id):
-    """Ficha completa del paciente con HC y turnos."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
 
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
     if request.user.rol == 'secretaria':
         profesional = None
         establecimiento = request.user.establecimiento
-        # La secretaria siempre ve los turnos de su único consultorio → no mostrar columna consultorio
         mostrar_consultorio = False
-        mostrar_profesional = True   # porque puede haber varios profesionales en el consultorio
+        mostrar_profesional = True
+        puede_compartir = False
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento = None
-        # Mostrar consultorio solo si el profesional atiende en más de un lugar
+        establecimiento = get_establecimiento_activo(request, profesional)
+
+        if not establecimiento:
+            if profesional.establecimientos.count() == 1:
+                establecimiento = profesional.establecimientos.first()
+            else:
+                messages.error(request, 'Seleccioná tu consultorio activo.')
+                return redirect('seleccionar_consultorio')
+
+        if not tiene_acceso(profesional, paciente, establecimiento):
+            messages.error(request, 'No tenés acceso a este paciente.')
+            return redirect('panel_profesional')
+
         mostrar_consultorio = profesional.establecimientos.count() > 1
-        mostrar_profesional = False  # el profesional ve sus propios turnos, no necesita ver su nombre
+        mostrar_profesional = False
+        puede_compartir = puede_editar(profesional, paciente, establecimiento)
     else:
         profesional = None
         establecimiento = None
         mostrar_consultorio = False
         mostrar_profesional = False
+        puede_compartir = False
 
-    paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
-
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
     evoluciones = Evolucion.objects.filter(
         historia_clinica=historia
     ).order_by('-creado') if historia else []
 
-    # Próximos turnos
     if request.user.rol == 'secretaria':
         proximos_turnos = TurnoProfesional.objects.filter(
             paciente=paciente,
@@ -272,15 +292,17 @@ def ficha_paciente(request, paciente_id):
         ).order_by('fecha', 'hora_inicio')
     elif request.user.rol == 'profesional':
         proximos_turnos = TurnoProfesional.objects.filter(
-            profesional=profesional,
             paciente=paciente,
             fecha__gte=hoy,
-            estado__in=['pendiente', 'confirmado']
-        ).order_by('fecha', 'hora_inicio')
+            estado__in=['pendiente', 'confirmado'],
+            establecimiento=establecimiento
+        ).filter(
+            Q(profesional=profesional) |
+            Q(paciente__compartidos__profesional_destino=profesional)
+        ).distinct().order_by('fecha', 'hora_inicio')
     else:
         proximos_turnos = []
 
-    # Turnos pasados
     if request.user.rol == 'secretaria':
         turnos_pasados = TurnoProfesional.objects.filter(
             paciente=paciente,
@@ -289,22 +311,23 @@ def ficha_paciente(request, paciente_id):
         ).order_by('-fecha', '-hora_inicio')[:20]
     elif request.user.rol == 'profesional':
         turnos_pasados = TurnoProfesional.objects.filter(
-            profesional=profesional,
             paciente=paciente,
-            estado__in=['completado', 'cancelado', 'no_asistio']
-        ).order_by('-fecha', '-hora_inicio')[:20]
+            estado__in=['completado', 'cancelado', 'no_asistio'],
+            establecimiento=establecimiento
+        ).filter(
+            Q(profesional=profesional) |
+            Q(paciente__compartidos__profesional_destino=profesional)
+        ).distinct().order_by('-fecha', '-hora_inicio')[:20]
     else:
         turnos_pasados = []
 
-    # Paginación de próximos turnos
     prox_page = request.GET.get('prox_page', 1)
-    paginator_prox = Paginator(proximos_turnos, 5   )  # 5 por página
+    paginator_prox = Paginator(proximos_turnos, 5)
     try:
         proximos_turnos_paginados = paginator_prox.page(prox_page)
     except:
         proximos_turnos_paginados = paginator_prox.page(1)
 
-    # Paginación del historial (turnos pasados)
     hist_page = request.GET.get('hist_page', 1)
     paginator_hist = Paginator(turnos_pasados, 10)
     try:
@@ -312,7 +335,6 @@ def ficha_paciente(request, paciente_id):
     except:
         turnos_pasados_paginados = paginator_hist.page(1)        
 
-    # Filtrar OS: solo las del profesional logueado (o todas si es secretaria)
     if request.user.rol == 'profesional' and profesional:
         obras_sociales_paciente = paciente.mis_obras_sociales.filter(
             profesional=profesional
@@ -322,7 +344,6 @@ def ficha_paciente(request, paciente_id):
     else:
         obras_sociales_paciente = paciente.mis_obras_sociales.none()
 
-    # Detectar si viene de cargar evolución (para mostrar botón de pago)
     turno_para_pagar = None
     turno_id = request.GET.get('turno_id')
     if turno_id:
@@ -336,34 +357,39 @@ def ficha_paciente(request, paciente_id):
         'paciente': paciente,
         'historia': historia,
         'evoluciones': evoluciones,
-        'proximos_turnos': proximos_turnos,
-        'turnos': turnos_pasados,
+        'proximos_turnos': proximos_turnos_paginados,
+        'turnos': turnos_pasados_paginados,
         'obras_sociales_paciente': obras_sociales_paciente,
         'hoy': hoy,
         'es_secretaria': request.user.rol == 'secretaria',
         'turno_para_pagar': turno_para_pagar,
         'mostrar_consultorio': mostrar_consultorio,
         'mostrar_profesional': mostrar_profesional,
-        'proximos_turnos': proximos_turnos_paginados,
-        'turnos': turnos_pasados_paginados,
-        'mostrar_consultorio': mostrar_consultorio,
-        'mostrar_profesional': mostrar_profesional,
+        'puede_compartir': puede_compartir,
     })
 
 @login_required
 def editar_paciente(request, paciente_id):
-    """Editar datos del paciente."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
-    
-    if request.user.rol == 'secretaria':
-        profesional = None
-    elif request.user.rol == 'profesional':
+
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
+        establecimiento = get_establecimiento_activo(request, profesional)
+        if not establecimiento:
+            if profesional.establecimientos.count() == 1:
+                establecimiento = profesional.establecimientos.first()
+            else:
+                return redirect('seleccionar_consultorio')
+        if not tiene_acceso(profesional, paciente, establecimiento) or not puede_editar(profesional, paciente, establecimiento):
+            messages.error(request, 'No tenés permiso para editar este paciente.')
+            return redirect('ficha_paciente', paciente_id=paciente.id)
     else:
         profesional = None
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
     
     if request.method == 'POST':
@@ -378,7 +404,6 @@ def editar_paciente(request, paciente_id):
 
         paciente.save()
         
-        # Actualizar historia clínica si existe
         if historia:
             historia.antecedentes_personales = request.POST.get('antecedentes_personales', historia.antecedentes_personales)
             historia.antecedentes_familiares = request.POST.get('antecedentes_familiares', historia.antecedentes_familiares)
@@ -399,20 +424,28 @@ def editar_paciente(request, paciente_id):
     })
 
 
-
-
-# Agregá al final de pacientes/views.py
-
 @login_required
 def ficha_tecnica(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
-    
+
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    
+
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
+        establecimiento = get_establecimiento_activo(request, profesional)
+        if not establecimiento:
+            if profesional.establecimientos.count() == 1:
+                establecimiento = profesional.establecimientos.first()
+            else:
+                return redirect('seleccionar_consultorio')
+        if not tiene_acceso(profesional, paciente, establecimiento):
+            messages.error(request, 'No tenés acceso a este paciente.')
+            return redirect('panel_profesional')
+        if not puede_editar(profesional, paciente, establecimiento):
+            # Aquí podrías permitir solo lectura si quisieras
+            pass
     else:
         profesional = Profesional.objects.first()
     
@@ -440,6 +473,11 @@ def ficha_tecnica(request, paciente_id):
     )
     
     if request.method == 'POST':
+        # Solo permitir edición si puede_editar
+        if request.user.rol == 'profesional' and not puede_editar(profesional, paciente, establecimiento):
+            messages.error(request, 'No tenés permiso para editar esta ficha.')
+            return redirect('ficha_tecnica', paciente_id=paciente.id)
+
         datos = {}
         for key, value in request.POST.items():
             if key not in ['csrfmiddlewaretoken', 'notas_generales']:
@@ -709,22 +747,28 @@ def ficha_tecnica(request, paciente_id):
 
 @login_required
 def estudios_paciente(request, paciente_id):
-    """Ver y subir estudios de un paciente (vista profesional/secretaria)."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
     
-    # Determinar profesional según el rol
     if request.user.rol == 'secretaria':
-        profesional = None   # la secretaria puede ver todos los estudios del paciente
+        profesional = None
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
+        establecimiento = get_establecimiento_activo(request, profesional)
+        if not establecimiento:
+            if profesional.establecimientos.count() == 1:
+                establecimiento = profesional.establecimientos.first()
+            else:
+                return redirect('seleccionar_consultorio')
+        if not tiene_acceso(profesional, paciente, establecimiento):
+            messages.error(request, 'No tenés acceso a este paciente.')
+            return redirect('panel_profesional')
     else:
         profesional = None
     
-    # Subida de archivo (POST)
     if request.method == 'POST':
         titulo = request.POST.get('titulo', '').strip()
         descripcion = request.POST.get('descripcion', '')
@@ -736,32 +780,27 @@ def estudios_paciente(request, paciente_id):
             messages.error(request, 'El título y el archivo son obligatorios.')
             return redirect('estudios_paciente', paciente_id=paciente.id)
         
-        # La secretaria podría elegir un profesional o dejarlo sin asignar; 
-        # para simplificar, si es secretaria, profesional = None (aunque puede seleccionarse si se desea).
         EstudioMedico.objects.create(
             paciente=paciente,
-            profesional=profesional,   # None para secretaria, o el profesional logueado
+            profesional=profesional,
             titulo=titulo,
             descripcion=descripcion,
             tipo_estudio=tipo_estudio,
             fecha_estudio=fecha_estudio,
             archivo=archivo,
-            subido_por='profesional',  # siempre será subido por el profesional en esta vista
+            subido_por='profesional',
         )
         
         messages.success(request, f'Estudio "{titulo}" subido correctamente.')
         return redirect('estudios_paciente', paciente_id=paciente.id)
     
-    # GET – Mostrar estudios
     estudios = paciente.estudios_medicos.all()
     
-    # Filtrar según privacidad
-    if profesional:   # si es un profesional, solo ve los estudios que le corresponden
+    if profesional:
         estudios = estudios.filter(
-            Q(profesional=profesional) |      # estudios que él subió
-            Q(subido_por='paciente', profesional=profesional)   # estudios que el paciente le envió a él
+            Q(profesional=profesional) |
+            Q(subido_por='paciente', profesional=profesional)
         )
-    # Si es secretaria, ve todos los estudios del paciente (sin filtro adicional)
 
     return render(request, 'pacientes/estudios.html', {
         'paciente': paciente,
@@ -770,6 +809,7 @@ def estudios_paciente(request, paciente_id):
         'profesional': profesional,
         'es_secretaria': request.user.rol == 'secretaria',
     })
+
 
 from historias_clinicas.models import Lesion
 from datetime import date
@@ -1226,3 +1266,85 @@ def generar_pdf_laboratorio(resultado):
     pdf_bytes = buffer.getvalue()
     buffer.close()
     return ContentFile(pdf_bytes, name=f"laboratorio_{resultado.id}.pdf")
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from profesionales.models import Profesional
+from core_app.utils import get_establecimiento_activo
+from .models import Paciente, PacienteCompartido
+from .utils import puede_editar, tiene_acceso
+
+@login_required
+def compartir_paciente(request, paciente_id):
+    if request.user.rol != 'profesional':
+        messages.error(request, 'No tenés permiso.')
+        return redirect('home')
+
+    profesional = get_object_or_404(Profesional, usuario=request.user)
+    establecimiento = get_establecimiento_activo(request, profesional)
+
+    if not establecimiento:
+        messages.error(request, 'Seleccioná tu consultorio activo.')
+        return redirect('seleccionar_consultorio')
+
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    if not puede_editar(profesional, paciente, establecimiento):
+        messages.error(request, 'No tenés permiso para compartir este paciente.')
+        return redirect('ficha_paciente', paciente_id=paciente.id)
+
+    colegas = Profesional.objects.filter(
+        establecimientos=establecimiento
+    ).exclude(id=profesional.id).distinct()
+
+    if request.method == 'POST':
+        colega_id = request.POST.get('profesional_destino')
+        puede_editar_colega = request.POST.get('puede_editar') == 'on'
+        if not colega_id:
+            messages.error(request, 'Seleccioná un colega.')
+            return redirect('compartir_paciente', paciente_id=paciente.id)
+
+        colega = get_object_or_404(Profesional, id=colega_id, establecimientos=establecimiento)
+
+        PacienteCompartido.objects.update_or_create(
+            paciente=paciente,
+            profesional_destino=colega,
+            defaults={
+                'profesional_origen': profesional,
+                'puede_editar': puede_editar_colega,
+            }
+        )
+        messages.success(request, f'Paciente compartido con {colega.nombre_completo}.')
+        return redirect('ficha_paciente', paciente_id=paciente.id)
+
+    compartidos_actuales = PacienteCompartido.objects.filter(
+        paciente=paciente,
+        profesional_origen=profesional
+    ).select_related('profesional_destino')
+
+    return render(request, 'pacientes/compartir.html', {
+        'paciente': paciente,
+        'colegas': colegas,
+        'compartidos_actuales': compartidos_actuales,
+        'establecimiento': establecimiento,
+    })
+
+
+@login_required
+def quitar_compartido(request, paciente_id, compartido_id):
+    if request.user.rol != 'profesional':
+        return redirect('home')
+    profesional = get_object_or_404(Profesional, usuario=request.user)
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    compartido = get_object_or_404(
+        PacienteCompartido,
+        id=compartido_id,
+        paciente=paciente,
+        profesional_origen=profesional
+    )
+    compartido.delete()
+    messages.success(request, 'Acceso quitado.')
+    return redirect('ficha_paciente', paciente_id=paciente.id)

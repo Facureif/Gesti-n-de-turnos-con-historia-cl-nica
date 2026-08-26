@@ -1,5 +1,6 @@
 from django.db import models
 from core_app.models import Persona
+from profesionales.models import Profesional
 
 
 class Paciente(Persona):
@@ -30,11 +31,10 @@ class Paciente(Persona):
         verbose_name='Plan'
     )
     observaciones = models.TextField(blank=True, verbose_name='Observaciones')
-
-    # ❌ ESTOS CAMPOS SE VAN
-    # sesiones_autorizadas
-    # sesiones_restantes
-    # fecha_vencimiento_sesiones
+    creado_por = models.ForeignKey(
+        Profesional, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='pacientes_creados'
+    )
 
     contacto_emergencia_nombre = models.CharField(max_length=100, blank=True)
     contacto_emergencia_telefono = models.CharField(max_length=20, blank=True)
@@ -68,7 +68,7 @@ class PacienteObraSocial(models.Model):
         verbose_name='Profesional que autoriza'
     )
     
-    # ✅ AHORA LAS SESIONES VAN ACÁ
+
     sesiones_autorizadas = models.IntegerField(null=True, blank=True, verbose_name='Sesiones Autorizadas')
     sesiones_restantes = models.IntegerField(null=True, blank=True, verbose_name='Sesiones Restantes')
     fecha_vencimiento = models.DateField(null=True, blank=True, verbose_name='Vencimiento')
@@ -125,7 +125,7 @@ class EstudioMedico(models.Model):
     )
     fecha_estudio = models.DateField(null=True, blank=True)
     creado = models.DateTimeField(auto_now_add=True)
-    # En pacientes/models.py, dentro de EstudioMedico
+
     subido_por = models.CharField(
         max_length=15,
         choices=[('profesional', 'Profesional'), ('paciente', 'Paciente')],
@@ -139,3 +139,25 @@ class EstudioMedico(models.Model):
     
     def __str__(self):
         return f"{self.titulo} - {self.paciente.nombre_completo}"
+
+
+class PacienteCompartido(models.Model):
+    paciente = models.ForeignKey(
+        Paciente, on_delete=models.CASCADE, related_name='compartidos'
+    )
+    profesional_origen = models.ForeignKey(
+        Profesional, on_delete=models.CASCADE, related_name='pacientes_compartidos_enviados'
+    )
+    profesional_destino = models.ForeignKey(
+        Profesional, on_delete=models.CASCADE, related_name='pacientes_compartidos_recibidos'
+    )
+    puede_editar = models.BooleanField(default=True)  # True: puede cargar evoluciones, editar ficha técnica, etc.
+    fecha_compartido = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('paciente', 'profesional_destino')
+        verbose_name = 'Paciente compartido'
+        verbose_name_plural = 'Pacientes compartidos'
+
+    def __str__(self):
+        return f'{self.paciente} → {self.profesional_destino}'        

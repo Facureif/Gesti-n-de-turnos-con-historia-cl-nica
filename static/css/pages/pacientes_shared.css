@@ -618,3 +618,71 @@
     cursor: pointer;
     line-height: 1;
 }
+
+
+
+
+
+
+
+/* =============================================
+   MENÚ DESPLEGABLE "MÁS ACCIONES" (HAMBURGUESA)
+   ============================================= */
+.menu-acciones-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* El botón protagonista */
+.btn-menu-hamburguesa {
+    background: #1e293b; /* Azul muy oscuro para destacar */
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px; /* Un poco más grande que los botones normales */
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-menu-hamburguesa:hover {
+    background: #0f172a;
+    transform: translateY(-1px);
+}
+
+/* El menú desplegable */
+.menu-dropdown {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    min-width: 220px;
+    z-index: 1000;
+    padding: 8px 0;
+    margin-top: 5px;
+}
+
+/* Estilo de cada opción del menú */
+.menu-item {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.15s;
+}
+
+.menu-item:hover {
+    background: var(--bg-alt);
+    color: var(--primary);
+}
+
+/* Clase para mostrar el menú (usada por JS) */
+.menu-dropdown.show {
+    display: block;
+}

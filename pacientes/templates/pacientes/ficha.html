@@ -15,41 +15,64 @@
     <div class="pacientes-header" style="margin-bottom: 0; padding-top: 20px;">
         <h1>📋 Ficha del Paciente</h1>
     </div>
-    <div class="acciones-header">
-        {% if not es_secretaria %}
-            <a href="{% url 'ficha_tecnica' paciente.id %}" class="btn-accion-header btn-ficha-tecnica">
-                {% if profesional.especialidad == 'odontologia' %}🦷 Ficha Odontológica
-                {% elif profesional.especialidad == 'kinesiologia' %}💪 Ficha Kinesiológica
-                {% elif profesional.especialidad == 'fonoaudiologia' %}🗣️ Ficha Fonoaudiológica
-                {% elif profesional.especialidad == 'nutricion' %}🍎 Ficha Nutricional
-                {% elif profesional.especialidad == 'psicologia' %}🧠 Ficha Psicológica
-                {% elif profesional.especialidad == 'laboratorio' %}🔬 Ficha laboratorio
-                {% else %}📋 Evolución Clínica{% endif %}
-            </a>
-        {% endif %}
-        <a href="{% url 'estudios_paciente' paciente.id %}" class="btn-accion-header btn-estudios">📁 Estudios</a>
-        {% if profesional and profesional.permite_ejercicios %}
-            <a href="{% url 'ejercicios_paciente' paciente.id %}" class="btn-accion-header" style="background:#a855f7;">💪 Ejercicios</a>
-        {% endif %}
-        {% if profesional and profesional.permite_planes_alimentacion %}
-            <a href="{% url 'planes_alimentacion_paciente' paciente.id %}" class="btn-accion-header" style="background:#16a34a;">🥗 Plan Alimenticio</a>
-        {% endif %}
-        {% if not es_secretaria %}
-            <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
-        {% endif %}
-        <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm">📅 Asignar Turno</a>
-        <a href="{% url 'reserva_multiple' %}?paciente_id={{ paciente.id }}" class="btn-accion-header btn-reserva-multiple">📅 Reserva Múltiple</a>
+
+
+    <div class="acciones-header" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <!-- Acciones principales (siempre visibles) -->
+        <a href="{% url 'asignar_turno' paciente.id %}" class="btn btn-success btn-sm" style="padding: 8px 16px;">📅 Asignar Turno</a>
         
         {% if turno_para_pagar %}
-            <a href="{% url 'cobrar_turno' turno_para_pagar.id %}" class="btn-accion-header btn-pagar">💰 Pagar Consulta</a>
+            <a href="{% url 'cobrar_turno' turno_para_pagar.id %}" class="btn-accion-header btn-pagar" style="background:#22c55e; color:white; padding:8px 16px; border-radius:6px; text-decoration:none;">💰 Pagar Consulta</a>
         {% endif %}
-        
+
+        <!-- Botón Hamburguesa con protagonismo -->
+        <div class="menu-acciones-container" style="position: relative;">
+            <button onclick="toggleMenuAcciones()" style="background:#1e293b; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                ☰ Más Acciones
+            </button>
+            <div id="menu-acciones" style="display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 6px; min-width: 220px; z-index: 1000; padding: 8px 0; margin-top: 5px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                {% if not es_secretaria %}
+                    <a href="{% url 'ficha_tecnica' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">
+                        {% if profesional.especialidad == 'odontologia' %}🦷 Ficha Odontológica
+                        {% elif profesional.especialidad == 'kinesiologia' %}💪 Ficha Kinesiológica
+                        {% elif profesional.especialidad == 'fonoaudiologia' %}🗣️ Ficha Fonoaudiológica
+                        {% elif profesional.especialidad == 'nutricion' %}🍎 Ficha Nutricional
+                        {% elif profesional.especialidad == 'psicologia' %}🧠 Ficha Psicológica
+                        {% elif profesional.especialidad == 'laboratorio' %}🔬 Ficha laboratorio
+                        {% else %}📋 Evolución Clínica{% endif %}
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'estudios_paciente' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">📁 Estudios</a>
+                
+                {% if profesional and profesional.permite_ejercicios %}
+                    <a href="{% url 'ejercicios_paciente' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">💪 Ejercicios</a>
+                {% endif %}
+                
+                {% if profesional and profesional.permite_planes_alimentacion %}
+                    <a href="{% url 'planes_alimentacion_paciente' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">🥗 Plan Alimenticio</a>
+                {% endif %}
+                
+                {% if not es_secretaria %}
+                    <a href="{% url 'editar_paciente' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">✏️ Editar</a>
+                {% endif %}
+                
+                <a href="{% url 'reserva_multiple' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">📅 Reserva Múltiple</a>
+                
+                {% if puede_compartir %}
+                    <a href="{% url 'compartir_paciente' paciente.id %}" style="display:block; padding:10px 16px; text-decoration:none; color:#333; font-size:0.85rem;">🔗 Compartir</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Botón Volver -->
         {% if request.user.rol == 'secretaria' %}
-            <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm">← Volver</a>
+            <a href="{% url 'panel_secretaria' %}" class="btn btn-secondary btn-sm" style="padding: 8px 16px;">← Volver</a>
         {% else %}
-            <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-sm">← Volver</a>
+            <a href="{% url 'panel_profesional' %}" class="btn btn-secondary btn-sm" style="padding: 8px 16px;">← Volver</a>
         {% endif %}
     </div>
+    
 </div>
 
 <div class="pacientes-grid-2">
@@ -404,4 +427,25 @@
     </div>
     
 </div>
+
+<script>
+    function toggleMenuAcciones() {
+        var menu = document.getElementById("menu-acciones");
+        if (menu.style.display === "block") {
+            menu.style.display = "none";
+        } else {
+            menu.style.display = "block";
+        }
+    }
+    
+    // Cerrar el menú si se hace clic fuera de él
+    window.onclick = function(event) {
+        if (!event.target.closest('.menu-acciones-container')) {
+            var menu = document.getElementById("menu-acciones");
+            if (menu.style.display === "block") {
+                menu.style.display = "none";
+            }
+        }
+    }
+</script>
 {% endblock %}

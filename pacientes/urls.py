@@ -25,4 +25,6 @@ urlpatterns = [
     path('<int:paciente_id>/gestionar-obras-sociales/', views.gestionar_obras_sociales, name='gestionar_obras_sociales'),
     path('eliminar-resultado-laboratorio/<int:resultado_id>/', views.eliminar_resultado_laboratorio, name='eliminar_resultado_laboratorio'),
 
+    path('paciente/<int:paciente_id>/compartir/', views.compartir_paciente, name='compartir_paciente'),
+    path('paciente/<int:paciente_id>/quitar-compartido/<int:compartido_id>/', views.quitar_compartido, name='quitar_compartido'),
 ]
