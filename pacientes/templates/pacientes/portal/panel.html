@@ -13,20 +13,32 @@
 
     <!-- Saludo -->
     <div class="portal-saludo">
-        <h1>👋 Hola, {{ paciente.nombre }}</h1>
-        {% if cliente %}
-            <p class="consultorio-nombre">🏥 {{ cliente.nombre }}</p>
+        {% if cliente.establecimiento.logo %}
+            <img src="{{ cliente.establecimiento.logo.url }}" alt="Logo {{ cliente.establecimiento.nombre }}" class="logo-consultorio">
+        {% else %}
+            <h1>🏥 {{ cliente.nombre }}</h1>
+        {% endif %}
+
+        {% if paciente %}
+            <p class="saludo-paciente">👋 Hola, {{ paciente.nombre }}</p>
         {% endif %}
     </div>
 
-    <!-- Botones de acción -->
     <div class="portal-acciones">
-        <a href="{% url 'editar_mi_ficha' %}" class="portal-btn-accion portal-btn-ficha">✏️ Mi Ficha</a>
-        <a href="{% url 'mis_estudios' %}" class="portal-btn-accion portal-btn-estudios">📁 Mis Estudios</a>
-        <a href="{% url 'mis_indicaciones' %}" class="portal-btn-accion" style="background: #1316bd;">📋 Mis Indicaciones</a>
         <a href="{% url 'sacar_turno_paciente' %}" class="portal-btn-accion portal-btn-turno">📅 Sacar Turno</a>
         <a href="{% url 'mis_turnos' %}" class="portal-btn-accion portal-btn-mis-turnos">📋 Mis Turnos</a>
-        <a href="{% url 'cambiar_password' %}" class="portal-btn-accion portal-btn-password">🔒 Cambiar Contraseña</a>
+
+        <div class="menu-acciones-container">
+            <button class="portal-btn-accion portal-btn-menu" onclick="toggleMenuAcciones()">
+                ☰ Más Acciones
+            </button>
+            <div id="menu-acciones" class="menu-dropdown-portal">
+                <a href="{% url 'editar_mi_ficha' %}" class="menu-item-portal">✏️ Mi Ficha</a>
+                <a href="{% url 'mis_estudios' %}" class="menu-item-portal">📁 Mis Estudios</a>
+                <a href="{% url 'mis_indicaciones' %}" class="menu-item-portal">📋 Mis Indicaciones</a>
+                <a href="{% url 'cambiar_password' %}" class="menu-item-portal">🔒 Cambiar Contraseña</a>
+            </div>
+        </div>
     </div>
 
     <!-- Sesiones -->
@@ -182,4 +194,21 @@
 
 </div>
 </div>
+
+<script>
+    function toggleMenuAcciones() {
+        var menu = document.getElementById("menu-acciones");
+        menu.classList.toggle("show");
+    }
+    
+    // Cerrar el menú si se hace clic fuera de él
+    window.onclick = function(event) {
+        if (!event.target.closest('.menu-acciones-container')) {
+            var menu = document.getElementById("menu-acciones");
+            if (menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            }
+        }
+    }
+</script>
 {% endblock %}

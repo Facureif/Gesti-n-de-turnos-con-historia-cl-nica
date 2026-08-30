@@ -183,6 +183,11 @@ def sacar_turno(request, cliente_slug, profesional_id):
         hora_str = request.POST.get('hora')
         establecimiento_id = request.POST.get('establecimiento')
         tipo_consulta = request.POST.get('tipo_consulta', '')
+        if tipo_consulta == 'Otro':
+            especificacion = request.POST.get('tipo_consulta_otro', '').strip()
+            if especificacion:
+                tipo_consulta = f"Otro: {especificacion}"
+        
         fecha_nacimiento = request.POST.get('fecha_nacimiento', '')
         numero_afiliado = request.POST.get('numero_afiliado', '')
         obra_social_id = request.POST.get('obra_social', '')

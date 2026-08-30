@@ -88,7 +88,25 @@
                 <!-- Información adicional -->
                 <div class="sacar-turno-card">
                     <h3>3️⃣ Información adicional</h3>
-                    <input type="text" name="tipo_consulta" class="sacar-turno-input" placeholder="Ej: Control, dolor, consulta...">
+                    
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">
+                        Motivo de consulta
+                    </label>
+                    <select name="tipo_consulta" id="motivo_consulta" class="sacar-turno-select">
+                        <option value="">Seleccionar motivo...</option>
+                        <option value="Primera consulta">Primera consulta</option>
+                        <option value="Control">Control</option>
+                        <option value="Certificado">Certificado (escolar/laboral)</option>
+                        <option value="Seguimiento">Seguimiento</option>
+                        <option value="Urgencia">Urgencia</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                    
+                    <!-- Campo para especificar "Otro" -->
+                    <input type="text" name="tipo_consulta_otro" id="motivo_otro" 
+                        placeholder="Especificar motivo..." 
+                        class="sacar-turno-input" 
+                        style="display: none; margin-top: 8px;">
                 </div>
 
                 <!-- Archivo (opcional) -->
@@ -178,5 +196,17 @@ function marcarHora(label) {
     });
     label.classList.add('seleccionada');
 }
+
+document.getElementById('motivo_consulta').addEventListener('change', function() {
+    var campoOtro = document.getElementById('motivo_otro');
+    if (this.value === 'Otro') {
+        campoOtro.style.display = 'block';
+        campoOtro.setAttribute('required', 'required');
+    } else {
+        campoOtro.style.display = 'none';
+        campoOtro.removeAttribute('required');
+        campoOtro.value = '';
+    }
+});
 </script>
 {% endblock %}

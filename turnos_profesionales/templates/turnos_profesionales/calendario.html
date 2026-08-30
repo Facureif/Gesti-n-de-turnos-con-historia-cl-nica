@@ -17,10 +17,10 @@
     </div>
     
     <div class="flex gap-2">
-        <a href="?fecha={{ semana_anterior }}" class="btn btn-secondary btn-sm">
+        <a href="?fecha={{ semana_anterior }}{% if request.user.rol == 'secretaria' %}&profesional={{ profesional.id }}{% endif %}" class="btn btn-secondary btn-sm">
             <i class="fas fa-chevron-left"></i> Anterior
         </a>
-        <a href="?fecha={{ semana_siguiente }}" class="btn btn-sm">
+        <a href="?fecha={{ semana_siguiente }}{% if request.user.rol == 'secretaria' %}&profesional={{ profesional.id }}{% endif %}" class="btn btn-sm">
             Siguiente <i class="fas fa-chevron-right"></i>
         </a>
         {% if request.user.rol == 'secretaria' %}
@@ -50,6 +50,10 @@
                 </option>
             {% endfor %}
         </select>
+        <!-- Mantener la fecha actual si existe -->
+        {% if request.GET.fecha %}
+            <input type="hidden" name="fecha" value="{{ request.GET.fecha }}">
+        {% endif %}
     </form>
 </div>
 {% endif %}
@@ -314,6 +318,9 @@
 </div>
 
 <script>
+// Variable global con el ID del profesional actual (útil para secretarias)
+const profesionalId = {{ profesional.id }};
+
 function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaFin, tipo, estadoDisplay, estado, sesiones, pacienteId, esSobreturno, noAsistioAutomatico, puedeReactivar, archivoUrl) {
     document.getElementById('modal-turno-paciente').textContent = (esSobreturno === 'si' ? '🚨 ' : '') + paciente;
     document.getElementById('modal-turno-fecha').textContent = fecha;
@@ -326,7 +333,6 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
     var archivoLink = document.getElementById('modal-archivo-link');
     if (archivoUrl && archivoUrl !== '') {
         archivoRow.style.display = 'flex';
-        // Suponiendo que es una imagen (ajustá si es PDF)
         archivoLink.innerHTML = '<a href="' + archivoUrl + '" target="_blank"><img src="' + archivoUrl + '" style="max-width:150px; max-height:150px; border-radius:6px;"></a>';
     } else {
         archivoRow.style.display = 'none';
@@ -361,7 +367,6 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
     if (estado === 'no_asistio' && noAsistioAutomatico === 'true' && puedeReactivar === 'true') {
         btnAtenderIgual.style.display = 'inline-flex';
         btnAtenderIgual.href = '/profesional/atender-igual/' + turnoId + '/';
-        // Ocultar otros botones que no tienen sentido
         document.getElementById('btn-confirmar').style.display = 'none';
         document.getElementById('btn-completar').style.display = 'none';
         document.getElementById('btn-no-asistio').style.display = 'none';
@@ -373,8 +378,7 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
         
     var partesFecha = fecha.split('/');
     var fechaISO = partesFecha[2] + '-' + partesFecha[1] + '-' + partesFecha[0];
-    document.getElementById('btn-sobreturno-modal').href = '/profesional/sobreturno-calendario/?fecha=' + fechaISO + '&hora=' + horaInicio + '&hora_fin=' + horaFin;
-    
+    document.getElementById('btn-sobreturno-modal').href = '/profesional/sobreturno-calendario/?fecha=' + fechaISO + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;    
     document.getElementById('modal-turno').classList.add('activo');
 }
 
@@ -383,8 +387,9 @@ function cerrarModalTurno() { document.getElementById('modal-turno').classList.r
 function mostrarModalSlot(fecha, horaInicio, horaFin) {
     document.getElementById('slot-info').textContent = '📅 ' + fecha.split('-').reverse().join('/');
     document.getElementById('slot-horario').textContent = '⏰ ' + horaInicio + ' - ' + horaFin;
-    document.getElementById('link-turno-normal').href = '/profesional/asignar-desde-calendario/?fecha=' + fecha + '&hora=' + horaInicio;
-    document.getElementById('link-sobreturno').href = '/profesional/sobreturno-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&hora_fin=' + horaFin;
+    document.getElementById('link-turno-normal').href = '/profesional/asignar-desde-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&profesional=' + profesionalId;
+    document.getElementById('link-sobreturno').href = '/profesional/sobreturno-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;
+    document.getElementById('link-sobreturno').href = '/profesional/sobreturno-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;
     document.getElementById('modal-slot').classList.add('activo');
 }
 

@@ -1131,7 +1131,11 @@ def asignar_turno_calendario(request):
         return redirect('home')
 
     if request.user.rol == 'secretaria':
-        profesional_id = request.GET.get('profesional')
+        if request.method == 'POST':
+            profesional_id = request.POST.get('profesional')
+        else:
+            profesional_id = request.GET.get('profesional')
+        
         if profesional_id:
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
@@ -1828,7 +1832,11 @@ def sobreturno_calendario(request):
         return redirect('home')
 
     if request.user.rol == 'secretaria':
-        profesional_id = request.GET.get('profesional')
+        if request.method == 'POST':
+            profesional_id = request.POST.get('profesional')
+        else:
+            profesional_id = request.GET.get('profesional')
+        
         if profesional_id:
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:

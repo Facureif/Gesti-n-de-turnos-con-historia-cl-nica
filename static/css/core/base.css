@@ -170,3 +170,52 @@ img {
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
 .gap-6 { gap: 24px; }
+
+/* Control de logos según el tema (forzado con !important para evitar conflictos) */
+.logo-theme-dark {
+    display: none !important;
+}
+.logo-theme-light {
+    display: inline-block !important;
+}
+
+/* Cuando el body tiene la clase dark-mode, invertimos */
+body.dark-mode .logo-theme-dark {
+    display: inline-block !important;
+}
+body.dark-mode .logo-theme-light {
+    display: none !important;
+}
+
+/* Contenedor para alinear los logos a la izquierda */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre tu logo y el del consultorio */
+}
+
+/* Tu logo (ya tiene max-height en las clases anteriores) */
+.navbar-brand .logo-theme-light, 
+.navbar-brand .logo-theme-dark {
+    max-height: 30px;
+}
+
+/* Logo del consultorio en el navbar */
+.logo-consultorio-navbar {
+    max-height: 30px;
+    width: auto;
+}
+
+/* Separador opcional */
+.navbar-separator {
+    color: #ccc;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+/* Si el consultorio no tiene logo, mostrar su nombre */
+.navbar-consultorio-nombre {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary); /* Usa el color principal del tema */
+}

@@ -32,6 +32,35 @@
             --primary: {{ cliente.color_primario|default:'#2563eb' }};
             --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
         }
+
+        /* Mostrar/Ocultar logos según el tema */
+            .logo-theme-dark {
+                display: none;
+            }
+            .logo-theme-light {
+                display: inline-block;
+            }
+
+            /* Cuando el body tiene la clase dark-mode (tema oscuro), invertimos */
+            body.dark-mode .logo-theme-dark {
+                display: inline-block;
+            }
+            body.dark-mode .logo-theme-light {
+                display: none;
+            }
+
+            /* Ajuste de tamaño (ya lo tenías, pero es mejor ponerlo aquí global) */
+            .navbar-brand img {
+                max-height: 50px; /* Reducido un poco de los 50px anteriores para que no rompa */
+                width: auto;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .navbar {
+                height: 70px;
+                display: flex;
+                align-items: center;
+            }
     </style>
 {% endif %}
     <link rel="stylesheet" href="{% static 'css/themes/default.css' %}" id="theme-css">
@@ -58,8 +87,18 @@
 <body>
     <nav class="navbar">
         <a href="{% url 'home' %}" class="navbar-brand">
-            <i class="fas fa-calendar-check"></i>
-            Gestión de Turnos
+            <!-- 1. Tu logo (SaaS)  -->
+            <img src="{% static 'img/TerminSalud.png' %}" alt="TerminSalud" class="logo-theme-light" height="30">
+            <img src="{% static 'img/TerminSalud Oscuro.png' %}" alt="TerminSalud" class="logo-theme-dark" height="30">
+
+            <!-- 2. Logo o Nombre del Consultorio  -->
+            {% if cliente.establecimiento and cliente.establecimiento.logo %}
+                <span class="navbar-separator">|</span>
+                <img src="{{ cliente.establecimiento.logo.url }}" alt="{{ cliente.establecimiento.nombre }}" class="logo-consultorio-navbar" height="30">
+            {% elif cliente %}
+                <span class="navbar-separator">|</span>
+                <span class="navbar-consultorio-nombre">{{ cliente.nombre }}</span>
+            {% endif %}
         </a>
         
         <ul class="navbar-nav">

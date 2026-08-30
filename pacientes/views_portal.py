@@ -313,6 +313,10 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         fecha_str = request.POST.get('fecha')
         hora_str = request.POST.get('hora')
         tipo_consulta = request.POST.get('tipo_consulta', '')
+        if tipo_consulta == 'Otro':
+            especificacion = request.POST.get('tipo_consulta_otro', '').strip()
+            if especificacion:
+                tipo_consulta = f"Otro: {especificacion}"
         establecimiento_id = request.POST.get('establecimiento')
         
         if not all([fecha_str, hora_str]):

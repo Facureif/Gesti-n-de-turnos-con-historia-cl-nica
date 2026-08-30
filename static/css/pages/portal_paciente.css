@@ -1408,3 +1408,103 @@ body.dark-mode .visita-medicacion strong {
     text-decoration: none;
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
+
+
+/* =============================================
+   MENÚ DESPLEGABLE "MÁS ACCIONES" - PORTAL PACIENTE
+   ============================================= */
+.menu-acciones-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* El botón protagonista (oscuro para destacar sobre el resto) */
+.portal-btn-menu {
+    background: #1e293b; 
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.portal-btn-menu:hover {
+    background: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* El menú desplegable */
+.menu-dropdown-portal {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    min-width: 220px;
+    z-index: 1000;
+    padding: 8px 0;
+    margin-top: 5px;
+}
+
+/* Estilo de cada opción del menú */
+.menu-item-portal {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.15s;
+}
+
+.menu-item-portal:hover {
+    background: var(--bg-alt);
+    color: var(--primary);
+}
+
+/* Clase para mostrar el menú (usada por JS) */
+.menu-dropdown-portal.show {
+    display: block;
+}
+
+/* Responsive: que el menú no se corte en móviles */
+@media (max-width: 768px) {
+    .menu-dropdown-portal {
+        right: auto;
+        left: 0;
+        width: 100%;
+    }
+}
+
+
+/* Saludo y Logo */
+.portal-saludo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* O center si quieres centrarlo todo */
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.logo-consultorio {
+    max-height: 100px;       /* Ajusta la altura máxima para que no se vea gigante */
+    width: auto;            /* Mantiene la proporción original */
+    object-fit: contain;    /* Asegura que no se deforme */
+    display: block;
+    margin-bottom: 5px;
+}
+
+.saludo-paciente {
+    font-size: 1.2rem;      /* Un tamaño de texto cómodo y legible */
+    color: #333;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Opcional: si el logo no está, el H1 mantiene un estilo prolijo */
+.portal-saludo h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
