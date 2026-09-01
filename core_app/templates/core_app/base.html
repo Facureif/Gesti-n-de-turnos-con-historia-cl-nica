@@ -91,10 +91,20 @@
             <img src="{% static 'img/TerminSalud.png' %}" alt="TerminSalud" class="logo-theme-light" height="30">
             <img src="{% static 'img/TerminSalud Oscuro.png' %}" alt="TerminSalud" class="logo-theme-dark" height="30">
 
-            <!-- 2. Logo o Nombre del Consultorio  -->
+            <!-- 2. Logo o Nombre del Consultorio -->
             {% if cliente.establecimiento and cliente.establecimiento.logo %}
                 <span class="navbar-separator">|</span>
-                <img src="{{ cliente.establecimiento.logo.url }}" alt="{{ cliente.establecimiento.nombre }}" class="logo-consultorio-navbar" height="30">
+                <!-- Logo para temas claros -->
+                <img src="{{ cliente.establecimiento.logo.url }}" 
+                    alt="{{ cliente.establecimiento.nombre }}" 
+                    class="logo-consultorio-navbar logo-consultorio-light">
+
+                <!-- Logo para temas oscuros (solo si el consultorio subió uno) -->
+                {% if cliente.establecimiento.logo_oscuro %}
+                    <img src="{{ cliente.establecimiento.logo_oscuro.url }}" 
+                        alt="{{ cliente.establecimiento.nombre }}" 
+                        class="logo-consultorio-navbar logo-consultorio-dark">
+                {% endif %}
             {% elif cliente %}
                 <span class="navbar-separator">|</span>
                 <span class="navbar-consultorio-nombre">{{ cliente.nombre }}</span>

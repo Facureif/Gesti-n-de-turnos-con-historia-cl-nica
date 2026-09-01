@@ -219,3 +219,25 @@ body.dark-mode .logo-theme-light {
     font-size: 1.1rem;
     color: var(--primary); /* Usa el color principal del tema */
 }
+
+/* Control de logos del consultorio en el navbar */
+.logo-consultorio-light {
+    display: inline-block !important;
+}
+.logo-consultorio-dark {
+    display: none !important;
+}
+
+/* Cuando el body tiene la clase dark-mode (tema oscuro), invertimos */
+body.dark-mode .logo-consultorio-light {
+    display: none !important;
+}
+body.dark-mode .logo-consultorio-dark {
+    display: inline-block !important;
+}
+
+/* Tamaño uniforme para ambos logos del consultorio */
+.logo-consultorio-navbar {
+    max-height: 30px !important;
+    width: auto;
+}

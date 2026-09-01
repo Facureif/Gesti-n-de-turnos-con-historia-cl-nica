@@ -80,11 +80,11 @@
                             <td><span style="font-family: monospace;">{{ p.dni }}</span></td>
                             <td>{{ p.telefono }}</td>
                             <td>
-                                {% if p.obra_social %}
-                                    <span class="sigla-badge">{{ p.obra_social.sigla }}</span>
-                                {% else %}
+                                {% for os in p.obras_sociales %}
+                                    <span class="sigla-badge">{{ os.nombre }}</span>{% if not forloop.last %}, {% endif %}
+                                {% empty %}
                                     <span class="text-muted">Particular</span>
-                                {% endif %}
+                                {% endfor %}
                             </td>
                             <td>
                                 <div class="flex gap-2">

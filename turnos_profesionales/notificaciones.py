@@ -518,3 +518,135 @@ Saludos.
     """
     html = _base_html("⚠️ Registramos tu inasistencia", contenido_html)
     enviar_correo(turno.paciente.email, asunto, texto, html)
+
+
+def notificar_sesiones_bajas(os_paciente, restantes):
+    """
+    Notifica al paciente y al profesional cuando quedan pocas sesiones (ej. 1).
+    os_paciente: instancia de PacienteObraSocial
+    restantes: número de sesiones restantes
+    """
+    if restantes != 1:
+        return  # Solo avisamos cuando queda exactamente 1
+
+    paciente = os_paciente.paciente
+    profesional = os_paciente.profesional
+    obra_social = os_paciente.obra_social
+
+    if not paciente.email:
+        return
+
+    asunto = f"⚠️ Última sesión disponible con {obra_social.nombre}"
+    texto = f"""
+Hola {paciente.nombre_completo},
+
+Te informamos que te queda **1 sesión** disponible con la obra social {obra_social.nombre}.
+
+👨‍⚕️ Profesional: {profesional.nombre_completo}
+📋 Plan: {os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}
+
+Es importante que consultes con tu obra social para renovar la autorización de sesiones si lo necesitás.
+
+Podés ver tus sesiones desde tu panel:
+{settings.URL_PANEL_PACIENTE}
+
+Saludos.
+"""
+    contenido_html = f"""
+        <p>Hola <strong>{paciente.nombre_completo}</strong>,</p>
+        <p>Te informamos que te queda <strong>1 sesión</strong> disponible con la obra social <strong>{obra_social.nombre}</strong>.</p>
+        <div class="info-box">
+            <p>👨‍⚕️ Profesional: <strong>{profesional.nombre_completo}</strong></p>
+            <p>📋 Plan: <strong>{os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}</strong></p>
+        </div>
+        <p>Es importante que consultes con tu obra social para renovar la autorización de sesiones si lo necesitás.</p>
+        <p>Podés ver tus sesiones desde tu panel:</p>
+        <p><a href="{settings.URL_PANEL_PACIENTE}" class="btn">Ver sesiones</a></p>
+        <p>Saludos.</p>
+    """
+    html = _base_html(f"⚠️ Última sesión disponible con {obra_social.nombre}", contenido_html)
+    enviar_correo(paciente.email, asunto, texto, html)
+
+    # Notificar al profesional (si tiene email)
+    if profesional.email:
+        asunto_prof = f"⚠️ Paciente {paciente.nombre_completo} se queda sin sesiones"
+        texto_prof = f"""
+Hola {profesional.nombre_completo},
+
+El paciente {paciente.nombre_completo} tiene solo 1 sesión restante con {obra_social.nombre}.
+
+📋 Plan: {os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}
+
+Saludos.
+"""
+        contenido_html_prof = f"""
+            <p>Hola <strong>{profesional.nombre_completo}</strong>,</p>
+            <p>El paciente <strong>{paciente.nombre_completo}</strong> tiene solo <strong>1 sesión</strong> restante con <strong>{obra_social.nombre}</strong>.</p>
+            <div class="info-box">
+                <p>📋 Plan: <strong>{os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}</strong></p>
+            </div>
+            <p>Saludos.</p>
+        """
+        html_prof = _base_html("⚠️ Paciente se queda sin sesiones", contenido_html_prof)
+        enviar_correo(profesional.email, asunto_prof, texto_prof, html_prof)
+
+
+def notificar_sesiones_agotadas(os_paciente):
+    """
+    Notifica al paciente y al profesional cuando las sesiones llegan a 0.
+    """
+    paciente = os_paciente.paciente
+    profesional = os_paciente.profesional
+    obra_social = os_paciente.obra_social
+
+    if not paciente.email:
+        return
+
+    asunto = f"❌ Sin sesiones disponibles con {obra_social.nombre}"
+    texto = f"""
+Hola {paciente.nombre_completo},
+
+Te informamos que ya no tenés sesiones disponibles con la obra social {obra_social.nombre}.
+
+👨‍⚕️ Profesional: {profesional.nombre_completo}
+📋 Plan: {os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}
+
+Para continuar con la atención, por favor renová la autorización de sesiones con tu obra social o consultá con el profesional.
+
+Saludos.
+"""
+    contenido_html = f"""
+        <p>Hola <strong>{paciente.nombre_completo}</strong>,</p>
+        <p>Te informamos que ya <strong>no tenés sesiones</strong> disponibles con la obra social <strong>{obra_social.nombre}</strong>.</p>
+        <div class="info-box">
+            <p>👨‍⚕️ Profesional: <strong>{profesional.nombre_completo}</strong></p>
+            <p>📋 Plan: <strong>{os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}</strong></p>
+        </div>
+        <p>Para continuar con la atención, por favor renová la autorización de sesiones con tu obra social o consultá con el profesional.</p>
+        <p>Saludos.</p>
+    """
+    html = _base_html(f"❌ Sin sesiones disponibles con {obra_social.nombre}", contenido_html)
+    enviar_correo(paciente.email, asunto, texto, html)
+
+    # Notificar al profesional
+    if profesional.email:
+        asunto_prof = f"❌ Paciente {paciente.nombre_completo} sin sesiones"
+        texto_prof = f"""
+Hola {profesional.nombre_completo},
+
+El paciente {paciente.nombre_completo} se quedó sin sesiones con {obra_social.nombre}.
+
+📋 Plan: {os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}
+
+Saludos.
+"""
+        contenido_html_prof = f"""
+            <p>Hola <strong>{profesional.nombre_completo}</strong>,</p>
+            <p>El paciente <strong>{paciente.nombre_completo}</strong> se quedó <strong>sin sesiones</strong> con <strong>{obra_social.nombre}</strong>.</p>
+            <div class="info-box">
+                <p>📋 Plan: <strong>{os_paciente.plan.nombre if os_paciente.plan else 'Sin plan'}</strong></p>
+            </div>
+            <p>Saludos.</p>
+        """
+        html_prof = _base_html("❌ Paciente sin sesiones", contenido_html_prof)
+        enviar_correo(profesional.email, asunto_prof, texto_prof, html_prof)    

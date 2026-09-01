@@ -98,7 +98,7 @@
             <ul class="dashboard-lista">
                 {% for os in obras_sociales %}
                 <li>
-                    <span>{{ os.paciente__obra_social__sigla|default:os.paciente__obra_social__nombre }}</span>
+                    <span>{{ os.obra_social__sigla|default:os.obra_social__nombre }}</span>
                     <span class="lista-valor">{{ os.total }}</span>
                 </li>
                 {% endfor %}

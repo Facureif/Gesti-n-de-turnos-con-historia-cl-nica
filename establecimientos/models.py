@@ -9,6 +9,7 @@ class Establecimiento(ModeloBase):
     email = models.EmailField(verbose_name='Email')
     cuit = models.CharField(max_length=13, verbose_name='CUIT')
     logo = models.ImageField(upload_to='logos/', blank=True, verbose_name='Logo')
+    logo_oscuro = models.ImageField(upload_to='logos/', blank=True, null=True, verbose_name='Logo para Fondo Oscuro')
     
     class Meta:
         verbose_name = 'Establecimiento'

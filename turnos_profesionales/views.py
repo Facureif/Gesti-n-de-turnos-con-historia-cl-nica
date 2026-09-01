@@ -74,6 +74,11 @@ def marcar_turnos_vencidos(profesional=None):
             os_paciente.save()
             turno.sesion_descontada = True
 
+            from .notificaciones import notificar_sesiones_bajas, notificar_sesiones_agotadas
+            if os_paciente.sesiones_restantes == 0:
+                notificar_sesiones_agotadas(os_paciente)
+            elif os_paciente.sesiones_restantes == 1:
+                notificar_sesiones_bajas(os_paciente, os_paciente.sesiones_restantes)
         turno.save()
 
 
@@ -134,7 +139,7 @@ def panel_profesional(request):
         return redirect('home') 
     
     if request.user.rol == 'secretaria':
-        # La secretaria sigue con su lógica actual
+        # Lógica para secretaria (mantené la que ya tenés)
         establecimiento_id = request.GET.get('establecimiento')
         profesional_id = request.GET.get('profesional')
         if establecimiento_id and profesional_id:
@@ -150,13 +155,10 @@ def panel_profesional(request):
         if not profesional:
             messages.error(request, 'No hay profesionales disponibles.')
             return redirect('panel_secretaria')
-        establecimientos = request.user.establecimiento.__class__.objects.filter(
-            profesionales__isnull=False
-        ).distinct() if request.user.establecimiento else []
+        establecimiento_filtro = request.user.establecimiento
         profesionales_consultorio = Profesional.objects.filter(
             establecimientos=request.user.establecimiento, activo=True
         )
-        establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
         establecimiento_filtro = get_establecimiento_activo(request, profesional)
@@ -179,7 +181,10 @@ def panel_profesional(request):
 
     turnos_hoy = list(turnos_hoy_qs)
     ahora = datetime.now()
+    sesiones_por_turno = {}
+
     for turno in turnos_hoy:
+        # Lógica de reactivación
         if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
             fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
             limite = fecha_hora_inicio + timedelta(minutes=60)
@@ -187,6 +192,27 @@ def panel_profesional(request):
         else:
             turno.puede_reactivar = False
 
+        # Obtener la OS activa con este profesional
+        os_activa = turno.paciente.mis_obras_sociales.filter(
+            profesional=turno.profesional,
+            activa=True
+        ).first()
+
+        # Guardar en atributos del turno
+        if os_activa:
+            turno.os_activa = os_activa.obra_social
+            turno.sesiones_restantes_os = os_activa.sesiones_restantes
+            turno.sesiones_autorizadas_os = os_activa.sesiones_autorizadas
+            turno.fecha_vencimiento_os = os_activa.fecha_vencimiento
+        else:
+            turno.os_activa = None
+            turno.sesiones_restantes_os = None
+            turno.sesiones_autorizadas_os = None
+            turno.fecha_vencimiento_os = None
+
+        sesiones_por_turno[turno.id] = os_activa
+
+    # Próximos turnos (próximos 7 días)
     manana = hoy + timedelta(days=1)
     proxima_semana = hoy + timedelta(days=7)
     proximos_turnos = TurnoProfesional.objects.filter(
@@ -207,13 +233,6 @@ def panel_profesional(request):
         hay_mas_proximos = hay_mas_proximos.filter(establecimiento=establecimiento_filtro)
     hay_mas_proximos = hay_mas_proximos.count() > 10
 
-    sesiones_por_turno = {}
-    for turno in turnos_hoy_qs:
-        os_paciente = turno.paciente.mis_obras_sociales.filter(
-            profesional=turno.profesional, activa=True
-        ).first()
-        sesiones_por_turno[turno.id] = os_paciente
-
     mostrar_consultorio = profesional.establecimientos.count() > 1 and not establecimiento_filtro
 
     contexto = {
@@ -223,7 +242,7 @@ def panel_profesional(request):
         'proximos_turnos': proximos_turnos,
         'hay_mas_proximos': hay_mas_proximos,
         'total_hoy': turnos_hoy_qs.count(),
-        'sesiones_por_turno': sesiones_por_turno,
+        'sesiones_por_turno': sesiones_por_turno,   # por si lo usás en el template
         'confirmados_hoy': turnos_hoy_qs.filter(estado='confirmado').count(),
         'pendientes_hoy': turnos_hoy_qs.filter(estado='pendiente').count(),
         'completados_hoy': turnos_hoy_qs.filter(estado='completado').count(),
@@ -298,8 +317,8 @@ def completar_turno(request, turno_id):
     
     turno.estado = 'completado'
     paciente = turno.paciente
-    
-    # Dentro de completar_turno, reemplazar el bloque de descuento actual por esto:
+
+    os_paciente = None
     if not turno.sesion_descontada:
         os_paciente = PacienteObraSocial.objects.filter(
             paciente=paciente,
@@ -310,10 +329,13 @@ def completar_turno(request, turno_id):
             os_paciente.sesiones_restantes -= 1
             os_paciente.save()
             turno.sesion_descontada = True
-    else:
-        # Ya estaba descontada (por inasistencia anterior), no hacer nada
-        pass
-    
+
+    if os_paciente:
+        from .notificaciones import notificar_sesiones_bajas, notificar_sesiones_agotadas
+        if os_paciente.sesiones_restantes == 0:
+            notificar_sesiones_agotadas(os_paciente)
+        elif os_paciente.sesiones_restantes == 1:
+            notificar_sesiones_bajas(os_paciente, os_paciente.sesiones_restantes)
     if paciente.plan_obra_social:
         plan = paciente.plan_obra_social
         if plan.coseguro_fijo and plan.coseguro_fijo > 0:
@@ -422,9 +444,9 @@ def no_asistio_turno(request, turno_id):
         return redirect('panel_profesional')
 
     turno.estado = 'no_asistio'
-    turno.no_asistio_automatico = False  # fue manual
+    turno.no_asistio_automatico = False
 
-    # Descontar sesión si no se había descontado antes
+    os_paciente = None
     if not turno.sesion_descontada:
         os_paciente = PacienteObraSocial.objects.filter(
             paciente=turno.paciente,
@@ -436,6 +458,13 @@ def no_asistio_turno(request, turno_id):
             os_paciente.sesiones_restantes -= 1
             os_paciente.save()
             turno.sesion_descontada = True
+
+    if os_paciente:
+        from .notificaciones import notificar_sesiones_bajas, notificar_sesiones_agotadas
+        if os_paciente.sesiones_restantes == 0:
+            notificar_sesiones_agotadas(os_paciente)
+        elif os_paciente.sesiones_restantes == 1:
+            notificar_sesiones_bajas(os_paciente, os_paciente.sesiones_restantes)
 
     turno.save()
 
@@ -1484,6 +1513,8 @@ def panel_secretaria(request):
     # Lista para el template con el atributo puede_reactivar
     turnos_hoy = list(turnos_hoy_qs)
     ahora = datetime.now()
+    sesiones_por_turno = {}
+
     for turno in turnos_hoy:
         if turno.estado == 'no_asistio' and turno.no_asistio_automatico:
             fecha_hora_inicio = datetime.combine(turno.fecha, turno.hora_inicio)
@@ -1491,6 +1522,25 @@ def panel_secretaria(request):
             turno.puede_reactivar = (ahora <= limite)
         else:
             turno.puede_reactivar = False
+
+        # Obtener la OS activa con este profesional (para el turno actual)
+        os_activa = turno.paciente.mis_obras_sociales.filter(
+            profesional=turno.profesional,
+            activa=True
+        ).first()
+
+        if os_activa:
+            turno.os_activa = os_activa.obra_social
+            turno.sesiones_restantes_os = os_activa.sesiones_restantes
+            turno.sesiones_autorizadas_os = os_activa.sesiones_autorizadas
+            turno.fecha_vencimiento_os = os_activa.fecha_vencimiento
+        else:
+            turno.os_activa = None
+            turno.sesiones_restantes_os = None
+            turno.sesiones_autorizadas_os = None
+            turno.fecha_vencimiento_os = None
+
+        sesiones_por_turno[turno.id] = os_activa
     
     # Estadísticas con el queryset original
     total_hoy = turnos_hoy_qs.count()
@@ -2159,8 +2209,8 @@ def dashboard(request):
     pendientes = turnos_periodo.filter(estado='pendiente').count()
     tasa_asistencia = round((completados / total_turnos) * 100) if total_turnos > 0 else 0
     pacientes_unicos = turnos_periodo.values('paciente').distinct().count()
-    obras_sociales = turnos_periodo.exclude(paciente__obra_social__isnull=True).values(
-        'paciente__obra_social__nombre', 'paciente__obra_social__sigla'
+    obras_sociales = turnos_periodo.exclude(obra_social__isnull=True).values(
+        'obra_social__nombre', 'obra_social__sigla'
     ).annotate(total=Count('id')).order_by('-total')[:5]
     pacientes_frecuentes = turnos_periodo.values(
         'paciente__nombre', 'paciente__apellido', 'paciente__id'

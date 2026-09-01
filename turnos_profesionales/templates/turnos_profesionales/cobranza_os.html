@@ -56,9 +56,9 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Paciente</th>
-                        <th>Tipo</th>
+                        <th>Tipo/O.S</th>
                         <th>Total</th>
-                        <th>Cubre OS</th>
+                        <th>Cubre O.S</th>
                         <th>Coseguro</th>
                         <th>Estado</th>
                         <th>Fecha Cobro</th>
@@ -76,7 +76,7 @@
                         </td>
                         <td>
                             {% if t.monto_os %}
-                                <span class="badge badge-info">{{ t.paciente.obra_social.nombre|default:"OS" }}</span>
+                                <span class="badge badge-info">{{ t.obra_social.nombre|default:"OS" }}</span>
                             {% else %}
                                 <span class="badge badge-gray">👤 Particular</span>
                             {% endif %}

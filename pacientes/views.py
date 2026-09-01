@@ -204,6 +204,7 @@ def buscar_paciente(request):
                 return redirect('seleccionar_consultorio')
 
     pacientes = []
+    obras_por_paciente = {}
     busqueda = request.GET.get('q', '').strip()
 
     if busqueda:
@@ -224,6 +225,27 @@ def buscar_paciente(request):
             pacientes = pacientes_base.filter(
                 turnoprofesional__establecimiento=establecimiento
             ).distinct()
+        
+        # Construir diccionario de obras sociales únicas por paciente
+        obras_por_paciente = {}
+        for p in pacientes:
+            if request.user.rol == 'profesional':
+                os_list = PacienteObraSocial.objects.filter(
+                    paciente=p,
+                    profesional=profesional
+                ).select_related('obra_social')
+            else:  # secretaria
+                os_list = PacienteObraSocial.objects.filter(
+                    paciente=p
+                ).select_related('obra_social')
+
+            # Obtener obras sociales únicas
+            obras_unicas = {}
+            for os in os_list:
+                if os.obra_social_id not in obras_unicas:
+                    obras_unicas[os.obra_social_id] = os.obra_social
+            # Asignar al paciente como atributo
+            p.obras_sociales = list(obras_unicas.values())
 
         pacientes = pacientes[:20]
 
