@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from core_app.models import ModeloBase
 
 
-# agendas/models.py
+
 class Agenda(ModeloBase):
     profesional = models.ForeignKey(
         'profesionales.Profesional',
@@ -19,20 +19,35 @@ class Agenda(ModeloBase):
         max_digits=10, decimal_places=2, null=True, blank=True,
         verbose_name='Precio consulta particular (en este consultorio)'
     )
+    # Obras sociales y planes específicos de este consultorio
     obras_sociales = models.ManyToManyField(
         'obras_sociales.ObraSocial',
         blank=True,
         related_name='agendas',
         verbose_name='Obras Sociales (en este consultorio)'
     )
+    planes = models.ManyToManyField(
+        'obras_sociales.Plan',
+        blank=True,
+        related_name='agendas',
+        verbose_name='Planes (en este consultorio)'
+    )
+    # Contacto específico para este consultorio (puede diferir del global)
+    email_contacto = models.EmailField(
+        blank=True, null=True,
+        verbose_name='Email de contacto (en este consultorio)'
+    )
+    telefono_contacto = models.CharField(
+        max_length=20, blank=True, null=True,
+        verbose_name='Teléfono de contacto (en este consultorio)'
+    )
     establecimiento = models.ForeignKey(
         'establecimientos.Establecimiento',
         on_delete=models.CASCADE,
-        null=False,  # ← Cambiá a False (obligatorio)
-        blank=False,  # ← Cambiá a False (obligatorio)
+        null=False,
+        blank=False,
         verbose_name='Consultorio'
     )
-    
     pacientes_simultaneos = models.IntegerField(
         default=1,
         verbose_name='Pacientes simultáneos',

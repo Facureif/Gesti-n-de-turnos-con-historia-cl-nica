@@ -96,9 +96,19 @@
                         {% if paciente.obra_social %} · {{ paciente.obra_social.sigla }}{% endif %}
                     </div>
                 </div>
-                {% if paciente.obra_social %}
-                <span class="badge badge-info paciente-option-badge">{{ paciente.obra_social.sigla }}</span>
-                {% endif %}
+                <div class="paciente-option-detalle">
+                    DNI: {{ paciente.dni }} · Tel: {{ paciente.telefono }}
+                    {% if paciente.obras_sociales_mostrar %}
+                        · 
+                        {% for os in paciente.obras_sociales_mostrar %}
+                            {{ os.nombre }}{% if os.numero_afiliado %} ({{ os.numero_afiliado }}){% endif %}
+                            {% if os.es_recomendada %}
+                                <span class="badge badge-success" style="font-size:0.7rem;">✓</span>
+                            {% endif %}
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </label>
             {% endfor %}
         </div>

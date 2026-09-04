@@ -122,9 +122,11 @@ def portal(request, cliente_slug):
             profesionales.append({
                 'profesional': prof,
                 'agenda': agenda,
-                # Si la agenda tiene precio configurado lo usamos, sino el genérico del profesional
-                'precio_particular': agenda.precio_particular if agenda else prof.precio_particular,
+                'precio_particular': agenda.precio_particular if agenda and agenda.precio_particular else prof.precio_particular,
                 'obras_sociales': agenda.obras_sociales.all() if agenda else prof.obras_sociales.all(),
+                # 'planes': agenda.planes.all() if agenda else prof.planes.all(),
+                'email_contacto': agenda.email_contacto if agenda and agenda.email_contacto else prof.email,
+                'telefono_contacto': agenda.telefono_contacto if agenda and agenda.telefono_contacto else prof.telefono,
             })
 
         # Construir especialidades para los filtros (basado en los profesionales únicos)
@@ -417,30 +419,35 @@ def sacar_turno(request, cliente_slug, profesional_id):
         return redirect('portal_cliente', cliente_slug=cliente_slug)
     
     # GET
-    if profesional.obras_sociales.exists():
-        obras_sociales = profesional.obras_sociales.filter(activo=True).prefetch_related('planes')
-    else:
-        obras_sociales = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
-
-    # Obtener alias de pago
-    alias_pago = profesional.alias_pago if hasattr(profesional, 'alias_pago') else ''
-
-    # Calcular precio particular según el contexto
-    precio_particular = None
+# Obtener agenda específica para el establecimiento del cliente
+    agenda = None
     if cliente.tipo == 'consultorio':
-        # Solo un establecimiento
         agenda = Agenda.objects.filter(
             profesional=profesional,
             establecimiento=cliente.establecimiento,
             activo=True
         ).first()
-        if agenda and agenda.precio_particular:
-            precio_particular = agenda.precio_particular
-        elif profesional.precio_particular:
-            precio_particular = profesional.precio_particular
+
+    # Obras sociales y planes desde agenda si existe, sino desde profesional
+    if agenda and agenda.obras_sociales.exists():
+        obras_sociales = agenda.obras_sociales.filter(activo=True).prefetch_related('planes')
+        planes = agenda.planes.all()
     else:
-        # Profesional independiente
+        obras_sociales = profesional.obras_sociales.filter(activo=True).prefetch_related('planes')
+        planes = profesional.planes.all()
+
+    # Alias de pago (global)
+    alias_pago = profesional.alias_pago if hasattr(profesional, 'alias_pago') else ''
+
+    # Precio particular (agenda tiene prioridad)
+    if agenda and agenda.precio_particular:
+        precio_particular = agenda.precio_particular
+    else:
         precio_particular = profesional.precio_particular
+
+    # Contacto específico
+    email_contacto = agenda.email_contacto if agenda and agenda.email_contacto else profesional.email
+    telefono_contacto = agenda.telefono_contacto if agenda and agenda.telefono_contacto else profesional.telefono
 
     return render(request, 'core_app/publico/sacar_turno.html', {
         'cliente': cliente,
@@ -448,5 +455,7 @@ def sacar_turno(request, cliente_slug, profesional_id):
         'consultorios': consultorios_disponibles,
         'obras_sociales': obras_sociales,
         'alias_pago': alias_pago,
-        'precio_particular': precio_particular,   # ← nuevo
+        'precio_particular': precio_particular,   
+        'email_contacto': email_contacto,        
+        'telefono_contacto': telefono_contacto,
     })

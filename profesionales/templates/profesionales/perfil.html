@@ -1,15 +1,61 @@
 {% extends 'core_app/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Mi Perfil - {{ profesional.nombre_completo }}{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/pages/perfil_profesional.css' %}">
+    <style>
+        .obras-sociales-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .os-checkbox-label, .plan-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+        .os-checkbox-label.activa, .plan-checkbox-label.activa {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .planes-container {
+            margin-top: 10px;
+            border-left: 3px solid #ddd;
+            padding-left: 15px;
+        }
+        .plan-item {
+            margin-bottom: 10px;
+        }
+        .plan-os-nombre {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .modal-lista-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .planes-grupo {
+            margin-bottom: 10px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="perfil-page">
-
     <div class="perfil-container">
         
         <!-- Encabezado -->
@@ -64,7 +110,6 @@
                     </select>
                     <input type="text" name="matricula" value="{{ profesional.matricula }}" placeholder="Matrícula" class="perfil-input">
                 </div>
-                
                 <textarea name="descripcion" rows="3" placeholder="Breve descripción profesional..." class="perfil-textarea">{{ profesional.descripcion }}</textarea>
                 
                 <div class="perfil-color-row">
@@ -81,58 +126,104 @@
             </button>
         </form>
         
-        <!-- ========== MIS CONSULTORIOS ========== -->
-        <div class="perfil-card">
-            <div class="consultorios-header">
-                <h3>🏥 Mis Consultorios</h3>
-                <button type="button" class="btn-guardar" style="padding: 8px 16px; font-size: 0.8rem;" onclick="abrirModalConsultorio()">
-                    ➕ Agregar
+        <!-- ========== MI CONSULTORIO (EDITABLE) ========== -->
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="guardar_consultorio_completo">
+            <input type="hidden" name="consultorio_id" value="{{ consultorio_actual.id }}">
+            
+            <div class="perfil-card">
+                <h3>🏥 Mi Consultorio</h3>
+                
+                <div class="perfil-grid-2">
+                    <input type="text" name="consultorio_nombre" value="{{ consultorio_actual.nombre }}" placeholder="Nombre del consultorio" class="perfil-input" required>
+                    <input type="text" name="consultorio_direccion" value="{{ consultorio_actual.direccion|default:'' }}" placeholder="Dirección" class="perfil-input">
+                    <input type="text" name="consultorio_telefono" value="{{ consultorio_actual.telefono|default:'' }}" placeholder="Teléfono" class="perfil-input">
+                    <input type="email" name="consultorio_email" value="{{ consultorio_actual.email|default:'' }}" placeholder="Email" class="perfil-input">
+                </div>
+                
+                <!-- <hr style="margin: 15px 0;"> -->
+                
+                <div class="perfil-grid-2">
+                    <div>
+                        <br>
+                        <label class="perfil-label">💰 Precio actual:</label>
+                        <span style="font-size:1.1rem; font-weight:bold;">
+                            {% if consultorio_actual.precio_agenda %}
+                                <span >${{ consultorio_actual.precio_agenda|floatformat:0|intcomma }}</span>
+                            {% else %}
+                                No definido
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="perfil-label">💰 Editar precio de consulta</label>
+                        <input type="number" name="precio_consultorio" step="0.01" min="0" 
+                            value="{{ consultorio_actual.precio_agenda|default:'' }}" 
+                            placeholder="Ej: 5000.00" class="perfil-input">
+                        <small style="color:#6c757d;">Dejá vacío para no modificar el precio actual.</small>
+                    </div>
+                    <!-- <div>
+                        <label class="perfil-label">💰 Precio actual </label>
+                        <input type="email" name="email_contacto" value="{{ consultorio_actual.email_contacto_agenda|default:'' }}" class="perfil-input">
+                    </div> -->
+                </div>
+                <div class="perfil-grid-2">
+                    <!-- <div>
+                        <label class="perfil-label">📞 Teléfono de contacto</label>
+                        <input type="text" name="telefono_contacto" value="{{ consultorio_actual.telefono_contacto_agenda|default:'' }}" class="perfil-input">
+                    </div> -->
+                </div>
+                
+                <hr style="margin: 15px 0;">
+                
+                <label class="perfil-label">🛡️ Obras Sociales que acepta</label>
+                <div class="obras-sociales-tags">
+                    {% for os in obras_sociales_disponibles %}
+                        <label class="os-checkbox-label {% if os.id in consultorio_actual.obras_sociales_agenda_ids %}activa{% endif %}">
+                            <input type="checkbox" name="obras_sociales_consultorio" value="{{ os.id }}" class="os-checkbox"
+                                   {% if os.id in consultorio_actual.obras_sociales_agenda_ids %}checked{% endif %}>
+                            {{ os.nombre }} ({{ os.sigla }})
+                        </label>
+                    {% endfor %}
+                </div>
+                
+                <label class="perfil-label">📋 Planes que acepta (se muestran solo de las OS seleccionadas)</label>
+                <div class="planes-container" id="planes-container">
+                    {% for os in obras_sociales_disponibles %}
+                        <div class="planes-grupo" data-os-id="{{ os.id }}" 
+                             style="{% if os.id not in consultorio_actual.obras_sociales_agenda_ids %}display:none;{% endif %}">
+                            <div class="plan-os-nombre">{{ os.nombre }}</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                                {% for plan in os.planes.all %}
+                                    <label class="plan-checkbox-label {% if plan.id in consultorio_actual.planes_agenda_ids and os.id in consultorio_actual.obras_sociales_agenda_ids %}activa{% endif %}">
+                                        <input type="checkbox" name="planes_consultorio" value="{{ plan.id }}" class="plan-checkbox"
+                                               {% if plan.id in consultorio_actual.planes_agenda_ids and os.id in consultorio_actual.obras_sociales_agenda_ids %}checked{% endif %}>
+                                        {{ plan.nombre }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="btn-guardar btn-guardar-block" style="margin-top: 15px;">
+                    💾 Guardar Consultorio
                 </button>
             </div>
-            
-            {% if mis_consultorios %}
-                {% for est in mis_consultorios %}
-                <div class="consultorio-item">
-                    <div class="consultorio-info">
-                        <div class="consultorio-nombre">{{ est.nombre }}</div>
-                        <div class="consultorio-detalle">
-                            {{ est.direccion|default:"Sin dirección" }} · {{ est.telefono|default:"Sin teléfono" }}
-                        </div>
-                    </div>
-                    <div class="consultorio-acciones">
-                        <button class="btn-accion-outline editar" onclick="editarConsultorio('{{ est.id }}', '{{ est.nombre|escapejs }}', '{{ est.direccion|escapejs }}', '{{ est.telefono|escapejs }}', '{{ est.email|escapejs }}')">
-                            ✏️
-                        </button>
-                        <form method="post" style="display: inline;" onsubmit="return confirm('¿Eliminar este consultorio?')">
-                            {% csrf_token %}
-                            <input type="hidden" name="accion" value="eliminar_consultorio">
-                            <input type="hidden" name="consultorio_id" value="{{ est.id }}">
-                            <button type="submit" class="btn-accion-outline eliminar">🗑️</button>
-                        </form>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="perfil-vacio">
-                    <p>No tenés consultorios agregados.</p>
-                </div>
-            {% endif %}
-        </div>
+        </form>
         
-        <!-- ========== HORARIOS ========== -->
+        <!-- ========== HORARIOS (solo lectura) ========== -->
         <div class="perfil-card">
             <h3>⏰ Horarios de Atención</h3>
-            
-            {% with agendas=profesional.agenda_set.all %}
-                {% if agendas %}
-                    {% for agenda in agendas %}
+            {% with agenda=agenda_actual %}
+                {% if agenda %}
                     <div class="agenda-item">
                         <div class="agenda-header">
                             <i class="fas fa-building"></i>
                             {{ agenda.establecimiento.nombre }}
-                            <span class="simultaneos">{{ agenda.pacientes_simultaneos }} paciente(s)</span>
+                            <span class="simultaneos">{{ agenda.pacientes_simultaneos }} pacientes simultaneos</span>
                         </div>
-                        
                         {% if agenda.horarios.all %}
                             <table class="agenda-tabla">
                                 <thead>
@@ -155,161 +246,70 @@
                                 </tbody>
                             </table>
                         {% else %}
-                            <div class="perfil-vacio">
-                                <p>Sin horarios configurados</p>
-                            </div>
+                            <p>Sin horarios configurados</p>
                         {% endif %}
                     </div>
-                    {% endfor %}
                 {% else %}
-                    <div class="perfil-vacio">
-                        <p>No tenés agendas configuradas.</p>
-                    </div>
+                    <p>No tenés agenda para este consultorio.</p>
                 {% endif %}
             {% endwith %}
         </div>
         
-        <!-- ========== OBRAS SOCIALES ========== -->
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="accion" value="guardar_obras_sociales">
-            
-            <div class="perfil-card">
-                <h3>🏥 Obras Sociales y Planes que acepto</h3>
-                
-                <!-- Obras sociales disponibles -->
-                <div class="obras-sociales-tags">
-                    {% for os in obras_sociales_disponibles %}
-                    <label class="os-checkbox-label {% if os in profesional.obras_sociales.all %}activa{% endif %}">
-                        <input type="checkbox" name="obras_sociales" value="{{ os.id }}"
-                               {% if os in profesional.obras_sociales.all %}checked{% endif %}>
-                        {{ os.nombre }}
-                        <span class="os-sigla">({{ os.sigla }})</span>
-                    </label>
-                    {% endfor %}
-                </div>
-                
-                <!-- Planes por obra social -->
-                {% if profesional.obras_sociales.exists %}
-                <div class="planes-container">
-                    {% for os in profesional.obras_sociales.all %}
-                    <div class="plan-item">
-                        <div style="width: 100%;">
-                            <div class="plan-os-nombre">{{ os.nombre }}</div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                {% for plan in os.planes.all %}
-                                <label class="plan-checkbox-label {% if plan in profesional.planes.all %}activa{% endif %}">
-                                    <input type="checkbox" name="planes" value="{{ plan.id }}"
-                                           {% if plan in profesional.planes.all %}checked{% endif %}>
-                                    {{ plan.nombre }}
-                                </label>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                <button type="submit" class="btn-guardar btn-guardar-block" style="margin-top: 14px;">
-                    💾 Guardar Obras Sociales
-                </button>
-            </div>
-        </form>
-        
     </div>
-
-    <!-- ========== MODAL CONSULTORIO ========== -->
-    <div class="modal-overlay" id="modal-consultorio">
-        <div class="modal-dialog">
-            <h3 id="modal-titulo">Agregar Consultorio</h3>
-            
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="accion" id="modal-accion" value="agregar_consultorio">
-                <input type="hidden" name="consultorio_id" id="modal-id">
-                
-                <input type="text" name="consultorio_nombre" id="modal-nombre" placeholder="Nombre *" class="perfil-input" required>
-                <input type="text" name="consultorio_direccion" id="modal-direccion" placeholder="Dirección" class="perfil-input">
-                <input type="text" name="consultorio_telefono" id="modal-telefono" placeholder="Teléfono" class="perfil-input">
-                <input type="email" name="consultorio_email" id="modal-email" placeholder="Email" class="perfil-input">
-                
-                <div class="modal-botones">
-                    <button type="submit" class="btn-guardar">Guardar</button>
-                    <button type="button" class="btn-cancelar" onclick="cerrarModalConsultorio()">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
 </div>
 
 <!-- ========== SCRIPTS ========== -->
 <script>
-function abrirModalConsultorio() {
-    document.getElementById('modal-titulo').textContent = 'Agregar Consultorio';
-    document.getElementById('modal-accion').value = 'agregar_consultorio';
-    document.getElementById('modal-id').value = '';
-    document.getElementById('modal-nombre').value = '';
-    document.getElementById('modal-direccion').value = '';
-    document.getElementById('modal-telefono').value = '';
-    document.getElementById('modal-email').value = '';
-    document.getElementById('modal-consultorio').classList.add('activo');
-}
-
-function editarConsultorio(id, nombre, direccion, telefono, email) {
-    document.getElementById('modal-titulo').textContent = 'Editar Consultorio';
-    document.getElementById('modal-accion').value = 'editar_consultorio';
-    document.getElementById('modal-id').value = id;
-    document.getElementById('modal-nombre').value = nombre;
-    document.getElementById('modal-direccion').value = direccion;
-    document.getElementById('modal-telefono').value = telefono;
-    document.getElementById('modal-email').value = email;
-    document.getElementById('modal-consultorio').classList.add('activo');
-}
-
-function cerrarModalConsultorio() {
-    document.getElementById('modal-consultorio').classList.remove('activo');
-}
-
-// Cerrar modal al hacer clic fuera
-document.getElementById('modal-consultorio').addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.classList.remove('activo');
-    }
-});
-
-// Cerrar modal con tecla Escape
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        cerrarModalConsultorio();
-    }
-});
-
-// Script para resaltar Obras Sociales y Planes al hacer clic
-    document.addEventListener('DOMContentLoaded', function() {
-        // Selecciona todas las etiquetas (labels) de obras sociales y planes
-        const labels = document.querySelectorAll('.os-checkbox-label, .plan-checkbox-label');
-        
-        labels.forEach(label => {
-            label.addEventListener('click', function(e) {
-                // Encontramos el input checkbox dentro de esta etiqueta
-                const checkbox = this.querySelector('input[type="checkbox"]');
-                
-                // Si el checkbox existe, invertimos su estado
-                if (checkbox) {
-                    // Hacemos un pequeño timeout para permitir que el navegador cambie el estado del checkbox
-                    setTimeout(() => {
-                        if (checkbox.checked) {
-                            this.classList.add('activa');
-                        } else {
-                            this.classList.remove('activa');
-                        }
-                    }, 10);
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar visibilidad de planes según obras sociales seleccionadas
+    const osCheckboxes = document.querySelectorAll('.os-checkbox');
+    
+    function updatePlanesVisibility() {
+        osCheckboxes.forEach(cb => {
+            const osId = cb.value;
+            const grupo = document.querySelector(`.planes-grupo[data-os-id="${osId}"]`);
+            if (grupo) {
+                if (cb.checked) {
+                    grupo.style.display = 'block';
+                } else {
+                    grupo.style.display = 'none';
+                    // Desmarcar planes de esta OS
+                    grupo.querySelectorAll('.plan-checkbox').forEach(planCb => {
+                        planCb.checked = false;
+                        // Actualizar clase activa del label
+                        const label = planCb.closest('.plan-checkbox-label');
+                        if (label) label.classList.remove('activa');
+                    });
                 }
-            });
+            }
+        });
+    }
+    
+    // Asignar evento a cada checkbox de OS
+    osCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updatePlanesVisibility);
+    });
+    
+    // Actualizar al cargar
+    updatePlanesVisibility();
+    
+    // Resaltar checkboxes al hacer clic (clases activas)
+    const labels = document.querySelectorAll('.os-checkbox-label, .plan-checkbox-label');
+    labels.forEach(label => {
+        label.addEventListener('click', function(e) {
+            const checkbox = this.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                setTimeout(() => {
+                    if (checkbox.checked) {
+                        this.classList.add('activa');
+                    } else {
+                        this.classList.remove('activa');
+                    }
+                }, 10);
+            }
         });
     });
+});
 </script>
 
 {% endblock %}

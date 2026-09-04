@@ -1498,7 +1498,7 @@ body.dark-mode .visita-medicacion strong {
 
 .saludo-paciente {
     font-size: 1.2rem;      /* Un tamaño de texto cómodo y legible */
-    color: #333;
+    /* color: #333; */
     margin: 0;
     font-weight: 500;
 }

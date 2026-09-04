@@ -29,14 +29,26 @@
             <i class="fas fa-id-card"></i>
             DNI: {{ paciente.dni }}
         </div>
-        {% if obra_social_activa %}
-        <div class="paciente-info-item">
-            <i class="fas fa-shield-alt"></i>
-            {{ obra_social_activa.obra_social.nombre }}
-            {% if obra_social_activa.numero_afiliado %}
-                (N° Afiliado: {{ obra_social_activa.numero_afiliado }})
-            {% endif %}
-        </div>
+        {% if obras_sociales_mostrar %}
+            {% for os in obras_sociales_mostrar %}
+                <div class="paciente-info-item">
+                    <i class="fas fa-shield-alt"></i>
+                    {{ os.nombre }}
+                    {% if os.numero_afiliado %}
+                        (N° Afiliado: {{ os.numero_afiliado }})
+                    {% endif %}
+                    {% if os.es_recomendada %}
+                        <span class="badge badge-success" style="margin-left: 5px;">
+                            <i class="fas fa-check-circle"></i> Usar esta
+                        </span>
+                    {% endif %}
+                    {% if os.sesiones_restantes is not None %}
+                        <span class="badge badge-info" style="margin-left: 5px;">
+                            {{ os.sesiones_restantes }} sesiones
+                        </span>
+                    {% endif %}
+                </div>
+            {% endfor %}
         {% endif %}
         {% if paciente.sesiones_restantes is not None %}
         <div class="paciente-info-item">

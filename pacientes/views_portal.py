@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -289,12 +291,63 @@ def sacar_turno_paciente(request, profesional_id=None):
                 activo=True
             ).distinct()[:10]
     
-    return render(request, 'pacientes/portal/elegir_profesional.html', {
+    # Construir datos para plantilla
+    profesionales_data = []
+    horarios_json = {}
+    
+    for prof in profesionales:
+        # Agendas activas del profesional
+        agendas_qs = Agenda.objects.filter(
+            profesional=prof,
+            activo=True
+        ).select_related('establecimiento')
+        
+        # Filtrar por establecimiento del cliente si es consultorio
+        if cliente and cliente.tipo == 'consultorio':
+            agendas_qs = agendas_qs.filter(establecimiento=cliente.establecimiento)
+        
+        agendas_info = []
+        for agenda in agendas_qs:
+            # Precio específico de la agenda o el general del profesional
+            precio = agenda.precio_particular if agenda.precio_particular is not None else prof.precio_particular
+            # Horarios de esta agenda (para el modal de orden de llegada)
+            horarios_agenda = []
+            for h in agenda.horarios.all():
+                horarios_agenda.append({
+                    'establecimiento': agenda.establecimiento.nombre,
+                    'dia': h.get_dia_display(),
+                    'inicio': h.hora_inicio.strftime('%H:%M'),
+                    'fin': h.hora_fin.strftime('%H:%M'),
+                })
+            agendas_info.append({
+                'establecimiento': agenda.establecimiento,
+                'precio': precio,
+                'obras_sociales': agenda.obras_sociales.all(),
+                'planes': agenda.planes.all(),
+                'horarios': horarios_agenda,
+            })
+        
+        profesionales_data.append({
+            'profesional': prof,
+            'agendas': agendas_info,
+            'cantidad_agendas': len(agendas_info),
+        })
+        
+        # Si atiende por orden, guardar horarios para el modal
+        if prof.atiende_por_orden:
+            horarios_prof = []
+            for agenda_info in agendas_info:
+                horarios_prof.extend(agenda_info['horarios'])
+            horarios_json[str(prof.id)] = horarios_prof
+    
+    context = {
         'paciente': paciente,
-        'profesionales': profesionales,
+        'profesionales_data': profesionales_data,
         'cliente': cliente,
-    })
-
+        'horarios_json': json.dumps(horarios_json),
+    }
+    
+    return render(request, 'pacientes/portal/elegir_profesional.html', context)
 
 def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=None):
     """Muestra el formulario para que el paciente elija fecha y hora."""
@@ -381,7 +434,7 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
         
-        archivo_subido = request.FILES.get('archivo')  # toma el archivo del formulario
+        archivo_subido = request.FILES.get('archivo')
         turno = TurnoProfesional.objects.create(
             profesional=profesional,
             establecimiento=establecimiento,
@@ -394,7 +447,6 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
             archivo=archivo_subido            
         )
 
-        # Guardar comprobante de pago
         comprobante = request.FILES.get('comprobante')
         if comprobante:
             turno.comprobante_pago = comprobante   
@@ -414,7 +466,6 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
             fecha_inicio__lte=hoy + timedelta(days=30)
         )
     else:
-        # Si hay cliente consultorio, filtrar por su establecimiento
         if cliente and cliente.tipo == 'consultorio':
             agendas = Agenda.objects.filter(
                 profesional=profesional,
@@ -483,33 +534,40 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
                             'slots': slots
                         })
 
-    # Obtener alias de pago (ya lo tenés en el modelo Profesional)
+    # Obtener alias de pago
     alias_pago = profesional.alias_pago if profesional.alias_pago else None
 
-    # Obtener precio particular según la agenda activa del establecimiento
+    # Obtener precio particular y obras sociales/planes de la agenda activa
     precio_particular = None
+    obras_sociales_agenda = profesional.obras_sociales.all()
+    planes_agenda = profesional.planes.all()
+    
     if establecimiento_seleccionado:
         agenda_activa = Agenda.objects.filter(
             profesional=profesional,
             establecimiento=establecimiento_seleccionado,
             activo=True
         ).first()
-        if agenda_activa and agenda_activa.precio_particular:
-            precio_particular = agenda_activa.precio_particular
+        if agenda_activa:
+            if agenda_activa.precio_particular:
+                precio_particular = agenda_activa.precio_particular
+            obras_sociales_agenda = agenda_activa.obras_sociales.all()
+            planes_agenda = agenda_activa.planes.all()
     elif cliente and cliente.tipo == 'consultorio':
         agenda_activa = Agenda.objects.filter(
             profesional=profesional,
             establecimiento=cliente.establecimiento,
             activo=True
         ).first()
-        if agenda_activa and agenda_activa.precio_particular:
-            precio_particular = agenda_activa.precio_particular
+        if agenda_activa:
+            if agenda_activa.precio_particular:
+                precio_particular = agenda_activa.precio_particular
+            obras_sociales_agenda = agenda_activa.obras_sociales.all()
+            planes_agenda = agenda_activa.planes.all()
 
-    # Si no hay precio en la agenda, usar el genérico del profesional (opcional)
     if not precio_particular:
         precio_particular = profesional.precio_particular
 
-    # Agregar al contexto existente
     return render(request, 'pacientes/portal/sacar_turno.html', {
         'paciente': paciente,
         'profesional': profesional,
@@ -517,8 +575,10 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         'hoy': hoy,
         'establecimiento_seleccionado': establecimiento_seleccionado,
         'cliente': cliente,
-        'alias_pago': alias_pago,                 
-        'precio_particular': precio_particular,   
+        'alias_pago': alias_pago,
+        'precio_particular': precio_particular,
+        'obras_sociales': obras_sociales_agenda,
+        'planes': planes_agenda,
     })
 
 

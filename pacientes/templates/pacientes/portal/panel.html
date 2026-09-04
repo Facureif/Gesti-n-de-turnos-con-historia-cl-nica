@@ -13,12 +13,12 @@
 
     <!-- Saludo -->
     <div class="portal-saludo">
-        {% if cliente.establecimiento.logo %}
+        <!-- {% if cliente.establecimiento.logo %}
             <img src="{{ cliente.establecimiento.logo.url }}" alt="Logo {{ cliente.establecimiento.nombre }}" class="logo-consultorio">
         {% else %}
             <h1>🏥 {{ cliente.nombre }}</h1>
-        {% endif %}
-
+        {% endif %} -->
+        <br>
         {% if paciente %}
             <p class="saludo-paciente">👋 Hola, {{ paciente.nombre }}</p>
         {% endif %}
@@ -39,48 +39,6 @@
                 <a href="{% url 'cambiar_password' %}" class="menu-item-portal">🔒 Cambiar Contraseña</a>
             </div>
         </div>
-    </div>
-
-    <!-- Sesiones -->
-    {% if obras_sociales_paciente %}
-    <div class="portal-card sesiones-card">
-        <div class="portal-card-header">
-            <h3>🎫 Tus Sesiones</h3>
-        </div>
-        {% for os in obras_sociales_paciente %}
-            {% if os.activa and os.sesiones_restantes is not None %}
-            <div class="sesion-item">
-                <div class="sesion-numero">
-                    <div class="numero">{{ os.sesiones_restantes }}</div>
-                    <div class="etiqueta">Restantes</div>
-                </div>
-                <div class="sesion-detalle">
-                    <div class="obra-social-nombre">{{ os.obra_social.nombre }}</div>
-                    <div class="info">
-                        {{ os.sesiones_autorizadas }} sesiones autorizadas
-                        {% if os.profesional %}
-                            · <strong>{{ os.profesional.nombre_completo }}</strong>
-                        {% endif %}
-                    </div>
-                    {% if os.fecha_vencimiento %}
-                    <div class="vencimiento {% if os.fecha_vencimiento < hoy %}vencido{% endif %}">
-                        Vence: {{ os.fecha_vencimiento|date:"d/m/Y" }}
-                        {% if os.fecha_vencimiento < hoy %}⚠️ Vencido{% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Aviso de cancelación -->
-    <div class="portal-aviso">
-        <p>
-            ⚠️ <strong>Importante:</strong> Si cancelás un turno con menos de 24 horas de anticipación, 
-            se descontará una sesión de tu obra social.
-        </p>
     </div>
 
     <!-- Próximos Turnos -->
@@ -130,6 +88,48 @@
                 <p>No tenés turnos pendientes.</p>
             </div>
         {% endif %}
+    </div>
+    
+    <!-- Sesiones -->
+    {% if obras_sociales_paciente %}
+    <div class="portal-card sesiones-card">
+        <div class="portal-card-header">
+            <h3>🎫 Tus Sesiones</h3>
+        </div>
+        {% for os in obras_sociales_paciente %}
+            {% if os.activa and os.sesiones_restantes is not None %}
+            <div class="sesion-item">
+                <div class="sesion-numero">
+                    <div class="numero">{{ os.sesiones_restantes }}</div>
+                    <div class="etiqueta">Restantes</div>
+                </div>
+                <div class="sesion-detalle">
+                    <div class="obra-social-nombre">{{ os.obra_social.nombre }}</div>
+                    <div class="info">
+                        {{ os.sesiones_autorizadas }} sesiones autorizadas
+                        {% if os.profesional %}
+                            · <strong>{{ os.profesional.nombre_completo }}</strong>
+                        {% endif %}
+                    </div>
+                    {% if os.fecha_vencimiento %}
+                    <div class="vencimiento {% if os.fecha_vencimiento < hoy %}vencido{% endif %}">
+                        Vence: {{ os.fecha_vencimiento|date:"d/m/Y" }}
+                        {% if os.fecha_vencimiento < hoy %}⚠️ Vencido{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Aviso de cancelación -->
+    <div class="portal-aviso">
+        <p>
+            ⚠️ <strong>Importante:</strong> Si cancelás un turno con menos de 24 horas de anticipación, 
+            se descontará una sesión de tu obra social.
+        </p>
     </div>
 
     <!-- Últimas Visitas -->

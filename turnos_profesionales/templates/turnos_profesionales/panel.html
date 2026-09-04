@@ -116,27 +116,25 @@
                             <span class="text-muted">Particular</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td style="min-width: 120px;">
                         {% if turno.sesiones_restantes_os is not None %}
-                            {% if turno.sesiones_restantes_os > 5 %}
-                                <span class="badge badge-info">Quedan {{ turno.sesiones_restantes_os }}/{{ turno.sesiones_autorizadas_os|default:"?" }}</span>
-                            {% elif turno.sesiones_restantes_os >= 1 %}
-                                <span class="badge badge-warning">Quedan {{ turno.sesiones_restantes_os }}/{{ turno.sesiones_autorizadas_os|default:"?" }}</span>
-                            {% elif turno.sesiones_restantes_os == 0 %}
-                                <span class="badge badge-danger">0/{{ turno.sesiones_autorizadas_os|default:"?" }} <i class="fas fa-exclamation-circle"></i></span>
-                            {% else %}
-                                <span class="badge badge-danger">{{ turno.sesiones_restantes_os }}/{{ turno.sesiones_autorizadas_os|default:"?" }} <i class="fas fa-exclamation-triangle"></i></span>
-                            {% endif %}
-
-                            {% if turno.fecha_vencimiento_os %}
-                                <div style="font-size: 0.7rem; margin-top: 2px;">
-                                    {% if turno.fecha_vencimiento_os < hoy %}
-                                        <span style="color: red; font-weight: bold;">Vencida {{ turno.fecha_vencimiento_os|date:"d/m/Y" }}</span>
-                                    {% elif turno.fecha_vencimiento_os <= hoy|date:"Y-m-d"|add:"7 days" %}
-                                        <span style="color: orange; font-weight: bold;">Vence pronto {{ turno.fecha_vencimiento_os|date:"d/m/Y" }}</span>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
+                            {% with total=turno.sesiones_autorizadas_os|default:0 restantes=turno.sesiones_restantes_os %}
+                                {% if total > 0 %}
+                                    {% with porcentaje=restantes|floatformat:0|add:0 %}
+                                        {% widthratio restantes total 100 as ancho %}
+                                        <div style="background: #e9ecef; border-radius: 10px; height: 8px; width: 100%;">
+                                            <div style="width: {{ ancho }}%; height: 8px; border-radius: 10px; background-color: 
+                                                {% if restantes > 5 %}#28a745
+                                                {% elif restantes >= 2 %}#fd7e14
+                                                {% else %}#dc3545{% endif %};">
+                                            </div>
+                                        </div>
+                                        <small style="font-size: 0.7rem; color: {% if restantes <= 2 %}#dc3545{% else %}#6c757d{% endif %};">
+                                            {{ restantes }} de {{ total }} sesiones
+                                        </small>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endwith %}
                         {% else %}
                             <span class="text-muted">—</span>
                         {% endif %}

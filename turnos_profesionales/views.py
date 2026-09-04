@@ -690,6 +690,8 @@ def api_calendario_proximo_control(request, turno_id):
     return JsonResponse({'dias': dias})
 
 # ============ ASIGNAR TURNO ============
+from core_app.utils import obtener_obras_sociales_para_mostrar
+
 @login_required
 def asignar_turno(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
@@ -721,9 +723,7 @@ def asignar_turno(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
 
-    obra_social_activa = PacienteObraSocial.objects.filter(
-        paciente=paciente, profesional=profesional, activa=True
-    ).first()
+    obras_sociales_mostrar = obtener_obras_sociales_para_mostrar(paciente, profesional)
     
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
@@ -849,7 +849,7 @@ def asignar_turno(request, paciente_id):
         'dias_disponibles': dias_disponibles, 'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
         'max_simultaneos': max_simultaneos,
-        'obra_social_activa': obra_social_activa,
+        'obras_sociales_mostrar': obras_sociales_mostrar,
     })
 
 
@@ -1151,7 +1151,7 @@ def calendario_semanal(request):
     })
 
 # ============ ASIGNAR TURNO DESDE CALENDARIO ============
-
+from core_app.utils import obtener_obras_sociales_para_mostrar
 from core_app.utils import get_establecimiento_activo
 
 @login_required
@@ -1292,6 +1292,13 @@ def asignar_turno_calendario(request):
 
         pacientes = pacientes[:15]
 
+        pacientes_con_os = []
+        for paciente in pacientes:
+            obras = obtener_obras_sociales_para_mostrar(paciente, profesional)
+            paciente.obras_sociales_mostrar = obras
+            pacientes_con_os.append(paciente)
+        pacientes = pacientes_con_os
+
     return render(request, 'turnos_profesionales/asignar_calendario.html', {
         'profesional': profesional,
         'fecha': fecha,
@@ -1302,6 +1309,7 @@ def asignar_turno_calendario(request):
         'pacientes': pacientes,
         'busqueda': busqueda,
         'establecimiento_activo': establecimiento_filtro,
+        'pacientes': pacientes
     })
 
 
