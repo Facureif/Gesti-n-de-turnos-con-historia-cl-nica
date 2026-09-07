@@ -70,3 +70,12 @@ def obtener_obras_sociales_para_mostrar(paciente, profesional=None):
                 'es_recomendada': False,
             })
         return resultado
+
+
+from .models import ClienteSaaS
+
+def get_cliente_actual(request):
+    slug = request.session.get('cliente_slug')
+    if slug:
+        return ClienteSaaS.objects.filter(slug=slug, activo=True).first()
+    return None    

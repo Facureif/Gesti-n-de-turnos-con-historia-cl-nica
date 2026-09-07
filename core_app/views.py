@@ -12,7 +12,7 @@ def home(request):
             return redirect('panel_secretaria')
         elif request.user.rol == 'paciente':
             return redirect('panel_paciente')
-    return redirect('portal_cliente', cliente_slug='salta')  # O al que quieras por defecto
+    return redirect('portal_cliente', cliente_slug='salta')  
 
 
 # core_app/views.py

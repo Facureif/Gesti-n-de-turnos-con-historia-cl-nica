@@ -8,7 +8,7 @@ from datetime import date, timedelta, datetime
 
 from establecimientos.models import Establecimiento
 from core_app.models import ClienteSaaS, ConfiguracionSistema
-from historias_clinicas.models import Evolucion
+from historias_clinicas.models import Evolucion, PlanAlimentacion
 from obras_sociales.models import ObraSocial, Plan
 from turnos.models import Turno
 
@@ -792,15 +792,43 @@ def mis_ejercicios(request):
         'ejercicios': ejercicios,
     })
 
-from historias_clinicas.models import Ejercicio, PlanAlimentacion
-
 @login_required
 def mis_indicaciones(request):
     if request.user.rol != 'paciente':
         return redirect('home')
+
     paciente = get_object_or_404(Paciente, usuario=request.user)
-    ejercicios = Ejercicio.objects.filter(paciente=paciente).order_by('-fecha')
-    planes = PlanAlimentacion.objects.filter(paciente=paciente).order_by('-fecha')
+
+    # Obtener cliente activo desde la sesión
+    cliente_slug = request.session.get('cliente_slug')
+    cliente = None
+    if cliente_slug:
+        try:
+            cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+        except ClienteSaaS.DoesNotExist:
+            pass
+
+    # Base de ejercicios y planes del paciente
+    ejercicios = Ejercicio.objects.filter(paciente=paciente)
+    planes = PlanAlimentacion.objects.filter(paciente=paciente)
+
+    # Filtrar por cliente si existe
+    if cliente:
+        if cliente.tipo == 'consultorio':
+            # Profesionales que atienden en el consultorio del cliente
+            profesionales_cliente = Profesional.objects.filter(
+                establecimientos=cliente.establecimiento
+            )
+            ejercicios = ejercicios.filter(profesional__in=profesionales_cliente)
+            planes = planes.filter(profesional__in=profesionales_cliente)
+        else:  # profesional independiente
+            ejercicios = ejercicios.filter(profesional=cliente.profesional)
+            planes = planes.filter(profesional=cliente.profesional)
+
+    # Ordenar
+    ejercicios = ejercicios.order_by('-fecha')
+    planes = planes.order_by('-fecha')
+
     return render(request, 'pacientes/portal/mis_indicaciones.html', {
         'paciente': paciente,
         'ejercicios': ejercicios,

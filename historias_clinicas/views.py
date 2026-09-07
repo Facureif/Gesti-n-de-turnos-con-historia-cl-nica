@@ -1,24 +1,71 @@
-from .models import Ejercicio, ImagenEjercicio, PlanAlimentacion, ImagenPlanAlimentacion
-from profesionales.models import Profesional
-from pacientes.models import Paciente
+# historias_clinicas/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 
+from core_app.utils import get_cliente_actual
+from profesionales.models import Profesional
+from pacientes.models import Paciente
+from turnos_profesionales.models import TurnoProfesional
+from .models import Ejercicio, ImagenEjercicio, PlanAlimentacion, ImagenPlanAlimentacion
+
+
+def _paciente_pertenece_a_cliente(paciente, cliente):
+    """Verifica si un paciente tiene al menos un turno con un profesional del cliente."""
+    if not cliente:
+        return False
+    if cliente.tipo == 'consultorio':
+        # El paciente tiene turnos con profesionales que atienden en el establecimiento del cliente
+        return TurnoProfesional.objects.filter(
+            paciente=paciente,
+            profesional__establecimientos=cliente.establecimiento
+        ).exists()
+    else:  # profesional independiente
+        return TurnoProfesional.objects.filter(
+            paciente=paciente,
+            profesional=cliente.profesional
+        ).exists()
+
+
+def _obtener_paciente_validado(request, paciente_id):
+    """Obtiene el paciente solo si pertenece al cliente activo."""
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return None, None
+
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    if not _paciente_pertenece_a_cliente(paciente, cliente):
+        messages.error(request, 'No tenés acceso a este paciente.')
+        return None, None
+
+    # Verificar permisos según rol
+    if request.user.rol == 'profesional':
+        profesional = get_object_or_404(Profesional, usuario=request.user)
+        # El profesional debe atender en el cliente y tener turnos con el paciente
+        if cliente.tipo == 'consultorio':
+            if cliente.establecimiento not in profesional.establecimientos.all():
+                messages.error(request, 'No pertenecés a este consultorio.')
+                return None, None
+        else:
+            if profesional != cliente.profesional:
+                messages.error(request, 'No pertenecés a este profesional.')
+                return None, None
+        return paciente, profesional
+    else:  # secretaria
+        return paciente, None
 
 
 @login_required
 def ejercicios_paciente(request, paciente_id):
-    """Lista los ejercicios asignados a un paciente (vista profesional)."""
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-    if request.user.rol == 'profesional':
-        profesional = get_object_or_404(Profesional, usuario=request.user)
-    else:
-        profesional = None
 
-    # Solo la secretaria puede ver ejercicios de todos (por ahora)
+    paciente, profesional = _obtener_paciente_validado(request, paciente_id)
+    if paciente is None:
+        return redirect('home')
+
     puede_ver_ejercicios = profesional.permite_ejercicios if profesional else True
 
     ejercicios = Ejercicio.objects.filter(paciente=paciente).order_by('-fecha')
@@ -27,18 +74,18 @@ def ejercicios_paciente(request, paciente_id):
         'paciente': paciente,
         'ejercicios': ejercicios,
         'profesional': profesional,
-        'puede_ver_ejercicios': puede_ver_ejercicios,   # ← pasamos al template
+        'puede_ver_ejercicios': puede_ver_ejercicios,
     })
+
 
 @login_required
 def agregar_ejercicio(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-    if request.user.rol == 'profesional':
-        profesional = get_object_or_404(Profesional, usuario=request.user)
-    else:
-        profesional = None
+
+    paciente, profesional = _obtener_paciente_validado(request, paciente_id)
+    if paciente is None:
+        return redirect('home')
 
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -51,9 +98,20 @@ def agregar_ejercicio(request, paciente_id):
             messages.error(request, 'El nombre del ejercicio es obligatorio.')
             return redirect('agregar_ejercicio', paciente_id=paciente.id)
 
-        # Crear el ejercicio UNA sola vez
+        # Si es secretaria y no hay profesional, asignamos el profesional principal del cliente
+        if not profesional:
+            cliente = get_cliente_actual(request)
+            if cliente and cliente.tipo == 'profesional':
+                profesional = cliente.profesional
+            elif cliente and cliente.tipo == 'consultorio' and cliente.establecimiento:
+                # Tomamos el primer profesional que atienda en ese consultorio (o lo dejamos None)
+                primer_profesional = Profesional.objects.filter(
+                    establecimientos=cliente.establecimiento, activo=True
+                ).first()
+                profesional = primer_profesional
+
         ejercicio = Ejercicio.objects.create(
-            profesional=profesional if profesional else Profesional.objects.first(),  # fallback
+            profesional=profesional,  # Puede ser None, permitido
             paciente=paciente,
             nombre=nombre,
             series=series,
@@ -62,7 +120,6 @@ def agregar_ejercicio(request, paciente_id):
             link_video=link_video,
         )
 
-        # Guardar imágenes
         imagenes = request.FILES.getlist('imagenes')
         for imagen in imagenes:
             ImagenEjercicio.objects.create(ejercicio=ejercicio, imagen=imagen)
@@ -70,7 +127,6 @@ def agregar_ejercicio(request, paciente_id):
         messages.success(request, 'Ejercicio agregado correctamente.')
         return redirect('ejercicios_paciente', paciente_id=paciente.id)
 
-    # GET
     return render(request, 'historias_clinicas/ejercicios/form.html', {
         'paciente': paciente,
         'profesional': profesional,
@@ -82,8 +138,20 @@ def agregar_ejercicio(request, paciente_id):
 def editar_ejercicio(request, ejercicio_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
+
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return redirect('home')
+
+    # Obtener ejercicio asegurando que el paciente pertenezca al cliente
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+    if not _paciente_pertenece_a_cliente(ejercicio.paciente, cliente):
+        messages.error(request, 'No tenés acceso a este ejercicio.')
+        return redirect('home')
+
     paciente = ejercicio.paciente
+
     if request.method == 'POST':
         ejercicio.nombre = request.POST.get('nombre', ejercicio.nombre)
         ejercicio.series = request.POST.get('series', ejercicio.series)
@@ -98,16 +166,28 @@ def editar_ejercicio(request, ejercicio_id):
                 ImagenEjercicio.objects.create(ejercicio=ejercicio, imagen=imagen)
 
         return redirect('ejercicios_paciente', paciente_id=paciente.id)
+
     return render(request, 'historias_clinicas/ejercicios/form.html', {
         'paciente': paciente,
         'ejercicio': ejercicio,
     })
 
+
 @login_required
 def eliminar_ejercicio(request, ejercicio_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
+
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return redirect('home')
+
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+    if not _paciente_pertenece_a_cliente(ejercicio.paciente, cliente):
+        messages.error(request, 'No tenés acceso a este ejercicio.')
+        return redirect('home')
+
     paciente_id = ejercicio.paciente.id
     ejercicio.delete()
     messages.success(request, 'Ejercicio eliminado.')
@@ -118,7 +198,17 @@ def eliminar_ejercicio(request, ejercicio_id):
 def eliminar_imagen_ejercicio(request, imagen_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
+
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return redirect('home')
+
     imagen = get_object_or_404(ImagenEjercicio, id=imagen_id)
+    if not _paciente_pertenece_a_cliente(imagen.ejercicio.paciente, cliente):
+        messages.error(request, 'No tenés acceso a esta imagen.')
+        return redirect('home')
+
     ejercicio_id = imagen.ejercicio.id
     imagen.delete()
     messages.success(request, 'Imagen eliminada.')
@@ -129,11 +219,10 @@ def eliminar_imagen_ejercicio(request, imagen_id):
 def planes_alimentacion_paciente(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-    if request.user.rol == 'profesional':
-        profesional = get_object_or_404(Profesional, usuario=request.user)
-    else:
-        profesional = None
+
+    paciente, profesional = _obtener_paciente_validado(request, paciente_id)
+    if paciente is None:
+        return redirect('home')
 
     puede_ver_planes = profesional.permite_planes_alimentacion if profesional else True
 
@@ -150,16 +239,15 @@ def planes_alimentacion_paciente(request, paciente_id):
 def agregar_plan_alimentacion(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-    if request.user.rol == 'profesional':
-        profesional = get_object_or_404(Profesional, usuario=request.user)
-    else:
-        profesional = None
+
+    paciente, profesional = _obtener_paciente_validado(request, paciente_id)
+    if paciente is None:
+        return redirect('home')
 
     if request.method == 'POST':
         calorias = request.POST.get('calorias_objetivo')
         plan = PlanAlimentacion.objects.create(
-            profesional=profesional if profesional else Profesional.objects.first(),
+            profesional=profesional,  # puede ser None
             paciente=paciente,
             calorias_objetivo=calorias if calorias else None,
             desayuno=request.POST.get('desayuno', ''),
@@ -188,7 +276,17 @@ def agregar_plan_alimentacion(request, paciente_id):
 def editar_plan_alimentacion(request, plan_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
+
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return redirect('home')
+
     plan = get_object_or_404(PlanAlimentacion, id=plan_id)
+    if not _paciente_pertenece_a_cliente(plan.paciente, cliente):
+        messages.error(request, 'No tenés acceso a este plan.')
+        return redirect('home')
+
     paciente = plan.paciente
 
     if request.method == 'POST':
@@ -212,7 +310,7 @@ def editar_plan_alimentacion(request, plan_id):
     return render(request, 'historias_clinicas/planes/form.html', {
         'paciente': paciente,
         'plan': plan,
-        'profesional': getattr(plan, 'profesional', None),
+        'profesional': plan.profesional,
     })
 
 
@@ -220,7 +318,17 @@ def editar_plan_alimentacion(request, plan_id):
 def eliminar_plan_alimentacion(request, plan_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
+
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return redirect('home')
+
     plan = get_object_or_404(PlanAlimentacion, id=plan_id)
+    if not _paciente_pertenece_a_cliente(plan.paciente, cliente):
+        messages.error(request, 'No tenés acceso a este plan.')
+        return redirect('home')
+
     paciente_id = plan.paciente.id
     plan.delete()
     messages.success(request, 'Plan eliminado.')
@@ -231,8 +339,17 @@ def eliminar_plan_alimentacion(request, plan_id):
 def eliminar_imagen_plan(request, imagen_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
+
+    cliente = get_cliente_actual(request)
+    if not cliente:
+        messages.error(request, 'No hay un consultorio seleccionado.')
+        return redirect('home')
+
     imagen = get_object_or_404(ImagenPlanAlimentacion, id=imagen_id)
-    plan_id = imagen.plan.id
+    if not _paciente_pertenece_a_cliente(imagen.plan.paciente, cliente):
+        messages.error(request, 'No tenés acceso a esta imagen.')
+        return redirect('home')
+
     paciente_id = imagen.plan.paciente.id
     imagen.delete()
     messages.success(request, 'Imagen eliminada.')

@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sistema de Gestión de Turnos{% endblock %}</title>
+    
+    <!-- Título condicional -->
+    <title>{% if cliente %}{{ cliente.nombre }} - {% endif %}Sistema de Gestión de Turnos</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,14 +20,14 @@
     <!-- CSS del sistema -->
     <link rel="stylesheet" href="{% static 'css/core/base.css' %}">
 
-    <title>{{ cliente.nombre }} - Gestión de Turnos Online</title>
-    {% if cliente.favicon %}
+    <!-- Favicon condicional -->
+    {% if cliente and cliente.favicon %}
         <link rel="icon" type="image/x-icon" href="{{ cliente.favicon.url }}">
     {% else %}
         <link rel="icon" type="image/x-icon" href="{% static 'img/default-favicon.ico' %}">
     {% endif %}
     
-    <!-- Theme CSS: si cliente tiene colores personalizados, los pasamos como variables CSS -->
+    <!-- Theme CSS: variables personalizadas solo si hay cliente -->
     {% if cliente %}
     <style>
         :root {
@@ -33,38 +35,35 @@
             --primary-dark: {{ cliente.color_secundario|default:'#1d4ed8' }};
         }
 
-        /* Mostrar/Ocultar logos según el tema */
-            .logo-theme-dark {
-                display: none;
-            }
-            .logo-theme-light {
-                display: inline-block;
-            }
+        .logo-theme-dark {
+            display: none;
+        }
+        .logo-theme-light {
+            display: inline-block;
+        }
 
-            /* Cuando el body tiene la clase dark-mode (tema oscuro), invertimos */
-            body.dark-mode .logo-theme-dark {
-                display: inline-block;
-            }
-            body.dark-mode .logo-theme-light {
-                display: none;
-            }
+        body.dark-mode .logo-theme-dark {
+            display: inline-block;
+        }
+        body.dark-mode .logo-theme-light {
+            display: none;
+        }
 
-            /* Ajuste de tamaño (ya lo tenías, pero es mejor ponerlo aquí global) */
-            .navbar-brand img {
-                max-height: 50px; /* Reducido un poco de los 50px anteriores para que no rompa */
-                width: auto;
-                display: inline-block;
-                vertical-align: middle;
-            }
-            .navbar {
-                height: 70px;
-                display: flex;
-                align-items: center;
-            }
+        .navbar-brand img {
+            max-height: 50px;
+            width: auto;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .navbar {
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
     </style>
-{% endif %}
-    <link rel="stylesheet" href="{% static 'css/themes/default.css' %}" id="theme-css">
+    {% endif %}
     
+    <link rel="stylesheet" href="{% static 'css/themes/default.css' %}" id="theme-css">
     <link rel="stylesheet" href="{% static 'css/core/layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/core/components.css' %}">
     
@@ -77,8 +76,6 @@
             var defaultClientTheme = null;
             {% endif %}
             var themeToLoad = savedTheme || defaultClientTheme || 'default';
-
-            // Solo cambiar el CSS, NO tocar document.body
             document.getElementById('theme-css').href = '/static/css/themes/' + themeToLoad + '.css';
         })();
     </script>
@@ -87,27 +84,26 @@
 <body>
     <nav class="navbar">
         <a href="{% url 'home' %}" class="navbar-brand">
-            <!-- 1. Tu logo (SaaS)  -->
+            <!-- 1. Tu logo (SaaS) siempre visible -->
             <img src="{% static 'img/TerminSalud.png' %}" alt="TerminSalud" class="logo-theme-light" height="30">
             <img src="{% static 'img/TerminSalud Oscuro.png' %}" alt="TerminSalud" class="logo-theme-dark" height="30">
 
-            <!-- 2. Logo o Nombre del Consultorio -->
-            {% if cliente.establecimiento and cliente.establecimiento.logo %}
-                <span class="navbar-separator">|</span>
-                <!-- Logo para temas claros -->
-                <img src="{{ cliente.establecimiento.logo.url }}" 
-                    alt="{{ cliente.establecimiento.nombre }}" 
-                    class="logo-consultorio-navbar logo-consultorio-light">
-
-                <!-- Logo para temas oscuros (solo si el consultorio subió uno) -->
-                {% if cliente.establecimiento.logo_oscuro %}
-                    <img src="{{ cliente.establecimiento.logo_oscuro.url }}" 
-                        alt="{{ cliente.establecimiento.nombre }}" 
-                        class="logo-consultorio-navbar logo-consultorio-dark">
+            <!-- 2. Logo o Nombre del Consultorio (solo si hay cliente) -->
+            {% if cliente %}
+                {% if cliente.establecimiento and cliente.establecimiento.logo %}
+                    <span class="navbar-separator">|</span>
+                    <img src="{{ cliente.establecimiento.logo.url }}" 
+                         alt="{{ cliente.establecimiento.nombre }}" 
+                         class="logo-consultorio-navbar logo-consultorio-light">
+                    {% if cliente.establecimiento.logo_oscuro %}
+                        <img src="{{ cliente.establecimiento.logo_oscuro.url }}" 
+                             alt="{{ cliente.establecimiento.nombre }}" 
+                             class="logo-consultorio-navbar logo-consultorio-dark">
+                    {% endif %}
+                {% else %}
+                    <span class="navbar-separator">|</span>
+                    <span class="navbar-consultorio-nombre">{{ cliente.nombre }}</span>
                 {% endif %}
-            {% elif cliente %}
-                <span class="navbar-separator">|</span>
-                <span class="navbar-consultorio-nombre">{{ cliente.nombre }}</span>
             {% endif %}
         </a>
         
@@ -118,7 +114,6 @@
                 {% if user.rol == 'profesional' %}
                     <li><a href="{% url 'calendario_semanal' %}" class="nav-link">Calendario</a></li>
                 {% elif user.rol == 'secretaria' %}
-                    <!-- <li><a href="{% url 'panel_secretaria' %}" class="nav-link">Panel Secretaría</a></li> -->
                     <li><a href="{% url 'calendario_semanal' %}" class="nav-link">Calendario</a></li>
                 {% endif %}
                 
@@ -163,25 +158,25 @@
         
         {% block content %}{% endblock %}
     </div>
+    
     <script>
-    (function() {
-        var savedTheme = localStorage.getItem('consultorio-theme');
-        {% if cliente and cliente.theme_css and cliente.theme_css != 'default' %}
-        var defaultClientTheme = '{{ cliente.theme_css }}';
-        {% else %}
-        var defaultClientTheme = null;
-        {% endif %}
-        var themeToLoad = savedTheme || defaultClientTheme || 'default';
+        (function() {
+            var savedTheme = localStorage.getItem('consultorio-theme');
+            {% if cliente and cliente.theme_css and cliente.theme_css != 'default' %}
+            var defaultClientTheme = '{{ cliente.theme_css }}';
+            {% else %}
+            var defaultClientTheme = null;
+            {% endif %}
+            var themeToLoad = savedTheme || defaultClientTheme || 'default';
 
-        var darkThemes = ['azul_oscuro', 'verde_oscuro']; // ← completá con todos los temas oscuros
-        if (darkThemes.includes(themeToLoad)) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-    })();
-</script>
+            var darkThemes = ['azul_oscuro', 'verde_oscuro'];
+            if (darkThemes.includes(themeToLoad)) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        })();
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
-
 </html>
