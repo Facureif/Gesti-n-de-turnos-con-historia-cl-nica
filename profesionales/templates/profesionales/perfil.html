@@ -183,7 +183,7 @@
                         <label class="os-checkbox-label {% if os.id in consultorio_actual.obras_sociales_agenda_ids %}activa{% endif %}">
                             <input type="checkbox" name="obras_sociales_consultorio" value="{{ os.id }}" class="os-checkbox"
                                    {% if os.id in consultorio_actual.obras_sociales_agenda_ids %}checked{% endif %}>
-                            {{ os.nombre }} ({{ os.sigla }})
+                            {{ os.nombre }}
                         </label>
                     {% endfor %}
                 </div>

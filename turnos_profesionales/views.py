@@ -2325,7 +2325,7 @@ def exportar_excel(request):
         ws.append([
             t.fecha.strftime('%d/%m/%Y'), t.hora_inicio.strftime('%H:%M'),
             t.paciente.nombre_completo, t.paciente.dni,
-            t.paciente.obra_social.sigla if t.paciente.obra_social else 'Particular',
+            t.obra_social.nombre if t.obra_social else 'Particular',
             t.get_estado_display(), float(t.monto_coseguro) if t.monto_coseguro else 0,
             t.establecimiento.nombre if t.establecimiento else '—'
         ])
