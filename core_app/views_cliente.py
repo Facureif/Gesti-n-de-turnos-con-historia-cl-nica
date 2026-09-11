@@ -5,7 +5,7 @@ from .models import ClienteSaaS
 from establecimientos.models import Establecimiento
 from profesionales.models import Profesional
 from turnos_profesionales.models import TurnoProfesional
-from obras_sociales.models import ObraSocial, Plan 
+from obras_sociales.models import ObraSocial, Plan
 from django.db.models import Q
 from agendas.models import Agenda, HorarioAtencion
 from django.http import JsonResponse
@@ -16,56 +16,55 @@ import string, json
 
 def api_horarios_disponibles(request, cliente_slug, establecimiento_id):
     profesional_id = request.GET.get('profesional_id')
-    
+
     if not profesional_id:
         return JsonResponse({'error': 'Falta profesional_id'}, status=400)
-    
+
     try:
         profesional = Profesional.objects.get(id=profesional_id, activo=True)
         establecimiento = Establecimiento.objects.get(id=establecimiento_id)
     except (Profesional.DoesNotExist, Establecimiento.DoesNotExist):
         return JsonResponse({'dias': []})
-    
+
     hoy = date.today()
     dias = []
-    
+
     agenda = Agenda.objects.filter(
         profesional=profesional,
         establecimiento=establecimiento,
         activo=True,
         fecha_inicio__lte=hoy + timedelta(days=30)
     ).first()
-    
+
     if agenda:
         max_simultaneos = agenda.pacientes_simultaneos if agenda.pacientes_simultaneos else 1
         bloqueos = BloqueoAgenda.objects.filter(agenda=agenda, activo=True)
-        
+
         for i in range(30):
             fecha = hoy + timedelta(days=i)
             dia_semana = fecha.weekday()
-            
+
             horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
-            
+
             if horario:
-                # Verificar día bloqueado completamente
                 dia_bloqueado = bloqueos.filter(
                     fecha=fecha, hora_inicio__isnull=True, hora_fin__isnull=True
                 ).exists()
-                
+
                 if not dia_bloqueado:
                     hora_actual = horario.hora_inicio
                     slots = []
-                    
+
                     while hora_actual < horario.hora_fin:
                         hora_fin_slot = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
-                        
+
                         if hora_fin_slot <= horario.hora_fin:
                             slot_bloqueado = bloqueos.filter(
                                 fecha=fecha,
                                 hora_inicio__lte=hora_actual,
                                 hora_fin__gte=hora_fin_slot
                             ).exists()
-                            
+
                             if not slot_bloqueado:
                                 ocupados = TurnoProfesional.objects.filter(
                                     profesional=profesional,
@@ -74,25 +73,25 @@ def api_horarios_disponibles(request, cliente_slug, establecimiento_id):
                                     hora_inicio=hora_actual,
                                     estado__in=['pendiente', 'confirmado']
                                 ).count()
-                                
+
                                 if ocupados < max_simultaneos:
                                     slots.append(hora_actual.strftime('%H:%M'))
-                        
+
                         hora_actual = (datetime.combine(fecha, hora_actual) + timedelta(minutes=horario.duracion_turno)).time()
-                    
+
                     if slots:
                         dias.append({
                             'fecha_str': fecha.strftime('%Y-%m-%d'),
                             'slots': slots
                         })
-    
+
     return JsonResponse({'dias': dias})
 
 
 def portal(request, cliente_slug):
     cliente = get_object_or_404(ClienteSaaS, slug=cliente_slug, activo=True)
     request.session['cliente_slug'] = cliente_slug
-    
+
     ICONOS_ESPECIALIDAD = {
         'odontologia': '🦷',
         'kinesiologia': '💪',
@@ -106,7 +105,7 @@ def portal(request, cliente_slug):
         'traumatologia': '🦴',
         'otra': '👨‍⚕️',
     }
-    
+
     if cliente.tipo == 'consultorio':
         # ========== CONSULTORIO (sin cambios) ==========
         profesionales_qs = Profesional.objects.filter(
@@ -130,7 +129,6 @@ def portal(request, cliente_slug):
                 'telefono_contacto': agenda.telefono_contacto if agenda and agenda.telefono_contacto else prof.telefono,
             })
 
-        # Construir especialidades para los filtros
         especialidades_disponibles = []
         especialidades_vistas = set()
         for item in profesionales:
@@ -153,42 +151,38 @@ def portal(request, cliente_slug):
             'especialidades_disponibles': especialidades_disponibles,
         })
     else:
-        # ========== PROFESIONAL INDEPENDIENTE (corregido) ==========
+        # ========== PROFESIONAL INDEPENDIENTE ==========
         profesional = cliente.profesional
-        consultorios = profesional.establecimientos.all()
 
-        # Asignar agenda a cada consultorio (para el template, sección "Dónde atiendo")
-        for est in consultorios:
-            est.agenda = Agenda.objects.filter(
-                profesional=profesional,
-                establecimiento=est,
-                activo=True
-            ).first()
+        # Consultorios = establecimientos con Agenda activa
+        agendas_activas = Agenda.objects.filter(
+            profesional=profesional,
+            activo=True
+        ).select_related('establecimiento')
 
-        # Agenda "principal" = la misma que edita mi_perfil (primer establecimiento)
-        agenda_principal = None
-        primer_est = consultorios.first()
-        if primer_est:
-            agenda_principal = Agenda.objects.filter(
-                profesional=profesional,
-                establecimiento=primer_est,
-                activo=True
-            ).first()
+        consultorios = []
+        vistos = set()
+        for ag in agendas_activas:
+            est = ag.establecimiento
+            if est.id in vistos:
+                continue
+            vistos.add(est.id)
+            est.agenda = ag
+            consultorios.append(est)
 
-        # Obras sociales y planes desde la agenda principal (fallback al profesional)
-        if agenda_principal and agenda_principal.obras_sociales.exists():
-            obras_sociales_landing = agenda_principal.obras_sociales.filter(activo=True)
-        else:
-            obras_sociales_landing = profesional.obras_sociales.filter(activo=True)
+        # Fallback: si no hay agendas, usar el M2M (por si hay algo cargado a mano)
+        if not consultorios:
+            consultorios = list(profesional.establecimientos.all())
+            for est in consultorios:
+                est.agenda = Agenda.objects.filter(
+                    profesional=profesional, establecimiento=est, activo=True
+                ).first()
 
-        # Precio, plus y texto desde la agenda principal
-        if agenda_principal and agenda_principal.precio_particular:
-            precio_particular = agenda_principal.precio_particular
-        else:
-            precio_particular = profesional.precio_particular
-
-        tiene_plus = agenda_principal.tiene_plus if agenda_principal else False
-        texto_plus = agenda_principal.texto_plus if agenda_principal else ''
+        # Cobertura (viene del profesional)
+        obras_sociales_landing = profesional.obras_sociales.filter(activo=True)
+        precio_particular = profesional.precio_particular
+        tiene_plus = profesional.tiene_plus
+        texto_plus = profesional.texto_plus
 
         return render(request, 'core_app/landing_profesional.html', {
             'cliente': cliente,
@@ -207,10 +201,28 @@ def sacar_turno(request, cliente_slug, profesional_id):
     profesional = get_object_or_404(Profesional, id=profesional_id, activo=True)
     hoy = date.today()
 
+    # ---------- Determinar consultorios disponibles ----------
     if cliente.tipo == 'consultorio':
-        consultorios_disponibles = profesional.establecimientos.filter(id=cliente.establecimiento.id)
+        # Cliente tipo consultorio: SOLO su establecimiento, sin importar
+        # cuántos otros tenga el profesional
+        if cliente.establecimiento not in profesional.establecimientos.all():
+            messages.error(request, 'El profesional no atiende en este consultorio.')
+            return redirect('portal_cliente', cliente_slug=cliente_slug)
+        consultorios_disponibles = [cliente.establecimiento]
     else:
-        consultorios_disponibles = profesional.establecimientos.all()
+        # Profesional independiente: todos sus consultorios con agenda activa
+        consultorios_disponibles = list(
+            Establecimiento.objects.filter(
+                agenda__profesional=profesional,
+                agenda__activo=True
+            ).distinct()
+        )
+
+    if not consultorios_disponibles:
+        messages.error(request, 'No hay consultorios configurados para este profesional.')
+        return redirect('portal_cliente', cliente_slug=cliente_slug)
+
+    consultorios_ids = [e.id for e in consultorios_disponibles]
 
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -233,6 +245,15 @@ def sacar_turno(request, cliente_slug, profesional_id):
 
         if not all([nombre, telefono, fecha_str, hora_str, establecimiento_id]):
             messages.error(request, 'Completá todos los campos obligatorios.')
+            return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
+
+        # Validar que el establecimiento sea uno de los permitidos
+        try:
+            if int(establecimiento_id) not in consultorios_ids:
+                messages.error(request, 'Consultorio inválido.')
+                return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
+        except ValueError:
+            messages.error(request, 'Consultorio inválido.')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
 
         try:
@@ -433,24 +454,19 @@ def sacar_turno(request, cliente_slug, profesional_id):
         return redirect('portal_cliente', cliente_slug=cliente_slug)
 
     # ---------- GET ----------
-    agenda = None
+    # Agenda: para cobertura y precio
     if cliente.tipo == 'consultorio':
-        # CONSULTORIO: agenda del establecimiento del cliente
         agenda = Agenda.objects.filter(
             profesional=profesional,
             establecimiento=cliente.establecimiento,
             activo=True
         ).first()
     else:
-        # PROFESIONAL INDEPENDIENTE: usar la misma agenda que edita en mi_perfil
-        # (agenda del primer establecimiento)
-        primer_est = profesional.establecimientos.first()
-        if primer_est:
-            agenda = Agenda.objects.filter(
-                profesional=profesional,
-                establecimiento=primer_est,
-                activo=True
-            ).first()
+        # Independiente: la primera agenda activa (la que se editó en mi_perfil)
+        agenda = Agenda.objects.filter(
+            profesional=profesional,
+            activo=True
+        ).first()
 
     # Obras sociales: desde agenda si tiene, sino desde profesional
     if agenda and agenda.obras_sociales.exists():

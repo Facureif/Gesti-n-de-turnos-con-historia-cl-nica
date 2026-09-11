@@ -85,6 +85,16 @@ class Profesional(Persona):
         verbose_name='Planes'
     )
 
+    tiene_plus = models.BooleanField(
+    default=False,
+    verbose_name='Algunos planes tienen plus'
+)
+    texto_plus = models.CharField(
+        max_length=250,
+        blank=True,
+        verbose_name='Mensaje de plus (opcional)'
+    )
+
     permite_ejercicios = models.BooleanField(
     default=False,
     verbose_name='Activar sección de ejercicios'

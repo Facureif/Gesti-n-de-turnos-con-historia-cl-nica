@@ -219,15 +219,14 @@
                 <h2 class="section-title">{{ cliente.ubicaciones_titulo }}</h2>
                 <p class="section-subtitle">{{ cliente.ubicaciones_subtitulo }}</p>
             </div>
-            
-            {% if consultorios|length == 1 %}
-                {% with est=consultorios.0 %}
+
+            <div class="ubicaciones-lista">
+                {% for est in consultorios %}
                 <div class="ubicacion-con-mapa">
-                    <!-- Columna izquierda: información del consultorio -->
                     <div class="ubicacion-info">
                         <div class="consultorio-card">
                             <h3><i class="fas fa-clinic-medical"></i> {{ est.nombre }}</h3>
-                            
+
                             {% if est.direccion %}
                             <div class="dato">
                                 <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank">
@@ -236,7 +235,7 @@
                                 </a>
                             </div>
                             {% endif %}
-                            
+
                             {% if est.telefono %}
                             <div class="dato">
                                 <a href="tel:{{ est.telefono }}">
@@ -245,8 +244,8 @@
                                 </a>
                             </div>
                             {% endif %}
-                            
-                            {% if est.agenda %}
+
+                            {% if est.agenda and est.agenda.horarios.all %}
                             <div class="horarios-lista">
                                 <h4><i class="far fa-clock"></i> {{ cliente.horarios_label }}</h4>
                                 {% for h in est.agenda.horarios.all %}
@@ -259,59 +258,20 @@
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <!-- Columna derecha: mapa -->
+
                     <div class="ubicacion-mapa">
                         {% if est.direccion %}
-                            <iframe 
-                                src="https://www.google.com/maps?q={{ est.direccion|urlencode }}&output=embed" 
-                                loading="lazy" 
+                            <iframe
+                                src="https://www.google.com/maps?q={{ est.direccion|urlencode }}&output=embed"
+                                loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade"
                                 title="Mapa de {{ est.nombre }}">
                             </iframe>
                         {% endif %}
                     </div>
                 </div>
-                {% endwith %}
-            {% else %}
-                <div class="consultorios-grid">
-                    {% for est in consultorios %}
-                    <div class="consultorio-card">
-                        <h3><i class="fas fa-clinic-medical"></i> {{ est.nombre }}</h3>
-                        
-                        {% if est.direccion %}
-                        <div class="dato">
-                            <a href="https://www.google.com/maps/search/?api=1&query={{ est.direccion|urlencode }}" target="_blank">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ est.direccion }}</span>
-                            </a>
-                        </div>
-                        {% endif %}
-                        
-                        {% if est.telefono %}
-                        <div class="dato">
-                            <a href="tel:{{ est.telefono }}">
-                                <i class="fas fa-phone"></i>
-                                <span>{{ est.telefono }}</span>
-                            </a>
-                        </div>
-                        {% endif %}
-                        
-                        {% if est.agenda %}
-                        <div class="horarios-lista">
-                            <h4><i class="far fa-clock"></i> {{ cliente.horarios_label }}</h4>
-                            {% for h in est.agenda.horarios.all %}
-                            <div class="horario-item">
-                                <span class="horario-dia">{{ h.get_dia_display }}</span>
-                                <span>{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                {% endfor %}
+            </div>
         </div>
     </section>
     {% endif %}

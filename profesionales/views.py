@@ -4,10 +4,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Profesional
-from agendas.models import Agenda
+from agendas.models import Agenda, HorarioAtencion
 from establecimientos.models import Establecimiento
 from obras_sociales.models import ObraSocial, Plan
-from core_app.models import ClienteSaaS  # Asegurate de importar tu modelo
+from core_app.models import ClienteSaaS
+
 
 @login_required
 def mi_perfil(request):
@@ -26,111 +27,39 @@ def mi_perfil(request):
         except ClienteSaaS.DoesNotExist:
             cliente = None
 
-    # Determinar establecimiento (consultorio) actual
+    # ---------- Determinar consultorios editables ----------
     if cliente and cliente.tipo == 'consultorio':
-        # El cliente es un consultorio, usar su establecimiento
-        establecimiento_actual = cliente.establecimiento
-        # Verificar que el profesional pertenezca a ese establecimiento
-        if establecimiento_actual not in profesional.establecimientos.all():
+        # Es un consultorio: solo el establecimiento del cliente
+        establecimiento_cliente = cliente.establecimiento
+        if establecimiento_cliente not in profesional.establecimientos.all():
             messages.error(request, 'No tenés permisos para este consultorio.')
             return redirect('panel_profesional')
+
+        consultorios = [establecimiento_cliente]
+        es_independiente = False
+        cobertura_es_compartida = False
     else:
-        # Si no hay cliente o es profesional independiente, usar el primer establecimiento del profesional
-        establecimiento_actual = profesional.establecimientos.first()
-        if not establecimiento_actual:
-            messages.error(request, 'No tenés consultorios asignados.')
+        # Profesional independiente: todos sus consultorios
+        consultorios = list(profesional.establecimientos.all())
+        if not consultorios:
+            messages.error(request, 'No tenés consultorios asignados. Contactá al administrador.')
             return redirect('panel_profesional')
 
-    # Obtener agenda del establecimiento actual
-    agenda_actual = Agenda.objects.filter(
-        profesional=profesional,
-        establecimiento=establecimiento_actual
-    ).first()
+        es_independiente = True
+        cobertura_es_compartida = True
 
+    # ---------- POST ----------
     if request.method == 'POST':
         accion = request.POST.get('accion', '')
 
-        # ========== GUARDAR CONSULTORIO ==========
-        if accion == 'guardar_consultorio_completo':
-            # Actualizar datos del establecimiento
-            nombre = request.POST.get('consultorio_nombre', '').strip()
-            direccion = request.POST.get('consultorio_direccion', '').strip()
-            telefono = request.POST.get('consultorio_telefono', '').strip()
-            email = request.POST.get('consultorio_email', '').strip()
-            if nombre:
-                establecimiento_actual.nombre = nombre
-            establecimiento_actual.direccion = direccion
-            establecimiento_actual.telefono = telefono
-            establecimiento_actual.email = email
-            establecimiento_actual.save()
-
-            # Obtener o crear agenda
-            agenda = Agenda.objects.filter(
-                profesional=profesional,
-                establecimiento=establecimiento_actual
-            ).first()
-            if not agenda:
-                agenda = Agenda.objects.create(
-                    profesional=profesional,
-                    establecimiento=establecimiento_actual,
-                    fecha_inicio=date.today(),
-                    fecha_fin=date.today() + timedelta(days=365),
-                    pacientes_simultaneos=1,
-                    acepta_sobreturnos=False,
-                    tiempo_entre_turnos=0,
-                )
-
-            # Precio particular (si se ingresa, se actualiza; si se deja vacío, se mantiene el anterior)
-            precio_str = request.POST.get('precio_consultorio', '').strip()
-            if precio_str:
-                try:
-                    agenda.precio_particular = Decimal(precio_str)
-                except InvalidOperation:
-                    messages.error(request, 'Precio inválido.')
-                    return redirect('mi_perfil')
-            # Si está vacío, no se modifica (conserva el valor actual)
-
-            # Contacto (solo actualizar si se proporciona un valor)
-            email_contacto = request.POST.get('email_contacto', '').strip()
-            telefono_contacto = request.POST.get('telefono_contacto', '').strip()
-            if email_contacto:
-                agenda.email_contacto = email_contacto
-            if telefono_contacto:
-                agenda.telefono_contacto = telefono_contacto
-
-            agenda.save()
-
-            # Plus
-            agenda.tiene_plus = request.POST.get('tiene_plus') == 'on'
-            agenda.texto_plus = request.POST.get('texto_plus', '').strip()
-            agenda.save()
-
-            # Obras sociales y planes
-            obras_ids = request.POST.getlist('obras_sociales_consultorio')
-            obras = ObraSocial.objects.filter(id__in=obras_ids)
-            agenda.obras_sociales.set(obras)
-
-            planes_ids = request.POST.getlist('planes_consultorio')
-            # Filtrar planes que pertenezcan a las OS seleccionadas
-            planes_validos = Plan.objects.filter(
-                id__in=planes_ids,
-                obra_social__in=obras_ids
-            )
-            agenda.planes.set(planes_validos)
-
-            messages.success(request, 'Consultorio actualizado correctamente.')
-            return redirect('mi_perfil')
-
         # ========== DATOS PERSONALES ==========
-        elif accion == 'datos_personales':
-            # Actualizar usuario
+        if accion == 'datos_personales':
             request.user.first_name = request.POST.get('nombre', request.user.first_name)
             request.user.last_name = request.POST.get('apellido', request.user.last_name)
             request.user.email = request.POST.get('email', request.user.email)
             request.user.telefono = request.POST.get('telefono', request.user.telefono)
             request.user.save()
 
-            # Actualizar profesional
             profesional.nombre = request.POST.get('nombre', profesional.nombre)
             profesional.apellido = request.POST.get('apellido', profesional.apellido)
             profesional.dni = request.POST.get('dni', profesional.dni)
@@ -149,41 +78,178 @@ def mi_perfil(request):
             messages.success(request, 'Perfil actualizado correctamente.')
             return redirect('mi_perfil')
 
-        # Otras acciones (agregar/eliminar consultorio, cambiar, etc.) no son necesarias con este enfoque
+        # ========== COBERTURA ==========
+        if accion == 'guardar_cobertura':
+            precio_str = request.POST.get('precio_particular', '').strip()
+            obras_ids = request.POST.getlist('obras_sociales')
+            planes_ids = request.POST.getlist('planes')
+            tiene_plus = request.POST.get('tiene_plus') == 'on'
+            texto_plus = request.POST.get('texto_plus', '').strip()
+
+            obras = ObraSocial.objects.filter(id__in=obras_ids)
+            planes_validos = Plan.objects.filter(id__in=planes_ids, obra_social__in=obras_ids)
+
+            # Precio
+            precio_val = None
+            if precio_str:
+                try:
+                    precio_val = Decimal(precio_str)
+                except InvalidOperation:
+                    messages.error(request, 'Precio inválido.')
+                    return redirect('mi_perfil')
+
+            if es_independiente:
+                # Guardar en profesional (aplica a todos los consultorios)
+                if precio_val is not None:
+                    profesional.precio_particular = precio_val
+                profesional.obras_sociales.set(obras)
+                profesional.planes.set(planes_validos)
+                profesional.tiene_plus = tiene_plus
+                profesional.texto_plus = texto_plus
+                profesional.save()
+            else:
+                # Guardar en la agenda del consultorio del cliente
+                agenda, _ = Agenda.objects.get_or_create(
+                    profesional=profesional,
+                    establecimiento=establecimiento_cliente,
+                    defaults={
+                        'fecha_inicio': date.today(),
+                        'fecha_fin': date.today() + timedelta(days=365),
+                        'pacientes_simultaneos': 1,
+                        'acepta_sobreturnos': False,
+                        'tiempo_entre_turnos': 0,
+                    }
+                )
+                if precio_val is not None:
+                    agenda.precio_particular = precio_val
+                agenda.obras_sociales.set(obras)
+                agenda.planes.set(planes_validos)
+                agenda.tiene_plus = tiene_plus
+                agenda.texto_plus = texto_plus
+                agenda.save()
+
+            messages.success(request, 'Cobertura actualizada correctamente.')
+            return redirect('mi_perfil')
+
+        # ========== HORARIOS DE UN CONSULTORIO ==========
+        if accion == 'guardar_horarios':
+            est_id = request.POST.get('establecimiento_id')
+            try:
+                est = Establecimiento.objects.get(id=est_id)
+            except Establecimiento.DoesNotExist:
+                messages.error(request, 'Consultorio no encontrado.')
+                return redirect('mi_perfil')
+
+            # Verificar pertenencia
+            if est not in profesional.establecimientos.all():
+                messages.error(request, 'No tenés permisos para este consultorio.')
+                return redirect('mi_perfil')
+
+            # Si es cliente consultorio, solo puede editar el suyo
+            if cliente and cliente.tipo == 'consultorio' and est != cliente.establecimiento:
+                messages.error(request, 'No podés editar este consultorio.')
+                return redirect('mi_perfil')
+
+            # Obtener o crear agenda
+            agenda, _ = Agenda.objects.get_or_create(
+                profesional=profesional,
+                establecimiento=est,
+                defaults={
+                    'fecha_inicio': date.today(),
+                    'fecha_fin': date.today() + timedelta(days=365),
+                    'pacientes_simultaneos': 1,
+                    'acepta_sobreturnos': False,
+                    'tiempo_entre_turnos': 0,
+                }
+            )
+
+            # Pacientes simultáneos
+            sim = request.POST.get('pacientes_simultaneos', '').strip()
+            if sim:
+                try:
+                    agenda.pacientes_simultaneos = max(1, int(sim))
+                    agenda.save()
+                except ValueError:
+                    pass
+
+            # Reemplazar horarios
+            dias = request.POST.getlist('horario_dia')
+            inicios = request.POST.getlist('horario_inicio')
+            fines = request.POST.getlist('horario_fin')
+            duraciones = request.POST.getlist('horario_duracion')
+
+            agenda.horarios.all().delete()
+            for dia, ini, fin, dur in zip(dias, inicios, fines, duraciones):
+                if not (ini and fin and dur):
+                    continue
+                try:
+                    HorarioAtencion.objects.create(
+                        agenda=agenda,
+                        dia=int(dia),
+                        hora_inicio=ini,
+                        hora_fin=fin,
+                        duracion_turno=int(dur),
+                    )
+                except (ValueError, TypeError):
+                    continue
+
+            messages.success(request, f'Horarios de {est.nombre} actualizados.')
+            return redirect('mi_perfil')
 
         return redirect('mi_perfil')
 
-    # ========== GET ==========
-    # Inicializar atributos para el template
-    establecimiento_actual.precio_agenda = None
-    establecimiento_actual.email_contacto_agenda = None
-    establecimiento_actual.telefono_contacto_agenda = None
-    establecimiento_actual.obras_sociales_agenda_ids = []
-    establecimiento_actual.planes_agenda_ids = []
-    establecimiento_actual.tiene_plus_agenda = False
-    establecimiento_actual.texto_plus_agenda = ''
+    # ---------- GET ----------
+    # Armar lista de consultorios con su agenda y horarios
+    consultorios_data = []
+    for est in consultorios:
+        agenda = Agenda.objects.filter(
+            profesional=profesional,
+            establecimiento=est
+        ).first()
+        consultorios_data.append({
+            'establecimiento': est,
+            'agenda': agenda,
+            'horarios': list(agenda.horarios.all()) if agenda else [],
+        })
 
-    if agenda_actual:
-        establecimiento_actual.precio_agenda = agenda_actual.precio_particular
-        establecimiento_actual.email_contacto_agenda = agenda_actual.email_contacto
-        establecimiento_actual.telefono_contacto_agenda = agenda_actual.telefono_contacto
-        establecimiento_actual.obras_sociales_agenda_ids = list(
-            agenda_actual.obras_sociales.values_list('id', flat=True)
-        )
-        # Filtrar planes solo de las obras sociales seleccionadas
-        establecimiento_actual.planes_agenda_ids = list(
-            agenda_actual.planes.filter(
-                obra_social__in=establecimiento_actual.obras_sociales_agenda_ids
-            ).values_list('id', flat=True)
-        )
-        establecimiento_actual.tiene_plus_agenda = agenda_actual.tiene_plus
-        establecimiento_actual.texto_plus_agenda = agenda_actual.texto_plus
+    # Cobertura según tipo
+    if es_independiente:
+        precio_actual = profesional.precio_particular
+        obras_ids_actuales = list(profesional.obras_sociales.values_list('id', flat=True))
+        planes_ids_actuales = list(profesional.planes.values_list('id', flat=True))
+        tiene_plus_actual = profesional.tiene_plus
+        texto_plus_actual = profesional.texto_plus
+    else:
+        agenda_cliente = Agenda.objects.filter(
+            profesional=profesional,
+            establecimiento=establecimiento_cliente
+        ).first()
+        if agenda_cliente:
+            precio_actual = agenda_cliente.precio_particular
+            obras_ids_actuales = list(agenda_cliente.obras_sociales.values_list('id', flat=True))
+            planes_ids_actuales = list(agenda_cliente.planes.values_list('id', flat=True))
+            tiene_plus_actual = agenda_cliente.tiene_plus
+            texto_plus_actual = agenda_cliente.texto_plus
+        else:
+            precio_actual = None
+            obras_ids_actuales = []
+            planes_ids_actuales = []
+            tiene_plus_actual = False
+            texto_plus_actual = ''
 
     obras_sociales_disponibles = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
 
     return render(request, 'profesionales/perfil.html', {
         'profesional': profesional,
-        'consultorio_actual': establecimiento_actual,
+        'cliente': cliente,
+        'es_independiente': es_independiente,
+        'cobertura_es_compartida': cobertura_es_compartida,
+        'consultorios_data': consultorios_data,
         'obras_sociales_disponibles': obras_sociales_disponibles,
-        'agenda_actual': agenda_actual,
+        'precio_actual': precio_actual,
+        'obras_ids_actuales': obras_ids_actuales,
+        'planes_ids_actuales': planes_ids_actuales,
+        'tiene_plus_actual': tiene_plus_actual,
+        'texto_plus_actual': texto_plus_actual,
+        'dias_semana': HorarioAtencion.DIAS,
     })

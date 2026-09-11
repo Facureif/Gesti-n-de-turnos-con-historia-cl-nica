@@ -33,23 +33,83 @@
             border-left: 3px solid #ddd;
             padding-left: 15px;
         }
-        .plan-item {
-            margin-bottom: 10px;
+        .planes-grupo { margin-bottom: 10px; }
+        .plan-os-nombre { font-weight: bold; margin-bottom: 5px; }
+
+        /* Horarios */
+        .horarios-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
         }
-        .plan-os-nombre {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .horario-row {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 0.8fr 40px;
+            gap: 8px;
+            align-items: center;
         }
-        .modal-lista-scroll {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 10px;
+        .horario-row input, .horario-row select {
+            width: 100%;
+        }
+        .btn-quitar-horario {
+            background: #ef4444;
+            color: white;
+            border: none;
             border-radius: 6px;
-            margin-bottom: 10px;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
-        .planes-grupo {
-            margin-bottom: 10px;
+        .btn-quitar-horario:hover { background: #dc2626; }
+        .btn-agregar-horario {
+            background: transparent;
+            color: var(--primary, #2563eb);
+            border: 1px dashed var(--primary, #2563eb);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+        .btn-agregar-horario:hover { background: #eff6ff; }
+        .consultorio-header-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #475569;
+            flex-wrap: wrap;
+        }
+        .consultorio-header-info i { color: #2563eb; }
+        .sin-consultorios {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        @media (max-width: 700px) {
+            .horario-row {
+                grid-template-columns: 1fr 1fr 40px;
+                grid-template-areas:
+                    "dia dia quitar"
+                    "inicio fin fin"
+                    "dur dur dur";
+            }
+            .horario-row select[name="horario_dia"] { grid-area: dia; }
+            .horario-row input[name="horario_inicio"] { grid-area: inicio; }
+            .horario-row input[name="horario_fin"] { grid-area: fin; }
+            .horario-row input[name="horario_duracion"] { grid-area: dur; }
+            .horario-row .btn-quitar-horario { grid-area: quitar; }
         }
     </style>
 {% endblock %}
@@ -57,21 +117,21 @@
 {% block content %}
 <div class="perfil-page">
     <div class="perfil-container">
-        
+
         <!-- Encabezado -->
         <div class="perfil-header">
             <h1>👨‍⚕️ Mi Perfil</h1>
             <a href="{% url 'panel_profesional' %}" class="btn-volver">↩ Volver al Panel</a>
         </div>
-        
+
         <!-- ========== DATOS PERSONALES ========== -->
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="accion" value="datos_personales">
-            
+
             <div class="perfil-card">
                 <h3>Datos Personales</h3>
-                
+
                 <div class="perfil-foto-section">
                     <div style="text-align: center;">
                         {% if profesional.foto %}
@@ -84,7 +144,7 @@
                             <input type="file" name="foto" accept="image/*">
                         </label>
                     </div>
-                    
+
                     <div class="perfil-foto-info">
                         <div class="perfil-grid-2">
                             <input type="text" name="nombre" value="{{ profesional.nombre }}" placeholder="Nombre" class="perfil-input" required>
@@ -96,10 +156,10 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="perfil-card">
                 <h3>Datos Profesionales</h3>
-                
+
                 <div class="perfil-grid-2">
                     <select name="especialidad" class="perfil-select">
                         {% for key, value in profesional.ESPECIALIDADES %}
@@ -111,7 +171,7 @@
                     <input type="text" name="matricula" value="{{ profesional.matricula }}" placeholder="Matrícula" class="perfil-input">
                 </div>
                 <textarea name="descripcion" rows="3" placeholder="Breve descripción profesional..." class="perfil-textarea">{{ profesional.descripcion }}</textarea>
-                
+
                 <div class="perfil-color-row">
                     <input type="color" name="color_calendario" value="{{ profesional.color_calendario }}" class="perfil-color-picker">
                     <label class="perfil-checkbox-label">
@@ -120,108 +180,70 @@
                     </label>
                 </div>
             </div>
-            
+
             <button type="submit" class="btn-guardar btn-guardar-block" style="margin-bottom: 20px;">
                 💾 Guardar Datos Personales
             </button>
         </form>
-        
-        <!-- ========== MI CONSULTORIO (EDITABLE) ========== -->
+
+        <!-- ========== COBERTURA Y PRECIOS ========== -->
         <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="accion" value="guardar_consultorio_completo">
-            <input type="hidden" name="consultorio_id" value="{{ consultorio_actual.id }}">
-            
+            <input type="hidden" name="accion" value="guardar_cobertura">
+
             <div class="perfil-card">
-                <h3>🏥 Mi Consultorio</h3>
-                
-                <div class="perfil-grid-2">
-                    <input type="text" name="consultorio_nombre" value="{{ consultorio_actual.nombre }}" placeholder="Nombre del consultorio" class="perfil-input" required>
-                    <input type="text" name="consultorio_direccion" value="{{ consultorio_actual.direccion|default:'' }}" placeholder="Dirección" class="perfil-input">
-                    <input type="text" name="consultorio_telefono" value="{{ consultorio_actual.telefono|default:'' }}" placeholder="Teléfono" class="perfil-input">
-                    <input type="email" name="consultorio_email" value="{{ consultorio_actual.email|default:'' }}" placeholder="Email" class="perfil-input">
-                </div>
-                
-                <!-- <hr style="margin: 15px 0;"> -->
-                
+                <h3>💰 Cobertura y Precios</h3>
+
+                {% if cobertura_es_compartida %}
+                    <p style="color:#6c757d; font-size:0.85rem; margin-bottom:12px;">
+                        Estos datos se aplican a <strong>todos tus consultorios</strong>.
+                    </p>
+                {% endif %}
+
                 <div class="perfil-grid-2">
                     <div>
-                        <br>
                         <label class="perfil-label">💰 Precio actual:</label>
                         <span style="font-size:1.1rem; font-weight:bold;">
-                            {% if consultorio_actual.precio_agenda %}
-                                <span>${{ consultorio_actual.precio_agenda|floatformat:0|intcomma }}</span>
+                            {% if precio_actual %}
+                                <span>${{ precio_actual|floatformat:0|intcomma }}</span>
                             {% else %}
                                 No definido
                             {% endif %}
                         </span>
-
-                        {% if consultorio_actual.tiene_plus_agenda %}
-                            <div style="margin-top:6px;">
-                                <span style="background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:12px; font-size:0.8rem;">
-                                    ⚠️ Algunos planes tienen plus
-                                </span>
-                            </div>
-                        {% endif %}
                     </div>
                     <div>
                         <label class="perfil-label">💰 Editar precio de consulta</label>
-                        <input type="number" name="precio_consultorio" step="0.01" min="0" 
-                            value="{{ consultorio_actual.precio_agenda|default:'' }}" 
+                        <input type="number" name="precio_particular" step="0.01" min="0"
+                            value="{{ precio_actual|default:'' }}"
                             placeholder="Ej: 5000.00" class="perfil-input">
                         <small style="color:#6c757d;">Dejá vacío para no modificar el precio actual.</small>
                     </div>
                 </div>
 
-                <!-- NUEVO: Plus -->
-                <div style="margin-top: 10px; padding: 12px; background:#fffbeb; border-left:3px solid #f59e0b; border-radius:6px;">
-                    <label class="perfil-checkbox-label" style="font-weight:600;">
-                        <input type="checkbox" name="tiene_plus" {% if consultorio_actual.tiene_plus_agenda %}checked{% endif %}>
-                        Algunos planes de obras sociales tienen plus
-                    </label>
-                    <small style="display:block; color:#6c757d; margin-top:6px;">
-                        Si lo marcás, en tu página pública se avisará que algunos planes requieren el pago de un plus.
-                    </small>
-
-                    <div style="margin-top:8px;">
-                        <label class="perfil-label">Mensaje personalizado (opcional)</label>
-                        <input type="text" name="texto_plus" 
-                            value="{{ consultorio_actual.texto_plus_agenda|default:'' }}"
-                            placeholder="Ej: Consultá con el profesional por el plus de tu plan."
-                            class="perfil-input">
-                    </div>
-                </div>
-                <div class="perfil-grid-2">
-                    <!-- <div>
-                        <label class="perfil-label">📞 Teléfono de contacto</label>
-                        <input type="text" name="telefono_contacto" value="{{ consultorio_actual.telefono_contacto_agenda|default:'' }}" class="perfil-input">
-                    </div> -->
-                </div>
-                
                 <hr style="margin: 15px 0;">
-                
+
                 <label class="perfil-label">🛡️ Obras Sociales que acepta</label>
                 <div class="obras-sociales-tags">
                     {% for os in obras_sociales_disponibles %}
-                        <label class="os-checkbox-label {% if os.id in consultorio_actual.obras_sociales_agenda_ids %}activa{% endif %}">
-                            <input type="checkbox" name="obras_sociales_consultorio" value="{{ os.id }}" class="os-checkbox"
-                                   {% if os.id in consultorio_actual.obras_sociales_agenda_ids %}checked{% endif %}>
+                        <label class="os-checkbox-label {% if os.id in obras_ids_actuales %}activa{% endif %}">
+                            <input type="checkbox" name="obras_sociales" value="{{ os.id }}" class="os-checkbox"
+                                   {% if os.id in obras_ids_actuales %}checked{% endif %}>
                             {{ os.nombre }}
                         </label>
                     {% endfor %}
                 </div>
-                
+
                 <label class="perfil-label">📋 Planes que acepta (se muestran solo de las OS seleccionadas)</label>
                 <div class="planes-container" id="planes-container">
                     {% for os in obras_sociales_disponibles %}
-                        <div class="planes-grupo" data-os-id="{{ os.id }}" 
-                             style="{% if os.id not in consultorio_actual.obras_sociales_agenda_ids %}display:none;{% endif %}">
+                        <div class="planes-grupo" data-os-id="{{ os.id }}"
+                             style="{% if os.id not in obras_ids_actuales %}display:none;{% endif %}">
                             <div class="plan-os-nombre">{{ os.nombre }}</div>
                             <div style="display:flex; flex-wrap:wrap; gap:5px;">
                                 {% for plan in os.planes.all %}
-                                    <label class="plan-checkbox-label {% if plan.id in consultorio_actual.planes_agenda_ids and os.id in consultorio_actual.obras_sociales_agenda_ids %}activa{% endif %}">
-                                        <input type="checkbox" name="planes_consultorio" value="{{ plan.id }}" class="plan-checkbox"
-                                               {% if plan.id in consultorio_actual.planes_agenda_ids and os.id in consultorio_actual.obras_sociales_agenda_ids %}checked{% endif %}>
+                                    <label class="plan-checkbox-label {% if plan.id in planes_ids_actuales and os.id in obras_ids_actuales %}activa{% endif %}">
+                                        <input type="checkbox" name="planes" value="{{ plan.id }}" class="plan-checkbox"
+                                               {% if plan.id in planes_ids_actuales and os.id in obras_ids_actuales %}checked{% endif %}>
                                         {{ plan.nombre }}
                                     </label>
                                 {% endfor %}
@@ -229,64 +251,99 @@
                         </div>
                     {% endfor %}
                 </div>
-                
+
+                <hr style="margin: 15px 0;">
+
+                <div style="padding:12px; background:#fffbeb; border-left:3px solid #f59e0b; border-radius:6px;">
+                    <label class="perfil-checkbox-label" style="font-weight:600;">
+                        <input type="checkbox" name="tiene_plus" {% if tiene_plus_actual %}checked{% endif %}>
+                        Algunos planes tienen plus
+                    </label>
+                    <small style="display:block; color:#6c757d; margin-top:6px;">
+                        Si lo marcás, en tu página pública se avisará que algunos planes requieren el pago de un plus.
+                    </small>
+                    <input type="text" name="texto_plus" value="{{ texto_plus_actual|default:'' }}"
+                           placeholder="Mensaje personalizado (opcional)" class="perfil-input" style="margin-top:8px;">
+                </div>
+
                 <button type="submit" class="btn-guardar btn-guardar-block" style="margin-top: 15px;">
-                    💾 Guardar Consultorio
+                    💾 Guardar Cobertura
                 </button>
             </div>
         </form>
-        
-        <!-- ========== HORARIOS (solo lectura) ========== -->
-        <div class="perfil-card">
-            <h3>⏰ Horarios de Atención</h3>
-            {% with agenda=agenda_actual %}
-                {% if agenda %}
-                    <div class="agenda-item">
-                        <div class="agenda-header">
-                            <i class="fas fa-building"></i>
-                            {{ agenda.establecimiento.nombre }}
-                            <span class="simultaneos">{{ agenda.pacientes_simultaneos }} pacientes simultaneos</span>
-                        </div>
-                        {% if agenda.horarios.all %}
-                            <table class="agenda-tabla">
-                                <thead>
-                                    <tr>
-                                        <th>Día</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Dur.</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for h in agenda.horarios.all %}
-                                    <tr>
-                                        <td class="dia-col">{{ h.get_dia_display }}</td>
-                                        <td>{{ h.hora_inicio|time:"H:i" }}</td>
-                                        <td>{{ h.hora_fin|time:"H:i" }}</td>
-                                        <td>{{ h.duracion_turno }} min</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        {% else %}
-                            <p>Sin horarios configurados</p>
-                        {% endif %}
+
+        <!-- ========== HORARIOS POR CONSULTORIO ========== -->
+        {% for item in consultorios_data %}
+        <form method="post" class="form-horarios">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="guardar_horarios">
+            <input type="hidden" name="establecimiento_id" value="{{ item.establecimiento.id }}">
+
+            <div class="perfil-card">
+                <h3>⏰ Horarios - {{ item.establecimiento.nombre }}</h3>
+
+                <div class="consultorio-header-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ item.establecimiento.direccion|default:"Sin dirección" }}</span>
+                    {% if item.establecimiento.telefono %}
+                        <i class="fas fa-phone" style="margin-left:10px;"></i>
+                        <span>{{ item.establecimiento.telefono }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="perfil-grid-2">
+                    <div>
+                        <label class="perfil-label">👥 Pacientes simultáneos</label>
+                        <input type="number" name="pacientes_simultaneos" min="1"
+                               value="{{ item.agenda.pacientes_simultaneos|default:1 }}"
+                               class="perfil-input">
+                        <small style="color:#6c757d;">Cantidad de pacientes que podés atender al mismo tiempo.</small>
                     </div>
-                {% else %}
-                    <p>No tenés agenda para este consultorio.</p>
-                {% endif %}
-            {% endwith %}
+                </div>
+
+                <label class="perfil-label" style="margin-top:15px;">📅 Días y horas de atención</label>
+                <div class="horarios-editor">
+                    {% for h in item.horarios %}
+                    <div class="horario-row">
+                        <select name="horario_dia" class="perfil-select">
+                            {% for k, v in dias_semana %}
+                                <option value="{{ k }}" {% if h.dia == k %}selected{% endif %}>{{ v }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="time" name="horario_inicio" value="{{ h.hora_inicio|time:'H:i' }}" class="perfil-input">
+                        <input type="time" name="horario_fin" value="{{ h.hora_fin|time:'H:i' }}" class="perfil-input">
+                        <input type="number" name="horario_duracion" value="{{ h.duracion_turno }}" placeholder="Min" class="perfil-input" min="5">
+                        <button type="button" class="btn-quitar-horario" onclick="this.closest('.horario-row').remove()">✕</button>
+                    </div>
+                    {% empty %}
+                    <p style="color:#6c757d; font-size:0.9rem; margin:0;">Todavía no cargaste horarios. Agregá uno abajo.</p>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn-agregar-horario" onclick="agregarHorario(this)">
+                    + Agregar día
+                </button>
+
+                <button type="submit" class="btn-guardar btn-guardar-block" style="margin-top: 15px;">
+                    💾 Guardar Horarios
+                </button>
+            </div>
+        </form>
+        {% empty %}
+        <div class="perfil-card">
+            <p class="sin-consultorios">No tenés consultorios asignados. Contactá al administrador.</p>
         </div>
-        
+        {% endfor %}
+
     </div>
 </div>
 
 <!-- ========== SCRIPTS ========== -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Manejar visibilidad de planes según obras sociales seleccionadas
+    // Visibilidad de planes según OS seleccionadas
     const osCheckboxes = document.querySelectorAll('.os-checkbox');
-    
+
     function updatePlanesVisibility() {
         osCheckboxes.forEach(cb => {
             const osId = cb.value;
@@ -296,10 +353,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     grupo.style.display = 'block';
                 } else {
                     grupo.style.display = 'none';
-                    // Desmarcar planes de esta OS
                     grupo.querySelectorAll('.plan-checkbox').forEach(planCb => {
                         planCb.checked = false;
-                        // Actualizar clase activa del label
                         const label = planCb.closest('.plan-checkbox-label');
                         if (label) label.classList.remove('activa');
                     });
@@ -307,32 +362,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Asignar evento a cada checkbox de OS
+
     osCheckboxes.forEach(cb => {
         cb.addEventListener('change', updatePlanesVisibility);
     });
-    
-    // Actualizar al cargar
+
     updatePlanesVisibility();
-    
-    // Resaltar checkboxes al hacer clic (clases activas)
+
+    // Resaltar checkboxes
     const labels = document.querySelectorAll('.os-checkbox-label, .plan-checkbox-label');
     labels.forEach(label => {
-        label.addEventListener('click', function(e) {
+        label.addEventListener('click', function() {
             const checkbox = this.querySelector('input[type="checkbox"]');
             if (checkbox) {
                 setTimeout(() => {
-                    if (checkbox.checked) {
-                        this.classList.add('activa');
-                    } else {
-                        this.classList.remove('activa');
-                    }
+                    this.classList.toggle('activa', checkbox.checked);
                 }, 10);
             }
         });
     });
 });
-</script>
 
+// Plantilla de días (reutilizable para agregar filas)
+const DIAS_HTML = `{% for k, v in dias_semana %}<option value="{{ k }}">{{ v }}</option>{% endfor %}`;
+
+function agregarHorario(btn) {
+    const form = btn.closest('form');
+    const contenedor = form.querySelector('.horarios-editor');
+    // Si el contenedor tenía un mensaje "no hay horarios", lo sacamos
+    const msg = contenedor.querySelector('p');
+    if (msg) msg.remove();
+
+    const div = document.createElement('div');
+    div.className = 'horario-row';
+    div.innerHTML = `
+        <select name="horario_dia" class="perfil-select">${DIAS_HTML}</select>
+        <input type="time" name="horario_inicio" class="perfil-input">
+        <input type="time" name="horario_fin" class="perfil-input">
+        <input type="number" name="horario_duracion" placeholder="Min" class="perfil-input" min="5">
+        <button type="button" class="btn-quitar-horario" onclick="this.closest('.horario-row').remove()">✕</button>
+    `;
+    contenedor.appendChild(div);
+}
+</script>
 {% endblock %}
