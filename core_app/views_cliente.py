@@ -108,46 +108,29 @@ def portal(request, cliente_slug):
     }
     
     if cliente.tipo == 'consultorio':
-        # Obtenemos los profesionales de este consultorio
+        # ========== CONSULTORIO (sin cambios) ==========
         profesionales_qs = Profesional.objects.filter(
             establecimientos=cliente.establecimiento, activo=True
         ).prefetch_related('agenda_set__horarios', 'agenda_set__obras_sociales')
 
         profesionales = []
         for prof in profesionales_qs:
-            # Buscar la agenda específica de este profesional en el establecimiento del cliente
             agenda = prof.agenda_set.filter(
                 establecimiento=cliente.establecimiento, activo=True
             ).first()
 
-            # Planes aceptados por este profesional/agenda
-            if agenda:
-                planes_aceptados = agenda.planes.all()
-                obras_aceptadas = agenda.obras_sociales.all()
-            else:
-                planes_aceptados = prof.planes.all()
-                obras_aceptadas = prof.obras_sociales.all()
-
-            planes_aceptados_ids = set(planes_aceptados.values_list('id', flat=True))
-
-            # Detectar OS que tienen al menos un plan con plus
-            obras_con_plus_ids = set(
-                planes_aceptados.filter(tiene_plus=True).values_list('obra_social_id', flat=True)
-            )
             profesionales.append({
                 'profesional': prof,
                 'agenda': agenda,
                 'precio_particular': agenda.precio_particular if agenda and agenda.precio_particular else prof.precio_particular,
                 'obras_sociales': agenda.obras_sociales.all() if agenda else prof.obras_sociales.all(),
-                'obras_con_plus_ids': obras_con_plus_ids, 
-                'tiene_plus': agenda.tiene_plus if agenda else False,                 
-                'texto_plus': agenda.texto_plus if agenda else '',    
-                # 'planes': agenda.planes.all() if agenda else prof.planes.all(),
+                'tiene_plus': agenda.tiene_plus if agenda else False,
+                'texto_plus': agenda.texto_plus if agenda else '',
                 'email_contacto': agenda.email_contacto if agenda and agenda.email_contacto else prof.email,
                 'telefono_contacto': agenda.telefono_contacto if agenda and agenda.telefono_contacto else prof.telefono,
             })
 
-        # Construir especialidades para los filtros (basado en los profesionales únicos)
+        # Construir especialidades para los filtros
         especialidades_disponibles = []
         especialidades_vistas = set()
         for item in profesionales:
@@ -166,20 +149,55 @@ def portal(request, cliente_slug):
 
         return render(request, 'core_app/landing_consultorio.html', {
             'cliente': cliente,
-            'profesionales': profesionales,          # lista de diccionarios
+            'profesionales': profesionales,
             'especialidades_disponibles': especialidades_disponibles,
         })
     else:
-        # Para tipo 'profesional' (sin cambios)
+        # ========== PROFESIONAL INDEPENDIENTE (corregido) ==========
         profesional = cliente.profesional
         consultorios = profesional.establecimientos.all()
+
+        # Asignar agenda a cada consultorio (para el template, sección "Dónde atiendo")
         for est in consultorios:
-            est.agenda = Agenda.objects.filter(profesional=profesional, establecimiento=est, activo=True).first()
-        
+            est.agenda = Agenda.objects.filter(
+                profesional=profesional,
+                establecimiento=est,
+                activo=True
+            ).first()
+
+        # Agenda "principal" = la misma que edita mi_perfil (primer establecimiento)
+        agenda_principal = None
+        primer_est = consultorios.first()
+        if primer_est:
+            agenda_principal = Agenda.objects.filter(
+                profesional=profesional,
+                establecimiento=primer_est,
+                activo=True
+            ).first()
+
+        # Obras sociales y planes desde la agenda principal (fallback al profesional)
+        if agenda_principal and agenda_principal.obras_sociales.exists():
+            obras_sociales_landing = agenda_principal.obras_sociales.filter(activo=True)
+        else:
+            obras_sociales_landing = profesional.obras_sociales.filter(activo=True)
+
+        # Precio, plus y texto desde la agenda principal
+        if agenda_principal and agenda_principal.precio_particular:
+            precio_particular = agenda_principal.precio_particular
+        else:
+            precio_particular = profesional.precio_particular
+
+        tiene_plus = agenda_principal.tiene_plus if agenda_principal else False
+        texto_plus = agenda_principal.texto_plus if agenda_principal else ''
+
         return render(request, 'core_app/landing_profesional.html', {
             'cliente': cliente,
             'profesional': profesional,
             'consultorios': consultorios,
+            'obras_sociales_landing': obras_sociales_landing,
+            'precio_particular': precio_particular,
+            'tiene_plus': tiene_plus,
+            'texto_plus': texto_plus,
         })
 
 
@@ -262,7 +280,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
             messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes).')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
 
-        # Verificar bloqueo antes de crear el turno
         slot_bloqueado = BloqueoAgenda.objects.filter(
             agenda=agenda,
             fecha=fecha,
@@ -288,7 +305,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
                     except Plan.DoesNotExist:
                         plan_obra_social = None
 
-                    # Validar que el plan esté entre los que ofrece la agenda/profesional
                     planes_validos_ids = set(agenda.planes.values_list('id', flat=True)) if agenda else set()
                     if not planes_validos_ids and profesional.obras_sociales.exists():
                         planes_validos_ids = set(profesional.planes.values_list('id', flat=True))
@@ -385,7 +401,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
             hora_fin=hora_fin, estado='pendiente', tipo_consulta=tipo_consulta
         )
 
-        # comprobante de pago
         comprobante = request.FILES.get('comprobante')
         if comprobante:
             turno.comprobante_pago = comprobante
@@ -418,14 +433,24 @@ def sacar_turno(request, cliente_slug, profesional_id):
         return redirect('portal_cliente', cliente_slug=cliente_slug)
 
     # ---------- GET ----------
-    # Obtener agenda específica para el establecimiento del cliente
     agenda = None
     if cliente.tipo == 'consultorio':
+        # CONSULTORIO: agenda del establecimiento del cliente
         agenda = Agenda.objects.filter(
             profesional=profesional,
             establecimiento=cliente.establecimiento,
             activo=True
         ).first()
+    else:
+        # PROFESIONAL INDEPENDIENTE: usar la misma agenda que edita en mi_perfil
+        # (agenda del primer establecimiento)
+        primer_est = profesional.establecimientos.first()
+        if primer_est:
+            agenda = Agenda.objects.filter(
+                profesional=profesional,
+                establecimiento=primer_est,
+                activo=True
+            ).first()
 
     # Obras sociales: desde agenda si tiene, sino desde profesional
     if agenda and agenda.obras_sociales.exists():
@@ -438,7 +463,6 @@ def sacar_turno(request, cliente_slug, profesional_id):
         obras_sociales_qs = ObraSocial.objects.none()
         planes_permitidos_ids = set()
 
-    # Si no hay planes configurados, mostramos todos los de cada OS (fallback)
     sin_filtro_planes = not planes_permitidos_ids
 
     obras_sociales_data = []
@@ -457,16 +481,13 @@ def sacar_turno(request, cliente_slug, profesional_id):
             ),
         })
 
-    # Alias de pago (global)
     alias_pago = profesional.alias_pago if hasattr(profesional, 'alias_pago') else ''
 
-    # Precio particular (agenda tiene prioridad)
     if agenda and agenda.precio_particular:
         precio_particular = agenda.precio_particular
     else:
         precio_particular = profesional.precio_particular
 
-    # Contacto específico
     email_contacto = agenda.email_contacto if agenda and agenda.email_contacto else profesional.email
     telefono_contacto = agenda.telefono_contacto if agenda and agenda.telefono_contacto else profesional.telefono
 
