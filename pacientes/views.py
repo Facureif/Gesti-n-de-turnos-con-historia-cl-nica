@@ -105,6 +105,7 @@ def registrar_paciente(request):
             numero_afiliado=numero_afiliado,
             genero=genero,
             creado_por=profesional,
+            establecimiento_creacion=establecimiento_activo,
         )
 
         base_username = generar_username(nombre, apellido, dni)
@@ -220,11 +221,22 @@ def buscar_paciente(request):
                 compartidos__profesional_destino=profesional
             ).distinct()
             creados = pacientes_base.filter(creado_por=profesional).distinct()
-            pacientes = (con_turnos | compartidos | creados).distinct()
+            # ✅ Pacientes creados en el mismo establecimiento
+            del_establecimiento = pacientes_base.filter(
+                establecimiento_creacion=establecimiento
+            ).distinct()
+            pacientes = (con_turnos | compartidos | creados | del_establecimiento).distinct()
+
         elif request.user.rol == 'secretaria':
+            # ✅ La secretaria ve todos los pacientes del establecimiento
             pacientes = pacientes_base.filter(
+                establecimiento_creacion=establecimiento
+            ).distinct()
+            # También puede ver los que tienen turnos en el establecimiento (por si vinieron de otro lado)
+            con_turnos = pacientes_base.filter(
                 turnoprofesional__establecimiento=establecimiento
             ).distinct()
+            pacientes = (pacientes | con_turnos).distinct()
         
         # Construir diccionario de obras sociales únicas por paciente
         obras_por_paciente = {}

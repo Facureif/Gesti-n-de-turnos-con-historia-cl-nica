@@ -287,6 +287,10 @@ class ClienteSaaS(ModeloBase):
         default='Sacar Turno',
         verbose_name='Texto botón flotante'
     )
+    texto_plus = models.CharField(
+    max_length=200, blank=True, default='',
+    verbose_name='Mensaje de plus (landing)'
+)
 
     hero_boton_texto = models.CharField(max_length=100, default='Sacar Turno', verbose_name='Texto botón hero')
     boton_flotante_texto = models.CharField(max_length=100, default='Sacar Turno', verbose_name='Texto botón flotante')

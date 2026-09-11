@@ -150,11 +150,19 @@
                         <label class="perfil-label">💰 Precio actual:</label>
                         <span style="font-size:1.1rem; font-weight:bold;">
                             {% if consultorio_actual.precio_agenda %}
-                                <span >${{ consultorio_actual.precio_agenda|floatformat:0|intcomma }}</span>
+                                <span>${{ consultorio_actual.precio_agenda|floatformat:0|intcomma }}</span>
                             {% else %}
                                 No definido
                             {% endif %}
                         </span>
+
+                        {% if consultorio_actual.tiene_plus_agenda %}
+                            <div style="margin-top:6px;">
+                                <span style="background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:12px; font-size:0.8rem;">
+                                    ⚠️ Algunos planes tienen plus
+                                </span>
+                            </div>
+                        {% endif %}
                     </div>
                     <div>
                         <label class="perfil-label">💰 Editar precio de consulta</label>
@@ -163,10 +171,25 @@
                             placeholder="Ej: 5000.00" class="perfil-input">
                         <small style="color:#6c757d;">Dejá vacío para no modificar el precio actual.</small>
                     </div>
-                    <!-- <div>
-                        <label class="perfil-label">💰 Precio actual </label>
-                        <input type="email" name="email_contacto" value="{{ consultorio_actual.email_contacto_agenda|default:'' }}" class="perfil-input">
-                    </div> -->
+                </div>
+
+                <!-- NUEVO: Plus -->
+                <div style="margin-top: 10px; padding: 12px; background:#fffbeb; border-left:3px solid #f59e0b; border-radius:6px;">
+                    <label class="perfil-checkbox-label" style="font-weight:600;">
+                        <input type="checkbox" name="tiene_plus" {% if consultorio_actual.tiene_plus_agenda %}checked{% endif %}>
+                        Algunos planes de obras sociales tienen plus
+                    </label>
+                    <small style="display:block; color:#6c757d; margin-top:6px;">
+                        Si lo marcás, en tu página pública se avisará que algunos planes requieren el pago de un plus.
+                    </small>
+
+                    <div style="margin-top:8px;">
+                        <label class="perfil-label">Mensaje personalizado (opcional)</label>
+                        <input type="text" name="texto_plus" 
+                            value="{{ consultorio_actual.texto_plus_agenda|default:'' }}"
+                            placeholder="Ej: Consultá con el profesional por el plus de tu plan."
+                            class="perfil-input">
+                    </div>
                 </div>
                 <div class="perfil-grid-2">
                     <!-- <div>

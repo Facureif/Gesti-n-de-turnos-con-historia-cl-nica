@@ -53,6 +53,17 @@ class Agenda(ModeloBase):
         verbose_name='Pacientes simultáneos',
         help_text='Cantidad máxima de pacientes que puede atender al mismo tiempo'
     )
+    tiene_plus = models.BooleanField(
+        default=False,
+        verbose_name='Algunos planes tienen plus',
+        help_text='Marcá si algunos planes de obras sociales requieren el pago de un plus.'
+    )
+    texto_plus = models.CharField(
+        max_length=250,
+        blank=True,
+        verbose_name='Mensaje de plus (opcional)',
+        help_text='Si lo dejás vacío se usa el mensaje genérico.'
+    )
 
     class Meta:
         verbose_name = 'Agenda'

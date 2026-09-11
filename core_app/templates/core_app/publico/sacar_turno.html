@@ -103,17 +103,16 @@
                     
                     <select name="obra_social" id="obra_social_select" class="select-field">
                         <option value="">Seleccionar obra social...</option>
-                        {% for os in obras_sociales %}
-                        <option value="{{ os.id }}" 
-                                data-planes='[{% for plan in os.planes.all %}{"id":{{ plan.id }},"nombre":"{{ plan.nombre|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
-                            {{ os.nombre }}
-                        </option>
+                        {% for os in obras_sociales_data %}
+                            <option value="{{ os.id }}" data-planes='{{ os.planes_json }}'>
+                                {{ os.nombre }}
+                            </option>
                         {% endfor %}
                         <option value="particular">Particular</option>
                     </select>
                     
                     <select name="plan_obra_social" id="plan_select" class="select-field" style="display: none;">
-                        <option value="">Seleccionar plan...</option>
+                        <option value="">Seleccionar plan aceptado por el profesional...</option>
                     </select>
                     
                     <div id="numero-afiliado-container" style="display: none;">
@@ -294,7 +293,7 @@ document.getElementById('obra_social_select').addEventListener('change', functio
     
     if (this.value === 'particular' || this.value === '') {
         planSelect.style.display = 'none';
-        planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+        planSelect.innerHTML = '<option value="">Seleccionar plan aceptado por el profesional...</option>';
         afiliadoContainer.style.display = 'none';
         afiliadoContainer.querySelector('input').value = '';
         return;
@@ -308,7 +307,7 @@ document.getElementById('obra_social_select').addEventListener('change', functio
     if (planesData) {
         try {
             var planes = JSON.parse(planesData);
-            planSelect.innerHTML = '<option value="">Seleccionar plan...</option>';
+            planSelect.innerHTML = '<option value="">Seleccionar plan aceptado por el profesional...</option>';
             planes.forEach(function(plan) {
                 planSelect.innerHTML += '<option value="' + plan.id + '">' + plan.nombre + '</option>';
             });

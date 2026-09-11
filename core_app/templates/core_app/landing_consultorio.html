@@ -274,7 +274,14 @@
                                 <h4>💵 Consulta Particular</h4>
                                 <p class="precio-destacado">${{ item.precio_particular|floatformat:0|intcomma }}</p>
                                 {% endif %}
-                                
+
+                                {% if item.tiene_plus %}
+                                <div class="plus-aviso">
+                                    <i class="fas fa-info-circle"></i>
+                                    {{ item.texto_plus|default:"Algunos planes de obras sociales pueden requerir el pago de un plus. Consultá con el profesional." }}
+                                </div>
+                                {% endif %}
+
                                 {% if cliente.mostrar_obras_sociales_landing and item.obras_sociales %}
                                 <h4 style="margin-top: 12px;">🏥 Obras Sociales</h4>
                                 <div class="obras-sociales-list">

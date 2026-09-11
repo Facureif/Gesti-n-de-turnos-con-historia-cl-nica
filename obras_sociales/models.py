@@ -44,7 +44,15 @@ class Plan(ModeloBase):
         default=0,
         verbose_name='Coseguro (%)'
     )
-    
+
+    tiene_plus = models.BooleanField(
+        default=False,
+        verbose_name='Requiere pago de plus'
+    )
+    mensaje_plus = models.CharField(
+        max_length=200, blank=True,
+        verbose_name='Mensaje de plus (opcional)'
+    )
     class Meta:
         verbose_name = 'Plan'
         verbose_name_plural = 'Planes'

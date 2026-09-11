@@ -18,56 +18,61 @@ from turnos_profesionales.models import TurnoProfesional
 from .models import PacienteCompartido
 
 def tiene_acceso(profesional, paciente, establecimiento):
-    """
-    Devuelve True si el profesional puede ver al paciente en ese establecimiento.
-    Condiciones:
-    - Tiene turnos con el paciente en ese establecimiento.
-    - El paciente le fue compartido (cualquier permiso).
-    - Es el creador (si usás ese campo).
-    """
+    if not establecimiento:
+        return False
+
     # Turnos propios en el establecimiento
-    tiene_turnos = TurnoProfesional.objects.filter(
+    if TurnoProfesional.objects.filter(
         profesional=profesional,
         paciente=paciente,
         establecimiento=establecimiento
-    ).exists()
-    if tiene_turnos:
+    ).exists():
         return True
 
     # Compartido explícitamente
-    compartido = PacienteCompartido.objects.filter(
+    if PacienteCompartido.objects.filter(
         paciente=paciente,
         profesional_destino=profesional
-    ).exists()
-    if compartido:
+    ).exists():
         return True
 
-    # Si tenés campo creado_por, podés agregarlo
-    # if paciente.creado_por == profesional:
-    #     return True
+    # Creado por el profesional
+    if paciente.creado_por == profesional:
+        return True
+
+    # ✅ Paciente creado en el mismo establecimiento (visible para todo el consultorio)
+    if paciente.establecimiento_creacion == establecimiento:
+        return True
 
     return False
 
+
 def puede_editar(profesional, paciente, establecimiento):
-    """
-    Devuelve True si el profesional puede editar la ficha, cargar evoluciones, etc.
-    Condiciones:
-    - Es el dueño (tiene turnos o es creador) → se asume que puede editar.
-    - Le fue compartido con puede_editar=True.
-    """
+    if not establecimiento:
+        return False
+
     # Dueño por turnos
-    tiene_turnos = TurnoProfesional.objects.filter(
+    if TurnoProfesional.objects.filter(
         profesional=profesional,
         paciente=paciente,
         establecimiento=establecimiento
-    ).exists()
-    if tiene_turnos:
+    ).exists():
         return True
 
     # Compartido con permiso de edición
-    compartido_editable = PacienteCompartido.objects.filter(
+    if PacienteCompartido.objects.filter(
         paciente=paciente,
         profesional_destino=profesional,
         puede_editar=True
-    ).exists()
-    return compartido_editable    
+    ).exists():
+        return True
+
+    # Creado por el profesional
+    if paciente.creado_por == profesional:
+        return True
+
+    # ✅ Paciente del mismo establecimiento (todos pueden editarlo)
+    if paciente.establecimiento_creacion == establecimiento:
+        return True
+
+    return False

@@ -1278,6 +1278,7 @@ def asignar_turno_calendario(request):
     # GET: búsqueda de pacientes filtrada por consultorio
     busqueda = request.GET.get('buscar', '')
     pacientes = []
+
     if busqueda:
         pacientes = Paciente.objects.filter(
             Q(nombre__icontains=busqueda) |
@@ -1286,18 +1287,29 @@ def asignar_turno_calendario(request):
         )
 
         if establecimiento_filtro:
-            pacientes = pacientes.filter(
+            # ✅ Incluir pacientes creados en el establecimiento y con turnos en él
+            pacientes_est = pacientes.filter(
+                establecimiento_creacion=establecimiento_filtro
+            ).distinct()
+            pacientes_turnos = pacientes.filter(
                 turnoprofesional__establecimiento=establecimiento_filtro
             ).distinct()
+            pacientes = (pacientes_est | pacientes_turnos).distinct()
 
-        pacientes = pacientes[:15]
+            # Si es profesional, también incluir compartidos con él
+            if request.user.rol == 'profesional':
+                compartidos = pacientes.filter(
+                    compartidos__profesional_destino=profesional
+                ).distinct()
+                pacientes = (pacientes | compartidos).distinct()
 
         pacientes_con_os = []
         for paciente in pacientes:
             obras = obtener_obras_sociales_para_mostrar(paciente, profesional)
             paciente.obras_sociales_mostrar = obras
             pacientes_con_os.append(paciente)
-        pacientes = pacientes_con_os
+        pacientes = pacientes_con_os[:15]
+
 
     return render(request, 'turnos_profesionales/asignar_calendario.html', {
         'profesional': profesional,

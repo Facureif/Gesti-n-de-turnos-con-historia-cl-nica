@@ -35,7 +35,13 @@ class Paciente(Persona):
         Profesional, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='pacientes_creados'
     )
-
+    establecimiento_creacion = models.ForeignKey(
+    'establecimientos.Establecimiento',
+    null=True,
+    blank=True,
+    on_delete=models.SET_NULL,
+    related_name='pacientes_creados'
+)
     contacto_emergencia_nombre = models.CharField(max_length=100, blank=True)
     contacto_emergencia_telefono = models.CharField(max_length=20, blank=True)
     

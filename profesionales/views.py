@@ -100,6 +100,11 @@ def mi_perfil(request):
 
             agenda.save()
 
+            # Plus
+            agenda.tiene_plus = request.POST.get('tiene_plus') == 'on'
+            agenda.texto_plus = request.POST.get('texto_plus', '').strip()
+            agenda.save()
+
             # Obras sociales y planes
             obras_ids = request.POST.getlist('obras_sociales_consultorio')
             obras = ObraSocial.objects.filter(id__in=obras_ids)
@@ -155,6 +160,8 @@ def mi_perfil(request):
     establecimiento_actual.telefono_contacto_agenda = None
     establecimiento_actual.obras_sociales_agenda_ids = []
     establecimiento_actual.planes_agenda_ids = []
+    establecimiento_actual.tiene_plus_agenda = False
+    establecimiento_actual.texto_plus_agenda = ''
 
     if agenda_actual:
         establecimiento_actual.precio_agenda = agenda_actual.precio_particular
@@ -169,6 +176,8 @@ def mi_perfil(request):
                 obra_social__in=establecimiento_actual.obras_sociales_agenda_ids
             ).values_list('id', flat=True)
         )
+        establecimiento_actual.tiene_plus_agenda = agenda_actual.tiene_plus
+        establecimiento_actual.texto_plus_agenda = agenda_actual.texto_plus
 
     obras_sociales_disponibles = ObraSocial.objects.filter(activo=True).prefetch_related('planes')
 
