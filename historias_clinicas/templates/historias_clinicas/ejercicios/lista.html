@@ -12,7 +12,7 @@
     <div class="ejercicios-header">
         <h1>💪 Ejercicios de {{ paciente.nombre_completo }}</h1>
         {% if puede_ver_ejercicios %}
-            <a href="{% url 'agregar_ejercicio' paciente.id %}" class="btn-agregar-ejercicio">➕ Agregar Ejercicio</a>
+            <a href="{% url 'agregar_ejercicio' paciente.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn-agregar-ejercicio">➕ Agregar Ejercicio</a>
         {% endif %}
     </div>
 
@@ -25,21 +25,21 @@
                     {% if e.descripcion %}<p class="ejercicio-descripcion">{{ e.descripcion }}</p>{% endif %}
                 </div>
                 <div class="ejercicio-acciones">
-                    <a href="{% url 'editar_ejercicio' e.id %}" class="btn-editar-ejercicio" title="Editar">✏️</a>
-                    <a href="{% url 'eliminar_ejercicio' e.id %}" class="btn-eliminar-ejercicio" onclick="return confirm('¿Eliminar?')" title="Eliminar">🗑️</a>
+                    <a href="{% url 'editar_ejercicio' e.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn-editar-ejercicio">✏️</a>
+                    <a href="{% url 'eliminar_ejercicio' e.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn-eliminar-ejercicio" onclick="return confirm('¿Eliminar?')">🗑️</a>
                 </div>
             </div>
             {% if e.link_video %}
                 <a href="{{ e.link_video }}" target="_blank" class="ejercicio-video">▶ Ver video</a>
             {% endif %}
-            {% if e.imagenes.all %}
+            {% if e.imagenes.exists %}
                 <div class="ejercicio-imagenes">
                     {% for img in e.imagenes.all %}
                     <div class="ejercicio-imagen-wrapper">
                         <a href="{{ img.imagen.url }}" target="_blank">
                             <img src="{{ img.imagen.url }}" alt="">
                         </a>
-                        <a href="{% url 'eliminar_imagen_ejercicio' img.id %}" class="ejercicio-imagen-eliminar" onclick="return confirm('¿Eliminar esta imagen?')">✕</a>
+                        <a href="{% url 'eliminar_imagen_ejercicio' img.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="ejercicio-imagen-eliminar" onclick="return confirm('¿Eliminar esta imagen?')">✕</a>
                     </div>
                     {% endfor %}
                 </div>
@@ -52,6 +52,6 @@
             <p>No hay ejercicios asignados.</p>
         </div>
     {% endif %}
-    <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary mt-3">← Volver a la ficha</a>
+    <a href="{% url 'ficha_paciente' paciente.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn btn-secondary mt-3">← Volver a la ficha</a>
 </div>
 {% endblock %}

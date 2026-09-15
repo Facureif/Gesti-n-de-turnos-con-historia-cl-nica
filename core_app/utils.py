@@ -79,3 +79,76 @@ def get_cliente_actual(request):
     if slug:
         return ClienteSaaS.objects.filter(slug=slug, activo=True).first()
     return None    
+
+from django.db.models import Q
+from establecimientos.models import Establecimiento
+from agendas.models import Agenda
+
+
+def resolver_establecimiento(request, profesional):
+    """
+    Resuelve el establecimiento a usar:
+    1. GET/POST 'establecimiento' (si el profesional tiene acceso vía M2M o vía Agenda)
+    2. sesión 'establecimiento_activo_id'
+    3. get_establecimiento_activo (cliente_slug)
+    4. Si tiene 1 solo, ese
+    5. Primer consultorio con agenda activa
+    """
+    # 1. URL / POST
+    est_id = request.GET.get('establecimiento') or request.POST.get('establecimiento')
+    if est_id:
+        est = Establecimiento.objects.filter(id=est_id).filter(
+            Q(profesionales=profesional) |
+            Q(agenda__profesional=profesional, agenda__activo=True)
+        ).distinct().first()
+        if est:
+            request.session['establecimiento_activo_id'] = est.id
+            return est
+
+    # 2. Sesión propia
+    est_sesion_id = request.session.get('establecimiento_activo_id')
+    if est_sesion_id:
+        est = Establecimiento.objects.filter(id=est_sesion_id).filter(
+            Q(profesionales=profesional) |
+            Q(agenda__profesional=profesional, agenda__activo=True)
+        ).distinct().first()
+        if est:
+            return est
+
+    # 3. Fallback: cliente SaaS
+    est = get_establecimiento_activo(request, profesional)
+    if est:
+        return est
+
+    # 4. Si tiene 1 solo
+    if profesional.establecimientos.count() == 1:
+        return profesional.establecimientos.first()
+
+    # 5. Primer consultorio con agenda activa
+    ag = Agenda.objects.filter(
+        profesional=profesional, activo=True
+    ).select_related('establecimiento').first()
+    if ag:
+        return ag.establecimiento
+
+    return None
+
+def get_consultorios_para_selector(request, profesional):
+    """
+    Devuelve [] si es cliente tipo consultorio (no mostrar selector),
+    o la lista de consultorios si es independiente.
+    """
+    from core_app.models import ClienteSaaS
+
+    cliente_slug = request.session.get('cliente_slug')
+    if cliente_slug:
+        cliente = ClienteSaaS.objects.filter(slug=cliente_slug, activo=True).first()
+        if cliente and cliente.tipo == 'consultorio':
+            return []
+
+    return list(
+        Establecimiento.objects.filter(
+            Q(agenda__profesional=profesional, agenda__activo=True) |
+            Q(profesionales=profesional)
+        ).distinct().order_by('nombre')
+    )

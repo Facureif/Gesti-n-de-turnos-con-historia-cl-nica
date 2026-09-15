@@ -1,9 +1,14 @@
 from datetime import date
+
+from django.urls import reverse
+from agendas.models import Agenda
 from turnos_profesionales.models import TurnoProfesional
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+
+from turnos_profesionales.views import _resolver_establecimiento
 from .models import EstudioMedico, Paciente, PacienteObraSocial
 from usuarios.models import Usuario
 import random, string
@@ -15,7 +20,7 @@ import unicodedata
 import re
 import random
 import string
-from core_app.utils import get_establecimiento_activo
+from core_app.utils import get_establecimiento_activo , get_consultorios_para_selector
 from .utils import tiene_acceso, puede_editar
 
 
@@ -61,19 +66,22 @@ def generar_username(nombre, apellido, dni):
 
 @login_required
 def registrar_paciente(request):
-    """El profesional registra un nuevo paciente."""
     if request.user.rol not in ['profesional', 'secretaria']:
         messages.error(request, 'No tenés acceso.')
         return redirect('home')
-    
+
     profesional = None
     establecimiento_activo = None
 
     if request.user.rol == 'secretaria':
         establecimiento_activo = request.user.establecimiento
     elif request.user.rol == 'profesional':
+        from core_app.utils import resolver_establecimiento
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_activo = get_establecimiento_activo(request, profesional)
+        establecimiento_activo = resolver_establecimiento(request, profesional)
+        if not establecimiento_activo:
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -84,14 +92,20 @@ def registrar_paciente(request):
         email = request.POST.get('email', '').strip()
         direccion = request.POST.get('direccion', '').strip()
         numero_afiliado = request.POST.get('numero_afiliado', '').strip()
+
+        def _volver_al_form():
+            url = reverse('registrar_paciente')
+            if establecimiento_activo:
+                url += f'?establecimiento={establecimiento_activo.id}'
+            return redirect(url)
         
         if not all([nombre, apellido, dni, fecha_nacimiento, telefono]):
             messages.error(request, 'Completá todos los campos obligatorios.')
-            return redirect('registrar_paciente')
-        
+            return _volver_al_form()
+
         if Paciente.objects.filter(dni=dni).exists():
             messages.error(request, 'Ya existe un paciente con ese DNI.')
-            return redirect('registrar_paciente')
+            return _volver_al_form()
         
         genero = request.POST.get('genero', '').strip()
         paciente = Paciente.objects.create(
@@ -148,10 +162,17 @@ def registrar_paciente(request):
         return redirect('ficha_paciente', paciente_id=paciente.id)
     
 
+    consultorios_disponibles = []
+    if request.user.rol == 'profesional' and profesional:
+        consultorios_disponibles = get_consultorios_para_selector(request, profesional)
+
     return render(request, 'pacientes/registrar.html', {
         'profesional': profesional,
         'establecimiento_activo': establecimiento_activo,
+        'consultorios_disponibles': consultorios_disponibles,  
+        'establecimiento_id': establecimiento_activo.id if establecimiento_activo else '',  
     })
+
 
 @login_required
 def actualizar_sesiones(request, paciente_id):
@@ -195,14 +216,11 @@ def buscar_paciente(request):
         establecimiento = request.user.establecimiento
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento = get_establecimiento_activo(request, profesional)
-
+        establecimiento = _resolver_establecimiento(request, profesional)
         if not establecimiento:
-            if profesional.establecimientos.count() == 1:
-                establecimiento = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
+
 
     pacientes = []
     obras_por_paciente = {}
@@ -261,10 +279,15 @@ def buscar_paciente(request):
 
         pacientes = pacientes[:20]
 
+    consultorios_disponibles = []
+    if request.user.rol == 'profesional' and profesional:
+        consultorios_disponibles = get_consultorios_para_selector(request, profesional)
     return render(request, 'pacientes/buscar.html', {
         'profesional': profesional,
         'pacientes': pacientes,
         'busqueda': busqueda,
+        'establecimiento_id': establecimiento.id if establecimiento else '',
+        'consultorios_disponibles': consultorios_disponibles,
     })
 
 
@@ -288,14 +311,26 @@ def ficha_paciente(request, paciente_id):
         puede_compartir = False
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento = get_establecimiento_activo(request, profesional)
+        establecimiento = _resolver_establecimiento(request, profesional)
+
+        # Si no vino por URL y el paciente pertenece a otro consultorio,
+        # cambiar automáticamente a ese
+        est_url = request.GET.get('establecimiento')
+        if not est_url and paciente.establecimiento_creacion:
+            est_paciente = paciente.establecimiento_creacion
+            tiene_acceso_est = (
+                est_paciente in profesional.establecimientos.all() or
+                Agenda.objects.filter(
+                    profesional=profesional, establecimiento=est_paciente, activo=True
+                ).exists()
+            )
+            if tiene_acceso_est:
+                establecimiento = est_paciente
+                request.session['establecimiento_activo_id'] = est_paciente.id
 
         if not establecimiento:
-            if profesional.establecimientos.count() == 1:
-                establecimiento = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
 
         if not tiene_acceso(profesional, paciente, establecimiento):
             messages.error(request, 'No tenés acceso a este paciente.')
@@ -385,6 +420,9 @@ def ficha_paciente(request, paciente_id):
             turno_para_pagar = TurnoProfesional.objects.get(id=turno_id)
         except TurnoProfesional.DoesNotExist:
             pass
+    consultorios_disponibles = []
+    if request.user.rol == 'profesional' and profesional:
+        consultorios_disponibles = get_consultorios_para_selector(request, profesional)        
 
     return render(request, 'pacientes/ficha.html', {
         'profesional': profesional,
@@ -400,6 +438,9 @@ def ficha_paciente(request, paciente_id):
         'mostrar_consultorio': mostrar_consultorio,
         'mostrar_profesional': mostrar_profesional,
         'puede_compartir': puede_compartir,
+        'establecimiento_id': establecimiento.id if establecimiento else '',
+        'consultorios_disponibles': consultorios_disponibles,      
+        'paciente_establecimiento': paciente.establecimiento_creacion,   
     })
 
 @login_required
@@ -412,17 +453,30 @@ def editar_paciente(request, paciente_id):
 
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento = get_establecimiento_activo(request, profesional)
+        establecimiento = _resolver_establecimiento(request, profesional)
+
+        if not request.GET.get('establecimiento') and paciente.establecimiento_creacion:
+            est_pac = paciente.establecimiento_creacion
+            tiene_acceso_est = (
+                est_pac in profesional.establecimientos.all() or
+                Agenda.objects.filter(
+                    profesional=profesional, establecimiento=est_pac, activo=True
+                ).exists()
+            )
+            if tiene_acceso_est:
+                establecimiento = est_pac
+                request.session['establecimiento_activo_id'] = est_pac.id
+
         if not establecimiento:
-            if profesional.establecimientos.count() == 1:
-                establecimiento = profesional.establecimientos.first()
-            else:
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
+
         if not tiene_acceso(profesional, paciente, establecimiento) or not puede_editar(profesional, paciente, establecimiento):
             messages.error(request, 'No tenés permiso para editar este paciente.')
             return redirect('ficha_paciente', paciente_id=paciente.id)
     else:
         profesional = None
+        establecimiento = None
 
     historia = HistoriaClinica.objects.filter(paciente=paciente).first()
     
@@ -454,7 +508,8 @@ def editar_paciente(request, paciente_id):
         'profesional': profesional,
         'paciente': paciente,
         'historia': historia,
-        'obras_sociales': obras_sociales
+        'obras_sociales': obras_sociales,
+        'establecimiento_id': establecimiento.id if establecimiento else '',
     })
 
 
@@ -468,18 +523,27 @@ def ficha_tecnica(request, paciente_id):
 
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento = get_establecimiento_activo(request, profesional)
+        establecimiento = _resolver_establecimiento(request, profesional)
+
+        if not request.GET.get('establecimiento') and paciente.establecimiento_creacion:
+            est_pac = paciente.establecimiento_creacion
+            tiene_acceso_est = (
+                est_pac in profesional.establecimientos.all() or
+                Agenda.objects.filter(
+                    profesional=profesional, establecimiento=est_pac, activo=True
+                ).exists()
+            )
+            if tiene_acceso_est:
+                establecimiento = est_pac
+                request.session['establecimiento_activo_id'] = est_pac.id
+
         if not establecimiento:
-            if profesional.establecimientos.count() == 1:
-                establecimiento = profesional.establecimientos.first()
-            else:
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
+
         if not tiene_acceso(profesional, paciente, establecimiento):
             messages.error(request, 'No tenés acceso a este paciente.')
             return redirect('panel_profesional')
-        if not puede_editar(profesional, paciente, establecimiento):
-            # Aquí podrías permitir solo lectura si quisieras
-            pass
     else:
         profesional = Profesional.objects.first()
     
@@ -791,12 +855,24 @@ def estudios_paciente(request, paciente_id):
         profesional = None
     elif request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento = get_establecimiento_activo(request, profesional)
+        establecimiento = _resolver_establecimiento(request, profesional)
+
+        if not request.GET.get('establecimiento') and paciente.establecimiento_creacion:
+            est_pac = paciente.establecimiento_creacion
+            tiene_acceso_est = (
+                est_pac in profesional.establecimientos.all() or
+                Agenda.objects.filter(
+                    profesional=profesional, establecimiento=est_pac, activo=True
+                ).exists()
+            )
+            if tiene_acceso_est:
+                establecimiento = est_pac
+                request.session['establecimiento_activo_id'] = est_pac.id
+
         if not establecimiento:
-            if profesional.establecimientos.count() == 1:
-                establecimiento = profesional.establecimientos.first()
-            else:
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
+
         if not tiene_acceso(profesional, paciente, establecimiento):
             messages.error(request, 'No tenés acceso a este paciente.')
             return redirect('panel_profesional')
@@ -1318,13 +1394,24 @@ def compartir_paciente(request, paciente_id):
         return redirect('home')
 
     profesional = get_object_or_404(Profesional, usuario=request.user)
-    establecimiento = get_establecimiento_activo(request, profesional)
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    establecimiento = _resolver_establecimiento(request, profesional)
+
+    if not request.GET.get('establecimiento') and paciente.establecimiento_creacion:
+        est_pac = paciente.establecimiento_creacion
+        tiene_acceso_est = (
+            est_pac in profesional.establecimientos.all() or
+            Agenda.objects.filter(
+                profesional=profesional, establecimiento=est_pac, activo=True
+            ).exists()
+        )
+        if tiene_acceso_est:
+            establecimiento = est_pac
+            request.session['establecimiento_activo_id'] = est_pac.id
 
     if not establecimiento:
         messages.error(request, 'Seleccioná tu consultorio activo.')
         return redirect('seleccionar_consultorio')
-
-    paciente = get_object_or_404(Paciente, id=paciente_id)
 
     if not puede_editar(profesional, paciente, establecimiento):
         messages.error(request, 'No tenés permiso para compartir este paciente.')

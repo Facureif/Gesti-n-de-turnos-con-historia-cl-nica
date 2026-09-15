@@ -1,6 +1,6 @@
 from decimal import Decimal
 import threading
-
+from core_app.utils import get_consultorios_para_selector, resolver_establecimiento as _resolver_establecimiento
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -155,19 +155,16 @@ def panel_profesional(request):
         if not profesional:
             messages.error(request, 'No hay profesionales disponibles.')
             return redirect('panel_secretaria')
-        establecimiento_filtro = request.user.establecimiento
-        profesionales_consultorio = Profesional.objects.filter(
-            establecimientos=request.user.establecimiento, activo=True
-        )
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
+        if not establecimiento_filtro:
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
         profesionales_consultorio = None
 
     hoy = date.today()
@@ -247,6 +244,7 @@ def panel_profesional(request):
         'pendientes_hoy': turnos_hoy_qs.filter(estado='pendiente').count(),
         'completados_hoy': turnos_hoy_qs.filter(estado='completado').count(),
         'mostrar_consultorio': mostrar_consultorio,
+        'establecimiento_id': establecimiento_filtro.id if establecimiento_filtro else '',
     }
     return render(request, 'turnos_profesionales/panel.html', contexto)
 
@@ -355,57 +353,52 @@ def completar_turno(request, turno_id):
         pass
 
     return redirect('cargar_evolucion', turno_id=turno.id)
-    
+
 @login_required
 def cobrar_turno(request, turno_id):
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
-    
+
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    
+
     paciente = turno.paciente
-    
+
     if request.user.rol == 'profesional':
         profesional = get_object_or_404(Profesional, usuario=request.user)
     else:
         profesional = None
 
-    # Obtener todas las obras sociales activas del paciente para este profesional
+    establecimiento_id = request.GET.get('establecimiento') or request.POST.get('establecimiento')
+
     obras_sociales_activas = PacienteObraSocial.objects.filter(
         paciente=paciente,
         activa=True,
-        profesional=profesional  # se filtra por el profesional que está cobrando
+        profesional=profesional
     ).select_related('obra_social', 'plan')
 
-    # Por defecto, seleccionamos la primera OS activa (o ninguna)
-    obra_social_seleccionada = None
-    plan_seleccionado = None
+    obra_social_activa_default = obras_sociales_activas.filter(activa=True).first()
 
     if request.method == 'POST':
         monto_total = request.POST.get('monto_total', '')
         monto_os = request.POST.get('monto_os', '')
         monto_coseguro = request.POST.get('monto_coseguro', '')
-        os_id = request.POST.get('obra_social')           # ID de PacienteObraSocial
-        plan_id = request.POST.get('plan')                # ID de Plan (opcional)
+        os_id = request.POST.get('obra_social')
+        plan_id = request.POST.get('plan')
 
-        # Guardar montos
         if monto_total:
             turno.monto_total = Decimal(monto_total)
         if monto_os:
             turno.monto_os = Decimal(monto_os)
-        
-        # Solo guardamos coseguro si se seleccionó una OS
+
         if os_id and monto_coseguro:
             turno.monto_coseguro = Decimal(monto_coseguro)
         else:
             turno.monto_coseguro = None
 
-        # Asociar la obra social elegida al turno (campo existente)
         if os_id:
             try:
                 os_paciente = PacienteObraSocial.objects.get(id=os_id, paciente=paciente)
                 turno.obra_social = os_paciente.obra_social
-                # Si se eligió un plan, podemos guardarlo en el paciente o usarlo para cálculos
                 if plan_id:
                     plan = Plan.objects.get(id=plan_id, obra_social=os_paciente.obra_social)
                     paciente.plan_obra_social = plan
@@ -419,22 +412,27 @@ def cobrar_turno(request, turno_id):
 
         turno.save()
 
-        # Calcular coseguro automático si hay OS y no se especificó coseguro
         if turno.obra_social and turno.monto_total and turno.monto_os and not turno.monto_coseguro:
             turno.monto_coseguro = turno.monto_total - turno.monto_os
             turno.save()
 
         messages.success(request, '✅ Cobro registrado correctamente.')
-        return redirect('panel_profesional')
 
-    # GET
+        url = reverse('panel_profesional')
+        if establecimiento_id:
+            url += f'?establecimiento={establecimiento_id}'
+        return redirect(url)
+
     context = {
         'turno': turno,
         'paciente': paciente,
         'profesional': profesional,
-        'obras_sociales_activas': obras_sociales_activas,   # lista de PacienteObraSocial
+        'obras_sociales_activas': obras_sociales_activas,
+        'obra_social_activa_default': obra_social_activa_default,
+        'establecimiento_id': establecimiento_id,
     }
     return render(request, 'turnos_profesionales/cobrar_turno.html', context)
+
 
 @login_required
 def no_asistio_turno(request, turno_id):
@@ -691,12 +689,13 @@ def api_calendario_proximo_control(request, turno_id):
 
 # ============ ASIGNAR TURNO ============
 from core_app.utils import obtener_obras_sociales_para_mostrar
+from django.urls import reverse
 
 @login_required
 def asignar_turno(request, paciente_id):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    
+
     if request.user.rol == 'secretaria':
         profesional_id = request.GET.get('profesional')
         if profesional_id:
@@ -708,88 +707,92 @@ def asignar_turno(request, paciente_id):
         establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
-    
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
+
     if not profesional:
         messages.error(request, 'No hay profesionales disponibles.')
         return redirect('panel_secretaria' if request.user.rol == 'secretaria' else 'home')
-    
+
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
 
     obras_sociales_mostrar = obtener_obras_sociales_para_mostrar(paciente, profesional)
-    
+
+    # Helper para redirigir a esta misma vista preservando el consultorio
+    def _volver_al_form():
+        url = reverse('asignar_turno', kwargs={'paciente_id': paciente.id})
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
+
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
         hora_str = request.POST.get('hora')
         tipo_consulta = request.POST.get('tipo_consulta', '')
         notas = request.POST.get('notas', '')
-        
+
         if not all([fecha_str, hora_str]):
             messages.error(request, 'Seleccioná fecha y hora.')
-            return redirect('asignar_turno', paciente_id=paciente.id)
-        
+            return _volver_al_form()
+
         try:
             fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
             hora = datetime.strptime(hora_str, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Fecha u hora inválida.')
-            return redirect('asignar_turno', paciente_id=paciente.id)
-        
-        establecimiento = None
+            return _volver_al_form()
+
+        # El establecimiento viene del hidden del form (ya resuelto en el GET)
         establecimiento_id = request.POST.get('establecimiento')
         if establecimiento_id:
             establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
             if establecimiento != establecimiento_filtro:
                 messages.error(request, 'No podés asignar turnos en otro consultorio.')
-                return redirect('asignar_turno', paciente_id=paciente.id)
+                return _volver_al_form()
         else:
             establecimiento = establecimiento_filtro if establecimiento_filtro else profesional.establecimientos.first()
-        
+
         turnos_en_horario = TurnoProfesional.objects.filter(
             profesional=profesional, fecha=fecha, hora_inicio=hora,
             estado__in=['pendiente', 'confirmado']
         )
         if establecimiento_filtro:
             turnos_en_horario = turnos_en_horario.filter(establecimiento=establecimiento)
-        
+
         agenda = Agenda.objects.filter(profesional=profesional, activo=True, fecha_inicio__lte=fecha)
         if establecimiento_filtro:
             agenda = agenda.filter(establecimiento=establecimiento_filtro)
         agenda = agenda.first()
         max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
-        
+
         if turnos_en_horario.count() >= max_simultaneos:
             messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes).')
-            return redirect('asignar_turno', paciente_id=paciente.id)
-        
+            return _volver_al_form()
+
         duracion = 30
         if agenda:
             dia_semana = fecha.weekday()
             horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
             if horario:
                 duracion = horario.duracion_turno
-        
+
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
-        
+
         turno = TurnoProfesional.objects.create(
             profesional=profesional, establecimiento=establecimiento,
             paciente=paciente, fecha=fecha, hora_inicio=hora,
             hora_fin=hora_fin, estado='pendiente',
             tipo_consulta=tipo_consulta, notas_internas=notas
         )
-        
+
         archivo = request.FILES.get('archivo')
         if archivo:
             turno.archivo = archivo
             turno.save()
-        
+
         try:
             threading.Thread(target=crear_evento_google, args=(turno,)).start()
         except:
@@ -797,21 +800,21 @@ def asignar_turno(request, paciente_id):
 
         from .notificaciones import notificar_turno_asignado
         notificar_turno_asignado(turno)
-        
+
         messages.success(request, f'Turno asignado a {paciente.nombre_completo} el {fecha.strftime("%d/%m/%Y")} a las {hora_str}.')
-        
+
         if request.user.rol == 'secretaria':
             return redirect('panel_secretaria')
         return redirect('panel_profesional')
-    
-    # GET
+
+    # ---------- GET ----------
     dias_disponibles = []
     agenda = Agenda.objects.filter(profesional=profesional, activo=True, fecha_inicio__lte=hoy + timedelta(days=30))
     if establecimiento_filtro:
         agenda = agenda.filter(establecimiento=establecimiento_filtro)
     agenda = agenda.first()
     max_simultaneos = agenda.pacientes_simultaneos if agenda else 1
-    
+
     if agenda:
         for i in range(30):
             fecha = hoy + timedelta(days=i)
@@ -837,19 +840,25 @@ def asignar_turno(request, paciente_id):
                         'fecha': fecha, 'fecha_str': fecha.strftime('%Y-%m-%d'),
                         'nombre_dia': fecha.strftime('%A'), 'slots': slots
                     })
-    
+
     profesionales_consultorio = None
     if request.user.rol == 'secretaria':
         profesionales_consultorio = Profesional.objects.filter(
             establecimientos=request.user.establecimiento, activo=True
         )
-    
+
+    consultorios_disponibles = []
+    if request.user.rol == 'profesional':
+        consultorios_disponibles = get_consultorios_para_selector(request, profesional)    
+
     return render(request, 'turnos_profesionales/asignar_turno.html', {
         'profesional': profesional, 'paciente': paciente,
         'dias_disponibles': dias_disponibles, 'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
         'max_simultaneos': max_simultaneos,
         'obras_sociales_mostrar': obras_sociales_mostrar,
+        'establecimiento_activo': establecimiento_filtro,
+        'consultorios_disponibles': consultorios_disponibles,
     })
 
 
@@ -869,14 +878,17 @@ def editar_turno(request, turno_id):
         if request.user != turno.profesional.usuario:
             messages.error(request, 'No tenés permiso.')
             return redirect('panel_profesional')
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     
     hoy = date.today()
+    def _volver_al_form():
+        url = reverse('editar_turno_pro', kwargs={'turno_id': turno.id})
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
     
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
@@ -887,14 +899,14 @@ def editar_turno(request, turno_id):
         
         if not all([fecha_str, hora_str, estado]):
             messages.error(request, 'Completá fecha, hora y estado.')
-            return redirect('editar_turno_pro', turno_id=turno.id)
+            return _volver_al_form()  
         
         try:
             fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
             hora = datetime.strptime(hora_str, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Fecha u hora inválida.')
-            return redirect('editar_turno_pro', turno_id=turno.id)
+            return _volver_al_form() 
         
         existe = TurnoProfesional.objects.filter(
             profesional=profesional, fecha=fecha, hora_inicio=hora,
@@ -904,7 +916,7 @@ def editar_turno(request, turno_id):
             existe = existe.filter(establecimiento=establecimiento_filtro)
         if existe.exists():
             messages.error(request, 'Ese horario ya está ocupado.')
-            return redirect('editar_turno_pro', turno_id=turno.id)
+            return _volver_al_form() 
         
         turno.fecha = fecha
         turno.hora_inicio = hora
@@ -974,7 +986,8 @@ def editar_turno(request, turno_id):
     
     return render(request, 'turnos_profesionales/editar_turno.html', {
         'profesional': profesional, 'turno': turno,
-        'dias_disponibles': dias_disponibles, 'hoy': hoy
+        'dias_disponibles': dias_disponibles, 'hoy': hoy,
+        'establecimiento_id': establecimiento_filtro.id if establecimiento_filtro else ''
     })
 
 # ============ CALENDARIO SEMANAL ============
@@ -982,7 +995,9 @@ def editar_turno(request, turno_id):
 def calendario_semanal(request):
     if request.user.rol not in ['profesional', 'secretaria']:
         return redirect('home')
-    
+
+    consultorios_disponibles = []
+
     if request.user.rol == 'secretaria':
         profesional_id = request.GET.get('profesional')
         if profesional_id:
@@ -997,13 +1012,50 @@ def calendario_semanal(request):
         establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
-        if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+
+        # Detectar si es un cliente tipo consultorio
+        cliente_slug = request.session.get('cliente_slug')
+        cliente = None
+        if cliente_slug:
+            try:
+                cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+            except ClienteSaaS.DoesNotExist:
+                cliente = None
+
+        if cliente and cliente.tipo == 'consultorio':
+            # Cliente tipo consultorio: solo ese establecimiento, sin selector
+            establecimiento_filtro = cliente.establecimiento
+            consultorios_disponibles = []
+        else:
+            # Profesional independiente: todos sus consultorios con agenda activa
+            consultorios_disponibles = list(
+                Establecimiento.objects.filter(
+                    agenda__profesional=profesional,
+                    agenda__activo=True
+                ).distinct()
+            )
+
+            # Prioridad: URL > sesión > primero de la lista
+            est_id = request.GET.get('establecimiento')
+            establecimiento_filtro = None
+
+            if est_id:
+                try:
+                    est_sel = Establecimiento.objects.get(id=est_id)
+                    if est_sel in consultorios_disponibles:
+                        establecimiento_filtro = est_sel
+                except Establecimiento.DoesNotExist:
+                    pass
+
+            if not establecimiento_filtro:
+                establecimiento_filtro = get_establecimiento_activo(request, profesional)
+
+            if not establecimiento_filtro:
+                if consultorios_disponibles:
+                    establecimiento_filtro = consultorios_disponibles[0]
+                else:
+                    messages.error(request, 'No tenés consultorios configurados.')
+                    return redirect('panel_profesional')
 
     fecha_str = request.GET.get('fecha')
     if fecha_str:
@@ -1148,6 +1200,8 @@ def calendario_semanal(request):
         'semana_siguiente': semana_siguiente.strftime('%Y-%m-%d'),
         'hoy': hoy,
         'profesionales_consultorio': profesionales_consultorio,
+        'consultorios_disponibles': consultorios_disponibles,  
+        'establecimiento_filtro': establecimiento_filtro,
     })
 
 # ============ ASIGNAR TURNO DESDE CALENDARIO ============
@@ -1164,7 +1218,7 @@ def asignar_turno_calendario(request):
             profesional_id = request.POST.get('profesional')
         else:
             profesional_id = request.GET.get('profesional')
-        
+
         if profesional_id:
             profesional = get_object_or_404(Profesional, id=profesional_id)
         else:
@@ -1174,14 +1228,10 @@ def asignar_turno_calendario(request):
         establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
-
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
 
     fecha_str = request.GET.get('fecha', '')
     hora_str = request.GET.get('hora', '')
@@ -1234,7 +1284,10 @@ def asignar_turno_calendario(request):
             establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
             if establecimiento != establecimiento_filtro:
                 messages.error(request, 'No podés asignar turnos en otro consultorio.')
-                return redirect('calendario_semanal')
+                url = reverse('calendario_semanal')
+                if establecimiento_filtro:
+                    url += f'?establecimiento={establecimiento_filtro.id}'
+                return redirect(url)
         else:
             establecimiento = establecimiento_filtro
 
@@ -1250,7 +1303,10 @@ def asignar_turno_calendario(request):
 
         if turnos_en_horario >= max_simultaneos:
             messages.error(request, f'Horario completo (máx. {max_simultaneos} pacientes).')
-            return redirect('calendario_semanal')
+            url = reverse('calendario_semanal')
+            if establecimiento_filtro:
+                url += f'?establecimiento={establecimiento_filtro.id}'
+            return redirect(url)
 
         turno = TurnoProfesional.objects.create(
             profesional=profesional,
@@ -1273,7 +1329,10 @@ def asignar_turno_calendario(request):
             request,
             f'Turno asignado a {paciente.nombre_completo} el {fecha.strftime("%d/%m/%Y")} a las {hora_str}.'
         )
-        return redirect('calendario_semanal')
+        url = reverse('calendario_semanal')
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
 
     # GET: búsqueda de pacientes filtrada por consultorio
     busqueda = request.GET.get('buscar', '')
@@ -1287,21 +1346,24 @@ def asignar_turno_calendario(request):
         )
 
         if establecimiento_filtro:
-            # ✅ Incluir pacientes creados en el establecimiento y con turnos en él
-            pacientes_est = pacientes.filter(
-                establecimiento_creacion=establecimiento_filtro
-            ).distinct()
-            pacientes_turnos = pacientes.filter(
-                turnoprofesional__establecimiento=establecimiento_filtro
-            ).distinct()
-            pacientes = (pacientes_est | pacientes_turnos).distinct()
-
-            # Si es profesional, también incluir compartidos con él
             if request.user.rol == 'profesional':
-                compartidos = pacientes.filter(
-                    compartidos__profesional_destino=profesional
+                # Incluir si:
+                # - Fue creado en este consultorio
+                # - Fue creado por este profesional (fallback data vieja sin consultorio)
+                # - Tiene turnos en este consultorio
+                # - Está compartido con este profesional
+                pacientes = pacientes.filter(
+                    Q(establecimiento_creacion=establecimiento_filtro) |
+                    Q(creado_por=profesional) |
+                    Q(turnoprofesional__establecimiento=establecimiento_filtro) |
+                    Q(compartidos__profesional_destino=profesional)
                 ).distinct()
-                pacientes = (pacientes | compartidos).distinct()
+            else:
+                # Secretaria: creados en este consultorio o con turnos acá
+                pacientes = pacientes.filter(
+                    Q(establecimiento_creacion=establecimiento_filtro) |
+                    Q(turnoprofesional__establecimiento=establecimiento_filtro)
+                ).distinct()
 
         pacientes_con_os = []
         for paciente in pacientes:
@@ -1321,7 +1383,8 @@ def asignar_turno_calendario(request):
         'pacientes': pacientes,
         'busqueda': busqueda,
         'establecimiento_activo': establecimiento_filtro,
-        'pacientes': pacientes
+        'pacientes': pacientes,
+        'establecimiento_id': establecimiento_filtro.id if establecimiento_filtro else '',
     })
 
 
@@ -1357,26 +1420,40 @@ def bloquear_dia(request):
         
         if not fecha_str:
             messages.error(request, 'Seleccioná una fecha.')
-            return redirect('calendario_semanal')
+            url = reverse('calendario_semanal')
+            if establecimiento_filtro:
+                url += f'?establecimiento={establecimiento_filtro.id}'
+            return redirect(url)
         
         try:
             fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
         except ValueError:
             messages.error(request, 'Fecha inválida.')
-            return redirect('calendario_semanal')
+            url = reverse('calendario_semanal')
+            if establecimiento_filtro:
+                url += f'?establecimiento={establecimiento_filtro.id}'
+            return redirect(url)
         
         # Obtener la agenda activa para esa fecha
-        agenda = Agenda.objects.filter(
-            profesional=profesional, activo=True,
-            fecha_inicio__lte=fecha
+        establecimiento_id = request.POST.get('establecimiento') or request.GET.get('establecimiento')
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
+
+        agenda_qs = Agenda.objects.filter(
+            profesional=profesional, activo=True, fecha_inicio__lte=fecha
         ).filter(
             Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha)
-        ).first()
-        
+        )
+        if establecimiento_filtro:
+            agenda_qs = agenda_qs.filter(establecimiento=establecimiento_filtro)
+        agenda = agenda_qs.first()
+
         if not agenda:
-            messages.error(request, 'No tenés agenda configurada para esa fecha.')
-            return redirect('calendario_semanal')
-        
+            messages.error(request, 'No tenés agenda configurada para esa fecha y consultorio.')
+            url = reverse('calendario_semanal')
+            if establecimiento_filtro:
+                url += f'?establecimiento={establecimiento_filtro.id}'
+            return redirect(url)
+            
         # Determinar rango horario
         if dia_completo:
             hora_inicio = None
@@ -1384,13 +1461,19 @@ def bloquear_dia(request):
         else:
             if not hora_inicio_str or not hora_fin_str:
                 messages.error(request, 'Indicá horario de inicio y fin.')
-                return redirect('calendario_semanal')
+                url = reverse('calendario_semanal')
+                if establecimiento_filtro:
+                    url += f'?establecimiento={establecimiento_filtro.id}'
+                return redirect(url)
             try:
                 hora_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
                 hora_fin = datetime.strptime(hora_fin_str, '%H:%M').time()
             except ValueError:
                 messages.error(request, 'Horario inválido.')
-                return redirect('calendario_semanal')
+                url = reverse('calendario_semanal')
+                if establecimiento_filtro:
+                    url += f'?establecimiento={establecimiento_filtro.id}'
+                return redirect(url)
         
         # 🔍 Buscar turnos que se solapen con el bloqueo
         conflictos = TurnoProfesional.objects.filter(
@@ -1471,9 +1554,15 @@ def bloquear_dia(request):
         )
         
         messages.success(request, f'Bloqueo aplicado el {fecha.strftime("%d/%m/%Y")}.')
-        return redirect('calendario_semanal')
+        url = reverse('calendario_semanal')
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
     
-    return redirect('calendario_semanal')
+    url = reverse('calendario_semanal')
+    if establecimiento_filtro:
+        url += f'?establecimiento={establecimiento_filtro.id}'
+    return redirect(url)
 
 @login_required
 def desbloquear_dia(request, bloqueo_id):
@@ -1695,14 +1784,17 @@ def reprogramar_turno(request, turno_id):
         if request.user != turno.profesional.usuario:
             messages.error(request, 'No tenés permiso.')
             return redirect('panel_profesional')
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     
     hoy = date.today()
+    def _volver_al_form():
+        url = reverse('reprogramar_turno', kwargs={'turno_id': turno.id})
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
     
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
@@ -1711,20 +1803,19 @@ def reprogramar_turno(request, turno_id):
         
         if not all([fecha_str, hora_str]):
             messages.error(request, 'Seleccioná fecha y hora.')
-            return redirect('reprogramar_turno', turno_id=turno.id)
-        
+            return _volver_al_form()
+
         try:
             nueva_fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
             nueva_hora = datetime.strptime(hora_str, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Fecha u hora inválida.')
-            return redirect('reprogramar_turno', turno_id=turno.id)
-        
-        turno_original = TurnoProfesional.objects.get(pk=turno.pk)
+            return _volver_al_form()
 
         if nueva_fecha < hoy:
             messages.error(request, 'No podés reprogramar a una fecha pasada.')
-            return redirect('reprogramar_turno', turno_id=turno.id)
+            return _volver_al_form()
+
         
         existe = TurnoProfesional.objects.filter(
             profesional=profesional, fecha=nueva_fecha, hora_inicio=nueva_hora,
@@ -1734,17 +1825,19 @@ def reprogramar_turno(request, turno_id):
             existe = existe.filter(establecimiento=establecimiento_filtro)
         if existe.exists():
             messages.error(request, 'Ese horario ya está ocupado.')
-            return redirect('reprogramar_turno', turno_id=turno.id)
+            return _volver_al_form()
         
         if establecimiento_id:
             turno.establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
             if turno.establecimiento != establecimiento_filtro:
                 messages.error(request, 'No podés cambiar a otro consultorio.')
-                return redirect('reprogramar_turno', turno_id=turno.id)
+                return _volver_al_form()
         else:
             if not turno.establecimiento:
                 turno.establecimiento = establecimiento_filtro if establecimiento_filtro else profesional.establecimientos.first()
         
+        turno_original = TurnoProfesional.objects.get(pk=turno.pk)
+
         fecha_anterior = turno.fecha
         hora_anterior = turno.hora_inicio
         
@@ -1810,7 +1903,8 @@ def reprogramar_turno(request, turno_id):
                     })
     
     return render(request, 'turnos_profesionales/reprogramar_turno.html', {
-        'profesional': profesional, 'turno': turno, 'dias_disponibles': dias_disponibles, 'hoy': hoy
+        'profesional': profesional, 'turno': turno, 'dias_disponibles': dias_disponibles, 'hoy': hoy,
+        'establecimiento_id': establecimiento_filtro.id if establecimiento_filtro else ''
     })
 
 
@@ -1831,16 +1925,18 @@ def crear_sobreturno(request, paciente_id):
         establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     
     paciente = get_object_or_404(Paciente, id=paciente_id)
     hoy = date.today()
+    def _volver_al_form():
+        url = reverse('crear_sobreturno', kwargs={'paciente_id': paciente.id})
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
     
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
@@ -1852,14 +1948,14 @@ def crear_sobreturno(request, paciente_id):
         
         if not all([fecha_str, hora_str]):
             messages.error(request, 'Seleccioná fecha y hora.')
-            return redirect('crear_sobreturno', paciente_id=paciente.id)
-        
+            return _volver_al_form()
+
         try:
             fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
             hora = datetime.strptime(hora_str, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Fecha u hora inválida.')
-            return redirect('crear_sobreturno', paciente_id=paciente.id)
+            return _volver_al_form()
         
         hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=duracion)).time()
         
@@ -1868,7 +1964,7 @@ def crear_sobreturno(request, paciente_id):
             establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
             if establecimiento != establecimiento_filtro:
                 messages.error(request, 'No podés crear sobreturnos en otro consultorio.')
-                return redirect('crear_sobreturno', paciente_id=paciente.id)
+                return _volver_al_form()
         else:
             establecimiento = establecimiento_filtro if establecimiento_filtro else profesional.establecimientos.first()
         
@@ -1890,7 +1986,8 @@ def crear_sobreturno(request, paciente_id):
         return redirect('panel_profesional')
     
     return render(request, 'turnos_profesionales/sobreturno.html', {
-        'profesional': profesional, 'paciente': paciente, 'hoy': hoy
+        'profesional': profesional, 'paciente': paciente, 'hoy': hoy,
+        'establecimiento_id': establecimiento_filtro.id if establecimiento_filtro else ''
     })
 
 
@@ -1916,15 +2013,10 @@ def sobreturno_calendario(request):
         establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
-
-        # Si no hay consultorio activo y tiene más de uno, forzar selección
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
 
     fecha_str = request.GET.get('fecha', '')
     hora_str = request.GET.get('hora', '')
@@ -1947,7 +2039,10 @@ def sobreturno_calendario(request):
             establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
             if establecimiento != establecimiento_filtro:
                 messages.error(request, 'No podés crear sobreturnos en otro consultorio.')
-                return redirect('calendario_semanal')
+                url = reverse('calendario_semanal')
+                if establecimiento_filtro:
+                    url += f'?establecimiento={establecimiento_filtro.id}'
+                return redirect(url)
         else:
             establecimiento = establecimiento_filtro
 
@@ -1960,7 +2055,10 @@ def sobreturno_calendario(request):
                 hora_fin = (datetime.combine(fecha, hora) + timedelta(minutes=15)).time()
         except ValueError:
             messages.error(request, 'Fecha u hora inválida.')
-            return redirect('calendario_semanal')
+            url = reverse('calendario_semanal')
+            if establecimiento_filtro:
+                url += f'?establecimiento={establecimiento_filtro.id}'
+            return redirect(url)
 
         turno = TurnoProfesional.objects.create(
             profesional=profesional,
@@ -1981,7 +2079,10 @@ def sobreturno_calendario(request):
             pass
 
         messages.success(request, f'🚨 Sobreturno creado para {paciente.nombre_completo}.')
-        return redirect('calendario_semanal')
+        url = reverse('calendario_semanal')
+        if establecimiento_filtro:
+            url += f'?establecimiento={establecimiento_filtro.id}'
+        return redirect(url)
 
     # GET: búsqueda de pacientes filtrada por el consultorio activo
     busqueda = request.GET.get('buscar', '')
@@ -1994,9 +2095,24 @@ def sobreturno_calendario(request):
         )
 
         if establecimiento_filtro:
-            pacientes = pacientes.filter(
-                turnoprofesional__establecimiento=establecimiento_filtro
-            ).distinct()
+            if request.user.rol == 'profesional':
+                # Incluir si:
+                # - Fue creado en este consultorio
+                # - Fue creado por este profesional (fallback data vieja sin consultorio)
+                # - Tiene turnos en este consultorio
+                # - Está compartido con este profesional
+                pacientes = pacientes.filter(
+                    Q(establecimiento_creacion=establecimiento_filtro) |
+                    Q(creado_por=profesional) |
+                    Q(turnoprofesional__establecimiento=establecimiento_filtro) |
+                    Q(compartidos__profesional_destino=profesional)
+                ).distinct()
+            else:
+                # Secretaria: creados en este consultorio o con turnos acá
+                pacientes = pacientes.filter(
+                    Q(establecimiento_creacion=establecimiento_filtro) |
+                    Q(turnoprofesional__establecimiento=establecimiento_filtro)
+        ).distinct()
 
         pacientes = pacientes[:15]
 
@@ -2008,6 +2124,7 @@ def sobreturno_calendario(request):
         'pacientes': pacientes,
         'busqueda': busqueda,
         'establecimiento_activo': establecimiento_filtro,
+        'establecimiento_id': establecimiento_filtro.id if establecimiento_filtro else '',
     })
 
 # ============ RECETA PDF ============
@@ -2162,13 +2279,10 @@ def dashboard(request):
         establecimiento_filtro = establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
         turnos_base = TurnoProfesional.objects.filter(profesional=profesional)
         if establecimiento_filtro:
             turnos_base = turnos_base.filter(establecimiento=establecimiento_filtro)
@@ -2301,13 +2415,10 @@ def exportar_excel(request):
         establecimiento_filtro = establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
         turnos_base = TurnoProfesional.objects.filter(profesional=profesional)
         if establecimiento_filtro:
             turnos_base = turnos_base.filter(establecimiento=establecimiento_filtro)
@@ -2362,13 +2473,10 @@ def cobranza_os(request):
         establecimiento_filtro = establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     
     hoy = date.today()
     mes_str = request.GET.get('mes', hoy.strftime('%Y-%m'))
@@ -2442,13 +2550,10 @@ def reserva_multiple(request, paciente_id):
         establecimiento_filtro = request.user.establecimiento
     else:
         profesional = get_object_or_404(Profesional, usuario=request.user)
-        establecimiento_filtro = get_establecimiento_activo(request, profesional)
+        establecimiento_filtro = _resolver_establecimiento(request, profesional)
         if not establecimiento_filtro:
-            if profesional.establecimientos.count() == 1:
-                establecimiento_filtro = profesional.establecimientos.first()
-            else:
-                messages.error(request, 'Seleccioná tu consultorio activo.')
-                return redirect('seleccionar_consultorio')
+            messages.error(request, 'Seleccioná tu consultorio activo.')
+            return redirect('seleccionar_consultorio')
     
     # paciente_seleccionado = None
     # paciente_id = request.GET.get('paciente_id')

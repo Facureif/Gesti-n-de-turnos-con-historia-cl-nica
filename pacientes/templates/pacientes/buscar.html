@@ -46,7 +46,27 @@
             </div>
         </form>
     </div>
-    
+    <!-- Selector de consultorio (solo profesional independiente con +1) -->
+    {% if consultorios_disponibles|length > 1 %}
+    <div class="card" style="margin-bottom: 16px; padding: 12px 20px;">
+        <form method="get" class="flex items-center gap-3" style="display: flex; align-items: center; gap: 12px;">
+            <label style="font-weight: 600; white-space: nowrap;">
+                <i class="fas fa-building text-primary"></i> Consultorio:
+            </label>
+            <select name="establecimiento" onchange="this.form.submit()"
+                    style="padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; min-width: 240px;">
+                {% for est in consultorios_disponibles %}
+                    <option value="{{ est.id }}" {% if establecimiento_id == est.id %}selected{% endif %}>
+                        {{ est.nombre }}{% if est.direccion %} - {{ est.direccion }}{% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if busqueda %}
+                <input type="hidden" name="q" value="{{ busqueda }}">
+            {% endif %}
+        </form>
+    </div>
+    {% endif %}
     {% if pacientes %}
         <div class="card">
             <div class="card-header">
@@ -65,6 +85,9 @@
                             <th>DNI</th>
                             <th>Teléfono</th>
                             <th>Obra Social</th>
+                            {% if consultorios_disponibles|length > 1 %}
+                                <th>Consultorio</th>
+                            {% endif %}
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -72,13 +95,14 @@
                         {% for p in pacientes %}
                         <tr>
                             <td>
-                                <a href="{% url 'ficha_paciente' p.id %}" 
-                                   style="color: var(--text); text-decoration: none; font-weight: 500;">
+                                <a href="{% url 'ficha_paciente' p.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" 
+                                style="color: var(--text); text-decoration: none; font-weight: 500;">
                                     {{ p.nombre_completo }}
                                 </a>
                             </td>
                             <td><span style="font-family: monospace;">{{ p.dni }}</span></td>
-                            <td>{{ p.telefono }}</td>
+                            <td>
+                                <a href="tel:{{ paciente.telefono }}">{{ p.telefono }}
                             <td>
                                 {% for os in p.obras_sociales %}
                                     <span class="sigla-badge">{{ os.nombre }}</span>{% if not forloop.last %}, {% endif %}
@@ -86,12 +110,23 @@
                                     <span class="text-muted">Particular</span>
                                 {% endfor %}
                             </td>
+                            {% if consultorios_disponibles|length > 1 %}
+                                <td>
+                                    {% if p.establecimiento_creacion %}
+                                        <span class="badge badge-info" style="font-size: 0.75rem;">
+                                            <i class="fas fa-building"></i> {{ p.establecimiento_creacion.nombre }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
                             <td>
                                 <div class="flex gap-2">
-                                    <a href="{% url 'ficha_paciente' p.id %}" class="btn btn-sm">
+                                    <a href="{% url 'ficha_paciente' p.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn btn-sm">
                                         <i class="fas fa-folder-open"></i> Ficha
                                     </a>
-                                    <a href="{% url 'asignar_turno' p.id %}" class="btn btn-success btn-sm">
+                                    <a href="{% url 'asignar_turno' p.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn btn-success btn-sm">
                                         <i class="fas fa-calendar-plus"></i> Turno
                                     </a>
                                 </div>
@@ -111,7 +146,7 @@
                     No se encontraron resultados
                 </p>
                 <p class="text-muted">No hay pacientes que coincidan con "<strong>{{ busqueda }}</strong>"</p>
-                <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 20px;">
+                <a href="{% url 'registrar_paciente' %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn btn-success" style="margin-top: 20px;">
                     <i class="fas fa-user-plus"></i> Registrar Nuevo Paciente
                 </a>
             </div>

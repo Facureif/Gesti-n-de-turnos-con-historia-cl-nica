@@ -26,9 +26,6 @@
             <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
                 ← Volver a la Ficha
             </a>
-            <button type="submit" form="ficha-tecnica-form" class="btn btn-success btn-sm">
-                💾 Guardar Cambios
-            </button>
         </div>
     </div>
 
@@ -55,6 +52,9 @@
 
     <!-- Bloque extra para historiales -->
     {% block ficha_extra %}{% endblock %}
+    <button type="submit" form="ficha-tecnica-form" class="btn btn-success btn-sm" style="display: block; margin: 0 auto;">
+        💾 Guardar Cambios
+    </button>
 
 </div>
 {% endblock %}

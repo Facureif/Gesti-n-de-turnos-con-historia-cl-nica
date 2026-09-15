@@ -42,7 +42,7 @@
             </div>
             <div class="ejercicio-form-botones">
                 <button type="submit" class="btn-guardar-ejercicio">💾 Guardar</button>
-                <a href="{% url 'ejercicios_paciente' paciente.id %}" class="btn-cancelar-ejercicio">Cancelar</a>
+                <a href="{% url 'ejercicios_paciente' paciente.id %}{% if request.GET.establecimiento %}?establecimiento={{ request.GET.establecimiento }}{% endif %}" class="btn-cancelar-ejercicio">Cancelar</a>
             </div>
         </form>
     </div>

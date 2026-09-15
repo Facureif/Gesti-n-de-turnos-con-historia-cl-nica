@@ -15,7 +15,7 @@
             <h1><i class="fas fa-calendar-plus text-success"></i> Asignar Turno</h1>
             <h5>{{profesional}}</h5>
         </div>
-        <a href="{% url 'calendario_semanal' %}{% if request.user.rol == 'secretaria' %}?profesional={{ profesional.id }}{% endif %}" class="btn btn-secondary btn-sm">
+        <a href="{% url 'calendario_semanal' %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn btn-secondary btn-sm">
             <i class="fas fa-arrow-left"></i> Volver al Calendario
         </a>
     </div>
@@ -57,6 +57,7 @@
             <input type="hidden" name="fecha" value="{{ fecha_str }}">
             <input type="hidden" name="hora" value="{{ hora_str }}">
             <input type="hidden" name="profesional" value="{{ profesional.id }}">
+            <input type="hidden" name="establecimiento" value="{{ establecimiento_id }}"> 
             <div class="flex gap-2">
                 <div class="turnos-busqueda-wrapper">
                     <i class="fas fa-search"></i>
@@ -75,7 +76,7 @@
     {% if pacientes %}
     <form method="post">
         {% csrf_token %}
-        <input type="hidden" name="establecimiento" value="{{ establecimiento_activo.id }}">
+        <input type="hidden" name="establecimiento" value="{{ establecimiento_id }}">
         <input type="hidden" name="fecha" value="{{ fecha_str }}">
         <input type="hidden" name="profesional" value="{{ profesional.id }}">
         <input type="hidden" name="hora" value="{{ hora_str }}">
@@ -136,7 +137,7 @@
             <button type="submit" class="btn btn-success btn-lg" style="flex: 1; justify-content: center; padding: 14px;">
                 <i class="fas fa-check-circle"></i> Asignar Turno
             </button>
-            <a href="{% url 'calendario_semanal' %}" class="btn btn-secondary btn-lg" style="padding: 14px 32px; justify-content: center;">
+            <a href="{% url 'calendario_semanal' %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn btn-secondary btn-lg" style="padding: 14px 32px; justify-content: center;">
                 <i class="fas fa-times"></i> Cancelar
             </a>
         </div>
@@ -148,7 +149,7 @@
                 <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted);"></i>
                 <p style="font-size: 1.1rem; font-weight: 500; color: var(--text-secondary);">No se encontraron resultados</p>
                 <p class="text-muted">No hay pacientes que coincidan con "<strong>{{ busqueda }}</strong>"</p>
-                <a href="{% url 'registrar_paciente' %}" class="btn btn-success" style="margin-top: 20px;">
+                <a href="{% url 'registrar_paciente' %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}"  class="btn btn-success" style="margin-top: 20px;">
                     <i class="fas fa-user-plus"></i> Registrar Nuevo Paciente
                 </a>
             </div>
@@ -159,7 +160,7 @@
                 <i class="fas fa-user-friends" style="font-size: 3rem; color: var(--text-muted);"></i>
                 <p style="color: var(--text-muted);">Buscá un paciente para asignarle el turno</p>
                 <p style="color: var(--text-muted); font-size: 0.9rem;">
-                    También podés <a href="{% url 'registrar_paciente' %}" style="color: var(--primary);">registrar uno nuevo</a>
+                    También podés <a href="{% url 'registrar_paciente' %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}"  style="color: var(--primary);">registrar uno nuevo</a>
                 </p>
             </div>
         </div>

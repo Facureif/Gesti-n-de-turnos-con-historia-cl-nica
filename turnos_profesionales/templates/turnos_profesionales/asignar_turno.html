@@ -58,6 +58,18 @@
         {% endif %}
     </div>
 
+    {% if consultorios_disponibles|length > 1 and paciente.establecimiento_creacion %}
+    <div class="card" style="padding: 10px 16px; margin-bottom: 12px; background: #eff6ff; border-left: 3px solid #2563eb;">
+        <small style="color: #1e40af;">
+            <i class="fas fa-info-circle"></i> 
+            Este paciente fue registrado originalmente en <strong>{{ paciente.establecimiento_creacion.nombre }}</strong>
+            {% if establecimiento_activo and paciente.establecimiento_creacion.id != establecimiento_activo.id %}
+                · Estás asignando el turno en <strong>{{ establecimiento_activo.nombre }}</strong>
+            {% endif %}
+        </small>
+    </div>
+    {% endif %}
+
     <!-- Selector de profesional (secretaria) -->
     {% if request.user.rol == 'secretaria' and profesionales_consultorio %}
     <div class="card">
@@ -82,17 +94,23 @@
         <div class="card-header">
             <h3 class="card-title"><i class="fas fa-building text-primary"></i> Consultorio</h3>
         </div>
-        <select name="establecimiento" class="turnos-select">
-            {% for est in profesional.establecimientos.all %}
-                <option value="{{ est.id }}">{{ est.nombre }} - {{ est.direccion }}</option>
-            {% endfor %}
-        </select>
+        <form method="get">
+            <input type="hidden" name="profesional" value="{{ profesional.id }}">
+            <select name="establecimiento" class="turnos-select" onchange="this.form.submit()">
+                {% for est in profesional.establecimientos.all %}
+                    <option value="{{ est.id }}" {% if establecimiento_activo.id == est.id %}selected{% endif %}>
+                        {{ est.nombre }} - {{ est.direccion }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
     </div>
     {% endif %}
     
     {% if dias_disponibles %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            <input type="hidden" name="establecimiento" value="{{ establecimiento_activo.id }}">
             
             <!-- Paso 1: Día -->
             <div class="card">

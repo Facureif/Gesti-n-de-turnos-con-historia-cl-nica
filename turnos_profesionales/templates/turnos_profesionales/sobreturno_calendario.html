@@ -38,6 +38,7 @@
             <input type="hidden" name="fecha" value="{{ fecha_str }}">
             <input type="hidden" name="hora" value="{{ hora_str }}">
             <input type="hidden" name="hora_fin" value="{{ hora_fin_str }}">
+            <input type="hidden" name="establecimiento" value="{{ establecimiento_activo.id }}">
             <div class="flex gap-2">
                 <input type="text" name="buscar" value="{{ busqueda }}" 
                        placeholder="Nombre, apellido o DNI..."
@@ -53,6 +54,7 @@
         <input type="hidden" name="fecha" value="{{ fecha_str }}">
         <input type="hidden" name="hora" value="{{ hora_str }}">
         <input type="hidden" name="hora_fin" value="{{ hora_fin_str }}">
+        <input type="hidden" name="establecimiento" value="{{ establecimiento_activo.id }}">
         
         <div class="card" style="margin-bottom: 20px; padding: 24px;">
             <h3 style="margin: 0 0 12px 0; font-size: 1rem; font-weight: 700;">Seleccioná el paciente</h3>

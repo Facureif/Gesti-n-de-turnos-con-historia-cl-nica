@@ -17,10 +17,10 @@
     </div>
     
     <div class="flex gap-2">
-        <a href="?fecha={{ semana_anterior }}{% if request.user.rol == 'secretaria' %}&profesional={{ profesional.id }}{% endif %}" class="btn btn-secondary btn-sm">
+        <a href="?fecha={{ semana_anterior }}{% if establecimiento_filtro %}&establecimiento={{ establecimiento_filtro.id }}{% endif %}{% if request.user.rol == 'secretaria' and request.GET.profesional %}&profesional={{ request.GET.profesional }}{% endif %}" class="btn btn-secondary btn-sm">
             <i class="fas fa-chevron-left"></i> Anterior
         </a>
-        <a href="?fecha={{ semana_siguiente }}{% if request.user.rol == 'secretaria' %}&profesional={{ profesional.id }}{% endif %}" class="btn btn-sm">
+        <a href="?fecha={{ semana_siguiente }}{% if establecimiento_filtro %}&establecimiento={{ establecimiento_filtro.id }}{% endif %}{% if request.user.rol == 'secretaria' and request.GET.profesional %}&profesional={{ request.GET.profesional }}{% endif %}" class="btn btn-sm">
             Siguiente <i class="fas fa-chevron-right"></i>
         </a>
         {% if request.user.rol == 'secretaria' %}
@@ -53,6 +53,32 @@
         <!-- Mantener la fecha actual si existe -->
         {% if request.GET.fecha %}
             <input type="hidden" name="fecha" value="{{ request.GET.fecha }}">
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+
+<!-- Selector de consultorio para profesional independiente -->
+{% if consultorios_disponibles|length > 1 %}
+<div class="card secretaria-profesional-card" style="margin-top: 12px;">
+    <form method="get" class="flex items-center gap-3">
+        <label style="font-weight: 600; white-space: nowrap;">
+            <i class="fas fa-building text-primary"></i> Consultorio:
+        </label>
+        <select name="establecimiento" onchange="this.form.submit()"
+                style="padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 0.9rem; min-width: 250px;">
+            {% for est in consultorios_disponibles %}
+                <option value="{{ est.id }}" {% if establecimiento_filtro.id == est.id %}selected{% endif %}>
+                    {{ est.nombre }}{% if est.direccion %} - {{ est.direccion }}{% endif %}
+                </option>
+            {% endfor %}
+        </select>
+        <!-- Mantener la fecha actual si existe -->
+        {% if request.GET.fecha %}
+            <input type="hidden" name="fecha" value="{{ request.GET.fecha }}">
+        {% endif %}
+        {% if request.user.rol == 'secretaria' and request.GET.profesional %}
+            <input type="hidden" name="profesional" value="{{ request.GET.profesional }}">
         {% endif %}
     </form>
 </div>
@@ -274,6 +300,7 @@
             <form method="post" action="{% url 'bloquear_dia' %}">
                 {% csrf_token %}
                 <input type="hidden" name="fecha" id="fecha-bloqueo">
+                <input type="hidden" name="establecimiento" value="{{ establecimiento_filtro.id }}"> 
                 
                 <div style="margin-bottom: 16px;">
                     <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500;">
@@ -320,6 +347,7 @@
 <script>
 // Variable global con el ID del profesional actual (útil para secretarias)
 const profesionalId = {{ profesional.id }};
+const establecimientoId = {% if establecimiento_filtro %}{{ establecimiento_filtro.id }}{% else %}null{% endif %};
 
 function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaFin, tipo, estadoDisplay, estado, sesiones, pacienteId, esSobreturno, noAsistioAutomatico, puedeReactivar, archivoUrl) {
     document.getElementById('modal-turno-paciente').textContent = (esSobreturno === 'si' ? '🚨 ' : '') + paciente;
@@ -337,7 +365,7 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
     } else {
         archivoRow.style.display = 'none';
     }
-    
+
     var badge = document.getElementById('modal-turno-badge');
     badge.textContent = estadoDisplay;
     badge.className = 'badge modal-badge ';
@@ -347,14 +375,14 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
     else if (estado === 'cancelado') badge.className += 'badge-cancelado';
     else if (estado === 'no_asistio') badge.className += 'badge-noasistio';
     else badge.className += 'badge-danger';
-    
+
     document.getElementById('btn-confirmar').style.display = estado === 'pendiente' ? 'inline-flex' : 'none';
     document.getElementById('btn-completar').style.display = estado === 'confirmado' ? 'inline-flex' : 'none';
     document.getElementById('btn-no-asistio').style.display = estado === 'confirmado' ? 'inline-flex' : 'none';
     document.getElementById('btn-cancelar').style.display = (estado === 'pendiente' || estado === 'confirmado') ? 'inline-flex' : 'none';
     document.getElementById('btn-editar').style.display = (estado !== 'completado') ? 'inline-flex' : 'none';
     document.getElementById('btn-reprogramar').style.display = (estado === 'pendiente' || estado === 'confirmado') ? 'inline-flex' : 'none';
-    
+
     document.getElementById('btn-confirmar').href = '/profesional/confirmar/' + turnoId + '/';
     document.getElementById('btn-completar').href = '/profesional/completar/' + turnoId + '/';
     document.getElementById('btn-cancelar').href = '/profesional/cancelar/' + turnoId + '/';
@@ -375,10 +403,15 @@ function mostrarModalTurno(turnoId, paciente, telefono, fecha, horaInicio, horaF
     } else {
         btnAtenderIgual.style.display = 'none';
     }
-        
+
     var partesFecha = fecha.split('/');
     var fechaISO = partesFecha[2] + '-' + partesFecha[1] + '-' + partesFecha[0];
-    document.getElementById('btn-sobreturno-modal').href = '/profesional/sobreturno-calendario/?fecha=' + fechaISO + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;    
+    var urlSob = '/profesional/sobreturno-calendario/?fecha=' + fechaISO + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;
+    if (establecimientoId) {
+        urlSob += '&establecimiento=' + establecimientoId;
+    }
+    document.getElementById('btn-sobreturno-modal').href = urlSob;
+
     document.getElementById('modal-turno').classList.add('activo');
 }
 
@@ -387,9 +420,14 @@ function cerrarModalTurno() { document.getElementById('modal-turno').classList.r
 function mostrarModalSlot(fecha, horaInicio, horaFin) {
     document.getElementById('slot-info').textContent = '📅 ' + fecha.split('-').reverse().join('/');
     document.getElementById('slot-horario').textContent = '⏰ ' + horaInicio + ' - ' + horaFin;
-    document.getElementById('link-turno-normal').href = '/profesional/asignar-desde-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&profesional=' + profesionalId;
-    document.getElementById('link-sobreturno').href = '/profesional/sobreturno-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;
-    document.getElementById('link-sobreturno').href = '/profesional/sobreturno-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId;
+
+    var extra = establecimientoId ? '&establecimiento=' + establecimientoId : '';
+
+    document.getElementById('link-turno-normal').href =
+        '/profesional/asignar-desde-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&profesional=' + profesionalId + extra;
+    document.getElementById('link-sobreturno').href =
+        '/profesional/sobreturno-calendario/?fecha=' + fecha + '&hora=' + horaInicio + '&hora_fin=' + horaFin + '&profesional=' + profesionalId + extra;
+
     document.getElementById('modal-slot').classList.add('activo');
 }
 

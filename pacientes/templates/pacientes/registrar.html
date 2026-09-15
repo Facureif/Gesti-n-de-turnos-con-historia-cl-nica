@@ -14,6 +14,31 @@
         <h1><i class="fas fa-user-plus" style="color: var(--success);"></i> Registrar Nuevo Paciente</h1>
         <p>Completá los datos para crear un nuevo paciente</p>
     </div>
+
+    {% if establecimiento_activo %}
+    <div class="card" style="padding: 12px 20px; margin-bottom: 16px; background: #eff6ff; border-left: 3px solid #2563eb;">
+        {% if consultorios_disponibles|length > 1 %}
+            <form method="get" style="display: flex; align-items: center; gap: 12px;">
+                <label style="font-weight: 600; white-space: nowrap;">
+                    <i class="fas fa-building" style="color: #2563eb;"></i> Se registrará en:
+                </label>
+                <select name="establecimiento" onchange="this.form.submit()"
+                        style="padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; min-width: 240px;">
+                    {% for est in consultorios_disponibles %}
+                        <option value="{{ est.id }}" {% if establecimiento_activo.id == est.id %}selected{% endif %}>
+                            {{ est.nombre }}{% if est.direccion %} - {{ est.direccion }}{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        {% else %}
+            <small style="color: #1e40af;">
+                <i class="fas fa-building"></i>
+                Este paciente se registrará en <strong>{{ establecimiento_activo.nombre }}</strong>
+            </small>
+        {% endif %}
+    </div>
+    {% endif %}
     
     <form method="post">
         {% csrf_token %}

@@ -3,11 +3,44 @@ from datetime import date, timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from .models import Profesional
 from agendas.models import Agenda, HorarioAtencion
 from establecimientos.models import Establecimiento
 from obras_sociales.models import ObraSocial, Plan
 from core_app.models import ClienteSaaS
+
+
+def _get_consultorios_editables(profesional):
+    """
+    Devuelve la lista de Establecimientos que el profesional puede editar.
+    Une dos fuentes:
+      1. Establecimientos donde tiene una Agenda activa (aunque no esté en el M2M).
+      2. Establecimientos asignados en el M2M (por si todavía no tiene agenda).
+    Sin duplicados.
+    """
+    consultorios = []
+    vistos = set()
+
+    # 1. Desde agendas activas
+    agendas = Agenda.objects.filter(
+        profesional=profesional,
+        activo=True
+    ).select_related('establecimiento')
+
+    for ag in agendas:
+        est = ag.establecimiento
+        if est and est.id not in vistos:
+            vistos.add(est.id)
+            consultorios.append(est)
+
+    # 2. Desde el M2M
+    for est in profesional.establecimientos.all():
+        if est.id not in vistos:
+            vistos.add(est.id)
+            consultorios.append(est)
+
+    return consultorios
 
 
 @login_required
@@ -31,7 +64,9 @@ def mi_perfil(request):
     if cliente and cliente.tipo == 'consultorio':
         # Es un consultorio: solo el establecimiento del cliente
         establecimiento_cliente = cliente.establecimiento
-        if establecimiento_cliente not in profesional.establecimientos.all():
+
+        consultorios_editables_ids = {e.id for e in _get_consultorios_editables(profesional)}
+        if establecimiento_cliente.id not in consultorios_editables_ids:
             messages.error(request, 'No tenés permisos para este consultorio.')
             return redirect('panel_profesional')
 
@@ -39,8 +74,8 @@ def mi_perfil(request):
         es_independiente = False
         cobertura_es_compartida = False
     else:
-        # Profesional independiente: todos sus consultorios
-        consultorios = list(profesional.establecimientos.all())
+        # Profesional independiente: todos sus consultorios (agendas + M2M)
+        consultorios = _get_consultorios_editables(profesional)
         if not consultorios:
             messages.error(request, 'No tenés consultorios asignados. Contactá al administrador.')
             return redirect('panel_profesional')
@@ -140,8 +175,9 @@ def mi_perfil(request):
                 messages.error(request, 'Consultorio no encontrado.')
                 return redirect('mi_perfil')
 
-            # Verificar pertenencia
-            if est not in profesional.establecimientos.all():
+            # Verificar pertenencia (agendas + M2M)
+            consultorios_validos_ids = {e.id for e in _get_consultorios_editables(profesional)}
+            if est.id not in consultorios_validos_ids:
                 messages.error(request, 'No tenés permisos para este consultorio.')
                 return redirect('mi_perfil')
 
@@ -179,6 +215,8 @@ def mi_perfil(request):
             duraciones = request.POST.getlist('horario_duracion')
 
             agenda.horarios.all().delete()
+
+            errores = []
             for dia, ini, fin, dur in zip(dias, inicios, fines, duraciones):
                 if not (ini and fin and dur):
                     continue
@@ -192,8 +230,20 @@ def mi_perfil(request):
                     )
                 except (ValueError, TypeError):
                     continue
+                except ValidationError as e:
+                    # Ej: solapamiento con otro consultorio del mismo profesional
+                    nombre_dia = dict(HorarioAtencion.DIAS).get(int(dia), dia)
+                    msg = e.messages[0] if getattr(e, 'messages', None) else str(e)
+                    errores.append(f'{nombre_dia} {ini}-{fin}: {msg}')
+                    continue
 
-            messages.success(request, f'Horarios de {est.nombre} actualizados.')
+            if errores:
+                messages.warning(
+                    request,
+                    'Algunos horarios no se guardaron: ' + ' | '.join(errores)
+                )
+            else:
+                messages.success(request, f'Horarios de {est.nombre} actualizados.')
             return redirect('mi_perfil')
 
         return redirect('mi_perfil')

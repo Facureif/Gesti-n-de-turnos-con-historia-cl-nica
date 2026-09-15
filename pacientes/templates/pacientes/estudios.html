@@ -15,7 +15,7 @@
         <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0;">📁 Estudios Médicos</h1>
         <p style="color: var(--text-muted); margin-top: 4px;">{{ paciente.nombre_completo }}</p>
     </div>
-    <a href="{% url 'ficha_paciente' paciente.id %}" class="btn btn-secondary btn-sm">
+    <a href="{% url 'ficha_paciente' paciente.id %}{% if request.GET.establecimiento %}?establecimiento={{ request.GET.establecimiento }}{% endif %}" class="btn btn-secondary btn-sm">
         ← Volver a la ficha
     </a>
 </div>

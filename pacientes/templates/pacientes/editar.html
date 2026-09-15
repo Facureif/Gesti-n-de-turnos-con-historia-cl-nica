@@ -99,7 +99,9 @@
             <button type="submit" class="btn-guardar-lg">
                 <i class="fas fa-save"></i> Guardar Cambios
             </button>
-            <a href="{% url 'ficha_paciente' paciente.id %}" class="btn-cancelar-lg">
+            
+            <!-- Link de Cancelar con el parámetro preservado -->
+            <a href="{% url 'ficha_paciente' paciente.id %}{% if establecimiento_id %}?establecimiento={{ establecimiento_id }}{% endif %}" class="btn-cancelar-lg">
                 <i class="fas fa-times"></i> Cancelar
             </a>
         </div>
