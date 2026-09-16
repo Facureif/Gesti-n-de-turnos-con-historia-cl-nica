@@ -12,7 +12,6 @@ from turnos_profesionales.views import _resolver_establecimiento
 from .models import EstudioMedico, Paciente, PacienteObraSocial
 from usuarios.models import Usuario
 import random, string
-from django.core.paginator import Paginator
 from profesionales.models import Profesional
 from obras_sociales.models import ObraSocial, Plan
 from historias_clinicas.models import ConsultaNutricional, EvaluacionFonoaudiologica, FichaTecnica, HistoriaClinica, Evolucion, NotaClinica, ParametroLaboratorio, ResultadoLaboratorio, SesionPsicologica, TratamientoOdontologico
@@ -23,6 +22,11 @@ import string
 from core_app.utils import get_establecimiento_activo , get_consultorios_para_selector
 from .utils import tiene_acceso, puede_editar
 
+import logging
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+logger = logging.getLogger(__name__)
 
 def generar_username(nombre, apellido, dni):
     """
@@ -394,15 +398,17 @@ def ficha_paciente(request, paciente_id):
     paginator_prox = Paginator(proximos_turnos, 5)
     try:
         proximos_turnos_paginados = paginator_prox.page(prox_page)
-    except:
+    except (PageNotAnInteger, EmptyPage) as e:
+        logger.warning(f"Paginación inválida en próximos turnos (prox_page={prox_page}): {e}")
         proximos_turnos_paginados = paginator_prox.page(1)
 
     hist_page = request.GET.get('hist_page', 1)
     paginator_hist = Paginator(turnos_pasados, 10)
     try:
         turnos_pasados_paginados = paginator_hist.page(hist_page)
-    except:
-        turnos_pasados_paginados = paginator_hist.page(1)        
+    except (PageNotAnInteger, EmptyPage) as e:
+        logger.warning(f"Paginación inválida en historial (hist_page={hist_page}): {e}")
+        turnos_pasados_paginados = paginator_hist.page(1)     
 
     if request.user.rol == 'profesional' and profesional:
         obras_sociales_paciente = paciente.mis_obras_sociales.filter(

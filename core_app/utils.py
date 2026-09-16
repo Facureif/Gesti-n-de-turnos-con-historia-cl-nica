@@ -152,3 +152,41 @@ def get_consultorios_para_selector(request, profesional):
             Q(profesionales=profesional)
         ).distinct().order_by('nombre')
     )
+
+
+import logging
+import threading
+
+logger = logging.getLogger(__name__)
+
+
+def safe_task(target, *args, **kwargs):
+    """
+    Ejecuta una función en un thread y loguea errores sin romper el request.
+    Reemplaza el patrón:
+        try:
+            threading.Thread(target=..., args=...).start()
+        except:
+            pass
+    """
+    def wrapper():
+        try:
+            target(*args, **kwargs)
+        except Exception as e:
+            logger.exception(
+                f"Error en tarea de background '{target.__name__}': {e}"
+            )
+
+    threading.Thread(target=wrapper, daemon=True).start()
+
+
+def safe_call(target, *args, **kwargs):
+    """
+    Llama a una función y loguea errores sin propagarlos.
+    Para tareas donde no querés que falle el flujo principal.
+    """
+    try:
+        return target(*args, **kwargs)
+    except Exception as e:
+        logger.exception(f"Error en '{target.__name__}': {e}")
+        return None

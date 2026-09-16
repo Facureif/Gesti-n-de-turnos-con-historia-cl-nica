@@ -1,5 +1,5 @@
 import json
-
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -95,7 +95,7 @@ def mis_turnos(request):
     
     paciente = get_object_or_404(Paciente, usuario=request.user)
     hoy = date.today()
-    ahora = datetime.now()
+    ahora = timezone.localtime()
 
     # Cliente SaaS
     cliente_slug = request.session.get('cliente_slug')
@@ -194,7 +194,7 @@ def cancelar_turno_paciente(request, turno_id):
     paciente = get_object_or_404(Paciente, usuario=request.user)
     turno = get_object_or_404(TurnoProfesional, id=turno_id, paciente=paciente)
     
-    ahora = datetime.now()
+    ahora = timezone.localtime()
     fecha_hora_turno = datetime.combine(turno.fecha, turno.hora_inicio)
     horas_restantes = (fecha_hora_turno - ahora).total_seconds() / 3600
     
@@ -389,6 +389,11 @@ def mostrar_formulario_paciente(request, paciente, profesional, hoy, cliente=Non
         
         if fecha < hoy:
             messages.error(request, 'No podés sacar turno para una fecha pasada.')
+            return redirect('sacar_turno_paciente_profesional', profesional_id=profesional.id)
+
+        # Bloquear horarios ya pasados del día actual
+        if fecha == hoy and hora <= timezone.localtime().time():
+            messages.error(request, 'Ese horario ya pasó. Elegí uno posterior.')
             return redirect('sacar_turno_paciente_profesional', profesional_id=profesional.id)
         
         establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)

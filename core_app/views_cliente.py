@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from datetime import date, timedelta, datetime
+from django.utils import timezone
+from core_app.utils import safe_task
 from .models import ClienteSaaS
 from establecimientos.models import Establecimiento
 from profesionales.models import Profesional
@@ -267,6 +269,13 @@ def sacar_turno(request, cliente_slug, profesional_id):
             messages.error(request, 'No podés sacar turno para una fecha pasada.')
             return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
 
+        # Bloquear horarios ya pasados del día actual
+        if fecha == hoy:
+            ahora = timezone.localtime().time()
+            if hora <= ahora:
+                messages.error(request, 'Ese horario ya pasó. Elegí uno posterior.')
+                return redirect('sacar_turno_cliente', cliente_slug=cliente_slug, profesional_id=profesional.id)
+
         establecimiento = get_object_or_404(Establecimiento, id=establecimiento_id)
 
         agenda = Agenda.objects.filter(
@@ -427,12 +436,8 @@ def sacar_turno(request, cliente_slug, profesional_id):
             turno.comprobante_pago = comprobante
             turno.save()
 
-        try:
-            import threading
-            from turnos_profesionales.views import crear_evento_google
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        from turnos_profesionales.views import crear_evento_google
+        safe_task(crear_evento_google, turno)
 
         from turnos_profesionales.notificaciones import notificar_creacion_cuenta, notificar_turno_asignado
 

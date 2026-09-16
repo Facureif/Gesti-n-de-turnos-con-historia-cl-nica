@@ -1,5 +1,4 @@
 from decimal import Decimal
-import threading
 from core_app.utils import get_consultorios_para_selector, resolver_establecimiento as _resolver_establecimiento
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -23,8 +22,11 @@ from datetime import datetime
 from core_app.models import ClienteSaaS
 from core_app.utils import get_establecimiento_activo
 from pacientes.utils import puede_editar
+from django.utils import timezone
+import logging
+from core_app.utils import safe_task
 
-
+logger = logging.getLogger(__name__)
 
 def marcar_turnos_vencidos(profesional=None):
     """
@@ -94,12 +96,12 @@ def crear_evento_google(turno):
         end_time = f"{fecha_str}T{turno.hora_fin.strftime('%H:%M:%S')}"
         summary = f"Turno: {turno.paciente.nombre_completo} - {turno.profesional.nombre_completo}"
         description = f"""
-Paciente: {turno.paciente.nombre_completo}
-DNI: {turno.paciente.dni}
-Teléfono: {turno.paciente.telefono}
-Tipo: {turno.tipo_consulta or '—'}
-Consultorio: {turno.establecimiento.nombre if turno.establecimiento else '—'}
-        """
+                        Paciente: {turno.paciente.nombre_completo}
+                        DNI: {turno.paciente.dni}
+                        Teléfono: {turno.paciente.telefono}
+                        Tipo: {turno.tipo_consulta or '—'}
+                        Consultorio: {turno.establecimiento.nombre if turno.establecimiento else '—'}
+                        """
         location = turno.establecimiento.direccion if turno.establecimiento else ''
         attendees = []
         if turno.paciente.email:
@@ -116,7 +118,7 @@ Consultorio: {turno.establecimiento.nombre if turno.establecimiento else '—'}
             turno.save(update_fields=['google_event_id'])
             return True
     except Exception as e:
-        print(f"❌ Error Google Calendar: {e}")
+        logger.exception(f"Error creando evento en Google Calendar: {e}")
     return False
 
 
@@ -127,7 +129,8 @@ def eliminar_evento_google(turno):
     try:
         gcal = GoogleCalendarManager()
         return gcal.delete_event(turno.google_event_id)
-    except:
+    except Exception as e:
+        logger.exception(f"Error eliminando evento de Google Calendar: {e}")
         return False
 
 
@@ -294,10 +297,7 @@ def cancelar_turno(request, turno_id):
     notificar_cancelacion_turno(turno, cancelado_por='profesional')
     
     # Eliminar evento de Google Calendar
-    try:
-        threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
-    except:
-        pass
+    safe_task(eliminar_evento_google, turno)
     
     messages.warning(request, f'Turno de {turno.paciente.nombre_completo} cancelado.')
     
@@ -347,10 +347,7 @@ def completar_turno(request, turno_id):
     from .notificaciones import notificar_turno_completado
     notificar_turno_completado(turno)
     # Eliminar evento de Google Calendar
-    try:
-        threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
-    except:
-        pass
+    safe_task(eliminar_evento_google, turno)
 
     return redirect('cargar_evolucion', turno_id=turno.id)
 
@@ -470,10 +467,7 @@ def no_asistio_turno(request, turno_id):
     notificar_no_asistio(turno)
 
     # Eliminar evento de Google Calendar
-    try:
-        threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
-    except:
-        pass
+    safe_task(eliminar_evento_google, turno)
 
     messages.warning(request, f'{turno.paciente.nombre_completo} no asistió.')
 
@@ -489,23 +483,23 @@ def cargar_evolucion(request, turno_id):
     if request.user.rol != 'profesional':
         messages.error(request, 'Solo el profesional puede cargar evoluciones.')
         return redirect('home')
-    
+
     turno = get_object_or_404(TurnoProfesional, id=turno_id)
     profesional = get_object_or_404(Profesional, usuario=request.user)
-    
+
     # Verificar acceso: dueño del turno o con permiso de edición sobre el paciente en el establecimiento del turno
     if request.user != turno.profesional.usuario:
         if not puede_editar(profesional, turno.paciente, turno.establecimiento):
             messages.error(request, 'No tenés permiso para cargar esta evolución.')
             return redirect('panel_profesional')
-    
+
     historia = HistoriaClinica.objects.filter(paciente=turno.paciente).first()
     if not historia:
         historia = HistoriaClinica.objects.create(
             paciente=turno.paciente,
             numero_historia=f"HC-{turno.paciente.id:06d}"
         )
-    
+
     if request.method == 'POST':
         motivo = request.POST.get('motivo')
         diagnostico = request.POST.get('diagnostico', '')
@@ -513,11 +507,11 @@ def cargar_evolucion(request, turno_id):
         indicaciones = request.POST.get('indicaciones', '')
         proximo_control = request.POST.get('proximo_control', '')
         medicacion_recetada = request.POST.get('medicacion_recetada', '')
-        
+
         if not motivo:
             messages.error(request, 'El motivo de consulta es obligatorio.')
             return redirect('cargar_evolucion', turno_id=turno.id)
-        
+
         evolucion = Evolucion.objects.create(
             historia_clinica=historia, turno=turno, profesional=profesional,
             motivo_consulta=motivo, diagnostico=diagnostico,
@@ -525,7 +519,7 @@ def cargar_evolucion(request, turno_id):
             medicacion_recetada=medicacion_recetada,
             proximo_control=proximo_control if proximo_control else None
         )
-        
+
         archivos = request.FILES.getlist('archivos')
         descripcion_archivo = request.POST.get('descripcion_archivo', '')
         for archivo in archivos:
@@ -533,24 +527,24 @@ def cargar_evolucion(request, turno_id):
                 evolucion=evolucion, archivo=archivo,
                 descripcion=descripcion_archivo, tipo='foto'
             )
-        
+
         if proximo_control:
             try:
                 fecha_control = datetime.strptime(proximo_control, '%Y-%m-%d').date()
                 hora_preferida = request.POST.get('proximo_control_hora', '')
-                
+
                 agenda = Agenda.objects.filter(
                     profesional=profesional, activo=True,
                     fecha_inicio__lte=fecha_control
                 ).filter(Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=fecha_control)).first()
-                
+
                 if agenda:
                     dia_semana = fecha_control.weekday()
                     horario = HorarioAtencion.objects.filter(agenda=agenda, dia=dia_semana).first()
-                    
+
                     if horario:
                         slot_encontrado = None
-                        
+
                         if hora_preferida:
                             try:
                                 hora_pref = datetime.strptime(hora_preferida, '%H:%M').time()
@@ -560,13 +554,13 @@ def cargar_evolucion(request, turno_id):
                                 ).exists()
                                 if not ocupado:
                                     if horario.hora_inicio <= hora_pref and (
-                                        datetime.combine(fecha_control, hora_pref) + 
+                                        datetime.combine(fecha_control, hora_pref) +
                                         timedelta(minutes=horario.duracion_turno)
                                     ).time() <= horario.hora_fin:
                                         slot_encontrado = hora_pref
-                            except:
-                                pass
-                        
+                            except Exception as e:
+                                logger.exception(f"Error procesando hora preferida '{hora_preferida}': {e}")
+
                         if not slot_encontrado:
                             hora_actual = horario.hora_inicio
                             while hora_actual < horario.hora_fin:
@@ -577,11 +571,11 @@ def cargar_evolucion(request, turno_id):
                                 if not ocupado:
                                     slot_encontrado = hora_actual
                                     break
-                                hora_actual = (datetime.combine(fecha_control, hora_actual) + 
+                                hora_actual = (datetime.combine(fecha_control, hora_actual) +
                                               timedelta(minutes=horario.duracion_turno)).time()
-                        
+
                         if slot_encontrado:
-                            hora_fin_control = (datetime.combine(fecha_control, slot_encontrado) + 
+                            hora_fin_control = (datetime.combine(fecha_control, slot_encontrado) +
                                                timedelta(minutes=horario.duracion_turno)).time()
                             nuevo_turno = TurnoProfesional.objects.create(
                                 profesional=profesional,
@@ -593,25 +587,22 @@ def cargar_evolucion(request, turno_id):
                                 notas_internas=f'Turno automático del {turno.fecha.strftime("%d/%m/%Y")}'
                             )
                             # Google Calendar
-                            try:
-                                threading.Thread(target=crear_evento_google, args=(nuevo_turno,)).start()
-                            except:
-                                pass
-                            messages.success(request, 
+                            safe_task(crear_evento_google, nuevo_turno)
+
+                            messages.success(request,
                                 f'✅ Turno de control creado para el {fecha_control.strftime("%d/%m/%Y")} a las {slot_encontrado.strftime("%H:%M")}.')
                         else:
-                            messages.info(request, 
+                            messages.info(request,
                                 f'⚠️ No se encontraron horarios libres para el {fecha_control.strftime("%d/%m/%Y")}.')
-            except:
-                pass
-        
+            except Exception as e:
+                logger.exception(f"Error creando turno de control para fecha '{proximo_control}': {e}")
+
         messages.success(request, '✅ Evolución guardada. Completá la ficha del paciente.')
         return redirect(f'/pacientes/{turno.paciente.id}/?turno_id={turno.id}')
-    
+
     return render(request, 'turnos_profesionales/cargar_evolucion.html', {
         'profesional': profesional, 'turno': turno, 'historia': historia
     })
-
 
 @login_required
 def api_calendario_proximo_control(request, turno_id):
@@ -745,6 +736,11 @@ def asignar_turno(request, paciente_id):
             messages.error(request, 'Fecha u hora inválida.')
             return _volver_al_form()
 
+        # Bloquear horarios ya pasados del día actual
+        if fecha == hoy and hora <= timezone.localtime().time():
+            messages.error(request, 'Ese horario ya pasó. Elegí uno posterior.')
+            return _volver_al_form()
+
         # El establecimiento viene del hidden del form (ya resuelto en el GET)
         establecimiento_id = request.POST.get('establecimiento')
         if establecimiento_id:
@@ -793,10 +789,7 @@ def asignar_turno(request, paciente_id):
             turno.archivo = archivo
             turno.save()
 
-        try:
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        safe_task(crear_evento_google, turno)
 
         from .notificaciones import notificar_turno_asignado
         notificar_turno_asignado(turno)
@@ -942,11 +935,8 @@ def editar_turno(request, turno_id):
         for archivo in archivos:
             ArchivoTurno.objects.create(turno=turno, archivo=archivo, descripcion=descripcion_archivo)
         
-        try:
-            threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        safe_task(eliminar_evento_google, turno)
+        safe_task(crear_evento_google, turno)
         
         messages.success(request, 'Turno actualizado correctamente.')
         if request.user.rol == 'secretaria':
@@ -1247,6 +1237,11 @@ def asignar_turno_calendario(request):
         messages.error(request, 'Fecha u hora inválida.')
         return redirect('calendario_semanal')
 
+    # Bloquear horarios ya pasados del día actual
+    if fecha == date.today() and hora <= timezone.localtime().time():
+        messages.error(request, 'Ese horario ya pasó. Elegí uno posterior.')
+        return redirect('calendario_semanal')
+
     # Agenda filtrada por consultorio activo
     agenda = Agenda.objects.filter(
         profesional=profesional,
@@ -1320,10 +1315,7 @@ def asignar_turno_calendario(request):
             notas_internas=notas,
         )
 
-        try:
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        safe_task(crear_evento_google, turno)
 
         messages.success(
             request,
@@ -1504,10 +1496,6 @@ def bloquear_dia(request):
                 'dia_completo': dia_completo,
                 'agenda': agenda,
             })
-        
-        import threading
-        from django.core.mail import send_mail
-        from django.conf import settings
 
         if conflictos.exists():
             for turno in conflictos:
@@ -1518,29 +1506,6 @@ def bloquear_dia(request):
                 from .notificaciones import notificar_cancelacion_turno
                 # En el loop:
                 notificar_cancelacion_turno(turno, cancelado_por='sistema', motivo=motivo)
-
-                # Enviar notificación por email al paciente (si tiene email)
-                # if turno.paciente.email:
-                #     subject = f'Turno cancelado - {turno.establecimiento.nombre}'
-                #     message = (
-                #         f'Hola {turno.paciente.nombre_completo},\n\n'
-                #         f'Tu turno del día {turno.fecha.strftime("%d/%m/%Y")} '
-                #         f'a las {turno.hora_inicio.strftime("%H:%M")} con '
-                #         f'{turno.profesional.nombre_completo} fue cancelado.\n'
-                #         f'Motivo: {motivo}\n\n'
-                #         f'Podés ingresar a tu panel para reprogramar:\n'
-                #         f'http://127.0.0.1:8000/usuarios/login/\n\n'
-                #         f'Saludos.'
-                #     )
-                    # try:
-                        # Envío asíncrono para no demorar la respuesta
-                    #     threading.Thread(
-                    #         target=send_mail,
-                    #         args=(subject, message, settings.DEFAULT_FROM_EMAIL, [turno.paciente.email]),
-                    #         kwargs={'fail_silently': True}
-                    #     ).start()
-                    # except Exception:
-                    #     pass 
 
             messages.warning(request, f'Se cancelaron {conflictos.count()} turno(s) afectado(s).')
         
@@ -1860,11 +1825,8 @@ def reprogramar_turno(request, turno_id):
         from .notificaciones import notificar_reprogramacion_turno
         notificar_reprogramacion_turno(turno_original, turno)
         
-        try:
-            threading.Thread(target=eliminar_evento_google, args=(turno,)).start()
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        safe_task(eliminar_evento_google, turno)
+        safe_task(crear_evento_google, turno)
         
         messages.success(request, f'Turno reprogramado del {fecha_anterior.strftime("%d/%m/%Y")} {hora_anterior.strftime("%H:%M")} → {nueva_fecha.strftime("%d/%m/%Y")} {nueva_hora.strftime("%H:%M")}.')
         if request.user.rol == 'secretaria':
@@ -1975,10 +1937,7 @@ def crear_sobreturno(request, paciente_id):
             tipo_consulta=tipo_consulta, notas_internas=notas, es_sobreturno=True
         )
         
-        try:
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        safe_task(crear_evento_google, turno)
         
         messages.success(request, f'¡Sobreturno creado! {paciente.nombre_completo} - {fecha.strftime("%d/%m/%Y")} a las {hora_str}.')
         if request.user.rol == 'secretaria':
@@ -2073,10 +2032,7 @@ def sobreturno_calendario(request):
             es_sobreturno=True,
         )
 
-        try:
-            threading.Thread(target=crear_evento_google, args=(turno,)).start()
-        except:
-            pass
+        safe_task(crear_evento_google, turno)
 
         messages.success(request, f'🚨 Sobreturno creado para {paciente.nombre_completo}.')
         url = reverse('calendario_semanal')
@@ -2482,7 +2438,8 @@ def cobranza_os(request):
     mes_str = request.GET.get('mes', hoy.strftime('%Y-%m'))
     try:
         inicio = datetime.strptime(mes_str + '-01', '%Y-%m-%d').date()
-    except:
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Mes inválido '{mes_str}', usando mes actual: {e}")
         inicio = hoy.replace(day=1)
     fin = (inicio + timedelta(days=32)).replace(day=1) - timedelta(days=1)
     
