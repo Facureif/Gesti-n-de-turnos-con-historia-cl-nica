@@ -99,7 +99,7 @@
                         <span class="text-muted">- {{ turno.hora_fin|time:"H:i" }}</span>
                     </td>
                     {% if mostrar_consultorio %}
-                        <td class="text-muted">{{ turno.establecimiento.nombre|default:"—" }}</td>
+                    <td class="text-muted">{{ turno.establecimiento.nombre|default:"—" }}</td>
                     {% endif %}
                     <td>
                         <a href="{% url 'ficha_paciente' turno.paciente.id %}" class="paciente-link">
@@ -245,7 +245,9 @@
             </div>
             <div class="proximo-turno-separador"></div>
             <div class="proximo-turno-info">
-                <div class="paciente">{{ turno.paciente.nombre_completo }}</div>
+                <div>
+                    <a href="{% url 'ficha_paciente' turno.paciente.id %}" class="paciente">{{ turno.paciente.nombre_completo }}</a>
+                </div>
                 <div class="hora">{{ turno.hora_inicio|time:"H:i" }}</div>
             </div>
             <span class="badge {% if turno.estado == 'confirmado' %}badge-success{% else %}badge-warning{% endif %}">

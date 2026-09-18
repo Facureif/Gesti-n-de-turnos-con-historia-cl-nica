@@ -1,0 +1,4965 @@
+[
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$MJjuJOqnViwcdRyRzguByh$XkC7WeAlOXeNeXjPaQdq/Rt7TIQWQfRoNevonQ1LEN8=",
+    "last_login": "2026-06-17T17:56:48.438Z",
+    "is_superuser": false,
+    "username": "Secretaria",
+    "first_name": "monica",
+    "last_name": "geller",
+    "email": "monica@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-06-10T20:55:14Z",
+    "rol": "secretaria",
+    "telefono": "",
+    "establecimiento": 1,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$UnngiVFt6sh8XtAdkaSmGE$y8mShe8YZnNtx1AU+vjGr1tRd7WUxxIceoeSmtINbXg=",
+    "last_login": "2026-09-15T19:16:51.887Z",
+    "is_superuser": false,
+    "username": "monica",
+    "first_name": "Monica",
+    "last_name": "Geller",
+    "email": "monica@consultorio.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-06-17T16:53:45.751Z",
+    "rol": "secretaria",
+    "telefono": "",
+    "establecimiento": 1,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$FyhcIGNXsEs5ioES6xSA7C$0n+ZBPq37X4IkQnSvDnQfqD6hFwLnDrkcy0SrWsxn1E=",
+    "last_login": "2026-09-09T21:01:31.398Z",
+    "is_superuser": false,
+    "username": "mlopez.kine",
+    "first_name": "Mariana",
+    "last_name": "Lopez",
+    "email": "mlopez.kine@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:10.460Z",
+    "rol": "profesional",
+    "telefono": "11-5678-9001",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$SRovLpu3ezbeRdYe93aN8b$37ApG+IrNcKbscqQUthVFSUZCBGEuptGvZETtxAGz7Q=",
+    "last_login": "2026-09-16T20:25:13.530Z",
+    "is_superuser": false,
+    "username": "cgarcia.odonto",
+    "first_name": "Carlos",
+    "last_name": "Garcia",
+    "email": "cgarcia.odonto@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:11.890Z",
+    "rol": "profesional",
+    "telefono": "11-5678-9002",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$gb7pua5xQYRvRpaZDLHHo6$4kiGBZuNcaMrbdeb2H0fIa3cOTlxDjEEntJPrFDpXug=",
+    "last_login": "2026-08-13T17:45:01.913Z",
+    "is_superuser": false,
+    "username": "lmartinez.nutri",
+    "first_name": "Laura",
+    "last_name": "Martinez",
+    "email": "lmartinez.nutri@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:13.323Z",
+    "rol": "profesional",
+    "telefono": "11-5678-9003",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$p7YhFqx1xiYWT71aILhlrI$OilhTSSIz5/X07CWsDEjFwyqNw7YUu0nVoNtAwPckbo=",
+    "last_login": "2026-09-16T19:47:52.501Z",
+    "is_superuser": false,
+    "username": "rfernandez.fono",
+    "first_name": "Roberto",
+    "last_name": "Fernandez",
+    "email": "rfernandez.fono@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:14.647Z",
+    "rol": "profesional",
+    "telefono": "11-5678-9004",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$i3TBXBDz8m09uLPeRbdMNI$9OdWMRuq4v8H8hubcsX6diVXkUJId3Vzfv9iaF1duAo=",
+    "last_login": "2026-08-07T22:11:36.110Z",
+    "is_superuser": false,
+    "username": "arodriguez.med",
+    "first_name": "Ana",
+    "last_name": "Rodriguez",
+    "email": "arodriguez.med@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:16.336Z",
+    "rol": "profesional",
+    "telefono": "11-5678-9005",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$QsurIeXK69ebNfbdM0LiNC$qOYqKGHPqh0Evn/ZRQY5coSfraN+pzMwAXmr1e6aXKg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "dcastro.kine",
+    "first_name": "Diego",
+    "last_name": "Castro",
+    "email": "dcastro.kine@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:17.976Z",
+    "rol": "profesional",
+    "telefono": "11-6789-0123",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$bbYNV4ge9zhIvs6ltGMxNf$9XpDaAT/A94g4qmCmYkCLeX4DhnglgsvJrgjmYTrzcY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "msuarez.odonto",
+    "first_name": "Monica",
+    "last_name": "Suarez",
+    "email": "msuarez.odonto@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:19.342Z",
+    "rol": "profesional",
+    "telefono": "11-6789-0124",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$IEFU6RmlLvVaSkCM3yvYa9$LqBUde+g5TpICXovlaBorek3R8YZbdJ9DfXi8ZID4zM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "pedro.rodriguez",
+    "first_name": "Pedro",
+    "last_name": "Rodriguez",
+    "email": "pedro.rodriguez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:20.675Z",
+    "rol": "paciente",
+    "telefono": "11-9105-3982",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$v4c2nVqrpO9HEwi4XiXCoE$FxRp4kzy61B18kEXbmYv1eExYZykLQY6lCLL2TBxlAk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "maria.gonzalez",
+    "first_name": "Maria",
+    "last_name": "Gonzalez",
+    "email": "maria.gonzalez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:21.923Z",
+    "rol": "paciente",
+    "telefono": "11-7799-5520",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Fk8D0MIupc6uQFcnCzTkIQ$5oTs0hbvWh/xWTy8JwSRYJS07aZ7onnFzSneNqGb6QY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "juan.perez",
+    "first_name": "Juan",
+    "last_name": "Perez",
+    "email": "juan.perez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:24.075Z",
+    "rol": "paciente",
+    "telefono": "11-5832-5057",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$tR7VfvgH0Q8IZyVhSeu2YP$o6+uqbTDqcJ00TTKCOpNtodDjfqMKzckzPQBoWwzVUA=",
+    "last_login": "2026-09-16T20:34:29.228Z",
+    "is_superuser": false,
+    "username": "sofia.diaz",
+    "first_name": "Sofia",
+    "last_name": "Diaz",
+    "email": "sofia.diaz@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:25.443Z",
+    "rol": "paciente",
+    "telefono": "11-5882-6894",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$c3qbtxaSd7E8iJ2RnZYLlx$p4EO6mdBOVNLQCxf/N+xuw3vlIN25BwrfZW5vkKtOmM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "lucas.torres",
+    "first_name": "Lucas",
+    "last_name": "Torres",
+    "email": "lucas.torres@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:26.851Z",
+    "rol": "paciente",
+    "telefono": "11-8234-1396",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$WgyEPTUX3KHidhRbR9aIze$li9Zm1CynCLTLFEs1zIqvQM3YtkQcSVYNvIhB3vMZY8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "valentina.ruiz",
+    "first_name": "Valentina",
+    "last_name": "Ruiz",
+    "email": "valentina.ruiz@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:28.226Z",
+    "rol": "paciente",
+    "telefono": "11-7101-6057",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$ZQJzirPn3Zv3rgDUHvMnqy$u61VRbtGP5PYePeI9vmwzvNNWngFA42G9jmTaTzhJQU=",
+    "last_login": "2026-07-31T23:30:11.566Z",
+    "is_superuser": false,
+    "username": "mateo.flores",
+    "first_name": "Mateo",
+    "last_name": "Flores",
+    "email": "mateo.flores@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:29.695Z",
+    "rol": "paciente",
+    "telefono": "11-5195-2769",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Ua5gWdRIsLre62eJjiBczv$WjULFC71yF3azGDlBovzAO0faMynfsOlAo0t+/wrdUc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "camila.sosa",
+    "first_name": "Camila",
+    "last_name": "Sosa",
+    "email": "camila.sosa@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:30.986Z",
+    "rol": "paciente",
+    "telefono": "11-7928-2581",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$jtgd1nyOjBKvRRQ6yhNsyU$7zdLDWcV7WEIrkN0G5lI5y+TtkMVCpoLp8cejRtnJBA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "benjamin.acosta",
+    "first_name": "Benjamin",
+    "last_name": "Acosta",
+    "email": "benjamin.acosta@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:33.293Z",
+    "rol": "paciente",
+    "telefono": "11-9441-3336",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$GyvtGBlmn2MqqEpvEG8zPS$Mmowe2WOCk7W/ScCoHbT1ROC31jDyxU+Nls5Y8tjd+0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "martina.medina",
+    "first_name": "Martina",
+    "last_name": "Medina",
+    "email": "martina.medina@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:35.312Z",
+    "rol": "paciente",
+    "telefono": "11-7592-2683",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Oiive5BpOcNZURJgN4bL46$/PVWTU/Df76bz9YCMNJIiFcpO981T2PWCi3COXkyLf8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "joaquin.ramirez",
+    "first_name": "Joaquin",
+    "last_name": "Ramirez",
+    "email": "joaquin.ramirez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:36.929Z",
+    "rol": "paciente",
+    "telefono": "11-5563-2613",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$MVBJWcLPvFVHZCS0NEIXMy$lqJfQytSUImihKcJC3JLRPBGHSwpdPkDbRG3twcr2JY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "lucia.herrera",
+    "first_name": "Lucia",
+    "last_name": "Herrera",
+    "email": "lucia.herrera@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:38.519Z",
+    "rol": "paciente",
+    "telefono": "11-9358-6842",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$4vnj0TdDx4vKkEwiKAGNyx$GI24Cn2Uld81YS4vq6CM7fDolI4HGftJVKaJHLjLDfs=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "felipe.molina",
+    "first_name": "Felipe",
+    "last_name": "Molina",
+    "email": "felipe.molina@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:40.256Z",
+    "rol": "paciente",
+    "telefono": "11-6992-7736",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$G984AjsjL3bO5dkigsGFlJ$iPiA5kYapBPXTqjt85p7783xxrusFU0Gpby3P9jHxOg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "renata.ortiz",
+    "first_name": "Renata",
+    "last_name": "Ortiz",
+    "email": "renata.ortiz@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:41.826Z",
+    "rol": "paciente",
+    "telefono": "11-9665-3947",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$uDQ0WlZm1DECMevi5PkpSF$gfgYd24WDHd4OGWnUOCwJZaXevqVdBcz6MUMKMmG1BE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "gonzalo.navarro",
+    "first_name": "Gonzalo",
+    "last_name": "Navarro",
+    "email": "gonzalo.navarro@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T21:47:43.576Z",
+    "rol": "paciente",
+    "telefono": "11-5559-9790",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$trurx1sQwpJ75sUY49Mtl5$eKx9cnrQEtgsRegHzgEoVXOBcQJTscuA77jXkdGbg78=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "independiente.kine",
+    "first_name": "Javier",
+    "last_name": "Morales",
+    "email": "jmorales.kine@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T22:49:40.247Z",
+    "rol": "profesional",
+    "telefono": "11-5555-6666",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$KlrTPrZ7gGU2MzboqNdQCW$npmZUnpae2Lcyb1Ibh0nVMLhccuPGvKy64ROS0yDfQw=",
+    "last_login": "2026-08-26T19:22:22.470Z",
+    "is_superuser": false,
+    "username": "jmorales.kine24",
+    "first_name": "Javier",
+    "last_name": "Morales",
+    "email": "jmorales.kine@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-10T23:24:13.852Z",
+    "rol": "profesional",
+    "telefono": "11-5555-6666",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$CmIFydXRZXxVU9WDVI4wI2$uk36DCaeEwSApzOWKJklzl/A3ymcDTrC7rjawjj/Ht4=",
+    "last_login": "2026-09-12T00:05:43.361Z",
+    "is_superuser": true,
+    "username": "facureif1198",
+    "first_name": "",
+    "last_name": "",
+    "email": "facurei@live.com.ar",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-07-10T23:46:05.053Z",
+    "rol": "paciente",
+    "telefono": "",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$iLMFAdhR55lyIlVqtIQVd8$56gAqL70yVBVO6tNE6krpyxj8uXYIfndSUFB8bbg1Ik=",
+    "last_login": "2026-09-13T19:38:06.652Z",
+    "is_superuser": false,
+    "username": "lic.martinez",
+    "first_name": "Gonzalo",
+    "last_name": "Martinez",
+    "email": "gonzalo.martinez.kine@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:28.305Z",
+    "rol": "profesional",
+    "telefono": "11-6543-2100",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$hLfAYmXqRk16TV49ktbq92$MuMVBnAZ4PHAHW2P4va4kds/FXvtOqREDnLkjytulRY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "matias.fernandez",
+    "first_name": "Matias",
+    "last_name": "Fernandez",
+    "email": "matias.fernandez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:29.786Z",
+    "rol": "paciente",
+    "telefono": "11-8555-2144",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$zocP6RLcO7KdnhhY8FAckC$bOL7mcdRQ8g+jWjEFHMoGFRbme0YmQp1T5BrWJUB8aE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "florencia.gimenez",
+    "first_name": "Florencia",
+    "last_name": "Gimenez",
+    "email": "florencia.gimenez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:30.941Z",
+    "rol": "paciente",
+    "telefono": "11-7097-8879",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$NmApYKWhi42Kc9bbY1pfuL$5S7hRnoyD1GymzQVPMdXjYA/CE1VK/qmii1jF3Ushno=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ramiro.alvarez",
+    "first_name": "Ramiro",
+    "last_name": "Alvarez",
+    "email": "ramiro.alvarez@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:32.213Z",
+    "rol": "paciente",
+    "telefono": "11-7162-1159",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$PLC9174Ed19d2DyXtLMpxG$0M0rbATcabpG7Cor43mzYwFpWv6MWtdvpDVNRWO9eI8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "agustina.pereyra",
+    "first_name": "Agustina",
+    "last_name": "Pereyra",
+    "email": "agustina.pereyra@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:33.394Z",
+    "rol": "paciente",
+    "telefono": "11-5717-3874",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$4qpTGbYaq1zshU088e9Wcz$HoYl07mwBFwQIhtNWSH+ZtGOCjTqFfSS5Rb8WnwwjQw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "federico.carrizo",
+    "first_name": "Federico",
+    "last_name": "Carrizo",
+    "email": "federico.carrizo@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:34.510Z",
+    "rol": "paciente",
+    "telefono": "11-7657-3299",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$eMqLM96UBeco54I2UbmXN8$v3e3MGHL02N35de9c2x/p5yCP8hX43eh6mW4KHzDZS0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "julieta.bianchi",
+    "first_name": "Julieta",
+    "last_name": "Bianchi",
+    "email": "julieta.bianchi@email.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-11T00:58:35.684Z",
+    "rol": "paciente",
+    "telefono": "11-6402-3467",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$salYgE1uzQVHFQaUEvHeYH$UuFZHrlJ3EKWfuVpY03UZjBKTdbEncJA0XJsfojk0YY=",
+    "last_login": "2026-08-13T18:25:14.745Z",
+    "is_superuser": false,
+    "username": "dra.vargas",
+    "first_name": "Carolina",
+    "last_name": "Vargas",
+    "email": "carolina.vargas@consultoriosalta.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-14T00:07:14.503Z",
+    "rol": "profesional",
+    "telefono": "11-5432-1098",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$64e6oHZH8318GRC9eFmblW$kZQm7KVYyJvJ79nnnosGO7pM0gm2zqeQ44IhO/RxdUE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "lucas.domínguez",
+    "first_name": "Lucas",
+    "last_name": "Domínguez",
+    "email": "ldom@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-16T17:06:50.014Z",
+    "rol": "paciente",
+    "telefono": "11-6543-2145",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$cF9VUmxoEC1FCn5MBJ6Gip$x6aTh8jbAs88bCUeFF/npiPFEzziBfjUGJQ7eCtuWWM=",
+    "last_login": "2026-07-16T18:36:11.101Z",
+    "is_superuser": false,
+    "username": "mnuñez",
+    "first_name": "Maxi",
+    "last_name": "Nuñez",
+    "email": "mnunez@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-07-16T18:33:46.365Z",
+    "rol": "paciente",
+    "telefono": "11-5678-9450",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$oE5kOyynTFXHf3A5qxyTQF$AFKsT0xuWqBEifxry3mj8trhOCzbqucijjwUi0qxXdM=",
+    "last_login": "2026-09-04T18:18:35.538Z",
+    "is_superuser": false,
+    "username": "mari.lab",
+    "first_name": "María",
+    "last_name": "Domínguez",
+    "email": "m.dom_lab@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-08-06T19:09:53.118Z",
+    "rol": "profesional",
+    "telefono": "4526651",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Tjir3ppyYIWsGsl1nswZRw$H99yanIdcSfzo77EyJwCG/dvtm2In3nHtWbcvJAQpT4=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "dpaez",
+    "first_name": "Diego",
+    "last_name": "Paez",
+    "email": "diego@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-08-07T20:25:33.323Z",
+    "rol": "paciente",
+    "telefono": "521632621",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$EbvoLCwtqwimmUgA1mxhX1$vZwzw4fgp+RFEpJOslGXaY57G6B+ngZ+HBowl0j+x6w=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "miguel.gomes",
+    "first_name": "Miguel",
+    "last_name": "Gomes",
+    "email": "facurei@live.com.ar",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-08-11T19:08:48.465Z",
+    "rol": "paciente",
+    "telefono": "1666555",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$O3Sc0VBLxjPUjLRK9FiOkN$fz0yW+hQTNcdcVT5bz2q5FVp2CCh7prnCCrCem68mI4=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "rgaleano",
+    "first_name": "Roberto",
+    "last_name": "Galeano",
+    "email": "rgale@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-08-21T21:33:49.149Z",
+    "rol": "paciente",
+    "telefono": "19462654",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$CqFUm9ORqgbkISw3vy6vhb$MwUioMkuc2xNHag35lM8qGKo5iw7mwODNYeK/0toE0I=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "cdiaz",
+    "first_name": "Claudia",
+    "last_name": "Diaz",
+    "email": "Claudiaz@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-09T18:08:39.654Z",
+    "rol": "paciente",
+    "telefono": "5296413",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$WcHxSgzs6ViiBX0W9AIDSW$4mXDtR8KPBna0gCnAGz3XPQ/S667szwfS6SxSnjM2uA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "freifenberg",
+    "first_name": "facu",
+    "last_name": "reifenberg",
+    "email": "facure@live.com.ar",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-09T19:27:42.952Z",
+    "rol": "paciente",
+    "telefono": "4257037",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$oGlpFj3tUcIiJoKUyL88CR$MYRfp5A/m0wzdi6Igd1cbIczQlYXUfdoPXCGABQBogw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jvaldez",
+    "first_name": "Julia",
+    "last_name": "Valdez",
+    "email": "fds@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-09T21:00:51.773Z",
+    "rol": "paciente",
+    "telefono": "51262354",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$pvop4YStMJkvaBHjyOcYAe$GVBHKqgde2RsILPCc+kTnyZlwnGpGe4ae2RAAAdqJY8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "pgreen",
+    "first_name": "pamela",
+    "last_name": "Green",
+    "email": "pam@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-13T19:07:50.218Z",
+    "rol": "paciente",
+    "telefono": "15165654",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$dnFtG8skjdATLp7JmQgpu4$qVhE46XWM25yEBcLF4Yhiv/Bcj/46i4/szjCK5nqx4U=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "acastro",
+    "first_name": "Alexis",
+    "last_name": "Castro",
+    "email": "acastro@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-14T17:43:41.659Z",
+    "rol": "paciente",
+    "telefono": "515611188",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Jk6lq5Ig2hgO9aMg7a6p6F$ci/4MdpYbToJPgj60AgXYIPmstKDspgRgrjC6gaUUKc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "gbeder",
+    "first_name": "German",
+    "last_name": "Beder",
+    "email": "gbeder@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-15T14:50:16.247Z",
+    "rol": "paciente",
+    "telefono": "548548484",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$SSG6gp1gvZrSjC352dwE5i$3I098SGafZC91Z5jKN4z8Y+c0aNE7G5euStEqLvwDsA=",
+    "last_login": "2026-09-15T20:15:25.660Z",
+    "is_superuser": false,
+    "username": "carlos.lopez",
+    "first_name": "Carlos",
+    "last_name": "Lopez",
+    "email": "clopez@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-15T20:09:27.106Z",
+    "rol": "paciente",
+    "telefono": "12154545",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$9dutH7T8Bn3gvYbokmCW2k$+5CsouubzLr1VZl406pJI5hd9Tl8+JuH9K3a5jNGdlg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "mgalatti",
+    "first_name": "Matias",
+    "last_name": "Galatti",
+    "email": "mgalatti@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-16T18:58:55.294Z",
+    "rol": "paciente",
+    "telefono": "156532355",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuario",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$vqb9Cu6cp2gyUXPLMXPMf8$EFfHABr9158ubMenPDihAcjE2X/ojlIKlNDrZydQm/c=",
+    "last_login": "2026-09-16T19:50:13.131Z",
+    "is_superuser": false,
+    "username": "julieta.castro",
+    "first_name": "Julieta",
+    "last_name": "Castro",
+    "email": "jcastro1323242@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-16T19:36:36.546Z",
+    "rol": "paciente",
+    "telefono": "162655216",
+    "establecimiento": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 1,
+  "fields": {
+    "creado": "2026-06-10T16:40:14.208Z",
+    "modificado": "2026-06-10T16:40:14.208Z",
+    "nombre": "Medife",
+    "sigla": "MDF",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 2,
+  "fields": {
+    "creado": "2026-06-10T16:40:57.701Z",
+    "modificado": "2026-06-10T16:40:57.701Z",
+    "nombre": "Medicus",
+    "sigla": "MEDICUS",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 3,
+  "fields": {
+    "creado": "2026-06-10T16:41:20.033Z",
+    "modificado": "2026-06-10T16:41:20.033Z",
+    "nombre": "Swiss Medical",
+    "sigla": "SM",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 4,
+  "fields": {
+    "creado": "2026-06-17T16:53:33.947Z",
+    "modificado": "2026-06-17T16:53:33.948Z",
+    "nombre": "OSDE",
+    "sigla": "OSDE",
+    "telefono": "0800-396-4472",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 5,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.046Z",
+    "modificado": "2026-06-17T16:53:34.046Z",
+    "nombre": "OSECAC",
+    "sigla": "OSEC",
+    "telefono": "0800-411-3321",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 6,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.082Z",
+    "modificado": "2026-06-17T16:53:34.082Z",
+    "nombre": "IOMA",
+    "sigla": "IOMA",
+    "telefono": "0800-763-5115",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 7,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.103Z",
+    "modificado": "2026-06-17T16:53:34.103Z",
+    "nombre": "PAMI",
+    "sigla": "PAMI",
+    "telefono": "0800-131-3144",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 8,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.139Z",
+    "modificado": "2026-06-17T16:53:34.139Z",
+    "nombre": "Galeno",
+    "sigla": "GALE",
+    "telefono": "0800-177-9354",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 9,
+  "fields": {
+    "creado": "2026-06-30T19:42:04.587Z",
+    "modificado": "2026-06-30T19:42:04.587Z",
+    "nombre": "OMINT",
+    "sigla": "",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 10,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.294Z",
+    "modificado": "2026-07-10T21:47:10.294Z",
+    "nombre": "Omint",
+    "sigla": "OMINT",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 11,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.332Z",
+    "modificado": "2026-07-10T21:47:10.332Z",
+    "nombre": "Sancor Salud",
+    "sigla": "SANCOR",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.obrasocial",
+  "pk": 12,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.369Z",
+    "modificado": "2026-07-10T21:47:10.369Z",
+    "nombre": "Prevención Salud",
+    "sigla": "PREVENCION",
+    "telefono": "",
+    "email": "",
+    "activo": true
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 1,
+  "fields": {
+    "creado": "2026-06-10T16:41:36.816Z",
+    "modificado": "2026-06-16T21:33:47.292Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-1",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "500.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 2,
+  "fields": {
+    "creado": "2026-06-17T16:53:33.965Z",
+    "modificado": "2026-06-17T16:53:33.966Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "OSDE 210",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 3,
+  "fields": {
+    "creado": "2026-06-17T16:53:33.981Z",
+    "modificado": "2026-06-17T16:53:33.981Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "OSDE 310",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "500.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 4,
+  "fields": {
+    "creado": "2026-06-17T16:53:33.990Z",
+    "modificado": "2026-06-17T16:53:33.990Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "OSDE 410",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "800.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 5,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.004Z",
+    "modificado": "2026-06-17T16:53:34.004Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "OSDE 510",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "20.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 6,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.023Z",
+    "modificado": "2026-06-17T16:53:34.023Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-2",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "400.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 7,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.036Z",
+    "modificado": "2026-06-17T16:53:34.036Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-3",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "15.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 8,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.056Z",
+    "modificado": "2026-06-17T16:53:34.056Z",
+    "activo": true,
+    "obra_social": 5,
+    "nombre": "Plan Básico",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 9,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.068Z",
+    "modificado": "2026-06-17T16:53:34.068Z",
+    "activo": true,
+    "obra_social": 5,
+    "nombre": "Plan Premium",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "300.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 10,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.089Z",
+    "modificado": "2026-06-17T16:53:34.089Z",
+    "activo": true,
+    "obra_social": 6,
+    "nombre": "Plan Único",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "200.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 11,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.108Z",
+    "modificado": "2026-06-17T16:53:34.108Z",
+    "activo": true,
+    "obra_social": 7,
+    "nombre": "Plan General",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 12,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.148Z",
+    "modificado": "2026-06-17T16:53:34.148Z",
+    "activo": true,
+    "obra_social": 8,
+    "nombre": "Plata",
+    "requiere_autorizacion": true,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 13,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.157Z",
+    "modificado": "2026-06-17T16:53:34.157Z",
+    "activo": true,
+    "obra_social": 8,
+    "nombre": "Oro",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "600.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 14,
+  "fields": {
+    "creado": "2026-06-17T16:53:34.173Z",
+    "modificado": "2026-06-17T16:53:34.173Z",
+    "activo": true,
+    "obra_social": 8,
+    "nombre": "Platino",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "25.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 15,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.084Z",
+    "modificado": "2026-07-09T01:44:27.084Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "210",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 16,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.094Z",
+    "modificado": "2026-07-09T01:44:27.094Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "310",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 17,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.102Z",
+    "modificado": "2026-07-09T01:44:27.102Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "410",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 18,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.112Z",
+    "modificado": "2026-07-09T01:44:27.112Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "510",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 19,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.129Z",
+    "modificado": "2026-07-09T01:44:27.129Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-20",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 20,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.146Z",
+    "modificado": "2026-07-09T01:44:27.146Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-30",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 21,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.154Z",
+    "modificado": "2026-07-09T01:44:27.154Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-40",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 22,
+  "fields": {
+    "creado": "2026-07-09T01:44:27.172Z",
+    "modificado": "2026-07-09T01:44:27.172Z",
+    "activo": true,
+    "obra_social": 8,
+    "nombre": "Bronce",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 23,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.218Z",
+    "modificado": "2026-07-10T21:47:10.218Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "BINARIO 210",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 24,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.227Z",
+    "modificado": "2026-07-10T21:47:10.227Z",
+    "activo": true,
+    "obra_social": 4,
+    "nombre": "BINARIO 310",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 25,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.241Z",
+    "modificado": "2026-07-10T21:47:10.241Z",
+    "activo": true,
+    "obra_social": 3,
+    "nombre": "SMG-50",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 26,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.253Z",
+    "modificado": "2026-07-10T21:47:10.253Z",
+    "activo": true,
+    "obra_social": 8,
+    "nombre": "Platinum",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 27,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.261Z",
+    "modificado": "2026-07-10T21:47:10.261Z",
+    "activo": true,
+    "obra_social": 2,
+    "nombre": "AZUL",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 28,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.270Z",
+    "modificado": "2026-07-10T21:47:10.270Z",
+    "activo": true,
+    "obra_social": 2,
+    "nombre": "CELESTE",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 29,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.277Z",
+    "modificado": "2026-07-10T21:47:10.277Z",
+    "activo": true,
+    "obra_social": 2,
+    "nombre": "VERDE",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 30,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.285Z",
+    "modificado": "2026-07-10T21:47:10.285Z",
+    "activo": true,
+    "obra_social": 2,
+    "nombre": "NARANJA",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 31,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.302Z",
+    "modificado": "2026-07-10T21:47:10.303Z",
+    "activo": true,
+    "obra_social": 10,
+    "nombre": "450",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 32,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.309Z",
+    "modificado": "2026-07-10T21:47:10.309Z",
+    "activo": true,
+    "obra_social": 10,
+    "nombre": "550",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 33,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.317Z",
+    "modificado": "2026-07-10T21:47:10.317Z",
+    "activo": true,
+    "obra_social": 10,
+    "nombre": "650",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 34,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.322Z",
+    "modificado": "2026-07-10T21:47:10.322Z",
+    "activo": true,
+    "obra_social": 10,
+    "nombre": "850",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 35,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.338Z",
+    "modificado": "2026-07-10T21:47:10.338Z",
+    "activo": true,
+    "obra_social": 11,
+    "nombre": "1000",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 36,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.344Z",
+    "modificado": "2026-07-10T21:47:10.344Z",
+    "activo": true,
+    "obra_social": 11,
+    "nombre": "1500",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 37,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.352Z",
+    "modificado": "2026-07-10T21:47:10.352Z",
+    "activo": true,
+    "obra_social": 11,
+    "nombre": "2000",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 38,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.358Z",
+    "modificado": "2026-07-10T21:47:10.358Z",
+    "activo": true,
+    "obra_social": 11,
+    "nombre": "3000",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 39,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.374Z",
+    "modificado": "2026-07-10T21:47:10.374Z",
+    "activo": true,
+    "obra_social": 12,
+    "nombre": "A",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 40,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.381Z",
+    "modificado": "2026-07-10T21:47:10.381Z",
+    "activo": true,
+    "obra_social": 12,
+    "nombre": "B",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 41,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.389Z",
+    "modificado": "2026-07-10T21:47:10.389Z",
+    "activo": true,
+    "obra_social": 12,
+    "nombre": "C",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 42,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.396Z",
+    "modificado": "2026-07-10T21:47:10.396Z",
+    "activo": true,
+    "obra_social": 12,
+    "nombre": "D",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 43,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.405Z",
+    "modificado": "2026-07-10T21:47:10.405Z",
+    "activo": true,
+    "obra_social": 6,
+    "nombre": "Plan Básico",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 44,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.417Z",
+    "modificado": "2026-07-10T21:47:10.417Z",
+    "activo": true,
+    "obra_social": 6,
+    "nombre": "Plan Complementario",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 45,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.425Z",
+    "modificado": "2026-07-10T21:47:10.425Z",
+    "activo": true,
+    "obra_social": 7,
+    "nombre": "Plan Básico",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 46,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.432Z",
+    "modificado": "2026-07-10T21:47:10.432Z",
+    "activo": true,
+    "obra_social": 7,
+    "nombre": "Plan Integral",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 47,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.441Z",
+    "modificado": "2026-07-10T21:47:10.441Z",
+    "activo": true,
+    "obra_social": 5,
+    "nombre": "Plan Joven",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "obras_sociales.plan",
+  "pk": 48,
+  "fields": {
+    "creado": "2026-07-10T21:47:10.448Z",
+    "modificado": "2026-07-10T21:47:10.448Z",
+    "activo": true,
+    "obra_social": 5,
+    "nombre": "Plan Familiar",
+    "requiere_autorizacion": false,
+    "coseguro_fijo": "0.00",
+    "coseguro_porcentaje": "0.00",
+    "tiene_plus": false,
+    "mensaje_plus": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 1,
+  "fields": {
+    "creado": "2026-06-10T20:40:24.557Z",
+    "modificado": "2026-09-11T00:14:43.409Z",
+    "activo": true,
+    "nombre": "Consultorio Salta",
+    "direccion": "Santiago del Estero 652",
+    "telefono": "5262665",
+    "email": "prueba@consultorio.com",
+    "cuit": "51561565",
+    "logo": "logos/Logo_consultorio_salta_QZkWide.png",
+    "logo_oscuro": "logos/Gemini_Generated_Image_ou22glou22glou22.png"
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 2,
+  "fields": {
+    "creado": "2026-06-11T16:53:11.406Z",
+    "modificado": "2026-06-11T16:53:11.406Z",
+    "activo": true,
+    "nombre": "Estimulo",
+    "direccion": "Ciudad del Milagro",
+    "telefono": "5652322",
+    "email": "estimulo@gmail.com",
+    "cuit": "12161541",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 3,
+  "fields": {
+    "creado": "2026-06-11T16:54:29.828Z",
+    "modificado": "2026-06-11T16:54:29.828Z",
+    "activo": true,
+    "nombre": "prueba",
+    "direccion": "dsad",
+    "telefono": "6564",
+    "email": "asda@dada.com",
+    "cuit": "6115",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 4,
+  "fields": {
+    "creado": "2026-06-17T16:53:33.841Z",
+    "modificado": "2026-09-04T19:40:44.137Z",
+    "activo": true,
+    "nombre": "Centro Médico Norte",
+    "direccion": "Av. Belgrano 3456",
+    "telefono": "387-555-0303",
+    "email": "centro@medico.com",
+    "cuit": "",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 5,
+  "fields": {
+    "creado": "2026-07-01T23:46:44.635Z",
+    "modificado": "2026-07-01T23:46:44.635Z",
+    "activo": true,
+    "nombre": "Clínica San Roque",
+    "direccion": "Ex combatientes 556",
+    "telefono": "4556513",
+    "email": "sanroque@gmail.com",
+    "cuit": "",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 6,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.368Z",
+    "modificado": "2026-07-10T23:25:03.368Z",
+    "activo": true,
+    "nombre": "Atención a Domicilio",
+    "direccion": "Zona CABA y GBA",
+    "telefono": "11-5555-6666",
+    "email": "",
+    "cuit": "",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 7,
+  "fields": {
+    "creado": "2026-07-11T00:58:29.713Z",
+    "modificado": "2026-07-13T19:09:00.869Z",
+    "activo": true,
+    "nombre": "Domicilio",
+    "direccion": "CABA y GBA - Atención a domicilio",
+    "telefono": "11-6543-2100",
+    "email": "gonzalo.martinez.kine@gmail.com",
+    "cuit": "951565",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 8,
+  "fields": {
+    "creado": "2026-07-13T00:03:21.268Z",
+    "modificado": "2026-09-11T18:59:24.352Z",
+    "activo": true,
+    "nombre": "Clínica San Roque",
+    "direccion": "Av. del Bicentenario de la Batalla de Salta 1518",
+    "telefono": "4444444",
+    "email": "sanroque@gmail.com",
+    "cuit": "865654",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "establecimientos.establecimiento",
+  "pk": 9,
+  "fields": {
+    "creado": "2026-07-16T20:29:48.274Z",
+    "modificado": "2026-09-11T23:36:09.496Z",
+    "activo": true,
+    "nombre": "Centro Médico Sur",
+    "direccion": "C. los Hinchanchos Mz 51, A4400 Salta",
+    "telefono": "4782651",
+    "email": "sancarlos@gmail.com",
+    "cuit": "464648",
+    "logo": "",
+    "logo_oscuro": ""
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 23,
+  "fields": {
+    "creado": "2026-07-10T21:47:11.717Z",
+    "modificado": "2026-08-12T23:16:26.943Z",
+    "activo": true,
+    "nombre": "Mariana",
+    "apellido": "Lopez",
+    "dni": "32189790",
+    "fecha_nacimiento": "1988-05-08",
+    "telefono": "11-5678-9001",
+    "email": "mlopez.kine@gmail.com",
+    "usuario": [
+      "mlopez.kine"
+    ],
+    "especialidad": "kinesiologia",
+    "matricula": "KN-45678",
+    "color_calendario": "#ea85a3",
+    "acepta_obra_social": true,
+    "descripcion": "Especialista en rehabilitación deportiva y post-quirúrgica.",
+    "alias_pago": "",
+    "foto": "profesionales/imagen_2026-07-13_174126365.png",
+    "frase_destacada": "",
+    "precio_particular": "4500.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": true,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1,
+      9
+    ],
+    "obras_sociales": [
+      8,
+      4,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      12,
+      14,
+      26,
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      1,
+      6,
+      19,
+      7,
+      20,
+      21,
+      25
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 24,
+  "fields": {
+    "creado": "2026-07-10T21:47:13.155Z",
+    "modificado": "2026-09-03T21:37:43.554Z",
+    "activo": true,
+    "nombre": "Carlos",
+    "apellido": "Garcia",
+    "dni": "39814576",
+    "fecha_nacimiento": "1988-08-27",
+    "telefono": "11-5678-9002",
+    "email": "cgarcia.odonto@gmail.com",
+    "usuario": [
+      "cgarcia.odonto"
+    ],
+    "especialidad": "odontologia",
+    "matricula": "OD-12345",
+    "color_calendario": "#f00505",
+    "acepta_obra_social": false,
+    "descripcion": "Odontología general y estética. Especialista en implantes.",
+    "alias_pago": "carlos_garcia",
+    "foto": "profesionales/imagen_2026-07-13_173443247.png",
+    "frase_destacada": "",
+    "precio_particular": null,
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1,
+      4
+    ],
+    "obras_sociales": [
+      8,
+      2,
+      4,
+      7,
+      11,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      12,
+      14,
+      26,
+      30,
+      29,
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      11,
+      46,
+      36,
+      37,
+      38,
+      1,
+      6,
+      19,
+      7,
+      20,
+      21,
+      25
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 25,
+  "fields": {
+    "creado": "2026-07-10T21:47:14.526Z",
+    "modificado": "2026-08-13T17:44:43.260Z",
+    "activo": true,
+    "nombre": "Laura",
+    "apellido": "Martinez",
+    "dni": "27460158",
+    "fecha_nacimiento": "1981-07-17",
+    "telefono": "11-5678-9003",
+    "email": "lmartinez.nutri@gmail.com",
+    "usuario": [
+      "lmartinez.nutri"
+    ],
+    "especialidad": "nutricion",
+    "matricula": "NU-78901",
+    "color_calendario": "#7a1fd6",
+    "acepta_obra_social": true,
+    "descripcion": "Nutrición clínica y deportiva. Planes personalizados.",
+    "alias_pago": "",
+    "foto": "profesionales/imagen_2026-07-13_173851648.png",
+    "frase_destacada": "",
+    "precio_particular": "3800.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": true,
+    "establecimientos": [
+      1
+    ],
+    "obras_sociales": [
+      2,
+      4,
+      11
+    ],
+    "planes": [
+      27,
+      28,
+      30,
+      29,
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      35,
+      36,
+      37,
+      38
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 26,
+  "fields": {
+    "creado": "2026-07-10T21:47:16.003Z",
+    "modificado": "2026-07-13T20:32:01.461Z",
+    "activo": true,
+    "nombre": "Roberto",
+    "apellido": "Fernandez",
+    "dni": "34120891",
+    "fecha_nacimiento": "1979-05-06",
+    "telefono": "11-5678-9004",
+    "email": "rfernandez.fono@gmail.com",
+    "usuario": [
+      "rfernandez.fono"
+    ],
+    "especialidad": "fonoaudiologia",
+    "matricula": "FA-23456",
+    "color_calendario": "#8ae5ca",
+    "acepta_obra_social": false,
+    "descripcion": "Fonoaudiología. Trastornos del lenguaje y deglución.",
+    "alias_pago": "",
+    "foto": "profesionales/imagen_2026-07-13_173146304.png",
+    "frase_destacada": "",
+    "precio_particular": "4000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1
+    ],
+    "obras_sociales": [
+      1,
+      4,
+      7,
+      11,
+      3
+    ],
+    "planes": [
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      45,
+      11,
+      46,
+      36,
+      37,
+      38,
+      1,
+      6,
+      19,
+      7,
+      20,
+      21,
+      25
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 27,
+  "fields": {
+    "creado": "2026-07-10T21:47:17.741Z",
+    "modificado": "2026-07-13T20:36:46.436Z",
+    "activo": true,
+    "nombre": "Ana",
+    "apellido": "Rodriguez",
+    "dni": "26123424",
+    "fecha_nacimiento": "1983-01-01",
+    "telefono": "11-5678-9005",
+    "email": "arodriguez.med@gmail.com",
+    "usuario": [
+      "arodriguez.med"
+    ],
+    "especialidad": "medicina_general",
+    "matricula": "MG-34567",
+    "color_calendario": "#d64ad9",
+    "acepta_obra_social": false,
+    "descripcion": "Medicina general y familiar. Atención integral.",
+    "alias_pago": "",
+    "foto": "profesionales/imagen_2026-07-13_173641139.png",
+    "frase_destacada": "",
+    "precio_particular": "5000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1
+    ],
+    "obras_sociales": [
+      8,
+      6,
+      2,
+      4,
+      10,
+      11,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      12,
+      14,
+      26,
+      43,
+      44,
+      10,
+      27,
+      28,
+      30,
+      29,
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      1,
+      6,
+      19,
+      7,
+      20,
+      21,
+      25
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 28,
+  "fields": {
+    "creado": "2026-07-10T21:47:19.179Z",
+    "modificado": "2026-07-10T21:47:19.179Z",
+    "activo": true,
+    "nombre": "Diego",
+    "apellido": "Castro",
+    "dni": "32583810",
+    "fecha_nacimiento": "1977-11-24",
+    "telefono": "11-6789-0123",
+    "email": "dcastro.kine@gmail.com",
+    "usuario": [
+      "dcastro.kine"
+    ],
+    "especialidad": "kinesiologia",
+    "matricula": "KN-56789",
+    "color_calendario": "#4A90D9",
+    "acepta_obra_social": false,
+    "descripcion": "Kinesiología deportiva. Rehabilitación de lesiones.",
+    "alias_pago": "",
+    "foto": "",
+    "frase_destacada": "",
+    "precio_particular": "5000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      4
+    ],
+    "obras_sociales": [
+      4,
+      11,
+      3
+    ],
+    "planes": [
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      35,
+      36,
+      37,
+      38,
+      1,
+      6,
+      19,
+      7,
+      20,
+      21,
+      25
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 29,
+  "fields": {
+    "creado": "2026-07-10T21:47:20.552Z",
+    "modificado": "2026-07-10T21:47:20.552Z",
+    "activo": true,
+    "nombre": "Monica",
+    "apellido": "Suarez",
+    "dni": "25205530",
+    "fecha_nacimiento": "1985-05-16",
+    "telefono": "11-6789-0124",
+    "email": "msuarez.odonto@gmail.com",
+    "usuario": [
+      "msuarez.odonto"
+    ],
+    "especialidad": "odontologia",
+    "matricula": "OD-67890",
+    "color_calendario": "#4A90D9",
+    "acepta_obra_social": false,
+    "descripcion": "Odontopediatría y ortodoncia.",
+    "alias_pago": "",
+    "foto": "",
+    "frase_destacada": "",
+    "precio_particular": "7000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      4
+    ],
+    "obras_sociales": [
+      4,
+      10,
+      12
+    ],
+    "planes": [
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      31,
+      32,
+      33,
+      34,
+      39,
+      40,
+      41,
+      42
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 32,
+  "fields": {
+    "creado": "2026-07-10T23:24:15.130Z",
+    "modificado": "2026-08-26T18:53:39.919Z",
+    "activo": true,
+    "nombre": "Javier",
+    "apellido": "Morales",
+    "dni": "45818500",
+    "fecha_nacimiento": "1985-06-15",
+    "telefono": "11-5555-6666",
+    "email": "jmorales.kine@gmail.com",
+    "usuario": [
+      "jmorales.kine24"
+    ],
+    "especialidad": "kinesiologia",
+    "matricula": "KN-99999",
+    "color_calendario": "#4A90D9",
+    "acepta_obra_social": true,
+    "descripcion": "Kinesiólogo a domicilio. Atención personalizada.",
+    "alias_pago": "",
+    "foto": "",
+    "frase_destacada": "",
+    "precio_particular": "25000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1,
+      6
+    ],
+    "obras_sociales": [],
+    "planes": []
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 33,
+  "fields": {
+    "creado": "2026-07-11T00:58:29.495Z",
+    "modificado": "2026-08-20T17:48:17.969Z",
+    "activo": true,
+    "nombre": "Gonzalo",
+    "apellido": "Martinez",
+    "dni": "51928081",
+    "fecha_nacimiento": "1988-04-22",
+    "telefono": "11-6543-2100",
+    "email": "gonzalo.martinez.kine@gmail.com",
+    "usuario": [
+      "lic.martinez"
+    ],
+    "especialidad": "kinesiologia",
+    "matricula": "KN-55443",
+    "color_calendario": "#4a90d9",
+    "acepta_obra_social": true,
+    "descripcion": "Kinesiólogo especializado en rehabilitación deportiva y lesiones crónicas. Atención personalizada a domicilio en CABA y GBA.",
+    "alias_pago": "",
+    "foto": "profesionales/imagen_2026-07-12_212221323.png",
+    "frase_destacada": "",
+    "precio_particular": "50000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": true,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      8
+    ],
+    "obras_sociales": [
+      8,
+      4,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      12,
+      14,
+      26,
+      15,
+      16,
+      17,
+      18,
+      23,
+      24,
+      2,
+      3,
+      4,
+      5,
+      1,
+      6,
+      19,
+      7,
+      20,
+      21,
+      25
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 34,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.797Z",
+    "modificado": "2026-08-04T17:14:05.156Z",
+    "activo": true,
+    "nombre": "Carolina",
+    "apellido": "Vargas",
+    "dni": "48119429",
+    "fecha_nacimiento": "1987-09-12",
+    "telefono": "11-5432-1098",
+    "email": "carolina.vargas@consultoriosalta.com",
+    "usuario": [
+      "dra.vargas"
+    ],
+    "especialidad": "psicologia",
+    "matricula": "PS-33445",
+    "color_calendario": "#7078e6",
+    "acepta_obra_social": true,
+    "descripcion": "",
+    "alias_pago": "",
+    "foto": "",
+    "frase_destacada": "",
+    "precio_particular": "6000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": true,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1
+    ],
+    "obras_sociales": [
+      8,
+      5,
+      7
+    ],
+    "planes": [
+      14,
+      26,
+      9,
+      11,
+      46
+    ]
+  }
+},
+{
+  "model": "profesionales.profesional",
+  "pk": 35,
+  "fields": {
+    "creado": "2026-08-06T19:10:34.589Z",
+    "modificado": "2026-08-07T14:56:34.224Z",
+    "activo": true,
+    "nombre": "María",
+    "apellido": "Domínguez",
+    "dni": "32502964",
+    "fecha_nacimiento": "1992-07-08",
+    "telefono": "4526651",
+    "email": "m.dom_lab@gmail.com",
+    "usuario": [
+      "mari.lab"
+    ],
+    "especialidad": "laboratorio",
+    "matricula": "95231",
+    "color_calendario": "#91ea90",
+    "acepta_obra_social": true,
+    "descripcion": "Bioquímica",
+    "alias_pago": "",
+    "foto": "",
+    "frase_destacada": "",
+    "precio_particular": "25000.00",
+    "obras_sociales_texto": "",
+    "servicios_texto": "",
+    "servicios_destacados": "",
+    "especializaciones": "",
+    "atiende_por_orden": false,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "permite_ejercicios": false,
+    "permite_planes_alimentacion": false,
+    "establecimientos": [
+      1
+    ],
+    "obras_sociales": [
+      8,
+      10,
+      11
+    ],
+    "planes": [
+      14,
+      26,
+      33,
+      34,
+      37,
+      38
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 23,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.284Z",
+    "modificado": "2026-09-10T18:07:41.133Z",
+    "activo": true,
+    "profesional": 23,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "22000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      8,
+      2,
+      1,
+      10,
+      7,
+      12,
+      11,
+      3
+    ],
+    "planes": [
+      22,
+      27,
+      28,
+      31,
+      45,
+      39,
+      40,
+      41,
+      35,
+      36,
+      1,
+      6,
+      19,
+      7
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 24,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.361Z",
+    "modificado": "2026-09-10T22:15:11.219Z",
+    "activo": true,
+    "profesional": 24,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "35000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": true,
+    "texto_plus": "",
+    "obras_sociales": [
+      8,
+      2,
+      1,
+      4,
+      11,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      27,
+      28,
+      15,
+      16,
+      17,
+      35,
+      36,
+      37,
+      1,
+      6,
+      19
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 25,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.429Z",
+    "modificado": "2026-08-09T00:59:05.141Z",
+    "activo": true,
+    "profesional": 25,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "18000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      1,
+      9,
+      4,
+      7
+    ],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 26,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.504Z",
+    "modificado": "2026-09-11T00:14:43.422Z",
+    "activo": true,
+    "profesional": 26,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "20500.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      8,
+      6,
+      12,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      12,
+      43,
+      44,
+      39,
+      40,
+      1,
+      6,
+      19
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 27,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.572Z",
+    "modificado": "2026-08-09T00:58:28.609Z",
+    "activo": true,
+    "profesional": 27,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "20000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      8,
+      6,
+      2,
+      1,
+      9,
+      4,
+      5,
+      10,
+      7,
+      12,
+      11,
+      3
+    ],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 28,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.636Z",
+    "modificado": "2026-07-10T21:47:45.636Z",
+    "activo": true,
+    "profesional": 28,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": null,
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 4,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 29,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.694Z",
+    "modificado": "2026-07-10T21:47:45.694Z",
+    "activo": true,
+    "profesional": 29,
+    "fecha_inicio": "2026-04-11",
+    "fecha_fin": "2027-04-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": null,
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 4,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 30,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.412Z",
+    "modificado": "2026-07-10T23:25:03.412Z",
+    "activo": true,
+    "profesional": 32,
+    "fecha_inicio": "2026-07-10",
+    "fecha_fin": "2027-07-10",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": null,
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 6,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 31,
+  "fields": {
+    "creado": "2026-07-11T00:58:29.728Z",
+    "modificado": "2026-09-12T00:12:37.624Z",
+    "activo": true,
+    "profesional": 33,
+    "fecha_inicio": "2026-01-11",
+    "fecha_fin": "2027-07-10",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "35000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 8,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": true,
+    "texto_plus": "",
+    "obras_sociales": [
+      8,
+      11,
+      3
+    ],
+    "planes": [
+      22,
+      13,
+      12,
+      35,
+      36,
+      1,
+      6,
+      19,
+      7
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 34,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.821Z",
+    "modificado": "2026-08-09T00:58:12.248Z",
+    "activo": true,
+    "profesional": 34,
+    "fecha_inicio": "2026-07-13",
+    "fecha_fin": "2027-07-13",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "35000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 3,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      2,
+      1,
+      11,
+      3
+    ],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 35,
+  "fields": {
+    "creado": "2026-08-07T14:24:42.334Z",
+    "modificado": "2026-09-04T18:19:04.472Z",
+    "activo": true,
+    "profesional": 35,
+    "fecha_inicio": "2026-08-07",
+    "fecha_fin": null,
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 10,
+    "precio_particular": "45000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 2,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      8,
+      6,
+      2,
+      5,
+      10,
+      7,
+      12,
+      11,
+      3
+    ],
+    "planes": [
+      22,
+      43,
+      27,
+      8,
+      31,
+      32,
+      45,
+      39,
+      40,
+      35,
+      36,
+      1,
+      6
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 36,
+  "fields": {
+    "creado": "2026-08-08T23:27:39.443Z",
+    "modificado": "2026-09-11T21:08:45.256Z",
+    "activo": true,
+    "profesional": 24,
+    "fecha_inicio": "2026-08-08",
+    "fecha_fin": "2030-08-09",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "25000.00",
+    "email_contacto": null,
+    "telefono_contacto": "1111111111111111",
+    "establecimiento": 4,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [
+      5,
+      7,
+      12
+    ],
+    "planes": [
+      8,
+      45,
+      39,
+      40
+    ]
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 37,
+  "fields": {
+    "creado": "2026-08-26T18:59:31.514Z",
+    "modificado": "2026-08-26T18:59:31.514Z",
+    "activo": true,
+    "profesional": 32,
+    "fecha_inicio": "2026-08-26",
+    "fecha_fin": "2032-08-26",
+    "acepta_sobreturnos": true,
+    "tiempo_entre_turnos": 10,
+    "precio_particular": null,
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 1,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.agenda",
+  "pk": 38,
+  "fields": {
+    "creado": "2026-09-11T21:34:02.126Z",
+    "modificado": "2026-09-15T14:10:28.195Z",
+    "activo": true,
+    "profesional": 33,
+    "fecha_inicio": "2026-08-11",
+    "fecha_fin": "2050-09-11",
+    "acepta_sobreturnos": false,
+    "tiempo_entre_turnos": 0,
+    "precio_particular": "35000.00",
+    "email_contacto": null,
+    "telefono_contacto": null,
+    "establecimiento": 9,
+    "pacientes_simultaneos": 1,
+    "tiene_plus": false,
+    "texto_plus": "",
+    "obras_sociales": [],
+    "planes": []
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 125,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.297Z",
+    "modificado": "2026-07-10T21:47:45.297Z",
+    "activo": true,
+    "agenda": 23,
+    "dia": 0,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 126,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.312Z",
+    "modificado": "2026-07-10T21:47:45.312Z",
+    "activo": true,
+    "agenda": 23,
+    "dia": 1,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 127,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.326Z",
+    "modificado": "2026-07-10T21:47:45.326Z",
+    "activo": true,
+    "agenda": 23,
+    "dia": 2,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 128,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.339Z",
+    "modificado": "2026-07-10T21:47:45.339Z",
+    "activo": true,
+    "agenda": 23,
+    "dia": 3,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 129,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.351Z",
+    "modificado": "2026-07-10T21:47:45.351Z",
+    "activo": true,
+    "agenda": 23,
+    "dia": 4,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 130,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.372Z",
+    "modificado": "2026-07-10T21:47:45.372Z",
+    "activo": true,
+    "agenda": 24,
+    "dia": 0,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 131,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.385Z",
+    "modificado": "2026-07-10T21:47:45.385Z",
+    "activo": true,
+    "agenda": 24,
+    "dia": 1,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 132,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.396Z",
+    "modificado": "2026-07-10T21:47:45.396Z",
+    "activo": true,
+    "agenda": 24,
+    "dia": 2,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 133,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.408Z",
+    "modificado": "2026-07-10T21:47:45.408Z",
+    "activo": true,
+    "agenda": 24,
+    "dia": 3,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 134,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.420Z",
+    "modificado": "2026-07-10T21:47:45.420Z",
+    "activo": true,
+    "agenda": 24,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 135,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.442Z",
+    "modificado": "2026-07-10T21:47:45.442Z",
+    "activo": true,
+    "agenda": 25,
+    "dia": 0,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 136,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.454Z",
+    "modificado": "2026-07-10T21:47:45.454Z",
+    "activo": true,
+    "agenda": 25,
+    "dia": 1,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 137,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.470Z",
+    "modificado": "2026-07-10T21:47:45.470Z",
+    "activo": true,
+    "agenda": 25,
+    "dia": 2,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 138,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.479Z",
+    "modificado": "2026-07-10T21:47:45.479Z",
+    "activo": true,
+    "agenda": 25,
+    "dia": 3,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 139,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.492Z",
+    "modificado": "2026-07-10T21:47:45.492Z",
+    "activo": true,
+    "agenda": 25,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 140,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.513Z",
+    "modificado": "2026-07-10T21:47:45.513Z",
+    "activo": true,
+    "agenda": 26,
+    "dia": 0,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 141,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.527Z",
+    "modificado": "2026-07-10T21:47:45.527Z",
+    "activo": true,
+    "agenda": 26,
+    "dia": 1,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 142,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.542Z",
+    "modificado": "2026-07-10T21:47:45.542Z",
+    "activo": true,
+    "agenda": 26,
+    "dia": 2,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 143,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.552Z",
+    "modificado": "2026-07-10T21:47:45.552Z",
+    "activo": true,
+    "agenda": 26,
+    "dia": 3,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 144,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.560Z",
+    "modificado": "2026-07-10T21:47:45.560Z",
+    "activo": true,
+    "agenda": 26,
+    "dia": 4,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 145,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.582Z",
+    "modificado": "2026-07-10T21:47:45.582Z",
+    "activo": true,
+    "agenda": 27,
+    "dia": 0,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 146,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.594Z",
+    "modificado": "2026-07-10T21:47:45.594Z",
+    "activo": true,
+    "agenda": 27,
+    "dia": 1,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 147,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.608Z",
+    "modificado": "2026-07-10T21:47:45.608Z",
+    "activo": true,
+    "agenda": 27,
+    "dia": 2,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 148,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.618Z",
+    "modificado": "2026-07-10T21:47:45.618Z",
+    "activo": true,
+    "agenda": 27,
+    "dia": 3,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 149,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.626Z",
+    "modificado": "2026-07-10T21:47:45.626Z",
+    "activo": true,
+    "agenda": 27,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 150,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.646Z",
+    "modificado": "2026-07-10T21:47:45.646Z",
+    "activo": true,
+    "agenda": 28,
+    "dia": 0,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 151,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.656Z",
+    "modificado": "2026-07-10T21:47:45.656Z",
+    "activo": true,
+    "agenda": 28,
+    "dia": 1,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 152,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.664Z",
+    "modificado": "2026-07-10T21:47:45.664Z",
+    "activo": true,
+    "agenda": 28,
+    "dia": 2,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 153,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.675Z",
+    "modificado": "2026-07-10T21:47:45.675Z",
+    "activo": true,
+    "agenda": 28,
+    "dia": 3,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 154,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.687Z",
+    "modificado": "2026-07-10T21:47:45.687Z",
+    "activo": true,
+    "agenda": 28,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "17:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 155,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.706Z",
+    "modificado": "2026-07-10T21:47:45.706Z",
+    "activo": true,
+    "agenda": 29,
+    "dia": 0,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 156,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.720Z",
+    "modificado": "2026-07-10T21:47:45.720Z",
+    "activo": true,
+    "agenda": 29,
+    "dia": 1,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 157,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.729Z",
+    "modificado": "2026-07-10T21:47:45.729Z",
+    "activo": true,
+    "agenda": 29,
+    "dia": 2,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 158,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.740Z",
+    "modificado": "2026-07-10T21:47:45.740Z",
+    "activo": true,
+    "agenda": 29,
+    "dia": 3,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 159,
+  "fields": {
+    "creado": "2026-07-10T21:47:45.747Z",
+    "modificado": "2026-07-10T21:47:45.749Z",
+    "activo": true,
+    "agenda": 29,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "16:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 160,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.601Z",
+    "modificado": "2026-07-10T23:25:03.601Z",
+    "activo": true,
+    "agenda": 30,
+    "dia": 0,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 161,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.612Z",
+    "modificado": "2026-07-10T23:25:03.612Z",
+    "activo": true,
+    "agenda": 30,
+    "dia": 1,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 162,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.622Z",
+    "modificado": "2026-07-10T23:25:03.622Z",
+    "activo": true,
+    "agenda": 30,
+    "dia": 2,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 163,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.632Z",
+    "modificado": "2026-07-10T23:25:03.632Z",
+    "activo": true,
+    "agenda": 30,
+    "dia": 3,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 164,
+  "fields": {
+    "creado": "2026-07-10T23:25:03.645Z",
+    "modificado": "2026-07-10T23:25:03.645Z",
+    "activo": true,
+    "agenda": 30,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 172,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.836Z",
+    "modificado": "2026-07-14T00:07:15.836Z",
+    "activo": true,
+    "agenda": 34,
+    "dia": 0,
+    "hora_inicio": "10:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 60
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 173,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.847Z",
+    "modificado": "2026-07-14T00:07:15.847Z",
+    "activo": true,
+    "agenda": 34,
+    "dia": 1,
+    "hora_inicio": "10:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 60
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 174,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.862Z",
+    "modificado": "2026-07-14T00:07:15.862Z",
+    "activo": true,
+    "agenda": 34,
+    "dia": 2,
+    "hora_inicio": "10:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 60
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 175,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.872Z",
+    "modificado": "2026-07-14T00:07:15.872Z",
+    "activo": true,
+    "agenda": 34,
+    "dia": 3,
+    "hora_inicio": "10:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 60
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 176,
+  "fields": {
+    "creado": "2026-07-14T00:07:15.962Z",
+    "modificado": "2026-07-14T00:07:15.962Z",
+    "activo": true,
+    "agenda": 34,
+    "dia": 4,
+    "hora_inicio": "10:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 60
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 177,
+  "fields": {
+    "creado": "2026-08-07T14:24:42.341Z",
+    "modificado": "2026-08-07T14:24:42.341Z",
+    "activo": true,
+    "agenda": 35,
+    "dia": 0,
+    "hora_inicio": "12:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 178,
+  "fields": {
+    "creado": "2026-08-07T14:24:42.344Z",
+    "modificado": "2026-08-07T14:24:42.344Z",
+    "activo": true,
+    "agenda": 35,
+    "dia": 1,
+    "hora_inicio": "12:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 179,
+  "fields": {
+    "creado": "2026-08-07T14:24:42.346Z",
+    "modificado": "2026-08-07T14:24:42.346Z",
+    "activo": true,
+    "agenda": 35,
+    "dia": 2,
+    "hora_inicio": "12:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 180,
+  "fields": {
+    "creado": "2026-08-07T14:24:42.349Z",
+    "modificado": "2026-08-07T14:24:42.349Z",
+    "activo": true,
+    "agenda": 35,
+    "dia": 3,
+    "hora_inicio": "12:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 181,
+  "fields": {
+    "creado": "2026-08-07T14:24:42.352Z",
+    "modificado": "2026-08-07T14:24:42.352Z",
+    "activo": true,
+    "agenda": 35,
+    "dia": 4,
+    "hora_inicio": "12:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 183,
+  "fields": {
+    "creado": "2026-08-26T18:59:31.519Z",
+    "modificado": "2026-08-26T18:59:31.519Z",
+    "activo": true,
+    "agenda": 37,
+    "dia": 2,
+    "hora_inicio": "18:00:00",
+    "hora_fin": "22:00:00",
+    "duracion_turno": 35
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 229,
+  "fields": {
+    "creado": "2026-09-11T21:08:03.582Z",
+    "modificado": "2026-09-11T21:08:03.582Z",
+    "activo": true,
+    "agenda": 36,
+    "dia": 3,
+    "hora_inicio": "17:00:00",
+    "hora_fin": "21:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 230,
+  "fields": {
+    "creado": "2026-09-11T21:08:03.591Z",
+    "modificado": "2026-09-11T21:08:03.591Z",
+    "activo": true,
+    "agenda": 36,
+    "dia": 6,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "12:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 232,
+  "fields": {
+    "creado": "2026-09-12T00:12:37.640Z",
+    "modificado": "2026-09-12T00:12:37.640Z",
+    "activo": true,
+    "agenda": 31,
+    "dia": 0,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 233,
+  "fields": {
+    "creado": "2026-09-12T00:12:37.648Z",
+    "modificado": "2026-09-12T00:12:37.648Z",
+    "activo": true,
+    "agenda": 31,
+    "dia": 1,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 234,
+  "fields": {
+    "creado": "2026-09-12T00:12:37.656Z",
+    "modificado": "2026-09-12T00:12:37.656Z",
+    "activo": true,
+    "agenda": 31,
+    "dia": 2,
+    "hora_inicio": "11:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 235,
+  "fields": {
+    "creado": "2026-09-12T00:12:37.664Z",
+    "modificado": "2026-09-12T00:12:37.664Z",
+    "activo": true,
+    "agenda": 31,
+    "dia": 3,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 236,
+  "fields": {
+    "creado": "2026-09-12T00:12:37.673Z",
+    "modificado": "2026-09-12T00:12:37.673Z",
+    "activo": true,
+    "agenda": 31,
+    "dia": 4,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "18:00:00",
+    "duracion_turno": 45
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 237,
+  "fields": {
+    "creado": "2026-09-12T00:12:37.681Z",
+    "modificado": "2026-09-12T00:12:37.681Z",
+    "activo": true,
+    "agenda": 31,
+    "dia": 5,
+    "hora_inicio": "09:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 239,
+  "fields": {
+    "creado": "2026-09-15T14:10:28.217Z",
+    "modificado": "2026-09-15T14:10:28.217Z",
+    "activo": true,
+    "agenda": 38,
+    "dia": 6,
+    "hora_inicio": "08:00:00",
+    "hora_fin": "12:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.horarioatencion",
+  "pk": 240,
+  "fields": {
+    "creado": "2026-09-15T14:10:28.225Z",
+    "modificado": "2026-09-15T14:10:28.225Z",
+    "activo": true,
+    "agenda": 38,
+    "dia": 6,
+    "hora_inicio": "16:00:00",
+    "hora_fin": "20:00:00",
+    "duracion_turno": 30
+  }
+},
+{
+  "model": "agendas.bloqueoagenda",
+  "pk": 2,
+  "fields": {
+    "creado": "2026-07-21T01:02:23.340Z",
+    "modificado": "2026-07-21T01:02:23.340Z",
+    "activo": true,
+    "agenda": 24,
+    "fecha": "2026-07-22",
+    "hora_inicio": "08:00:00",
+    "hora_fin": "12:00:00",
+    "motivo": "Personal"
+  }
+},
+{
+  "model": "agendas.bloqueoagenda",
+  "pk": 3,
+  "fields": {
+    "creado": "2026-08-01T17:42:48.985Z",
+    "modificado": "2026-08-01T17:42:59.518Z",
+    "activo": false,
+    "agenda": 24,
+    "fecha": "2026-08-03",
+    "hora_inicio": null,
+    "hora_fin": null,
+    "motivo": "Feriado"
+  }
+},
+{
+  "model": "agendas.bloqueoagenda",
+  "pk": 4,
+  "fields": {
+    "creado": "2026-08-01T18:31:15.166Z",
+    "modificado": "2026-08-01T18:31:27.858Z",
+    "activo": false,
+    "agenda": 24,
+    "fecha": "2026-07-27",
+    "hora_inicio": null,
+    "hora_fin": null,
+    "motivo": "Personal"
+  }
+},
+{
+  "model": "agendas.bloqueoagenda",
+  "pk": 5,
+  "fields": {
+    "creado": "2026-08-01T18:31:53.454Z",
+    "modificado": "2026-08-01T18:31:53.454Z",
+    "activo": true,
+    "agenda": 24,
+    "fecha": "2026-07-27",
+    "hora_inicio": "09:00:00",
+    "hora_fin": "09:30:00",
+    "motivo": "Feriado"
+  }
+},
+{
+  "model": "agendas.bloqueoagenda",
+  "pk": 6,
+  "fields": {
+    "creado": "2026-08-01T19:11:56.661Z",
+    "modificado": "2026-08-01T19:12:03.158Z",
+    "activo": false,
+    "agenda": 24,
+    "fecha": "2026-07-28",
+    "hora_inicio": null,
+    "hora_fin": null,
+    "motivo": "Feriado"
+  }
+},
+{
+  "model": "agendas.bloqueoagenda",
+  "pk": 7,
+  "fields": {
+    "creado": "2026-08-01T19:18:54.113Z",
+    "modificado": "2026-08-01T19:34:56.143Z",
+    "activo": false,
+    "agenda": 24,
+    "fecha": "2026-08-21",
+    "hora_inicio": null,
+    "hora_fin": null,
+    "motivo": "Personal"
+  }
+},
+{
+  "model": "core_app.configuracionsistema",
+  "pk": 1,
+  "fields": {
+    "creado": "2026-06-21T20:14:54.845Z",
+    "modificado": "2026-06-21T20:14:54.845Z",
+    "activo": true,
+    "modo": "profesional",
+    "establecimiento_principal": null,
+    "profesional_principal": null,
+    "nombre_sistema": "Sistema de Gestión de Turnos"
+  }
+},
+{
+  "model": "core_app.clientesaas",
+  "pk": 3,
+  "fields": {
+    "creado": "2026-06-21T21:34:11.022Z",
+    "modificado": "2026-08-30T02:15:17.630Z",
+    "slug": "salta",
+    "tipo": "consultorio",
+    "nombre": "Consultorio Salta",
+    "establecimiento": 1,
+    "profesional": null,
+    "activo": true,
+    "theme_css": "default",
+    "hero_titulo": "Sacá tu turno online",
+    "hero_subtitulo": "Rápido, fácil y sin esperas",
+    "hero_imagen": "landing/consultorio_tduJr2x.jpg",
+    "color_primario": "#4a90d9",
+    "color_secundario": "#28a745",
+    "mostrar_profesionales": true,
+    "mostrar_servicios": true,
+    "telefono_contacto": "4257037",
+    "email_contacto": "",
+    "direccion": "",
+    "quienes_somos_titulo": "Nuestro Consultorio",
+    "quienes_somos_subtitulo": "Comprometidos con tu salud y bienestar",
+    "quienes_somos_texto": "Somos un consultorio médico en Salta que reúne distintas especialidades en un solo lugar. Nuestro objetivo es que accedas a una atención de calidad, con turnos online disponibles las 24 horas y un equipo que te acompaña antes, durante y después de la consulta. Atendemos con protocolos de higiene y bioseguridad, historia clínica digital y una atención personalizada según lo que necesites.",
+    "horarios_titulo": "¿Cuándo y dónde atendemos?",
+    "horarios_subtitulo": "Consultá nuestros horarios de atención y cómo llegar.",
+    "horarios_lunes_viernes": "8:00 - 20:00 hs",
+    "horarios_sabados": "8:00 - 13:00 hs",
+    "mostrar_horarios": true,
+    "servicios_titulo": "¿Qué ofrecemos?",
+    "servicios_subtitulo": "Conocé todo lo que podemos hacer por tu salud",
+    "profesionales_titulo": "Nuestros Profesionales",
+    "profesionales_subtitulo": "Filtrá por especialidad y elegí con quién querés atenderte",
+    "footer_texto": "Atención profesional de calidad. Tu salud es nuestra prioridad.",
+    "mostrar_selector_temas": true,
+    "hero_badge_texto": "Turnos Online 24/7",
+    "nosotros_imagen": "landing/nosotros/centro-de-rehabilitacion-scaled.webp",
+    "nosotros_destacado_1_icono": "fas fa-user-md",
+    "nosotros_destacado_1_titulo": "Profesionales Expertos",
+    "nosotros_destacado_1_texto": "Especialistas en diversas áreas de la salud",
+    "nosotros_destacado_2_icono": "fas fa-clock",
+    "nosotros_destacado_2_titulo": "Turnos Online",
+    "nosotros_destacado_2_texto": "Reservá tu turno cuando quieras, desde donde estés",
+    "nosotros_destacado_3_icono": "fas fa-shield-alt",
+    "nosotros_destacado_3_titulo": "Atención Segura",
+    "nosotros_destacado_3_texto": "Protocolos de higiene y bioseguridad",
+    "servicio_1_icono": "🏥",
+    "servicio_1_titulo": "Atención Personalizada",
+    "servicio_1_descripcion": "Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.",
+    "mostrar_servicio_1": true,
+    "servicio_2_icono": "📱",
+    "servicio_2_titulo": "Turnos Online",
+    "servicio_2_descripcion": "Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.",
+    "mostrar_servicio_2": true,
+    "servicio_3_icono": "📋",
+    "servicio_3_titulo": "Historia Clínica Digital",
+    "servicio_3_descripcion": "Accedé a tu historial médico de forma segura cuando lo necesites.",
+    "mostrar_servicio_3": true,
+    "servicio_4_icono": "🏥",
+    "servicio_4_titulo": "Obras Sociales",
+    "servicio_4_descripcion": "Trabajamos con las principales obras sociales y prepagas.",
+    "mostrar_servicio_4": true,
+    "mostrar_precios_landing": true,
+    "mostrar_obras_sociales_landing": true,
+    "mostrar_equipamientos": true,
+    "equipamientos_titulo": "Algunos de nuestros Equipos",
+    "equipamientos_subtitulo": "Contamos con tecnología de última generación",
+    "instagram_url": "https://www.instagram.com/",
+    "facebook_url": "https://www.facebook.com/",
+    "mostrar_horarios_footer": true,
+    "layout_estilo": "consultorio",
+    "favicon": "landing/favicons/Logo_consultorio_salta.png",
+    "cobertura_titulo": "Precios y Obras Sociales",
+    "cobertura_subtitulo": "Consultá los aranceles y coberturas disponibles",
+    "mostrar_cobertura": true,
+    "mostrar_mapa_horarios": true,
+    "texto_plus": "",
+    "hero_boton_texto": "Sacar Turno Ahora",
+    "boton_flotante_texto": "Sacar Turno",
+    "hero_scroll_texto": "Conocenos",
+    "sobre_mi_label": "Profesional",
+    "servicios_label": "Nuestros Servicios",
+    "profesionales_label": "Equipo Profesional",
+    "horarios_seccion_label": "Ubicación y Horarios",
+    "horarios_label": "Días y Horarios",
+    "ubicaciones_label": "Ubicaciones",
+    "ubicaciones_titulo": "Donde Atiendo",
+    "ubicaciones_subtitulo": "Consultorios y centros de atención.",
+    "cobertura_label": "Cobertura",
+    "equipamientos_label": "Técnicas y Equipamiento",
+    "horario_lunes_viernes_titulo": "Lunes a Viernes",
+    "horario_sabados_titulo": "Sábados",
+    "horario_tipo_general": "Atención general",
+    "horario_online_titulo": "Turnos Online",
+    "horario_online_descripcion": "Reservá cuando quieras",
+    "boton_orden_llegada_texto": "Orden de Llegada",
+    "texto_whatsapp": "Chatear por WhatsApp",
+    "texto_horarios_no_disponibles": "Consultar horarios disponibles",
+    "texto_no_equipamientos": "No hay equipamientos cargados.",
+    "footer_horarios_titulo": "Horarios",
+    "footer_contacto_titulo": "Contacto",
+    "footer_desarrollado_texto": "Desarrollado por",
+    "footer_turnos_online_texto": "Turnos Online: 24/7"
+  }
+},
+{
+  "model": "core_app.clientesaas",
+  "pk": 4,
+  "fields": {
+    "creado": "2026-06-21T21:34:11.041Z",
+    "modificado": "2026-06-21T21:34:11.041Z",
+    "slug": "facureifenberg",
+    "tipo": "profesional",
+    "nombre": "Dr. Facu Reifenberg",
+    "establecimiento": null,
+    "profesional": null,
+    "activo": true,
+    "theme_css": "default",
+    "hero_titulo": "Sacá tu turno online",
+    "hero_subtitulo": "Rápido, fácil y sin esperas",
+    "hero_imagen": "",
+    "color_primario": "#4A90D9",
+    "color_secundario": "#28a745",
+    "mostrar_profesionales": true,
+    "mostrar_servicios": true,
+    "telefono_contacto": "",
+    "email_contacto": "",
+    "direccion": "",
+    "quienes_somos_titulo": "Nuestro Consultorio",
+    "quienes_somos_subtitulo": "Comprometidos con tu salud y bienestar",
+    "quienes_somos_texto": "En nuestro consultorio nos dedicamos a brindar atención médica de calidad...",
+    "horarios_titulo": "¿Cuándo atendemos?",
+    "horarios_subtitulo": "Consultá nuestros horarios de atención al público",
+    "horarios_lunes_viernes": "8:00 - 20:00 hs",
+    "horarios_sabados": "8:00 - 13:00 hs",
+    "mostrar_horarios": true,
+    "servicios_titulo": "¿Qué ofrecemos?",
+    "servicios_subtitulo": "Conocé todo lo que podemos hacer por tu salud",
+    "profesionales_titulo": "Nuestros Profesionales",
+    "profesionales_subtitulo": "Filtrá por especialidad y elegí con quién querés atenderte",
+    "footer_texto": "Atención profesional de calidad. Tu salud es nuestra prioridad.",
+    "mostrar_selector_temas": true,
+    "hero_badge_texto": "Turnos Online 24/7",
+    "nosotros_imagen": "",
+    "nosotros_destacado_1_icono": "fas fa-user-md",
+    "nosotros_destacado_1_titulo": "Profesionales Expertos",
+    "nosotros_destacado_1_texto": "Especialistas en diversas áreas de la salud",
+    "nosotros_destacado_2_icono": "fas fa-clock",
+    "nosotros_destacado_2_titulo": "Turnos Online",
+    "nosotros_destacado_2_texto": "Reservá tu turno cuando quieras, desde donde estés",
+    "nosotros_destacado_3_icono": "fas fa-shield-alt",
+    "nosotros_destacado_3_titulo": "Atención Segura",
+    "nosotros_destacado_3_texto": "Protocolos de higiene y bioseguridad",
+    "servicio_1_icono": "🏥",
+    "servicio_1_titulo": "Atención Personalizada",
+    "servicio_1_descripcion": "Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.",
+    "mostrar_servicio_1": true,
+    "servicio_2_icono": "📱",
+    "servicio_2_titulo": "Turnos Online",
+    "servicio_2_descripcion": "Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.",
+    "mostrar_servicio_2": true,
+    "servicio_3_icono": "📋",
+    "servicio_3_titulo": "Historia Clínica Digital",
+    "servicio_3_descripcion": "Accedé a tu historial médico de forma segura cuando lo necesites.",
+    "mostrar_servicio_3": true,
+    "servicio_4_icono": "🏥",
+    "servicio_4_titulo": "Obras Sociales",
+    "servicio_4_descripcion": "Trabajamos con las principales obras sociales y prepagas.",
+    "mostrar_servicio_4": true,
+    "mostrar_precios_landing": true,
+    "mostrar_obras_sociales_landing": true,
+    "mostrar_equipamientos": true,
+    "equipamientos_titulo": "Nuestros Equipos",
+    "equipamientos_subtitulo": "Contamos con tecnología de última generación",
+    "instagram_url": "",
+    "facebook_url": "",
+    "mostrar_horarios_footer": true,
+    "layout_estilo": "consultorio",
+    "favicon": "",
+    "cobertura_titulo": "Precios y Obras Sociales",
+    "cobertura_subtitulo": "Consultá los aranceles y coberturas disponibles",
+    "mostrar_cobertura": true,
+    "mostrar_mapa_horarios": true,
+    "texto_plus": "",
+    "hero_boton_texto": "Sacar Turno Ahora",
+    "boton_flotante_texto": "Sacar Turno",
+    "hero_scroll_texto": "Conocenos",
+    "sobre_mi_label": "Profesional",
+    "servicios_label": "Nuestros Servicios",
+    "profesionales_label": "Equipo Profesional",
+    "horarios_seccion_label": "Horarios",
+    "horarios_label": "Días y Horarios",
+    "ubicaciones_label": "Ubicaciones",
+    "ubicaciones_titulo": "Donde Atiendo",
+    "ubicaciones_subtitulo": "Consultorios y centros de atención.",
+    "cobertura_label": "Cobertura",
+    "equipamientos_label": "Técnicas y Equipamiento",
+    "horario_lunes_viernes_titulo": "Lunes a Viernes",
+    "horario_sabados_titulo": "Sábados",
+    "horario_tipo_general": "Atención general",
+    "horario_online_titulo": "Turnos Online",
+    "horario_online_descripcion": "Reservá cuando quieras",
+    "boton_orden_llegada_texto": "Orden de Llegada",
+    "texto_whatsapp": "Chatear por WhatsApp",
+    "texto_horarios_no_disponibles": "Consultar horarios disponibles",
+    "texto_no_equipamientos": "No hay equipamientos cargados.",
+    "footer_horarios_titulo": "Horarios",
+    "footer_contacto_titulo": "Contacto",
+    "footer_desarrollado_texto": "Desarrollado por",
+    "footer_turnos_online_texto": "Turnos Online: 24/7"
+  }
+},
+{
+  "model": "core_app.clientesaas",
+  "pk": 5,
+  "fields": {
+    "creado": "2026-07-09T01:49:46.580Z",
+    "modificado": "2026-08-14T20:44:18.210Z",
+    "slug": "consultorio-salta",
+    "tipo": "consultorio",
+    "nombre": "Consultorio Salta",
+    "establecimiento": 1,
+    "profesional": null,
+    "activo": true,
+    "theme_css": "default",
+    "hero_titulo": "Sacá tu turno online",
+    "hero_subtitulo": "Rápido, fácil y sin esperas",
+    "hero_imagen": "landing/consultorio.jpg",
+    "color_primario": "#4a90d9",
+    "color_secundario": "#28a745",
+    "mostrar_profesionales": true,
+    "mostrar_servicios": true,
+    "telefono_contacto": "4257037",
+    "email_contacto": "",
+    "direccion": "",
+    "quienes_somos_titulo": "Nuestro Consultorio",
+    "quienes_somos_subtitulo": "Comprometidos con tu salud y bienestar",
+    "quienes_somos_texto": "En nuestro consultorio nos dedicamos a brindar atención médica de calidad...",
+    "horarios_titulo": "¿Cuándo atendemos?",
+    "horarios_subtitulo": "Consultá nuestros horarios de atención al público",
+    "horarios_lunes_viernes": "8:00 - 20:00 hs",
+    "horarios_sabados": "8:00 - 13:00 hs",
+    "mostrar_horarios": true,
+    "servicios_titulo": "¿Qué ofrecemos?",
+    "servicios_subtitulo": "Conocé todo lo que podemos hacer por tu salud",
+    "profesionales_titulo": "Nuestros Profesionales",
+    "profesionales_subtitulo": "Filtrá por especialidad y elegí con quién querés atenderte",
+    "footer_texto": "Atención profesional de calidad. Tu salud es nuestra prioridad.",
+    "mostrar_selector_temas": true,
+    "hero_badge_texto": "Turnos Online 24/7",
+    "nosotros_imagen": "",
+    "nosotros_destacado_1_icono": "fas fa-user-md",
+    "nosotros_destacado_1_titulo": "Profesionales Expertos",
+    "nosotros_destacado_1_texto": "Especialistas en diversas áreas de la salud",
+    "nosotros_destacado_2_icono": "fas fa-clock",
+    "nosotros_destacado_2_titulo": "Turnos Online",
+    "nosotros_destacado_2_texto": "Reservá tu turno cuando quieras, desde donde estés",
+    "nosotros_destacado_3_icono": "fas fa-shield-alt",
+    "nosotros_destacado_3_titulo": "Atención Segura",
+    "nosotros_destacado_3_texto": "Protocolos de higiene y bioseguridad",
+    "servicio_1_icono": "🏥",
+    "servicio_1_titulo": "Atención Personalizada",
+    "servicio_1_descripcion": "Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.",
+    "mostrar_servicio_1": true,
+    "servicio_2_icono": "📱",
+    "servicio_2_titulo": "Turnos Online",
+    "servicio_2_descripcion": "Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.",
+    "mostrar_servicio_2": true,
+    "servicio_3_icono": "📋",
+    "servicio_3_titulo": "Historia Clínica Digital",
+    "servicio_3_descripcion": "Accedé a tu historial médico de forma segura cuando lo necesites.",
+    "mostrar_servicio_3": true,
+    "servicio_4_icono": "🏥",
+    "servicio_4_titulo": "Obras Sociales",
+    "servicio_4_descripcion": "Trabajamos con las principales obras sociales y prepagas.",
+    "mostrar_servicio_4": true,
+    "mostrar_precios_landing": true,
+    "mostrar_obras_sociales_landing": true,
+    "mostrar_equipamientos": true,
+    "equipamientos_titulo": "Nuestros Equipos",
+    "equipamientos_subtitulo": "Contamos con tecnología de última generación",
+    "instagram_url": "",
+    "facebook_url": "",
+    "mostrar_horarios_footer": true,
+    "layout_estilo": "consultorio",
+    "favicon": "",
+    "cobertura_titulo": "Precios y Obras Sociales",
+    "cobertura_subtitulo": "Consultá los aranceles y coberturas disponibles",
+    "mostrar_cobertura": true,
+    "mostrar_mapa_horarios": true,
+    "texto_plus": "",
+    "hero_boton_texto": "Sacar Turno Ahora",
+    "boton_flotante_texto": "Sacar Turno",
+    "hero_scroll_texto": "Conocenos",
+    "sobre_mi_label": "Profesional",
+    "servicios_label": "Nuestros Servicios",
+    "profesionales_label": "Equipo Profesional",
+    "horarios_seccion_label": "Horarios",
+    "horarios_label": "Días y Horarios",
+    "ubicaciones_label": "Ubicaciones",
+    "ubicaciones_titulo": "Donde Atiendo",
+    "ubicaciones_subtitulo": "Consultorios y centros de atención.",
+    "cobertura_label": "Cobertura",
+    "equipamientos_label": "Técnicas y Equipamiento",
+    "horario_lunes_viernes_titulo": "Lunes a Viernes",
+    "horario_sabados_titulo": "Sábados",
+    "horario_tipo_general": "Atención general",
+    "horario_online_titulo": "Turnos Online",
+    "horario_online_descripcion": "Reservá cuando quieras",
+    "boton_orden_llegada_texto": "Orden de Llegada",
+    "texto_whatsapp": "Chatear por WhatsApp",
+    "texto_horarios_no_disponibles": "Consultar horarios disponibles",
+    "texto_no_equipamientos": "No hay equipamientos cargados.",
+    "footer_horarios_titulo": "Horarios",
+    "footer_contacto_titulo": "Contacto",
+    "footer_desarrollado_texto": "Desarrollado por",
+    "footer_turnos_online_texto": "Turnos Online: 24/7"
+  }
+},
+{
+  "model": "core_app.clientesaas",
+  "pk": 6,
+  "fields": {
+    "creado": "2026-07-10T21:47:48.863Z",
+    "modificado": "2026-08-05T00:13:24.581Z",
+    "slug": "centro-medico-norte",
+    "tipo": "consultorio",
+    "nombre": "Centro Médico Norte",
+    "establecimiento": 4,
+    "profesional": null,
+    "activo": true,
+    "theme_css": "blanco_negro",
+    "hero_titulo": "Dale sacá el turno",
+    "hero_subtitulo": "Es fácil y sin esperas",
+    "hero_imagen": "landing/centro-de-rehabilitacion-scaled_BWfdhw0.webp",
+    "color_primario": "#d94ad4",
+    "color_secundario": "#a0a829",
+    "mostrar_profesionales": true,
+    "mostrar_servicios": true,
+    "telefono_contacto": "425703733",
+    "email_contacto": "norte@gmail.com",
+    "direccion": "españa 45",
+    "quienes_somos_titulo": "Nuestro Consultorio",
+    "quienes_somos_subtitulo": "Comprometidos con tu salud y bienestar",
+    "quienes_somos_texto": "En nuestro consultorio nos dedicamos a brindar atención médica de calidad...",
+    "horarios_titulo": "¿Cuándo atendemos?",
+    "horarios_subtitulo": "Consultá nuestros horarios de atención al público",
+    "horarios_lunes_viernes": "8:00 - 20:00 hs",
+    "horarios_sabados": "8:00 - 13:00 hs",
+    "mostrar_horarios": true,
+    "servicios_titulo": "¿Qué ofrecemos?",
+    "servicios_subtitulo": "Conocé todo lo que podemos hacer por tu salud",
+    "profesionales_titulo": "Nuestros Profesionales",
+    "profesionales_subtitulo": "Filtrá por especialidad y elegí con quién querés atenderte",
+    "footer_texto": "Atención profesional de calidad. Tu salud es nuestra prioridad.",
+    "mostrar_selector_temas": true,
+    "hero_badge_texto": "Turnos 24/7",
+    "nosotros_imagen": "",
+    "nosotros_destacado_1_icono": "fas fa-user-md",
+    "nosotros_destacado_1_titulo": "Profesionales Expertos",
+    "nosotros_destacado_1_texto": "Especialistas en diversas áreas de la salud",
+    "nosotros_destacado_2_icono": "fas fa-clock",
+    "nosotros_destacado_2_titulo": "Turnos Online",
+    "nosotros_destacado_2_texto": "Reservá tu turno cuando quieras, desde donde estés",
+    "nosotros_destacado_3_icono": "fas fa-shield-alt",
+    "nosotros_destacado_3_titulo": "Atención Segura",
+    "nosotros_destacado_3_texto": "Protocolos de higiene y bioseguridad",
+    "servicio_1_icono": "🏥",
+    "servicio_1_titulo": "Atención Personalizada",
+    "servicio_1_descripcion": "Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.",
+    "mostrar_servicio_1": true,
+    "servicio_2_icono": "📱",
+    "servicio_2_titulo": "Turnos Online",
+    "servicio_2_descripcion": "Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.",
+    "mostrar_servicio_2": true,
+    "servicio_3_icono": "📋",
+    "servicio_3_titulo": "Historia Clínica Digital",
+    "servicio_3_descripcion": "Accedé a tu historial médico de forma segura cuando lo necesites.",
+    "mostrar_servicio_3": true,
+    "servicio_4_icono": "🏥",
+    "servicio_4_titulo": "Obras Sociales",
+    "servicio_4_descripcion": "Trabajamos con las principales obras sociales y prepagas.",
+    "mostrar_servicio_4": true,
+    "mostrar_precios_landing": true,
+    "mostrar_obras_sociales_landing": true,
+    "mostrar_equipamientos": true,
+    "equipamientos_titulo": "Nuestros Equipos",
+    "equipamientos_subtitulo": "Contamos con tecnología de última generación",
+    "instagram_url": "",
+    "facebook_url": "",
+    "mostrar_horarios_footer": true,
+    "layout_estilo": "consultorio",
+    "favicon": "",
+    "cobertura_titulo": "Precios y Obras Sociales",
+    "cobertura_subtitulo": "Consultá los aranceles y coberturas disponibles",
+    "mostrar_cobertura": true,
+    "mostrar_mapa_horarios": true,
+    "texto_plus": "",
+    "hero_boton_texto": "Sacar Turno Ahora",
+    "boton_flotante_texto": "Sacar Turno",
+    "hero_scroll_texto": "Conocenos",
+    "sobre_mi_label": "Profesional",
+    "servicios_label": "Nuestros Servicios",
+    "profesionales_label": "Equipo Profesional",
+    "horarios_seccion_label": "Horarios",
+    "horarios_label": "Días y Horarios",
+    "ubicaciones_label": "Ubicaciones",
+    "ubicaciones_titulo": "Donde Atiendo",
+    "ubicaciones_subtitulo": "Consultorios y centros de atención.",
+    "cobertura_label": "Cobertura",
+    "equipamientos_label": "Técnicas y Equipamiento",
+    "horario_lunes_viernes_titulo": "Lunes a Viernes",
+    "horario_sabados_titulo": "Sábados",
+    "horario_tipo_general": "Atención general",
+    "horario_online_titulo": "Turnos Online",
+    "horario_online_descripcion": "Reservá cuando quieras",
+    "boton_orden_llegada_texto": "Orden de Llegada",
+    "texto_whatsapp": "Chatear por WhatsApp",
+    "texto_horarios_no_disponibles": "Consultar horarios disponibles",
+    "texto_no_equipamientos": "No hay equipamientos cargados.",
+    "footer_horarios_titulo": "Horarios",
+    "footer_contacto_titulo": "Contacto",
+    "footer_desarrollado_texto": "Desarrollado por",
+    "footer_turnos_online_texto": "Turnos Online: 24/7"
+  }
+},
+{
+  "model": "core_app.clientesaas",
+  "pk": 8,
+  "fields": {
+    "creado": "2026-07-10T23:24:15.176Z",
+    "modificado": "2026-07-10T23:24:15.176Z",
+    "slug": "javier-morales-kinesiologia",
+    "tipo": "profesional",
+    "nombre": "Javier Morales - Kinesiología a Domicilio",
+    "establecimiento": null,
+    "profesional": 32,
+    "activo": true,
+    "theme_css": "default",
+    "hero_titulo": "Sacá tu turno online",
+    "hero_subtitulo": "Rápido, fácil y sin esperas",
+    "hero_imagen": "",
+    "color_primario": "#4A90D9",
+    "color_secundario": "#28a745",
+    "mostrar_profesionales": true,
+    "mostrar_servicios": true,
+    "telefono_contacto": "",
+    "email_contacto": "",
+    "direccion": "",
+    "quienes_somos_titulo": "Nuestro Consultorio",
+    "quienes_somos_subtitulo": "Comprometidos con tu salud y bienestar",
+    "quienes_somos_texto": "En nuestro consultorio nos dedicamos a brindar atención médica de calidad...",
+    "horarios_titulo": "¿Cuándo atendemos?",
+    "horarios_subtitulo": "Consultá nuestros horarios de atención al público",
+    "horarios_lunes_viernes": "8:00 - 20:00 hs",
+    "horarios_sabados": "8:00 - 13:00 hs",
+    "mostrar_horarios": true,
+    "servicios_titulo": "¿Qué ofrecemos?",
+    "servicios_subtitulo": "Conocé todo lo que podemos hacer por tu salud",
+    "profesionales_titulo": "Nuestros Profesionales",
+    "profesionales_subtitulo": "Filtrá por especialidad y elegí con quién querés atenderte",
+    "footer_texto": "Atención profesional de calidad. Tu salud es nuestra prioridad.",
+    "mostrar_selector_temas": true,
+    "hero_badge_texto": "Turnos Online 24/7",
+    "nosotros_imagen": "",
+    "nosotros_destacado_1_icono": "fas fa-user-md",
+    "nosotros_destacado_1_titulo": "Profesionales Expertos",
+    "nosotros_destacado_1_texto": "Especialistas en diversas áreas de la salud",
+    "nosotros_destacado_2_icono": "fas fa-clock",
+    "nosotros_destacado_2_titulo": "Turnos Online",
+    "nosotros_destacado_2_texto": "Reservá tu turno cuando quieras, desde donde estés",
+    "nosotros_destacado_3_icono": "fas fa-shield-alt",
+    "nosotros_destacado_3_titulo": "Atención Segura",
+    "nosotros_destacado_3_texto": "Protocolos de higiene y bioseguridad",
+    "servicio_1_icono": "🏥",
+    "servicio_1_titulo": "Atención Personalizada",
+    "servicio_1_descripcion": "Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.",
+    "mostrar_servicio_1": true,
+    "servicio_2_icono": "📱",
+    "servicio_2_titulo": "Turnos Online",
+    "servicio_2_descripcion": "Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.",
+    "mostrar_servicio_2": true,
+    "servicio_3_icono": "📋",
+    "servicio_3_titulo": "Historia Clínica Digital",
+    "servicio_3_descripcion": "Accedé a tu historial médico de forma segura cuando lo necesites.",
+    "mostrar_servicio_3": true,
+    "servicio_4_icono": "🏥",
+    "servicio_4_titulo": "Obras Sociales",
+    "servicio_4_descripcion": "Trabajamos con las principales obras sociales y prepagas.",
+    "mostrar_servicio_4": true,
+    "mostrar_precios_landing": true,
+    "mostrar_obras_sociales_landing": true,
+    "mostrar_equipamientos": true,
+    "equipamientos_titulo": "Nuestros Equipos",
+    "equipamientos_subtitulo": "Contamos con tecnología de última generación",
+    "instagram_url": "",
+    "facebook_url": "",
+    "mostrar_horarios_footer": true,
+    "layout_estilo": "consultorio",
+    "favicon": "",
+    "cobertura_titulo": "Precios y Obras Sociales",
+    "cobertura_subtitulo": "Consultá los aranceles y coberturas disponibles",
+    "mostrar_cobertura": true,
+    "mostrar_mapa_horarios": true,
+    "texto_plus": "",
+    "hero_boton_texto": "Sacar Turno Ahora",
+    "boton_flotante_texto": "Sacar Turno",
+    "hero_scroll_texto": "Conocenos",
+    "sobre_mi_label": "Profesional",
+    "servicios_label": "Nuestros Servicios",
+    "profesionales_label": "Equipo Profesional",
+    "horarios_seccion_label": "Horarios",
+    "horarios_label": "Días y Horarios",
+    "ubicaciones_label": "Ubicaciones",
+    "ubicaciones_titulo": "Donde Atiendo",
+    "ubicaciones_subtitulo": "Consultorios y centros de atención.",
+    "cobertura_label": "Cobertura",
+    "equipamientos_label": "Técnicas y Equipamiento",
+    "horario_lunes_viernes_titulo": "Lunes a Viernes",
+    "horario_sabados_titulo": "Sábados",
+    "horario_tipo_general": "Atención general",
+    "horario_online_titulo": "Turnos Online",
+    "horario_online_descripcion": "Reservá cuando quieras",
+    "boton_orden_llegada_texto": "Orden de Llegada",
+    "texto_whatsapp": "Chatear por WhatsApp",
+    "texto_horarios_no_disponibles": "Consultar horarios disponibles",
+    "texto_no_equipamientos": "No hay equipamientos cargados.",
+    "footer_horarios_titulo": "Horarios",
+    "footer_contacto_titulo": "Contacto",
+    "footer_desarrollado_texto": "Desarrollado por",
+    "footer_turnos_online_texto": "Turnos Online: 24/7"
+  }
+},
+{
+  "model": "core_app.clientesaas",
+  "pk": 9,
+  "fields": {
+    "creado": "2026-07-11T00:58:29.700Z",
+    "modificado": "2026-09-12T00:06:44.611Z",
+    "slug": "gonzalo-martinez-kinesiologia",
+    "tipo": "profesional",
+    "nombre": "Gonzalo Martinez - Kinesiología Deportiva",
+    "establecimiento": null,
+    "profesional": 33,
+    "activo": true,
+    "theme_css": "azul_oscuro",
+    "hero_titulo": "Sacá tu turno online",
+    "hero_subtitulo": "Kinesiólogo especializado en rehabilitación deportiva y funcional.",
+    "hero_imagen": "landing/centro-de-rehabilitacion-scaled.webp",
+    "color_primario": "#4a90d9",
+    "color_secundario": "#28a745",
+    "mostrar_profesionales": true,
+    "mostrar_servicios": false,
+    "telefono_contacto": "11-6543-2100",
+    "email_contacto": "gmartinez@gmail.com",
+    "direccion": "",
+    "quienes_somos_titulo": "Sobre Mí",
+    "quienes_somos_subtitulo": "Una trayectoria de confianza y resultados.",
+    "quienes_somos_texto": "\"Con más de 20 años en el campo de la kinesiología y la rehabilitación, he dedicado mi carrera a la recuperación de deportistas de alto rendimiento y al tratamiento de lesiones crónicas y agudas. Mi método se basa en una evaluación exhaustiva y en un plan de tratamiento personalizado, combinando técnicas de vanguardia con el trato humano y cercano que mis pacientes merecen. Brindo atención tanto en mi consultorio como a domicilio en CABA y GBA, adaptándome a tus necesidades.\"",
+    "horarios_titulo": "¿Cuándo atendemos?",
+    "horarios_subtitulo": "Consultá nuestros horarios de atención al público",
+    "horarios_lunes_viernes": "8:00 - 20:00 hs",
+    "horarios_sabados": "8:00 - 13:00 hs",
+    "mostrar_horarios": true,
+    "servicios_titulo": "¿Qué ofrecemos?",
+    "servicios_subtitulo": "Conocé todo lo que podemos hacer por tu salud",
+    "profesionales_titulo": "Nuestros Profesionales",
+    "profesionales_subtitulo": "Filtrá por especialidad y elegí con quién querés atenderte",
+    "footer_texto": "Atención profesional de calidad. Tu salud es nuestra prioridad.",
+    "mostrar_selector_temas": false,
+    "hero_badge_texto": "Turnos Online 24/7",
+    "nosotros_imagen": "landing/nosotros/imagen_2026-08-19_181818293.png",
+    "nosotros_destacado_1_icono": "fas fa-user-md",
+    "nosotros_destacado_1_titulo": "Profesionales Expertos",
+    "nosotros_destacado_1_texto": "Especialistas en diversas áreas de la salud",
+    "nosotros_destacado_2_icono": "fas fa-clock",
+    "nosotros_destacado_2_titulo": "Turnos Online",
+    "nosotros_destacado_2_texto": "Reservá tu turno cuando quieras, desde donde estés",
+    "nosotros_destacado_3_icono": "fas fa-shield-alt",
+    "nosotros_destacado_3_titulo": "Atención Segura",
+    "nosotros_destacado_3_texto": "Protocolos de higiene y bioseguridad",
+    "servicio_1_icono": "🏥",
+    "servicio_1_titulo": "Atención Personalizada",
+    "servicio_1_descripcion": "Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.",
+    "mostrar_servicio_1": true,
+    "servicio_2_icono": "📱",
+    "servicio_2_titulo": "Turnos Online",
+    "servicio_2_descripcion": "Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.",
+    "mostrar_servicio_2": true,
+    "servicio_3_icono": "📋",
+    "servicio_3_titulo": "Historia Clínica Digital",
+    "servicio_3_descripcion": "Accedé a tu historial médico de forma segura cuando lo necesites.",
+    "mostrar_servicio_3": true,
+    "servicio_4_icono": "🏥",
+    "servicio_4_titulo": "Obras Sociales",
+    "servicio_4_descripcion": "Trabajamos con las principales obras sociales y prepagas.",
+    "mostrar_servicio_4": true,
+    "mostrar_precios_landing": true,
+    "mostrar_obras_sociales_landing": true,
+    "mostrar_equipamientos": true,
+    "equipamientos_titulo": "Tecnología al Servicio de tu Recuperación",
+    "equipamientos_subtitulo": "Equipamiento de alta gama y técnicas innovadoras para potenciar tu rehabilitación.",
+    "instagram_url": "https://www.instagram.com/",
+    "facebook_url": "https://www.facebook.com/",
+    "mostrar_horarios_footer": true,
+    "layout_estilo": "profesional_compact",
+    "favicon": "landing/favicons/imagen_2026-08-18_135717537.png",
+    "cobertura_titulo": "Precios y Obras Sociales",
+    "cobertura_subtitulo": "Consulta por aranceles",
+    "mostrar_cobertura": true,
+    "mostrar_mapa_horarios": true,
+    "texto_plus": "",
+    "hero_boton_texto": "Sacar Turno Ahora",
+    "boton_flotante_texto": "Sacar Turno",
+    "hero_scroll_texto": "Conocenos",
+    "sobre_mi_label": "Profesional",
+    "servicios_label": "Nuestros Servicios",
+    "profesionales_label": "Equipo Profesional",
+    "horarios_seccion_label": "Horarios",
+    "horarios_label": "Días y Horarios",
+    "ubicaciones_label": "Ubicaciones",
+    "ubicaciones_titulo": "Donde Atiendo",
+    "ubicaciones_subtitulo": "Consultorios y centros de atención.",
+    "cobertura_label": "Cobertura",
+    "equipamientos_label": "Técnicas y Equipamiento",
+    "horario_lunes_viernes_titulo": "Lunes a Viernes",
+    "horario_sabados_titulo": "Sábados",
+    "horario_tipo_general": "Atención general",
+    "horario_online_titulo": "Turnos Online",
+    "horario_online_descripcion": "Reservá cuando quieras",
+    "boton_orden_llegada_texto": "Orden de Llegada",
+    "texto_whatsapp": "Chatear por WhatsApp",
+    "texto_horarios_no_disponibles": "Consultar horarios disponibles",
+    "texto_no_equipamientos": "No hay equipamientos cargados.",
+    "footer_horarios_titulo": "Horarios",
+    "footer_contacto_titulo": "Contacto",
+    "footer_desarrollado_texto": "Desarrollado por",
+    "footer_turnos_online_texto": "Turnos Online: 24/7"
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 1,
+  "fields": {
+    "creado": "2026-08-14T20:17:05.084Z",
+    "modificado": "2026-08-14T20:18:20.160Z",
+    "activo": true,
+    "cliente": 5,
+    "nombre": "Crioterapia",
+    "descripcion": "Contamos con el mejor equipo para realizar crioterapia, que es el uso terapéutico de temperaturas bajas. Aplica frío controlado para reducir la inflamación, calmar el dolor muscular, tratar lesiones superficiales de la piel con nitrógeno líquido o acelerar la recuperación física en deportistas mediante exposiciones breves",
+    "icono": "🩺",
+    "imagen": "equipamientos/imagen_2026-08-14_171648405.png",
+    "orden": 1
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 2,
+  "fields": {
+    "creado": "2026-08-14T20:44:18.221Z",
+    "modificado": "2026-08-14T20:44:18.221Z",
+    "activo": true,
+    "cliente": 5,
+    "nombre": "Crioterapia",
+    "descripcion": "Contamos con el mejor equipo para realizar crioterapia, que es el uso terapéutico de temperaturas bajas. Aplica frío controlado para reducir la inflamación, calmar el dolor muscular, tratar lesiones superficiales de la piel con nitrógeno líquido o acelerar la recuperación física en deportistas mediante exposiciones breves",
+    "icono": "🩺",
+    "imagen": "equipamientos/imagen_2026-08-14_174407781.png",
+    "orden": 2
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 3,
+  "fields": {
+    "creado": "2026-08-14T20:52:04.474Z",
+    "modificado": "2026-08-17T18:20:20.462Z",
+    "activo": true,
+    "cliente": 3,
+    "nombre": "Crioterapia",
+    "descripcion": "Equipo de frío controlado para reducir inflamación, calmar el dolor muscular, tratar lesiones de piel y acelerar la recuperación deportiva. Sesiones seguras y supervisadas por profesionales.",
+    "icono": "🦾",
+    "imagen": "equipamientos/imagen_2026-08-17_151928425.png",
+    "orden": 3
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 4,
+  "fields": {
+    "creado": "2026-08-15T22:50:18.862Z",
+    "modificado": "2026-08-17T18:18:17.964Z",
+    "activo": true,
+    "cliente": 3,
+    "nombre": "Cabina Audiométrica y Videolaringoscopio",
+    "descripcion": "Equipamiento para evaluar audición, voz y deglución. Facilita estudios computarizados que permiten diseñar tratamientos fonoaudiológicos más efectivos y personalizados.",
+    "icono": "🗣",
+    "imagen": "equipamientos/imagen_2026-08-17_151525000.png",
+    "orden": 1
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 5,
+  "fields": {
+    "creado": "2026-08-15T22:50:18.871Z",
+    "modificado": "2026-08-17T20:24:14.724Z",
+    "activo": true,
+    "cliente": 3,
+    "nombre": "Balanza de Bioimpedancia de Composición Corporal",
+    "descripcion": "Permite medir porcentaje de grasa, masa muscular, agua corporal y otros indicadores. Ayuda a diseñar planes nutricionales personalizados y a monitorear la evolución del paciente.",
+    "icono": "🩺",
+    "imagen": "equipamientos/imagen_2026-08-17_172412819.png",
+    "orden": 2
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 6,
+  "fields": {
+    "creado": "2026-08-15T23:28:09.332Z",
+    "modificado": "2026-08-17T18:18:16.796Z",
+    "activo": true,
+    "cliente": 3,
+    "nombre": "Analizador Hematológico Automatizado",
+    "descripcion": "Realiza hemogramas y estudios bioquímicos con resultados rápidos y precisos. Permite optimizar el diagnóstico clínico y brindar una atención más segura al paciente.",
+    "icono": "🔬",
+    "imagen": "equipamientos/imagen_2026-08-17_151413695.png",
+    "orden": 0
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 7,
+  "fields": {
+    "creado": "2026-08-17T21:39:30.936Z",
+    "modificado": "2026-08-17T21:39:30.936Z",
+    "activo": true,
+    "cliente": 9,
+    "nombre": "Crioterapia",
+    "descripcion": "Equipo de frío controlado para reducir inflamación, calmar el dolor muscular, tratar lesiones de piel y acelerar la recuperación deportiva. Sesiones seguras y supervisadas por profesionales.",
+    "icono": "🥶",
+    "imagen": "equipamientos/imagen_2026-08-17_183923958.png",
+    "orden": 0
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 8,
+  "fields": {
+    "creado": "2026-08-18T20:59:52.950Z",
+    "modificado": "2026-08-18T20:59:52.950Z",
+    "activo": true,
+    "cliente": 9,
+    "nombre": "Botas de Compresión Neumática",
+    "descripcion": "Estimulan el retorno venoso y linfático. Ideales para eliminar edemas (hinchazón), reducir la fatiga muscular y acelerar la recuperación tras cirugías o largas jornadas de entrenamiento. Una técnica pasiva pero altamente efectiva.",
+    "icono": "🩺",
+    "imagen": "equipamientos/imagen_2026-08-18_175823596.png",
+    "orden": 0
+  }
+},
+{
+  "model": "core_app.equipamiento",
+  "pk": 9,
+  "fields": {
+    "creado": "2026-08-18T20:59:52.968Z",
+    "modificado": "2026-08-18T20:59:52.968Z",
+    "activo": true,
+    "cliente": 9,
+    "nombre": "Terapia con Ventosas y Miofascial",
+    "descripcion": "Técnica ancestral combinada con conocimientos actuales de anatomía. A través de succión controlada, logramos liberar las tensiones musculares más profundas (puntos gatillo), aumentar el flujo sanguíneo y desbloquear la fascia, promoviendo una sensación de bienestar y alivio inmediato.",
+    "icono": "🩺",
+    "imagen": "equipamientos/imagen_2026-08-18_175947771.png",
+    "orden": 0
+  }
+}
+]

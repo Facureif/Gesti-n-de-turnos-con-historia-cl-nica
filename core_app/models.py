@@ -148,36 +148,37 @@ class ClienteSaaS(ModeloBase):
         verbose_name='Imagen de Quiénes Somos'
     )
 
+
     # Destacados (los tres ítems de la sección "Quiénes Somos")
-    nosotros_destacado_1_icono = models.CharField(max_length=30, default='fas fa-user-md', verbose_name='Ícono destacado 1')
+    nosotros_destacado_1_icono = models.CharField(max_length=50, default='fas fa-user-md', verbose_name='Ícono destacado 1')
     nosotros_destacado_1_titulo = models.CharField(max_length=100, default='Profesionales Expertos')
     nosotros_destacado_1_texto = models.CharField(max_length=200, default='Especialistas en diversas áreas de la salud')
 
-    nosotros_destacado_2_icono = models.CharField(max_length=30, default='fas fa-clock', verbose_name='Ícono destacado 2')
+    nosotros_destacado_2_icono = models.CharField(max_length=50, default='fas fa-clock', verbose_name='Ícono destacado 2')
     nosotros_destacado_2_titulo = models.CharField(max_length=100, default='Turnos Online')
     nosotros_destacado_2_texto = models.CharField(max_length=200, default='Reservá tu turno cuando quieras, desde donde estés')
 
-    nosotros_destacado_3_icono = models.CharField(max_length=30, default='fas fa-shield-alt', verbose_name='Ícono destacado 3')
+    nosotros_destacado_3_icono = models.CharField(max_length=50, default='fas fa-shield-alt', verbose_name='Ícono destacado 3')
     nosotros_destacado_3_titulo = models.CharField(max_length=100, default='Atención Segura')
     nosotros_destacado_3_texto = models.CharField(max_length=200, default='Protocolos de higiene y bioseguridad')
 
     # Servicios (cuatro tarjetas, cada una con título, descripción e ícono)
-    servicio_1_icono = models.CharField(max_length=30, default='🏥', verbose_name='Servicio 1 - Ícono')
+    servicio_1_icono = models.CharField(max_length=50, default='🏥', verbose_name='Servicio 1 - Ícono')
     servicio_1_titulo = models.CharField(max_length=100, default='Atención Personalizada')
     servicio_1_descripcion = models.TextField(default='Cada paciente recibe un tratamiento adaptado a sus necesidades específicas.', verbose_name='Servicio 1 - Descripción')
     mostrar_servicio_1 = models.BooleanField(default=True, verbose_name='Mostrar Servicio 1')
 
-    servicio_2_icono = models.CharField(max_length=30, default='📱', verbose_name='Servicio 2 - Ícono')
+    servicio_2_icono = models.CharField(max_length=50, default='📱', verbose_name='Servicio 2 - Ícono')
     servicio_2_titulo = models.CharField(max_length=100, default='Turnos Online')
     servicio_2_descripcion = models.TextField(default='Reservá, modificá o cancelá tus turnos desde cualquier dispositivo, 24/7.', verbose_name='Servicio 2 - Descripción')
     mostrar_servicio_2 = models.BooleanField(default=True, verbose_name='Mostrar Servicio 2')
 
-    servicio_3_icono = models.CharField(max_length=30, default='📋', verbose_name='Servicio 3 - Ícono')
+    servicio_3_icono = models.CharField(max_length=50, default='📋', verbose_name='Servicio 3 - Ícono')
     servicio_3_titulo = models.CharField(max_length=100, default='Historia Clínica Digital')
     servicio_3_descripcion = models.TextField(default='Accedé a tu historial médico de forma segura cuando lo necesites.', verbose_name='Servicio 3 - Descripción')
     mostrar_servicio_3 = models.BooleanField(default=True, verbose_name='Mostrar Servicio 3')
 
-    servicio_4_icono = models.CharField(max_length=30, default='🏥', verbose_name='Servicio 4 - Ícono')
+    servicio_4_icono = models.CharField(max_length=50, default='🏥', verbose_name='Servicio 4 - Ícono')
     servicio_4_titulo = models.CharField(max_length=100, default='Obras Sociales')
     servicio_4_descripcion = models.TextField(default='Trabajamos con las principales obras sociales y prepagas.', verbose_name='Servicio 4 - Descripción')
     mostrar_servicio_4 = models.BooleanField(default=True, verbose_name='Mostrar Servicio 4')

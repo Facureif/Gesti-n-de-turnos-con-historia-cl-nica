@@ -10,6 +10,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A5
 from reportlab.lib.units import cm
 from openpyxl import Workbook
+from core_app.views import _profesional_pertenece_a_cliente
 from establecimientos.models import Establecimiento
 from obras_sociales.models import Plan
 from .models import TurnoProfesional, ArchivoTurno
@@ -135,6 +136,7 @@ def eliminar_evento_google(turno):
 
 
 # ============ PANEL PROFESIONAL ============
+from django.contrib.auth import logout
 @login_required
 def panel_profesional(request):
     if request.user.rol not in ['profesional', 'secretaria']:
@@ -169,6 +171,24 @@ def panel_profesional(request):
             messages.error(request, 'Seleccioná tu consultorio activo.')
             return redirect('seleccionar_consultorio')
         profesionales_consultorio = None
+
+    profesional = get_object_or_404(Profesional, usuario=request.user)
+
+    # Verificar que el profesional pertenece al cliente de la sesión
+    cliente_slug = request.session.get('cliente_slug')
+    if cliente_slug:
+        try:
+            cliente = ClienteSaaS.objects.get(slug=cliente_slug, activo=True)
+            if not _profesional_pertenece_a_cliente(profesional, cliente):
+                nombre_cliente = cliente.nombre
+                logout(request)
+                messages.error(
+                    request,
+                    f'Tu cuenta no está registrada en "{nombre_cliente}".'
+                )
+                return redirect('portal_cliente', cliente_slug=cliente_slug)
+        except ClienteSaaS.DoesNotExist:
+            request.session.pop('cliente_slug', None)
 
     hoy = date.today()
     marcar_turnos_vencidos(profesional=profesional)

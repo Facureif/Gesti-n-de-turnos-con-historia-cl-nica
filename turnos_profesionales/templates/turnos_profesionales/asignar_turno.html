@@ -89,7 +89,7 @@
     {% endif %}
     
     <!-- Consultorio si hay varios -->
-    {% if profesional.establecimientos.count > 1 %}
+    {% if consultorios_disponibles|length > 1 %}
     <div class="card">
         <div class="card-header">
             <h3 class="card-title"><i class="fas fa-building text-primary"></i> Consultorio</h3>
@@ -97,7 +97,7 @@
         <form method="get">
             <input type="hidden" name="profesional" value="{{ profesional.id }}">
             <select name="establecimiento" class="turnos-select" onchange="this.form.submit()">
-                {% for est in profesional.establecimientos.all %}
+                {% for est in consultorios_disponibles %}
                     <option value="{{ est.id }}" {% if establecimiento_activo.id == est.id %}selected{% endif %}>
                         {{ est.nombre }} - {{ est.direccion }}
                     </option>
